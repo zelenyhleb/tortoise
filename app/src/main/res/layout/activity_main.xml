@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlayerActivity">
+
+    <TextView
+        android:id="@+id/composition_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/composition_author"
+        android:layout_centerHorizontal="true"
+        android:text="Рай полон детей"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/composition_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/composition_progress_bar"
+        android:layout_centerHorizontal="true"
+        android:text="Loqiemean" />
+
+    <TextView
+        android:id="@+id/composition_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/composition_progress_bar"
+        android:layout_margin="4dp"
+        android:text="00:00" />
+
+    <TextView
+        android:id="@+id/composition_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/composition_progress_bar"
+        android:layout_margin="4dp"
+        android:text="00:00" />
+
+    <SeekBar
+        android:id="@+id/composition_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/play_pause" />
+
+    <ImageButton
+        android:id="@+id/play_pause"
+        android:src="@drawable/ic_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:onClick="onClick" />
+
+    <ImageButton
+        android:id="@+id/next"
+        android:src="@drawable/ic_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_toRightOf="@id/play_pause"
+        android:onClick="onClick" />
+
+
+    <ImageButton
+        android:id="@+id/previous"
+        android:src="@drawable/ic_previous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_toLeftOf="@id/play_pause"
+        android:onClick="onClick" />
+
+
+</RelativeLayout>
