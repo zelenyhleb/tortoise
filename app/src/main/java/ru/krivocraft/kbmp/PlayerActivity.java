@@ -1,34 +1,78 @@
 package ru.krivocraft.kbmp;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.Environment;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PlayerActivity extends AppCompatActivity {
 
     private SeekBar compositionProgressBar;
+    private String compositionPath;
 
     private boolean isPlaying = false;
+    private boolean mBounded = false;
 
     private int compositionProgressInt = 0;
 
     private Timer compositionProgressTimer;
     private TextView compositionProgressTextView;
+    private ImageButton playPauseButton;
+
+    private PlayerService mService;
+
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBounded = true;
+            PlayerService.LocalBinder localBinder = (PlayerService.LocalBinder) service;
+            mService = localBinder.getServerInstance();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBounded = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI(getIntent());
+
+        bindService(new Intent(this, PlayerService.class), mConnection, BIND_AUTO_CREATE | BIND_ABOVE_CLIENT);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mBounded) {
+            unbindService(mConnection);
+            mBounded = false;
+        }
     }
 
     private void initUI(Intent intent) {
+
+        playPauseButton = findViewById(R.id.play_pause);
+
         TextView compositionNameTextView = findViewById(R.id.composition_name);
         TextView compositionAuthorTextView = findViewById(R.id.composition_author);
         TextView compositionDurationTextView = findViewById(R.id.composition_duration);
@@ -42,57 +86,63 @@ public class PlayerActivity extends AppCompatActivity {
 
         compositionNameTextView.setText(compositionName);
         compositionAuthorTextView.setText(compositionAuthor);
-        compositionDurationTextView.setText(getFormattedTime(Integer.parseInt(compositionDuration)));
+        compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration)));
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration));
-    }
 
-    private String getFormattedTime(int time) {
-        int seconds = time % 60;
-        int minutes = (time - seconds) / 60;
-
-        String formattedSeconds = String.valueOf(seconds);
-        String formattedMinutes = String.valueOf(minutes);
-
-        if (seconds < 10) {
-            formattedSeconds = "0" + formattedSeconds;
-        }
-
-        if (minutes < 10) {
-            formattedMinutes = "0" + formattedMinutes;
-        }
-
-
-        return formattedMinutes + ":" + formattedSeconds;
+        compositionPath = intent.getStringExtra(Constants.COMPOSITION_LOCATION);
     }
 
     private void updateProgress() {
-        compositionProgressInt++;
+        compositionProgressInt = compositionProgressInt + 1;
     }
 
     private void updateBar() {
-        compositionProgressBar.setProgress(compositionProgressInt);
-        compositionProgressTextView.setText(getFormattedTime(compositionProgressInt));
+        if (compositionProgressInt > compositionProgressBar.getMax()) {
+            stopPlaying();
+        } else {
+            compositionProgressBar.setProgress(compositionProgressInt);
+            compositionProgressTextView.setText(Utils.getFormattedTime(compositionProgressInt));
+        }
     }
 
+
     private void startPlaying() {
-        compositionProgressTimer = new Timer();
-        compositionProgressTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
+        if (mBounded) {
+            try {
+                mService.startPlaying(compositionPath, compositionProgressInt);
+                compositionProgressTimer = new Timer();
+                compositionProgressTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        updateProgress();
-                        updateBar();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateProgress();
+                                updateBar();
+                            }
+                        });
                     }
-                });
+                }, 0, 1000);
+
+                playPauseButton.setImageResource(R.drawable.ic_pause);
+                isPlaying = true;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }, 0, 1000);
+        }
     }
 
     private void stopPlaying() {
-        compositionProgressTimer = null;
+        if (mBounded) {
+            compositionProgressInt = mService.stopPlaying();
+            compositionProgressTimer.cancel();
+            compositionProgressTimer = null;
+
+            playPauseButton.setImageResource(R.drawable.ic_play);
+
+            isPlaying = false;
+        }
     }
 
     public void onClick(View view) {
@@ -100,10 +150,8 @@ public class PlayerActivity extends AppCompatActivity {
             case R.id.play_pause:
                 if (!isPlaying) {
                     startPlaying();
-                    isPlaying = true;
                 } else {
                     stopPlaying();
-                    isPlaying = false;
                 }
                 break;
             case R.id.previous:
