@@ -1,27 +1,21 @@
 package ru.krivocraft.kbmp;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Environment;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     private SeekBar compositionProgressBar;
     private String compositionPath;
@@ -79,6 +73,7 @@ public class PlayerActivity extends AppCompatActivity {
         compositionProgressTextView = findViewById(R.id.composition_progress);
 
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
+        compositionProgressBar.setOnSeekBarChangeListener(this);
 
         String compositionName = intent.getStringExtra(Constants.COMPOSITION_NAME);
         String compositionAuthor = intent.getStringExtra(Constants.COMPOSITION_AUTHOR);
@@ -86,7 +81,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         compositionNameTextView.setText(compositionName);
         compositionAuthorTextView.setText(compositionAuthor);
-        compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration)));
+        compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration) / 1000));
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
 
@@ -160,5 +155,20 @@ public class PlayerActivity extends AppCompatActivity {
             case R.id.next:
                 break;
         }
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        stopPlaying();
+        compositionProgressInt = seekBar.getProgress() * 1000;
+        startPlaying();
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
     }
 }
