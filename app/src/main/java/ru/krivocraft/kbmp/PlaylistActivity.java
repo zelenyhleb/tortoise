@@ -28,7 +28,7 @@ public class PlaylistActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PlayerActivity.class);
         intent.putExtra(Constants.COMPOSITION_NAME, "Flood On The Floor");
         intent.putExtra(Constants.COMPOSITION_AUTHOR, "Purity Ring");
-        intent.putExtra(Constants.COMPOSITION_DURATION, "194");
+        intent.putExtra(Constants.COMPOSITION_DURATION, "194000");
         intent.putExtra(Constants.COMPOSITION_LOCATION, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) + "/music.mp3");
         startActivity(intent);
     }

@@ -88,21 +88,22 @@ public class PlayerActivity extends AppCompatActivity {
         compositionAuthorTextView.setText(compositionAuthor);
         compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration)));
 
-        compositionProgressBar.setMax(Integer.parseInt(compositionDuration));
+        compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
 
         compositionPath = intent.getStringExtra(Constants.COMPOSITION_LOCATION);
     }
 
     private void updateProgress() {
-        compositionProgressInt = compositionProgressInt + 1;
+        compositionProgressInt = compositionProgressInt + 1000;
+        System.out.println(compositionProgressInt);
     }
 
     private void updateBar() {
-        if (compositionProgressInt > compositionProgressBar.getMax()) {
+        if (compositionProgressInt / 1000 > compositionProgressBar.getMax()) {
             stopPlaying();
         } else {
-            compositionProgressBar.setProgress(compositionProgressInt);
-            compositionProgressTextView.setText(Utils.getFormattedTime(compositionProgressInt));
+            compositionProgressBar.setProgress(compositionProgressInt / 1000);
+            compositionProgressTextView.setText(Utils.getFormattedTime(compositionProgressInt / 1000));
         }
     }
 
