@@ -53,10 +53,14 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     public int stopPlaying() {
-        int currentPosition = player.getCurrentPosition();
-        player.stop();
-        release();
-        return currentPosition;
+        if (player != null) {
+            int currentPosition = player.getCurrentPosition();
+            player.stop();
+            release();
+            return currentPosition;
+        } else {
+            return 0;
+        }
     }
 
     private void release() {

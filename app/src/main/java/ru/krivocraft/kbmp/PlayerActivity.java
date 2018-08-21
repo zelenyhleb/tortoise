@@ -131,13 +131,13 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     private void stopPlaying() {
         if (mBounded) {
-            compositionProgressInt = mService.stopPlaying();
-            compositionProgressTimer.cancel();
-            compositionProgressTimer = null;
-
-            playPauseButton.setImageResource(R.drawable.ic_play);
-
-            isPlaying = false;
+            if (compositionProgressTimer != null) {
+                compositionProgressInt = mService.stopPlaying();
+                compositionProgressTimer.cancel();
+                compositionProgressTimer = null;
+                playPauseButton.setImageResource(R.drawable.ic_play);
+                isPlaying = false;
+            }
         }
     }
 
