@@ -45,6 +45,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     public void startPlaying(String file, int progress) throws IOException {
+        if (player != null) {
+            stopPlaying();
+        }
         player = new MediaPlayer();
         player.setDataSource(file);
         player.prepare();

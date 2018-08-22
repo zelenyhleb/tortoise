@@ -48,6 +48,7 @@ public class PlaylistActivity extends AppCompatActivity {
             }
         });
 
+        startService(new Intent(this, PlayerService.class));
     }
 
     private class CompositionAdapter extends ArrayAdapter<Composition> {

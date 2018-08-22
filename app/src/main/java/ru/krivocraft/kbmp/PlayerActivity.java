@@ -51,7 +51,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         setContentView(R.layout.activity_main);
         initUI(getIntent());
 
-        bindService(new Intent(this, PlayerService.class), mConnection, BIND_AUTO_CREATE | BIND_ABOVE_CLIENT);
+        bindService(new Intent(this, PlayerService.class), mConnection, BIND_ABOVE_CLIENT);
     }
 
     @Override
