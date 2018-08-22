@@ -37,7 +37,9 @@ public class PlaylistActivity extends AppCompatActivity {
             }
         });
 
-        startService(new Intent(this, PlayerService.class));
+        Intent serviceIntent = new Intent(this, PlayerService.class);
+        serviceIntent.putExtra(Constants.PLAYLIST, playlist);
+        startService(serviceIntent);
     }
 
 }

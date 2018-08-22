@@ -13,7 +13,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     private static MediaPlayer player;
     private Binder mBinder = new LocalBinder();
+    private Playlist currentPlaylist;
     private Composition currentComposition;
+
+    private int currentCompositionProgress;
+    private int currentCompositionIndex;
 
     @Nullable
     @Override
@@ -33,34 +37,51 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        currentPlaylist = (Playlist) intent.getSerializableExtra(Constants.PLAYLIST);
+        setCurrentComposition(0);
         return START_STICKY;
     }
 
-    public void startPlaying(Composition composition, int progress) throws IOException {
+    public void startPlaying() throws IOException {
+
         if (player != null) {
             stopPlaying();
         }
+
         player = new MediaPlayer();
-        player.setDataSource(composition.getPath());
+        player.setDataSource(currentComposition.getPath());
         player.prepare();
-        player.seekTo(progress);
+        player.seekTo(currentCompositionProgress);
         player.start();
     }
 
-    public int stopPlaying() {
+    public void stopPlaying() {
         if (player != null) {
-            int currentPosition = player.getCurrentPosition();
+            currentCompositionProgress = player.getCurrentPosition();
             player.stop();
             release();
-            return currentPosition;
-        } else {
-            return 0;
         }
     }
 
     private void release() {
         player.release();
         player = null;
+    }
+
+    public int getProgress() {
+        if (player != null) {
+            return player.getCurrentPosition();
+        } else {
+            return 0;
+        }
+    }
+
+    public void setCurrentComposition(int index) {
+        this.currentComposition = currentPlaylist.getComposition(index);
+    }
+
+    public void setCurrentCompositionProgress(int currentCompositionProgress) {
+        this.currentCompositionProgress = currentCompositionProgress;
     }
 
     @Override

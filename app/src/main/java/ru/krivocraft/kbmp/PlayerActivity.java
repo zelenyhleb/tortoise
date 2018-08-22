@@ -18,8 +18,7 @@ import java.util.TimerTask;
 public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     private SeekBar compositionProgressBar;
-    private Composition composition;
-    private int compositionProgressInt = 0;
+    private Composition currentComposition;
 
     private boolean isPlaying = false;
     private boolean mBounded = false;
@@ -49,7 +48,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.composition = (Composition) getIntent().getSerializableExtra(Constants.COMPOSITION);
+        this.currentComposition = (Composition) getIntent().getSerializableExtra(Constants.COMPOSITION);
 
         initUI();
 
@@ -78,9 +77,9 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
-        String compositionName = composition.getName();
-        String compositionComposer = composition.getComposer();
-        String compositionDuration = composition.getDuration();
+        String compositionName = currentComposition.getName();
+        String compositionComposer = currentComposition.getComposer();
+        String compositionDuration = currentComposition.getDuration();
 
         compositionNameTextView.setText(compositionName);
         compositionAuthorTextView.setText(compositionComposer);
@@ -89,17 +88,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
     }
 
-    private void updateProgress() {
-        compositionProgressInt = compositionProgressInt + 1000;
-        System.out.println(compositionProgressInt);
-    }
-
     private void updateBar() {
-        if (compositionProgressInt / 1000 > compositionProgressBar.getMax()) {
+        if (mService.getProgress() / 1000 > compositionProgressBar.getMax()) {
             stopPlaying();
         } else {
-            compositionProgressBar.setProgress(compositionProgressInt / 1000);
-            compositionProgressTextView.setText(Utils.getFormattedTime(compositionProgressInt / 1000));
+            compositionProgressBar.setProgress(mService.getProgress() / 1000);
+            compositionProgressTextView.setText(Utils.getFormattedTime(mService.getProgress() / 1000));
         }
     }
 
@@ -107,7 +101,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void startPlaying() {
         if (mBounded) {
             try {
-                mService.startPlaying(composition, compositionProgressInt);
+                mService.startPlaying();
                 compositionProgressTimer = new Timer();
                 compositionProgressTimer.schedule(new TimerTask() {
                     @Override
@@ -115,7 +109,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                updateProgress();
                                 updateBar();
                             }
                         });
@@ -133,7 +126,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void stopPlaying() {
         if (mBounded) {
             if (compositionProgressTimer != null) {
-                compositionProgressInt = mService.stopPlaying();
+                mService.stopPlaying();
                 compositionProgressTimer.cancel();
                 compositionProgressTimer = null;
                 playPauseButton.setImageResource(R.drawable.ic_play);
@@ -161,7 +154,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         stopPlaying();
-        compositionProgressInt = seekBar.getProgress() * 1000;
+        mService.setCurrentCompositionProgress(seekBar.getProgress() * 1000);
         startPlaying();
     }
 
