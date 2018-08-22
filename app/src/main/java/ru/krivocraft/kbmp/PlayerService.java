@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerService extends Service implements MediaPlayer.OnPreparedListener {
 
@@ -16,8 +18,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private Playlist currentPlaylist;
     private Composition currentComposition;
 
-    private int currentCompositionProgress;
-    private int currentCompositionIndex;
+    private int currentCompositionProgress = 0;
+    private int currentCompositionIndex = 0;
+
+    private List<OnCompositionChangedListener> listeners = new ArrayList<>();
 
     @Nullable
     @Override
@@ -52,7 +56,49 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         player.setDataSource(currentComposition.getPath());
         player.prepare();
         player.seekTo(currentCompositionProgress);
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                nextComposition();
+            }
+        });
         player.start();
+    }
+
+    public void nextComposition() {
+        if (currentCompositionIndex + 1 < currentPlaylist.getSize()) {
+            release();
+            currentCompositionProgress = 0;
+            currentCompositionIndex++;
+            currentComposition = currentPlaylist.getComposition(currentCompositionIndex);
+
+            for (OnCompositionChangedListener listener : listeners) {
+                listener.onCompositionChanged(currentComposition);
+            }
+            try {
+                startPlaying();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void previousComposition() {
+        if (currentCompositionIndex > 0) {
+            release();
+            currentCompositionProgress = 0;
+            currentCompositionIndex--;
+            currentComposition = currentPlaylist.getComposition(currentCompositionIndex);
+
+            for (OnCompositionChangedListener listener : listeners) {
+                listener.onCompositionChanged(currentComposition);
+            }
+            try {
+                startPlaying();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void stopPlaying() {
@@ -84,8 +130,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         this.currentCompositionProgress = currentCompositionProgress;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void addListener(OnCompositionChangedListener listener) {
+        listeners.add(listener);
     }
 }

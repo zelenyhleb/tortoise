@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, OnCompositionChangedListener {
 
     private SeekBar compositionProgressBar;
     private Composition currentComposition;
@@ -35,6 +35,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
             mBounded = true;
             PlayerService.LocalBinder localBinder = (PlayerService.LocalBinder) service;
             mService = localBinder.getServerInstance();
+            mService.addListener(PlayerActivity.this);
         }
 
         @Override
@@ -73,8 +74,10 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         TextView compositionDurationTextView = findViewById(R.id.composition_duration);
 
         compositionProgressTextView = findViewById(R.id.composition_progress);
+        compositionProgressTextView.setText(R.string.zerotime);
 
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
+        compositionProgressBar.setProgress(0);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
         String compositionName = currentComposition.getName();
@@ -102,21 +105,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         if (mBounded) {
             try {
                 mService.startPlaying();
-                compositionProgressTimer = new Timer();
-                compositionProgressTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateBar();
-                            }
-                        });
-                    }
-                }, 0, 1000);
-
-                playPauseButton.setImageResource(R.drawable.ic_pause);
-                isPlaying = true;
+                startUIPlaying();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -127,12 +116,34 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         if (mBounded) {
             if (compositionProgressTimer != null) {
                 mService.stopPlaying();
-                compositionProgressTimer.cancel();
-                compositionProgressTimer = null;
-                playPauseButton.setImageResource(R.drawable.ic_play);
-                isPlaying = false;
+                stopUIPlaying();
             }
         }
+    }
+
+    private void startUIPlaying() {
+        compositionProgressTimer = new Timer();
+        compositionProgressTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateBar();
+                    }
+                });
+            }
+        }, 0, 1000);
+
+        playPauseButton.setImageResource(R.drawable.ic_pause);
+        isPlaying = true;
+    }
+
+    private void stopUIPlaying() {
+        compositionProgressTimer.cancel();
+        compositionProgressTimer = null;
+        playPauseButton.setImageResource(R.drawable.ic_play);
+        isPlaying = false;
     }
 
     public void onClick(View view) {
@@ -145,9 +156,23 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
                 }
                 break;
             case R.id.previous:
+                previousComposition();
                 break;
             case R.id.next:
+                nextComposition();
                 break;
+        }
+    }
+
+    private void previousComposition() {
+        if (mBounded) {
+            mService.previousComposition();
+        }
+    }
+
+    private void nextComposition() {
+        if (mBounded) {
+            mService.nextComposition();
         }
     }
 
@@ -164,5 +189,13 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    @Override
+    public void onCompositionChanged(Composition newComposition) {
+        stopUIPlaying();
+        this.currentComposition = newComposition;
+        initUI();
+        startUIPlaying();
     }
 }

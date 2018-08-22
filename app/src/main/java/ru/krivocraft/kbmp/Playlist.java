@@ -33,4 +33,8 @@ class Playlist implements Serializable {
         return compositions;
     }
 
+    public int getSize(){
+        return compositions.size();
+    }
+
 }
