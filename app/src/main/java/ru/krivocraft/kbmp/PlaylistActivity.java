@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -32,4 +33,5 @@ public class PlaylistActivity extends AppCompatActivity {
         intent.putExtra(Constants.COMPOSITION_LOCATION, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC) + "/music.mp3");
         startActivity(intent);
     }
+
 }
