@@ -58,8 +58,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="16dp"
         android:onClick="onClick"
+        android:background="@null"
         />
 
     <ImageButton
@@ -68,10 +69,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="16dp"
         android:layout_toRightOf="@id/play_pause"
         android:onClick="onClick"
-        tools:ignore="RtlHardcoded" />
+        tools:ignore="RtlHardcoded"
+        android:background="@null"/>
 
 
     <ImageButton
@@ -83,7 +85,9 @@
         android:layout_marginBottom="16dp"
         android:layout_toLeftOf="@id/play_pause"
         android:onClick="onClick"
-        tools:ignore="RtlHardcoded" />
+        tools:ignore="RtlHardcoded"
+        android:layout_margin="16dp"
+        android:background="@null"/>
 
 
 </RelativeLayout>
