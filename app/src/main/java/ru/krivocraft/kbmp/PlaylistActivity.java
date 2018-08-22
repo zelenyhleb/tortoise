@@ -40,10 +40,7 @@ public class PlaylistActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Composition composition = (Composition) adapterView.getItemAtPosition(i);
                 Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
-                intent.putExtra(Constants.COMPOSITION_NAME, composition.getName());
-                intent.putExtra(Constants.COMPOSITION_AUTHOR, composition.getComposer());
-                intent.putExtra(Constants.COMPOSITION_DURATION, composition.getDuration());
-                intent.putExtra(Constants.COMPOSITION_LOCATION, composition.getPath());
+                intent.putExtra(Constants.COMPOSITION, composition);
                 startActivity(intent);
             }
         });

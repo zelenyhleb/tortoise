@@ -18,12 +18,11 @@ import java.util.TimerTask;
 public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     private SeekBar compositionProgressBar;
-    private String compositionPath;
+    private Composition composition;
+    private int compositionProgressInt = 0;
 
     private boolean isPlaying = false;
     private boolean mBounded = false;
-
-    private int compositionProgressInt = 0;
 
     private Timer compositionProgressTimer;
     private TextView compositionProgressTextView;
@@ -49,7 +48,10 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initUI(getIntent());
+
+        this.composition = (Composition) getIntent().getSerializableExtra(Constants.COMPOSITION);
+
+        initUI();
 
         bindService(new Intent(this, PlayerService.class), mConnection, BIND_ABOVE_CLIENT);
     }
@@ -63,29 +65,28 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         }
     }
 
-    private void initUI(Intent intent) {
+    private void initUI() {
 
         playPauseButton = findViewById(R.id.play_pause);
 
         TextView compositionNameTextView = findViewById(R.id.composition_name);
         TextView compositionAuthorTextView = findViewById(R.id.composition_author);
         TextView compositionDurationTextView = findViewById(R.id.composition_duration);
+
         compositionProgressTextView = findViewById(R.id.composition_progress);
 
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
-        String compositionName = intent.getStringExtra(Constants.COMPOSITION_NAME);
-        String compositionAuthor = intent.getStringExtra(Constants.COMPOSITION_AUTHOR);
-        String compositionDuration = intent.getStringExtra(Constants.COMPOSITION_DURATION);
+        String compositionName = composition.getName();
+        String compositionComposer = composition.getComposer();
+        String compositionDuration = composition.getDuration();
 
         compositionNameTextView.setText(compositionName);
-        compositionAuthorTextView.setText(compositionAuthor);
+        compositionAuthorTextView.setText(compositionComposer);
         compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration) / 1000));
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
-
-        compositionPath = intent.getStringExtra(Constants.COMPOSITION_LOCATION);
     }
 
     private void updateProgress() {
@@ -106,7 +107,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void startPlaying() {
         if (mBounded) {
             try {
-                mService.startPlaying(compositionPath, compositionProgressInt);
+                mService.startPlaying(composition, compositionProgressInt);
                 compositionProgressTimer = new Timer();
                 compositionProgressTimer.schedule(new TimerTask() {
                     @Override

@@ -2,7 +2,9 @@ package ru.krivocraft.kbmp;
 
 import android.support.annotation.NonNull;
 
-public class Composition {
+import java.io.Serializable;
+
+public class Composition implements Serializable {
 
     private String duration;
 
@@ -10,7 +12,7 @@ public class Composition {
     private String name;
     private String path;
 
-    public Composition(@NonNull String duration, String composer, String name, @NonNull String path) {
+    Composition(@NonNull String duration, String composer, String name, @NonNull String path) {
 
         this.duration = duration;
         this.composer = composer;

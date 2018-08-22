@@ -1,27 +1,19 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 public class PlayerService extends Service implements MediaPlayer.OnPreparedListener {
 
     private static MediaPlayer player;
     private Binder mBinder = new LocalBinder();
+    private Composition currentComposition;
 
     @Nullable
     @Override
@@ -44,12 +36,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         return START_STICKY;
     }
 
-    public void startPlaying(String file, int progress) throws IOException {
+    public void startPlaying(Composition composition, int progress) throws IOException {
         if (player != null) {
             stopPlaying();
         }
         player = new MediaPlayer();
-        player.setDataSource(file);
+        player.setDataSource(composition.getPath());
         player.prepare();
         player.seekTo(progress);
         player.start();
