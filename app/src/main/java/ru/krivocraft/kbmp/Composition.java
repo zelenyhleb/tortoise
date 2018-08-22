@@ -20,10 +20,10 @@ public class Composition implements Serializable {
         this.path = path;
 
         if (composer == null) {
-            composer = "unknown";
+            this.composer = "unknown";
         }
         if (name == null) {
-            name = "unknown";
+            this.name = "unknown";
         }
 
     }

@@ -38,26 +38,4 @@ class Playlist implements Serializable {
         return compositions;
     }
 
-    class Adapter extends ArrayAdapter<Composition> {
-
-        Adapter(@NonNull Context context) {
-            super(context, R.layout.composition_list_item, compositions);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-            Composition composition = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
-            }
-
-            ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(composition.getName());
-            ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(composition.getComposer());
-
-            return convertView;
-        }
-    }
 }

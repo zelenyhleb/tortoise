@@ -42,7 +42,6 @@ class Utils {
                 retriever.setDataSource(path);
 
                 String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-                Log.e("KRIVOCRAFT", "duration " + duration);
                 String composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                 String name = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 

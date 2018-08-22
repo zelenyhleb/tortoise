@@ -26,7 +26,7 @@ public class PlaylistActivity extends AppCompatActivity {
         playlist.addCompositions(Utils.search(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)));
 
         ListView playlistView = findViewById(R.id.playlist);
-        playlistView.setAdapter(playlist.new Adapter(this));
+        playlistView.setAdapter(new PlaylistAdapter(playlist, this));
         playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
