@@ -1,19 +1,28 @@
 package ru.krivocraft.kbmp;
 
+import android.support.annotation.NonNull;
+
 public class Composition {
 
-    private long duration;
+    private String duration;
 
     private String composer;
     private String name;
     private String path;
 
-    public Composition(long duration, String composer, String name, String path){
+    public Composition(@NonNull String duration, String composer, String name, @NonNull String path) {
 
         this.duration = duration;
         this.composer = composer;
         this.name = name;
         this.path = path;
+
+        if (composer == null) {
+            composer = "unknown";
+        }
+        if (name == null) {
+            name = "unknown";
+        }
 
     }
 
@@ -30,7 +39,7 @@ public class Composition {
         return path;
     }
 
-    public long getDuration() {
+    public String getDuration() {
         return duration;
     }
 }

@@ -1,6 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 
 class Utils {
     static String getFormattedTime(int time) {
-        
+
         int seconds = time % 60;
         int minutes = (time - seconds) / 60;
 
@@ -40,8 +41,9 @@ class Utils {
             if (path.endsWith(".mp3")) {
                 retriever.setDataSource(path);
 
-                long duration = Long.parseLong(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                String composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER);
+                String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                Log.e("KRIVOCRAFT", "duration " + duration);
+                String composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
                 String name = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 
                 compositions.add(new Composition(duration, composer, name, path));
