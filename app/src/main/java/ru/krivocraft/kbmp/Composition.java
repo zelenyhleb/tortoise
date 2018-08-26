@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 
-public class Composition implements Serializable {
+class Composition implements Serializable {
 
     private String duration;
 
@@ -12,12 +12,15 @@ public class Composition implements Serializable {
     private String name;
     private String path;
 
-    Composition(@NonNull String duration, String composer, String name, @NonNull String path) {
+    private int identifier;
+
+    Composition(@NonNull String duration, String composer, String name, @NonNull String path, int identifier) {
 
         this.duration = duration;
         this.composer = composer;
         this.name = name;
         this.path = path;
+        this.identifier = identifier;
 
         if (composer == null) {
             this.composer = "unknown";
@@ -28,20 +31,36 @@ public class Composition implements Serializable {
 
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this){
+            return true;
+        }
+        if (!(obj instanceof Composition)){
+            return false;
+        }
+        Composition composition = (Composition) obj;
+        return composition.identifier == identifier;
+    }
 
-    public String getComposer() {
+    @Override
+    public int hashCode() {
+        return identifier*17;
+    }
+
+    String getComposer() {
         return composer;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public String getPath() {
+    String getPath() {
         return path;
     }
 
-    public String getDuration() {
+    String getDuration() {
         return duration;
     }
 }

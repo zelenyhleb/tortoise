@@ -35,6 +35,9 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
             PlayerService.LocalBinder localBinder = (PlayerService.LocalBinder) service;
             mService = localBinder.getServerInstance();
             mService.addListener(PlayerActivity.this);
+
+            currentComposition = mService.getCurrentComposition();
+            initUI();
         }
 
         @Override
@@ -47,11 +50,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        this.currentComposition = (Composition) getIntent().getSerializableExtra(Constants.COMPOSITION);
-
-        initUI();
-
         bindService(new Intent(this, PlayerService.class), mConnection, BIND_ABOVE_CLIENT);
     }
 
@@ -59,6 +57,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
+            mService.removeListener(PlayerActivity.this);
             unbindService(mConnection);
             mBounded = false;
         }

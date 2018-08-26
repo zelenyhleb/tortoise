@@ -13,8 +13,9 @@ import java.util.List;
 
 public class PlayerService extends Service {
 
-    private static MediaPlayer player;
+    private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
+
     private Playlist currentPlaylist;
     private Composition currentComposition;
 
@@ -71,9 +72,16 @@ public class PlayerService extends Service {
         newComposition(currentPlaylist.indexOf(currentComposition) - 1);
     }
 
+    Composition getCurrentComposition() {
+        return currentComposition;
+    }
+
+    Playlist getCurrentPlaylist() {
+        return currentPlaylist;
+    }
+
     void newComposition(int compositionIndex) {
         if (compositionIndex >= 0 && compositionIndex < currentPlaylist.getSize()) {
-            release();
             currentCompositionProgress = 0;
             currentComposition = currentPlaylist.getComposition(compositionIndex);
 

@@ -1,9 +1,12 @@
 package ru.krivocraft.kbmp;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +18,38 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class PlaylistActivity extends AppCompatActivity {
 
+    private ListView playlistView;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+
+            PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
+            final PlayerService service = binder.getServerInstance();
+
+            playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Composition composition = (Composition) adapterView.getItemAtPosition(i);
+
+                    if (!composition.equals(service.getCurrentComposition())) {
+                         service.newComposition(service.getCurrentPlaylist().indexOf(composition));
+                    }
+
+                    Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,21 +60,14 @@ public class PlaylistActivity extends AppCompatActivity {
         Playlist playlist = new Playlist();
         playlist.addCompositions(Utils.search(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)));
 
-        ListView playlistView = findViewById(R.id.playlist);
+        playlistView = findViewById(R.id.playlist);
         playlistView.setAdapter(new PlaylistAdapter(playlist, this));
-        playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Composition composition = (Composition) adapterView.getItemAtPosition(i);
-                Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
-                intent.putExtra(Constants.COMPOSITION, composition);
-                startActivity(intent);
-            }
-        });
 
         Intent serviceIntent = new Intent(this, PlayerService.class);
         serviceIntent.putExtra(Constants.PLAYLIST, playlist);
         startService(serviceIntent);
+
+        bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
     }
 
 }
