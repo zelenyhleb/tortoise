@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerService extends Service implements MediaPlayer.OnPreparedListener {
+public class PlayerService extends Service {
 
     private static MediaPlayer player;
     private Binder mBinder = new LocalBinder();
@@ -26,10 +26,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
     }
 
     class LocalBinder extends Binder {
