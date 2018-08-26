@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,7 +28,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     private PlayerService mService;
 
-    ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mBounded = true;
@@ -103,19 +102,15 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     private void startPlaying() {
         if (mBounded) {
-            try {
-                mService.startPlaying();
-                startUIPlaying();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mService.start();
+            startUIPlaying();
         }
     }
 
     private void stopPlaying() {
         if (mBounded) {
             if (compositionProgressTimer != null) {
-                mService.stopPlaying();
+                mService.stop();
                 stopUIPlaying();
             }
         }

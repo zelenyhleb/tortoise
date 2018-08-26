@@ -19,7 +19,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private Composition currentComposition;
 
     private int currentCompositionProgress = 0;
-    private int currentCompositionIndex = 0;
 
     private List<OnCompositionChangedListener> listeners = new ArrayList<>();
 
@@ -33,8 +32,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public void onPrepared(MediaPlayer mp) {
     }
 
-    public class LocalBinder extends Binder {
-        public PlayerService getServerInstance() {
+    class LocalBinder extends Binder {
+        PlayerService getServerInstance() {
             return PlayerService.this;
         }
     }
@@ -42,19 +41,22 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         currentPlaylist = (Playlist) intent.getSerializableExtra(Constants.PLAYLIST);
-        setCurrentComposition(0);
         return START_STICKY;
     }
 
-    public void startPlaying() throws IOException {
+    public void start() {
 
         if (player != null) {
-            stopPlaying();
+            stop();
         }
 
         player = new MediaPlayer();
-        player.setDataSource(currentComposition.getPath());
-        player.prepare();
+        try {
+            player.setDataSource(currentComposition.getPath());
+            player.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         player.seekTo(currentCompositionProgress);
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -65,43 +67,29 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         player.start();
     }
 
-    public void nextComposition() {
-        if (currentCompositionIndex + 1 < currentPlaylist.getSize()) {
+    void nextComposition() {
+        newComposition(currentPlaylist.indexOf(currentComposition) + 1);
+    }
+
+    void previousComposition() {
+        newComposition(currentPlaylist.indexOf(currentComposition) - 1);
+    }
+
+    void newComposition(int compositionIndex) {
+        if (compositionIndex >= 0 && compositionIndex < currentPlaylist.getSize()) {
             release();
             currentCompositionProgress = 0;
-            currentCompositionIndex++;
-            currentComposition = currentPlaylist.getComposition(currentCompositionIndex);
+            currentComposition = currentPlaylist.getComposition(compositionIndex);
 
             for (OnCompositionChangedListener listener : listeners) {
                 listener.onCompositionChanged(currentComposition);
             }
-            try {
-                startPlaying();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            start();
         }
     }
 
-    public void previousComposition() {
-        if (currentCompositionIndex > 0) {
-            release();
-            currentCompositionProgress = 0;
-            currentCompositionIndex--;
-            currentComposition = currentPlaylist.getComposition(currentCompositionIndex);
-
-            for (OnCompositionChangedListener listener : listeners) {
-                listener.onCompositionChanged(currentComposition);
-            }
-            try {
-                startPlaying();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void stopPlaying() {
+    void stop() {
         if (player != null) {
             currentCompositionProgress = player.getCurrentPosition();
             player.stop();
@@ -114,7 +102,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         player = null;
     }
 
-    public int getProgress() {
+    int getProgress() {
         if (player != null) {
             return player.getCurrentPosition();
         } else {
@@ -122,15 +110,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
-    public void setCurrentComposition(int index) {
-        this.currentComposition = currentPlaylist.getComposition(index);
-    }
-
-    public void setCurrentCompositionProgress(int currentCompositionProgress) {
+    void setCurrentCompositionProgress(int currentCompositionProgress) {
         this.currentCompositionProgress = currentCompositionProgress;
     }
 
-    public void addListener(OnCompositionChangedListener listener) {
+    void addListener(OnCompositionChangedListener listener) {
         listeners.add(listener);
+    }
+
+    void removeListener(OnCompositionChangedListener listener) {
+        listeners.remove(listener);
     }
 }

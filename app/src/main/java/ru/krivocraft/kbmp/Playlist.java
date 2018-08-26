@@ -21,11 +21,11 @@ class Playlist implements Serializable {
 
     }
 
-    public Composition getComposition(int index){
+    public Composition getComposition(int index) {
         return compositions.get(index);
     }
 
-    public void addCompositions(Collection<Composition> compositions){
+    public void addCompositions(Collection<Composition> compositions) {
         this.compositions.addAll(compositions);
     }
 
@@ -33,8 +33,12 @@ class Playlist implements Serializable {
         return compositions;
     }
 
-    public int getSize(){
+    public int getSize() {
         return compositions.size();
+    }
+
+    public int indexOf(Composition composition) {
+        return compositions.indexOf(composition);
     }
 
 }
