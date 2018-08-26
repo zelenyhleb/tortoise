@@ -21,6 +21,8 @@ public class PlayerService extends Service {
 
     private int currentCompositionProgress = 0;
 
+    private boolean isPlaying = false;
+
     private List<OnCompositionChangedListener> listeners = new ArrayList<>();
 
     @Nullable
@@ -62,6 +64,7 @@ public class PlayerService extends Service {
             }
         });
         player.start();
+        isPlaying = true;
     }
 
     void nextComposition() {
@@ -98,12 +101,17 @@ public class PlayerService extends Service {
             currentCompositionProgress = player.getCurrentPosition();
             player.stop();
             release();
+            isPlaying = false;
         }
     }
 
     private void release() {
         player.release();
         player = null;
+    }
+
+    boolean isPlaying() {
+        return isPlaying;
     }
 
     int getProgress() {

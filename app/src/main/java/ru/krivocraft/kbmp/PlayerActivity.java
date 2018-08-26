@@ -87,14 +87,20 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionDurationTextView.setText(Utils.getFormattedTime(Integer.parseInt(compositionDuration) / 1000));
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
+
+        if (mService.isPlaying()) {
+            startUIPlaying();
+        }
     }
 
     private void updateBar() {
-        if (mService.getProgress() / 1000 > compositionProgressBar.getMax()) {
+        double progressMillis = mService.getProgress() / 1000.0;
+        int progress = (int) Math.ceil(progressMillis);
+        if (progress > compositionProgressBar.getMax()) {
             stopPlaying();
         } else {
-            compositionProgressBar.setProgress(mService.getProgress() / 1000);
-            compositionProgressTextView.setText(Utils.getFormattedTime(mService.getProgress() / 1000));
+            compositionProgressBar.setProgress(progress);
+            compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         }
     }
 
