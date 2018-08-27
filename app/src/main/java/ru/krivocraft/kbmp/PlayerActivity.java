@@ -72,10 +72,14 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         TextView compositionDurationTextView = findViewById(R.id.composition_duration);
 
         compositionProgressTextView = findViewById(R.id.composition_progress);
-        compositionProgressTextView.setText(R.string.zerotime);
+
+        double progressMillis = mService.getProgress() / 1000.0;
+        int progress = (int) Math.ceil(progressMillis);
+
+        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
 
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
-        compositionProgressBar.setProgress(0);
+        compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
         String compositionName = currentComposition.getName();

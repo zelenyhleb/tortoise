@@ -22,8 +22,10 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class PlaylistActivity extends AppCompatActivity {
 
-    private ListView playlistView;
     private boolean mBounded = false;
+
+    private PlaylistAdapter mPlaylistAdapter;
+    private PlayerService mService;
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -32,15 +34,20 @@ public class PlaylistActivity extends AppCompatActivity {
             mBounded = true;
 
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
-            service = binder.getServerInstance();
+            mService = binder.getServerInstance();
+
+            ListView playlistView = findViewById(R.id.playlist);
+
+            mPlaylistAdapter = new PlaylistAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
+            playlistView.setAdapter(mPlaylistAdapter);
 
             playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Composition composition = (Composition) adapterView.getItemAtPosition(i);
 
-                    if (!composition.equals(service.getCurrentComposition())) {
-                        service.newComposition(service.getCurrentPlaylist().indexOf(composition));
+                    if (!composition.equals(mService.getCurrentComposition())) {
+                        mService.newComposition(mService.getCurrentPlaylist().indexOf(composition));
                     }
 
                     Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
@@ -56,9 +63,6 @@ public class PlaylistActivity extends AppCompatActivity {
         }
     };
 
-    private Playlist playlist = new Playlist();
-    private PlaylistAdapter playlistAdapter;
-    private PlayerService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +74,6 @@ public class PlaylistActivity extends AppCompatActivity {
 
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
         searchTask.execute(Environment.getExternalStorageDirectory());
-
-        playlistView = findViewById(R.id.playlist);
-        playlistAdapter = new PlaylistAdapter(playlist, this);
-        playlistView.setAdapter(playlistAdapter);
 
         Intent serviceIntent = new Intent(this, PlayerService.class);
         startService(serviceIntent);
@@ -90,10 +90,9 @@ public class PlaylistActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Composition> compositions) {
             super.onPostExecute(compositions);
-            playlist.addCompositions(compositions);
             if (mBounded)
-                service.setCurrentPlaylist(playlist);
-            playlistAdapter.notifyDataSetChanged();
+                mService.getCurrentPlaylist().addCompositions(compositions);
+            mPlaylistAdapter.notifyDataSetChanged();
         }
     }
 
