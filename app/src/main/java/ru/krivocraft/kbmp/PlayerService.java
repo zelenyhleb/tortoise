@@ -1,11 +1,19 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.widget.RemoteViews;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +32,8 @@ public class PlayerService extends Service {
     private boolean isPlaying = false;
 
     private List<OnCompositionChangedListener> listeners = new ArrayList<>();
+    private final int NOTIFY_ID = 124;
+    private NotificationManager notificationManager;
 
     @Nullable
     @Override
@@ -41,6 +51,11 @@ public class PlayerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         currentPlaylist = new Playlist();
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     public void start() {
@@ -65,6 +80,32 @@ public class PlayerService extends Service {
         });
         player.start();
         isPlaying = true;
+
+
+        Intent notificationIntent = new Intent(this, PlayerActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, notificationIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+        RemoteViews notificationLayout = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
+//        notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_play);
+//        notificationLayout.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
+//        notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
+        notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getComposer());
+        notificationLayout.setTextViewText(R.id.notification_composition_name, currentComposition.getName());
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContent(notificationLayout)
+                .setContentIntent(contentIntent)
+                .build();
+
+        notification.flags = Notification.FLAG_NO_CLEAR;
+
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFY_ID, notification);
+
     }
 
     void nextComposition() {
@@ -103,6 +144,7 @@ public class PlayerService extends Service {
             player.stop();
             release();
             isPlaying = false;
+            notificationManager.cancel(NOTIFY_ID);
         }
     }
 
