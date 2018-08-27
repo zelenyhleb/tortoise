@@ -4,6 +4,7 @@ import android.media.MediaMetadataRetriever;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class Utils {
@@ -50,6 +51,19 @@ class Utils {
 
         }
 
+        return compositions;
+    }
+
+    static List<Composition> searchRecursively(File directory) {
+        List<Composition> compositions = new ArrayList<>();
+        List<File> files = Arrays.asList(directory.listFiles());
+        for (File file : files) {
+            if (file.isDirectory()) {
+                compositions.addAll(searchRecursively(file));
+            } else {
+                compositions.addAll(search(file));
+            }
+        }
         return compositions;
     }
 }
