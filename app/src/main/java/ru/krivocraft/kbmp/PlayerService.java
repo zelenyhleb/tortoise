@@ -6,8 +6,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
@@ -89,9 +87,9 @@ public class PlayerService extends Service {
 
 
         RemoteViews notificationLayout = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
-//        notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_play);
-//        notificationLayout.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
-//        notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
+        notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_play);
+        notificationLayout.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
+        notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
         notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getComposer());
         notificationLayout.setTextViewText(R.id.notification_composition_name, currentComposition.getName());
 
