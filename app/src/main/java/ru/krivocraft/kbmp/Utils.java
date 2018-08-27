@@ -56,7 +56,7 @@ class Utils {
 
     static List<Composition> searchRecursively(File directory) {
         List<Composition> compositions = new ArrayList<>();
-        List<File> files = Arrays.asList(directory.listFiles());
+        File[] files = directory.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
                 compositions.addAll(searchRecursively(file));
