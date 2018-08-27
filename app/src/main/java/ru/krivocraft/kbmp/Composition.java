@@ -23,10 +23,10 @@ class Composition implements Serializable {
         this.identifier = identifier;
 
         if (composer == null) {
-            this.composer = "unknown";
+            this.composer = "Unknown Artist";
         }
         if (name == null) {
-            this.name = "unknown";
+            this.name = "Unknown Composition";
         }
 
     }

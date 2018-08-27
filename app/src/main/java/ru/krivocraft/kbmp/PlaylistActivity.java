@@ -23,14 +23,16 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 public class PlaylistActivity extends AppCompatActivity {
 
     private ListView playlistView;
+    private boolean mBounded = false;
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mBounded = true;
 
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
-            final PlayerService service = binder.getServerInstance();
+            service = binder.getServerInstance();
 
             playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -38,7 +40,7 @@ public class PlaylistActivity extends AppCompatActivity {
                     Composition composition = (Composition) adapterView.getItemAtPosition(i);
 
                     if (!composition.equals(service.getCurrentComposition())) {
-                         service.newComposition(service.getCurrentPlaylist().indexOf(composition));
+                        service.newComposition(service.getCurrentPlaylist().indexOf(composition));
                     }
 
                     Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
@@ -50,13 +52,13 @@ public class PlaylistActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            mBounded = false;
         }
     };
 
     private Playlist playlist = new Playlist();
     private PlaylistAdapter playlistAdapter;
-
+    private PlayerService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,6 @@ public class PlaylistActivity extends AppCompatActivity {
         playlistView.setAdapter(playlistAdapter);
 
         Intent serviceIntent = new Intent(this, PlayerService.class);
-        serviceIntent.putExtra(Constants.PLAYLIST, playlist);
         startService(serviceIntent);
 
         bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
@@ -90,6 +91,8 @@ public class PlaylistActivity extends AppCompatActivity {
         protected void onPostExecute(List<Composition> compositions) {
             super.onPostExecute(compositions);
             playlist.addCompositions(compositions);
+            if (mBounded)
+                service.setCurrentPlaylist(playlist);
             playlistAdapter.notifyDataSetChanged();
         }
     }

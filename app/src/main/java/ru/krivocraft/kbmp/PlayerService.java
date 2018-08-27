@@ -39,7 +39,7 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        currentPlaylist = (Playlist) intent.getSerializableExtra(Constants.PLAYLIST);
+        currentPlaylist = new Playlist();
         return START_STICKY;
     }
 
@@ -85,11 +85,12 @@ public class PlayerService extends Service {
 
     void newComposition(int compositionIndex) {
         if (compositionIndex >= 0 && compositionIndex < currentPlaylist.getSize()) {
+            stop();
             currentCompositionProgress = 0;
             currentComposition = currentPlaylist.getComposition(compositionIndex);
 
             for (OnCompositionChangedListener listener : listeners) {
-                listener.onCompositionChanged(currentComposition);
+                listener.onCompositionChanged();
             }
 
             start();
@@ -124,6 +125,10 @@ public class PlayerService extends Service {
 
     void setCurrentCompositionProgress(int currentCompositionProgress) {
         this.currentCompositionProgress = currentCompositionProgress;
+    }
+
+    public void setCurrentPlaylist(Playlist currentPlaylist) {
+        this.currentPlaylist = currentPlaylist;
     }
 
     void addListener(OnCompositionChangedListener listener) {
