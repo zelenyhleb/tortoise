@@ -4,18 +4,22 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PlayerService extends Service {
 
@@ -79,17 +83,33 @@ public class PlayerService extends Service {
         player.start();
         isPlaying = true;
 
+        showNotification();
+    }
 
-        Intent notificationIntent = new Intent(this, PlayerActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+    private void showNotification() {
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
+        PendingIntent playIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pauseIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent nextCompositionIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent previousCompositionIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT);
 
         RemoteViews notificationLayout = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
-        notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_play);
+
+        if (isPlaying) {
+            notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_pause);
+            notificationLayout.setOnClickPendingIntent(R.id.notification_play_pause, pauseIntent);
+        } else {
+            notificationLayout.setImageViewResource(R.id.notification_play_pause, R.drawable.ic_play);
+            notificationLayout.setOnClickPendingIntent(R.id.notification_play_pause, playIntent);
+        }
+
         notificationLayout.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
+        notificationLayout.setOnClickPendingIntent(R.id.notification_next, nextCompositionIntent);
+
         notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
+        notificationLayout.setOnClickPendingIntent(R.id.notification_previous, previousCompositionIntent);
+
         notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getComposer());
         notificationLayout.setTextViewText(R.id.notification_composition_name, currentComposition.getName());
 
@@ -102,8 +122,44 @@ public class PlayerService extends Service {
         notification.flags = Notification.FLAG_NO_CLEAR;
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFY_ID, notification);
+        if (notificationManager != null) {
+            notificationManager.notify(NOTIFY_ID, notification);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(Constants.ACTION_PLAY);
+            filter.addAction(Constants.ACTION_PAUSE);
+            filter.addAction(Constants.ACTION_NEXT);
+            filter.addAction(Constants.ACTION_PREVIOUS);
+            registerReceiver(receiver, filter);
+        } else {
+            Toast.makeText(this, "Impossible to create service notification", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            System.out.println("broadcast received with action: " + intent.getAction());
+            switch (Objects.requireNonNull(intent.getAction())) {
+                case Constants.ACTION_PLAY:
+                    start();
+                    break;
+                case Constants.ACTION_PAUSE:
+                    stop();
+                    break;
+                case Constants.ACTION_NEXT:
+                    nextComposition();
+                    break;
+                case Constants.ACTION_PREVIOUS:
+                    previousComposition();
+                    break;
+            }
+            resetNotification();
+        }
+    };
+
+    private void resetNotification(){
+        hideNotification();
+        showNotification();
     }
 
     void nextComposition() {
@@ -142,8 +198,12 @@ public class PlayerService extends Service {
             player.stop();
             release();
             isPlaying = false;
-            notificationManager.cancel(NOTIFY_ID);
+            hideNotification();
         }
+    }
+
+    private void hideNotification() {
+        notificationManager.cancel(NOTIFY_ID);
     }
 
     private void release() {
