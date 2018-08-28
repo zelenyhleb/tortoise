@@ -55,13 +55,6 @@ public class PlayerService extends Service {
         return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        hideNotification();
-        unregisterReceiver(receiver);
-    }
-
     public void start() {
 
         if (player != null) {
@@ -125,7 +118,7 @@ public class PlayerService extends Service {
                 .setContentIntent(contentIntent)
                 .build();
 
-        notification.flags = Notification.FLAG_NO_CLEAR;
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
