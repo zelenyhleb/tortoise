@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerService extends Service {
+public class PlayerService extends Service implements OnCompositionStateChangedListener {
 
     private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
@@ -43,6 +43,21 @@ public class PlayerService extends Service {
         return mBinder;
     }
 
+    @Override
+    public void onNewComposition() {
+        updateNotification();
+    }
+
+    @Override
+    public void onPlayComposition() {
+        updateNotification();
+    }
+
+    @Override
+    public void onPauseComposition() {
+        updateNotification();
+    }
+
     class LocalBinder extends Binder {
         PlayerService getServerInstance() {
             return PlayerService.this;
@@ -52,7 +67,11 @@ public class PlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         currentPlaylist = new Playlist();
-        return START_STICKY;
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        addListener(this);
+
+        return START_NOT_STICKY;
     }
 
     public void start() {
@@ -78,14 +97,12 @@ public class PlayerService extends Service {
         player.start();
         isPlaying = true;
 
-        showNotification();
-
         for (OnCompositionStateChangedListener listener : listeners) {
             listener.onPlayComposition();
         }
     }
 
-    private void showNotification() {
+    private void updateNotification() {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent playIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT);
@@ -118,11 +135,9 @@ public class PlayerService extends Service {
                 .setContentIntent(contentIntent)
                 .build();
 
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
-            notificationManager.notify(NOTIFY_ID, notification);
+            startForeground(NOTIFY_ID, notification);
+
             IntentFilter filter = new IntentFilter();
             filter.addAction(Constants.ACTION_PLAY);
             filter.addAction(Constants.ACTION_PAUSE);
@@ -152,14 +167,8 @@ public class PlayerService extends Service {
                     previousComposition();
                     break;
             }
-            resetNotification();
         }
     };
-
-    private void resetNotification() {
-        hideNotification();
-        showNotification();
-    }
 
     void nextComposition() {
         newComposition(currentPlaylist.indexOf(currentComposition) + 1);
@@ -200,16 +209,10 @@ public class PlayerService extends Service {
 
             isPlaying = false;
 
-            hideNotification();
-
             for (OnCompositionStateChangedListener listener : listeners) {
                 listener.onPauseComposition();
             }
         }
-    }
-
-    private void hideNotification() {
-        notificationManager.cancel(NOTIFY_ID);
     }
 
     private void release() {
