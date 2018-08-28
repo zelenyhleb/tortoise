@@ -14,7 +14,7 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, OnCompositionChangedListener {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, OnCompositionStateChangedListener {
 
     private SeekBar compositionProgressBar;
 
@@ -31,9 +31,13 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mBounded = true;
+
             PlayerService.LocalBinder localBinder = (PlayerService.LocalBinder) service;
             mService = localBinder.getServerInstance();
+
             mService.addListener(PlayerActivity.this);
+
+            isPlaying = mService.isPlaying();
 
             initUI();
         }
@@ -112,16 +116,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void startPlaying() {
         if (mBounded) {
             mService.start();
-            startUIPlaying();
         }
     }
 
     private void stopPlaying() {
         if (mBounded) {
-            if (compositionProgressTimer != null) {
-                mService.stop();
-                stopUIPlaying();
-            }
+            mService.stop();
         }
     }
 
@@ -138,10 +138,9 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
                         }
                     });
                 }
-            }, 0, 1000);
+            }, Constants.ZERO, Constants.ONE_SECOND);
 
-            playPauseButton.setImageResource(R.drawable.ic_pause);
-            isPlaying = true;
+            setPlayPauseButton();
         }
     }
 
@@ -149,8 +148,16 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         if (compositionProgressTimer != null) {
             compositionProgressTimer.cancel();
             compositionProgressTimer = null;
+
+            setPlayPauseButton();
+        }
+    }
+
+    private void setPlayPauseButton(){
+        if (isPlaying){
+            playPauseButton.setImageResource(R.drawable.ic_pause);
+        } else {
             playPauseButton.setImageResource(R.drawable.ic_play);
-            isPlaying = false;
         }
     }
 
@@ -200,9 +207,21 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void onCompositionChanged() {
+    public void onNewComposition() {
         stopUIPlaying();
         initUI();
         startUIPlaying();
+    }
+
+    @Override
+    public void onPlayComposition() {
+        isPlaying = true;
+        startUIPlaying();
+    }
+
+    @Override
+    public void onPauseComposition() {
+        isPlaying = false;
+        stopUIPlaying();
     }
 }

@@ -33,7 +33,7 @@ public class PlayerService extends Service {
 
     private boolean isPlaying = false;
 
-    private List<OnCompositionChangedListener> listeners = new ArrayList<>();
+    private List<OnCompositionStateChangedListener> listeners = new ArrayList<>();
     private final int NOTIFY_ID = 124;
     private NotificationManager notificationManager;
 
@@ -58,6 +58,8 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        hideNotification();
+        unregisterReceiver(receiver);
     }
 
     public void start() {
@@ -84,6 +86,10 @@ public class PlayerService extends Service {
         isPlaying = true;
 
         showNotification();
+
+        for (OnCompositionStateChangedListener listener : listeners) {
+            listener.onPlayComposition();
+        }
     }
 
     private void showNotification() {
@@ -157,7 +163,7 @@ public class PlayerService extends Service {
         }
     };
 
-    private void resetNotification(){
+    private void resetNotification() {
         hideNotification();
         showNotification();
     }
@@ -184,8 +190,8 @@ public class PlayerService extends Service {
             currentCompositionProgress = 0;
             currentComposition = currentPlaylist.getComposition(compositionIndex);
 
-            for (OnCompositionChangedListener listener : listeners) {
-                listener.onCompositionChanged();
+            for (OnCompositionStateChangedListener listener : listeners) {
+                listener.onNewComposition();
             }
 
             start();
@@ -196,9 +202,16 @@ public class PlayerService extends Service {
         if (player != null) {
             currentCompositionProgress = player.getCurrentPosition();
             player.stop();
+
             release();
+
             isPlaying = false;
+
             hideNotification();
+
+            for (OnCompositionStateChangedListener listener : listeners) {
+                listener.onPauseComposition();
+            }
         }
     }
 
@@ -231,11 +244,11 @@ public class PlayerService extends Service {
         this.currentPlaylist = currentPlaylist;
     }
 
-    void addListener(OnCompositionChangedListener listener) {
+    void addListener(OnCompositionStateChangedListener listener) {
         listeners.add(listener);
     }
 
-    void removeListener(OnCompositionChangedListener listener) {
+    void removeListener(OnCompositionStateChangedListener listener) {
         listeners.remove(listener);
     }
 }

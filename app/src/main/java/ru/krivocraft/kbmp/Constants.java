@@ -2,11 +2,13 @@ package ru.krivocraft.kbmp;
 
 class Constants {
 
-    public static final String COMPOSITION = "composition";
-    public static final String PLAYLIST = "playlist";
-    public static final String ACTION_PLAY = "action_play";
-    public static final String ACTION_PAUSE = "action_pause";
-    public static final String ACTION_NEXT = "action_next";
-    public static final String ACTION_PREVIOUS = "action_previous";
+    static final String COMPOSITION = "composition";
+    static final String PLAYLIST = "playlist";
+    static final String ACTION_PLAY = "action_play";
+    static final String ACTION_PAUSE = "action_pause";
+    static final String ACTION_NEXT = "action_next";
+    static final String ACTION_PREVIOUS = "action_previous";
+    static final int ONE_SECOND = 1000;
+    static final int ZERO = 0;
 
 }
