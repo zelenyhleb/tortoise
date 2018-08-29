@@ -10,5 +10,6 @@ class Constants {
     static final String ACTION_PREVIOUS = "action_previous";
     static final int ONE_SECOND = 1000;
     static final int ZERO = 0;
+    static final String COMPOSITION_LIST = "compositions_list";
 
 }

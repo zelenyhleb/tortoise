@@ -1,10 +1,11 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -27,7 +28,7 @@ class Utils {
         return formattedMinutes + ":" + formattedSeconds;
     }
 
-    private static Composition getComposition(File file, int i) {
+    static Composition getComposition(File file, int i) {
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -61,5 +62,24 @@ class Utils {
         }
         System.out.println("search completed");
         return compositions;
+    }
+
+    static void putPath(Context context, String path) {
+        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITION_LIST, Context.MODE_PRIVATE);
+
+        Set<String> compositionsSet = getPaths(context);
+
+        if (!new ArrayList<>(compositionsSet).contains(path)) {
+            compositionsSet.add(path);
+        }
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putStringSet(Constants.COMPOSITION_LIST, compositionsSet);
+        editor.apply();
+    }
+
+    static Set<String> getPaths(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITION_LIST, Context.MODE_PRIVATE);
+        return sp.getStringSet(Constants.COMPOSITION_LIST, new HashSet<String>());
     }
 }

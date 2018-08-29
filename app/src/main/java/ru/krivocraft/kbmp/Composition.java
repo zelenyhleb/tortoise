@@ -26,17 +26,18 @@ class Composition implements Serializable {
             this.composer = "Unknown Artist";
         }
         if (name == null) {
-            this.name = "Unknown Composition";
+            String[] split = path.split("/");
+            this.name = split[split.length - 1];
         }
 
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this){
+        if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Composition)){
+        if (!(obj instanceof Composition)) {
             return false;
         }
         Composition composition = (Composition) obj;
@@ -45,7 +46,7 @@ class Composition implements Serializable {
 
     @Override
     public int hashCode() {
-        return identifier*17;
+        return identifier * 17;
     }
 
     String getComposer() {

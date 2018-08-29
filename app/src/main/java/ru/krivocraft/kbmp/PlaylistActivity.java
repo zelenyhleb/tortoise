@@ -17,6 +17,7 @@ import android.widget.ListView;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -55,6 +56,7 @@ public class PlaylistActivity extends AppCompatActivity {
                 }
             });
 
+            loadCompositions();
         }
 
         @Override
@@ -62,6 +64,18 @@ public class PlaylistActivity extends AppCompatActivity {
             mBounded = false;
         }
     };
+
+    private void loadCompositions() {
+        if (mBounded) {
+            Playlist playlist = mService.getCurrentPlaylist();
+            Set<String> paths = Utils.getPaths(PlaylistActivity.this);
+            for (String path : paths) {
+                if (!playlist.contains(path)) {
+                    playlist.addComposition(Utils.getComposition(new File(path), playlist.getSize()));
+                }
+            }
+        }
+    }
 
 
     @Override
@@ -90,8 +104,10 @@ public class PlaylistActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Composition> compositions) {
             super.onPostExecute(compositions);
-            if (mBounded)
-                mService.getCurrentPlaylist().addCompositions(compositions);
+            for (Composition composition : compositions) {
+                Utils.putPath(PlaylistActivity.this, composition.getPath());
+            }
+            loadCompositions();
             mPlaylistAdapter.notifyDataSetChanged();
         }
     }
