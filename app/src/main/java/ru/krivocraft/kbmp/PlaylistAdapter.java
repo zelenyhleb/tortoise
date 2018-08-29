@@ -26,7 +26,7 @@ class PlaylistAdapter extends ArrayAdapter<Composition> {
         }
 
         ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(composition.getName());
-        ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(composition.getComposer());
+        ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(composition.getAuthor());
 
         return convertView;
     }

@@ -87,7 +87,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
         String compositionName = currentComposition.getName();
-        String compositionComposer = currentComposition.getComposer();
+        String compositionComposer = currentComposition.getAuthor();
         String compositionDuration = currentComposition.getDuration();
 
         compositionNameTextView.setText(compositionName);

@@ -126,7 +126,7 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
         notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
         notificationLayout.setOnClickPendingIntent(R.id.notification_previous, previousCompositionIntent);
 
-        notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getComposer());
+        notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getAuthor());
         notificationLayout.setTextViewText(R.id.notification_composition_name, currentComposition.getName());
 
         Notification notification = new NotificationCompat.Builder(this)

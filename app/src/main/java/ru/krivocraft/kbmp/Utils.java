@@ -65,21 +65,22 @@ class Utils {
     }
 
     static void putPath(Context context, String path) {
-        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITION_LIST, Context.MODE_PRIVATE);
+        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITIONS_LIST, Context.MODE_PRIVATE);
 
         Set<String> compositionsSet = getPaths(context);
 
         if (!new ArrayList<>(compositionsSet).contains(path)) {
+
             compositionsSet.add(path);
         }
 
         SharedPreferences.Editor editor = sp.edit();
-        editor.putStringSet(Constants.COMPOSITION_LIST, compositionsSet);
+        editor.putStringSet(Constants.COMPOSITIONS_LIST, compositionsSet);
         editor.apply();
     }
 
     static Set<String> getPaths(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITION_LIST, Context.MODE_PRIVATE);
-        return sp.getStringSet(Constants.COMPOSITION_LIST, new HashSet<String>());
+        SharedPreferences sp = context.getSharedPreferences(Constants.COMPOSITIONS_LIST, Context.MODE_PRIVATE);
+        return sp.getStringSet(Constants.COMPOSITIONS_LIST, new HashSet<String>());
     }
 }

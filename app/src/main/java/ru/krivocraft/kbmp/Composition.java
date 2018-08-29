@@ -27,7 +27,8 @@ class Composition implements Serializable {
         }
         if (name == null) {
             String[] split = path.split("/");
-            this.name = split[split.length - 1];
+            String s = split[split.length - 1];
+            this.name = s.substring(0, s.length() - 4);
         }
 
     }
@@ -49,7 +50,7 @@ class Composition implements Serializable {
         return identifier * 17;
     }
 
-    String getComposer() {
+    String getAuthor() {
         return composer;
     }
 
@@ -63,5 +64,9 @@ class Composition implements Serializable {
 
     String getDuration() {
         return duration;
+    }
+
+    int getIdentifier() {
+        return identifier;
     }
 }
