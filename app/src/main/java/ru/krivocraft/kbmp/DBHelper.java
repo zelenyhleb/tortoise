@@ -12,11 +12,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table mytable ("
-                + "id integer primary key autoincrement,"
-                + "name text,"
-                + "composer text,"
-                + "path text" + ");");
+        db.execSQL("create table " + Constants.COMPOSITIONS_LIST + " ("
+                + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
+                + Constants.COMPOSITION_NAME + " text,"
+                + Constants.COMPOSITION_DURATION + " text,"
+                + Constants.COMPOSITION_AUTHOR + " text,"
+                + Constants.COMPOSITION_PATH + " text" + ");");
     }
 
     @Override

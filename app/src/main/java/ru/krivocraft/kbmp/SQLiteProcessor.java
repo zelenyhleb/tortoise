@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SQLiteProcessor {
 
     private final DBHelper dbHelper;
@@ -23,28 +26,31 @@ public class SQLiteProcessor {
         contentValues.put(Constants.COMPOSITION_AUTHOR, composition.getAuthor());
         contentValues.put(Constants.COMPOSITION_NAME, composition.getName());
         contentValues.put(Constants.COMPOSITION_PATH, composition.getPath());
+        contentValues.put(Constants.COMPOSITION_DURATION, composition.getDuration());
 
         db.insert(Constants.COMPOSITIONS_LIST, null, contentValues);
     }
 
-    void readCompositions() {
+    List<Composition> readCompositions() {
         Cursor c = db.query(Constants.COMPOSITIONS_LIST, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
+        List<Composition> compositions = new ArrayList<>();
         if (c.moveToFirst()) {
-            int idColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
+            int compositionIdColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
             int compositionAuthorColIndex = c.getColumnIndex(Constants.COMPOSITION_AUTHOR);
             int compositionNameColIndex = c.getColumnIndex(Constants.COMPOSITION_NAME);
             int compositionPathColIndex = c.getColumnIndex(Constants.COMPOSITION_PATH);
+            int compositionDurationColIndex = c.getColumnIndex(Constants.COMPOSITION_DURATION);
 
             do {
-                // получаем значения по номерам столбцов и пишем все в лог
-//                Log.d(LOG_TAG,
-//                        "ID = " + c.getInt(idColIndex) +
-//                                ", name = " + c.getString(compositionNameColIndex) +
-//                                ", email = " + c.getString(compositionPathColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                compositions.add(new Composition(c.getString(compositionDurationColIndex),
+                        c.getString(compositionAuthorColIndex),
+                        c.getString(compositionNameColIndex),
+                        c.getString(compositionPathColIndex),
+                        c.getInt(compositionIdColIndex)));
+
             } while (c.moveToNext());
         }
         c.close();
+        return compositions;
     }
 }

@@ -28,6 +28,8 @@ public class PlaylistActivity extends AppCompatActivity {
     private PlaylistAdapter mPlaylistAdapter;
     private PlayerService mService;
 
+    private SQLiteProcessor database;
+
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -68,12 +70,8 @@ public class PlaylistActivity extends AppCompatActivity {
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
-            Set<String> paths = Utils.getPaths(PlaylistActivity.this);
-            for (String path : paths) {
-                if (!playlist.contains(path)) {
-                    playlist.addComposition(Utils.getComposition(new File(path), playlist.getSize()));
-                }
-            }
+            List<Composition> compositions = database.readCompositions();
+            playlist.addCompositions(compositions);
         }
     }
 
@@ -85,6 +83,8 @@ public class PlaylistActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
         }
+
+        database = new SQLiteProcessor(this);
 
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
         searchTask.execute(Environment.getExternalStorageDirectory());
@@ -105,7 +105,7 @@ public class PlaylistActivity extends AppCompatActivity {
         protected void onPostExecute(List<Composition> compositions) {
             super.onPostExecute(compositions);
             for (Composition composition : compositions) {
-                Utils.putPath(PlaylistActivity.this, composition.getPath());
+                database.writeComposition(composition);
             }
             loadCompositions();
             mPlaylistAdapter.notifyDataSetChanged();
