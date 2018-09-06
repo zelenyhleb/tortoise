@@ -4,20 +4,22 @@ import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -66,12 +68,20 @@ public class PlaylistActivity extends AppCompatActivity {
             mBounded = false;
         }
     };
+    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
 
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
             List<Composition> compositions = database.readCompositions();
-            playlist.addCompositions(compositions);
+            for (Composition composition : compositions) {
+                if (!playlist.contains(composition)) {
+                    playlist.addComposition(composition);
+                }
+            }
+            for (Composition composition : database.readCompositions()) {
+                System.out.println(composition.getIdentifier() + ":" + composition.getAuthor() + ":" + composition.getName() + ":" + composition.getPath());
+            }
         }
     }
 
@@ -81,9 +91,13 @@ public class PlaylistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
+            return;
         }
+        initPlaylist();
+    }
 
+    private void initPlaylist() {
         database = new SQLiteProcessor(this);
 
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
@@ -93,6 +107,18 @@ public class PlaylistActivity extends AppCompatActivity {
         startService(serviceIntent);
 
         bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initPlaylist();
+            } else {
+                Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     class RecursiveSearchTask extends AsyncTask<File, Void, List<Composition>> {

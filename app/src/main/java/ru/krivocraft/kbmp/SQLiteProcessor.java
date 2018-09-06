@@ -20,15 +20,17 @@ public class SQLiteProcessor {
     }
 
     void writeComposition(Composition composition) {
+        if (!readCompositions().contains(composition)){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(composition.getIdentifier()));
+            contentValues.put(Constants.COMPOSITION_AUTHOR, composition.getAuthor());
+            contentValues.put(Constants.COMPOSITION_NAME, composition.getName());
+            contentValues.put(Constants.COMPOSITION_PATH, composition.getPath());
+            contentValues.put(Constants.COMPOSITION_DURATION, composition.getDuration());
 
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(composition.getIdentifier()));
-        contentValues.put(Constants.COMPOSITION_AUTHOR, composition.getAuthor());
-        contentValues.put(Constants.COMPOSITION_NAME, composition.getName());
-        contentValues.put(Constants.COMPOSITION_PATH, composition.getPath());
-        contentValues.put(Constants.COMPOSITION_DURATION, composition.getDuration());
+            db.insert(Constants.COMPOSITIONS_LIST, null, contentValues);
+        }
 
-        db.insert(Constants.COMPOSITIONS_LIST, null, contentValues);
     }
 
     List<Composition> readCompositions() {
