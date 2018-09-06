@@ -14,7 +14,7 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, OnCompositionStateChangedListener {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, Composition.OnCompositionStateChangedListener {
 
     private SeekBar compositionProgressBar;
 

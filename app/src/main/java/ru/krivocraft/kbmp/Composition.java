@@ -69,4 +69,16 @@ class Composition implements Serializable {
     int getIdentifier() {
         return identifier;
     }
+
+    static interface OnCompositionFoundListener {
+        void onCompositionFound(Composition composition);
+    }
+
+    public static interface OnCompositionStateChangedListener {
+        void onNewComposition();
+
+        void onPlayComposition();
+
+        void onPauseComposition();
+    }
 }

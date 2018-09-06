@@ -121,7 +121,7 @@ public class PlaylistActivity extends AppCompatActivity {
         }
     }
 
-    private OnCompositionFoundListener onCompositionFoundListener = new OnCompositionFoundListener() {
+    private Composition.OnCompositionFoundListener onCompositionFoundListener = new Composition.OnCompositionFoundListener() {
         @Override
         public void onCompositionFound(Composition composition) {
             database.writeComposition(composition);

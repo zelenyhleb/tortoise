@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerService extends Service implements OnCompositionStateChangedListener {
+public class PlayerService extends Service implements Composition.OnCompositionStateChangedListener {
 
     private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
@@ -33,7 +33,7 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
 
     private boolean isPlaying = false;
 
-    private List<OnCompositionStateChangedListener> listeners = new ArrayList<>();
+    private List<Composition.OnCompositionStateChangedListener> listeners = new ArrayList<>();
     private final int NOTIFY_ID = 124;
     private NotificationManager notificationManager;
 
@@ -97,7 +97,7 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
         player.start();
         isPlaying = true;
 
-        for (OnCompositionStateChangedListener listener : listeners) {
+        for (Composition.OnCompositionStateChangedListener listener : listeners) {
             listener.onPlayComposition();
         }
     }
@@ -192,7 +192,7 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
             currentCompositionProgress = 0;
             currentComposition = currentPlaylist.getComposition(compositionIndex);
 
-            for (OnCompositionStateChangedListener listener : listeners) {
+            for (Composition.OnCompositionStateChangedListener listener : listeners) {
                 listener.onNewComposition();
             }
 
@@ -209,7 +209,7 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
 
             isPlaying = false;
 
-            for (OnCompositionStateChangedListener listener : listeners) {
+            for (Composition.OnCompositionStateChangedListener listener : listeners) {
                 listener.onPauseComposition();
             }
         }
@@ -240,11 +240,11 @@ public class PlayerService extends Service implements OnCompositionStateChangedL
         this.currentPlaylist = currentPlaylist;
     }
 
-    void addListener(OnCompositionStateChangedListener listener) {
+    void addListener(Composition.OnCompositionStateChangedListener listener) {
         listeners.add(listener);
     }
 
-    void removeListener(OnCompositionStateChangedListener listener) {
+    void removeListener(Composition.OnCompositionStateChangedListener listener) {
         listeners.remove(listener);
     }
 }

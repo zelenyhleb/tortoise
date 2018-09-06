@@ -3,8 +3,6 @@ package ru.krivocraft.kbmp;
 import android.media.MediaMetadataRetriever;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -46,7 +44,7 @@ class Utils {
 
     private static int id = 0;
 
-    static void searchRecursively(File directory, OnCompositionFoundListener listener) {
+    static void searchRecursively(File directory, Composition.OnCompositionFoundListener listener) {
         File[] files = directory.listFiles();
         for (File file : files) {
             String fileName = file.getName();
