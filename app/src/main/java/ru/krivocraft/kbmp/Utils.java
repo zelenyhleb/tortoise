@@ -49,11 +49,12 @@ class Utils {
     static void searchRecursively(File directory, OnCompositionFoundListener listener) {
         File[] files = directory.listFiles();
         for (File file : files) {
-            System.out.println("searching in " + file.getPath());
+            String fileName = file.getName();
+            System.out.println("searching in " + fileName);
             if (file.isDirectory()) {
                 searchRecursively(file, listener);
             } else {
-                if (file.getPath().endsWith(".mp3")) {
+                if (fileName.endsWith(".mp3") && !fileName.startsWith("2_")) {
                     listener.onCompositionFound(getComposition(file, id));
                     id++;
                 }
