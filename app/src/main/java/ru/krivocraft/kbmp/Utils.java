@@ -46,20 +46,19 @@ class Utils {
 
     private static int id = 0;
 
-    static List<Composition> searchRecursively(File directory) {
-        List<Composition> compositions = new ArrayList<>();
+    static void searchRecursively(File directory, OnCompositionFoundListener listener) {
         File[] files = directory.listFiles();
         for (File file : files) {
             System.out.println("searching in " + file.getPath());
             if (file.isDirectory()) {
-                compositions.addAll(searchRecursively(file));
+                searchRecursively(file, listener);
             } else {
-                if (file.getPath().endsWith(".mp3"))
-                    compositions.add(getComposition(file, id));
-                id++;
+                if (file.getPath().endsWith(".mp3")) {
+                    listener.onCompositionFound(getComposition(file, id));
+                    id++;
+                }
             }
         }
-        System.out.println("search completed");
-        return compositions;
+        System.out.println("search completed in " + directory);
     }
 }

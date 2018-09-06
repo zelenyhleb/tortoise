@@ -121,20 +121,25 @@ public class PlaylistActivity extends AppCompatActivity {
         }
     }
 
-    class RecursiveSearchTask extends AsyncTask<File, Void, List<Composition>> {
+    private OnCompositionFoundListener onCompositionFoundListener = new OnCompositionFoundListener() {
         @Override
-        protected List<Composition> doInBackground(File... files) {
-            return Utils.searchRecursively(files[0]);
-        }
-
-        @Override
-        protected void onPostExecute(List<Composition> compositions) {
-            super.onPostExecute(compositions);
-            for (Composition composition : compositions) {
-                database.writeComposition(composition);
-            }
+        public void onCompositionFound(Composition composition) {
+            database.writeComposition(composition);
             loadCompositions();
-            mPlaylistAdapter.notifyDataSetChanged();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mPlaylistAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    };
+
+    class RecursiveSearchTask extends AsyncTask<File, Void, Void> {
+        @Override
+        protected Void doInBackground(File... files) {
+            Utils.searchRecursively(files[0], onCompositionFoundListener);
+            return null;
         }
     }
 

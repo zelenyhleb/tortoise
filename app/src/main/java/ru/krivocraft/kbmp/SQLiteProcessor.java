@@ -10,12 +10,10 @@ import java.util.List;
 
 public class SQLiteProcessor {
 
-    private final DBHelper dbHelper;
     private final SQLiteDatabase db;
 
     SQLiteProcessor(Context context) {
-        dbHelper = new DBHelper(context);
-
+        DBHelper dbHelper = new DBHelper(context);
         db = dbHelper.getWritableDatabase();
     }
 
