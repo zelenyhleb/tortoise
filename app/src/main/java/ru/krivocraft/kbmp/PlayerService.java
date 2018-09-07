@@ -135,8 +135,14 @@ public class PlayerService extends Service implements Composition.OnCompositionS
                 .setContentIntent(contentIntent)
                 .build();
 
+        if (isPlaying){
+            notification.flags = Notification.FLAG_NO_CLEAR;
+        } else {
+            notification.flags = Notification.FLAG_LOCAL_ONLY;
+        }
+
         if (notificationManager != null) {
-            startForeground(NOTIFY_ID, notification);
+            notificationManager.notify(NOTIFY_ID, notification);
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(Constants.ACTION_PLAY);
