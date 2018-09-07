@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -23,7 +25,7 @@ import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class PlaylistActivity extends AppCompatActivity {
+public class PlaylistActivity extends AppCompatActivity implements Composition.OnCompositionStateChangedListener, PlayerFragment.OnClickListener {
 
     private boolean mBounded = false;
 
@@ -94,6 +96,12 @@ public class PlaylistActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
             return;
         }
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        PlayerFragment fragment = new PlayerFragment();
+        fragment.setListener(this);
+        ft.add(R.id.container, fragment);
+        ft.commit();
+
         initPlaylist();
     }
 
@@ -134,6 +142,26 @@ public class PlaylistActivity extends AppCompatActivity {
             });
         }
     };
+
+    @Override
+    public void onNewComposition() {
+
+    }
+
+    @Override
+    public void onPlayComposition() {
+
+    }
+
+    @Override
+    public void onPauseComposition() {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        
+    }
 
     class RecursiveSearchTask extends AsyncTask<File, Void, Void> {
         @Override

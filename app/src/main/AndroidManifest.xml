@@ -11,10 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/LightTheme">
-        <activity android:name=".PlayerActivity"
-                  android:launchMode="singleTop"/>
-        <activity android:name=".PlaylistActivity"
-                  android:launchMode="singleTop">
+        <activity
+            android:name=".PlayerActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".PlaylistActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

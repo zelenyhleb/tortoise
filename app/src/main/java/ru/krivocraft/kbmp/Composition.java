@@ -70,11 +70,11 @@ class Composition implements Serializable {
         return identifier;
     }
 
-    static interface OnCompositionFoundListener {
+    interface OnCompositionFoundListener {
         void onCompositionFound(Composition composition);
     }
 
-    public static interface OnCompositionStateChangedListener {
+    interface OnCompositionStateChangedListener {
         void onNewComposition();
 
         void onPlayComposition();
