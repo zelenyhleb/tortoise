@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -160,12 +159,10 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.play_pause:
-                if (mBounded) {
-                    if (!mService.isPlaying()) {
-                        startPlaying();
-                    } else {
-                        stopPlaying();
-                    }
+                if (!mService.isPlaying()) {
+                    startPlaying();
+                } else {
+                    stopPlaying();
                 }
                 break;
             case R.id.previous:
