@@ -11,14 +11,13 @@
         android:id="@+id/fragment_progressbar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_above="@id/text_container"
         android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/text_container"
-        android:layout_centerVertical="true"
+        android:layout_below="@id/fragment_progressbar"
         android:orientation="vertical">
 
         <TextView
@@ -44,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_margin="4dp"
+        android:layout_margin="8dp"
         android:layout_toStartOf="@id/fragment_button_playpause"
         android:src="@drawable/ic_previous"
         android:background="@null" />
@@ -64,7 +63,7 @@
         android:layout_centerVertical="true"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_next"
-        android:layout_margin="4dp"
+        android:layout_margin="8dp"
         android:layout_alignParentEnd="true"
         android:background="@null" />
 
