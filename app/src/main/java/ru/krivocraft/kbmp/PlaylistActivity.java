@@ -160,7 +160,7 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.container, fragment)
-                        .commit();
+                        .commitAllowingStateLoss();
             }
         }
     }
@@ -171,7 +171,7 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
-                    .commit();
+                    .commitAllowingStateLoss();
             fragment = null;
         }
     }
