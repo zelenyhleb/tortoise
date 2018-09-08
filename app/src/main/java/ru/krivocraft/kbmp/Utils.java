@@ -57,9 +57,9 @@ class Utils {
                 searchRecursively(file, listener);
             } else {
                 if (fileName.endsWith(".mp3")) {
-                    Composition composition = getComposition(file, 0);
+                    Composition composition = getComposition(file, id);
                     if (composition.getName() == null && composition.getAuthor() == null) {
-                        listener.onCompositionFound(getComposition(file, id));
+                        listener.onCompositionFound(composition);
                         id++;
                     }
                 }
