@@ -19,7 +19,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     private SeekBar compositionProgressBar;
 
-    private boolean isPlaying = false;
     private boolean mBounded = false;
 
     private Timer compositionProgressTimer;
@@ -38,8 +37,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
             mService = localBinder.getServerInstance();
 
             mService.addListener(PlayerActivity.this);
-
-            isPlaying = mService.isPlaying();
 
             initUI();
         }
@@ -147,23 +144,15 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
                 }
             }, Constants.ZERO, Constants.ONE_SECOND);
 
-            setPlayPauseButton();
         }
+        playPauseButton.setImageResource(R.drawable.ic_pause);
+
     }
 
     private void stopUIPlaying() {
         if (compositionProgressTimer != null) {
             compositionProgressTimer.cancel();
             compositionProgressTimer = null;
-
-            setPlayPauseButton();
-        }
-    }
-
-    private void setPlayPauseButton() {
-        if (isPlaying) {
-            playPauseButton.setImageResource(R.drawable.ic_pause);
-        } else {
             playPauseButton.setImageResource(R.drawable.ic_play);
         }
     }
@@ -171,10 +160,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.play_pause:
-                if (!isPlaying) {
-                    startPlaying();
-                } else {
-                    stopPlaying();
+                if (mBounded) {
+                    if (!mService.isPlaying()) {
+                        startPlaying();
+                    } else {
+                        stopPlaying();
+                    }
                 }
                 break;
             case R.id.previous:
@@ -222,13 +213,11 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     @Override
     public void onPlayComposition() {
-        isPlaying = true;
         startUIPlaying();
     }
 
     @Override
     public void onPauseComposition() {
-        isPlaying = false;
         stopUIPlaying();
     }
 }
