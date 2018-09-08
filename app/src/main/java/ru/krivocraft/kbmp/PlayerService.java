@@ -68,10 +68,18 @@ public class PlayerService extends Service implements Composition.OnCompositionS
     public int onStartCommand(Intent intent, int flags, int startId) {
         currentPlaylist = new Playlist();
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancel(NOTIFY_ID);
+        }
 
         addListener(this);
 
         return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        unregisterReceiver(receiver);
     }
 
     public void start() {
@@ -135,7 +143,7 @@ public class PlayerService extends Service implements Composition.OnCompositionS
                 .setContentIntent(contentIntent)
                 .build();
 
-        if (isPlaying){
+        if (isPlaying) {
             notification.flags = Notification.FLAG_NO_CLEAR;
         } else {
             notification.flags = Notification.FLAG_LOCAL_ONLY;
@@ -234,7 +242,7 @@ public class PlayerService extends Service implements Composition.OnCompositionS
         if (player != null) {
             return player.getCurrentPosition();
         } else {
-            return 0;
+            return currentCompositionProgress;
         }
     }
 

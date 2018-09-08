@@ -15,6 +15,8 @@ class Constants {
     static final String COMPOSITION_PATH = "composition_path";
     static final String COMPOSITION_IDENTIFIER = "composition_identifier";
     static final String COMPOSITION_DURATION = "composition_duration";
+    static final String COMPOSITION_PROGRESS = "composition_progress";
+    static final String COMPOSITION_STATE = "composition_is_playing";
 
     static final int ONE_SECOND = 1000;
     static final int ZERO = 0;

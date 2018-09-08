@@ -25,6 +25,10 @@ class Utils {
         return formattedMinutes + ":" + formattedSeconds;
     }
 
+    static int getSeconds(int v) {
+        return (int) Math.ceil(v / 1000.0);
+    }
+
     static Composition getComposition(File file, int i) {
 
 

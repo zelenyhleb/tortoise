@@ -11,8 +11,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -25,7 +23,7 @@ import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class PlaylistActivity extends AppCompatActivity implements Composition.OnCompositionStateChangedListener, PlayerFragment.OnClickListener {
+public class PlaylistActivity extends AppCompatActivity implements Composition.OnCompositionStateChangedListener {
 
     private boolean mBounded = false;
 
@@ -42,6 +40,7 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
 
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
+            mService.addListener(PlaylistActivity.this);
 
             ListView playlistView = findViewById(R.id.playlist);
 
@@ -62,6 +61,7 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
                 }
             });
 
+            refreshFragment();
             loadCompositions();
         }
 
@@ -71,6 +71,7 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
         }
     };
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
+    private PlayerFragment fragment;
 
     private void loadCompositions() {
         if (mBounded) {
@@ -96,12 +97,6 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
             return;
         }
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        PlayerFragment fragment = new PlayerFragment();
-        fragment.setListener(this);
-        ft.add(R.id.container, fragment);
-        ft.commit();
-
         initPlaylist();
     }
 
@@ -144,23 +139,56 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
     };
 
     @Override
-    public void onNewComposition() {
+    protected void onResume() {
+        super.onResume();
+        refreshFragment();
+    }
 
+    private void refreshFragment() {
+        hideFragment();
+        showFragment();
+    }
+
+    private void showFragment() {
+        if (mBounded) {
+            Composition composition = mService.getCurrentComposition();
+            if (composition != null) {
+                fragment = new PlayerFragment();
+                int progress = Utils.getSeconds(mService.getProgress());
+                int duration = Utils.getSeconds(Integer.parseInt(composition.getDuration()));
+                fragment.setData(composition.getAuthor(), composition.getName(), progress, duration, mService.isPlaying());
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+            }
+        }
+    }
+
+    private void hideFragment() {
+        if (fragment != null) {
+            fragment.destroy();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(fragment)
+                    .commit();
+            fragment = null;
+        }
+    }
+
+    @Override
+    public void onNewComposition() {
+        refreshFragment();
     }
 
     @Override
     public void onPlayComposition() {
-
+        refreshFragment();
     }
 
     @Override
     public void onPauseComposition() {
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        
+        refreshFragment();
     }
 
     class RecursiveSearchTask extends AsyncTask<File, Void, Void> {

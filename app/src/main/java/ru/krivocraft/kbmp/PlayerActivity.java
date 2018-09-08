@@ -67,7 +67,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     private void initUI() {
-
         Composition currentComposition = mService.getCurrentComposition();
 
         playPauseButton = findViewById(R.id.play_pause);
@@ -78,8 +77,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionProgressTextView = findViewById(R.id.composition_progress);
         compositionDurationTextView = findViewById(R.id.composition_duration);
 
-        double progressMillis = mService.getProgress() / 1000.0;
-        int progress = (int) Math.ceil(progressMillis);
+        int progress = Utils.getSeconds(mService.getProgress());
 
         String compositionName = currentComposition.getName();
         String compositionComposer = currentComposition.getAuthor();
@@ -109,8 +107,9 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         int progressMillis = mService.getProgress();
         int estimatedMillis = duration - progressMillis;
 
-        int progress = (int) Math.ceil(progressMillis / 1000.0);
-        int estimated = (int) Math.ceil(estimatedMillis / 1000.0);
+        int progress = Utils.getSeconds(progressMillis);
+        int estimated = Utils.getSeconds(estimatedMillis);
+
         if (progress > compositionProgressBar.getMax()) {
             stopPlaying();
         } else {
@@ -119,7 +118,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
             compositionDurationTextView.setText(Utils.getFormattedTime(estimated));
         }
     }
-
 
     private void startPlaying() {
         if (mBounded) {
