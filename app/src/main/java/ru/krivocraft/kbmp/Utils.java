@@ -56,9 +56,12 @@ class Utils {
             if (file.isDirectory()) {
                 searchRecursively(file, listener);
             } else {
-                if (fileName.endsWith(".mp3") && !fileName.startsWith("2_")) {
-                    listener.onCompositionFound(getComposition(file, id));
-                    id++;
+                if (fileName.endsWith(".mp3")) {
+                    Composition composition = getComposition(file, 0);
+                    if (composition.getName() == null && composition.getAuthor() == null) {
+                        listener.onCompositionFound(getComposition(file, id));
+                        id++;
+                    }
                 }
             }
         }
