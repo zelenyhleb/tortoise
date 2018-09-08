@@ -53,6 +53,13 @@ public class PlayerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
+        rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), PlayerActivity.class));
+            }
+        });
+
         TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
         TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
 
