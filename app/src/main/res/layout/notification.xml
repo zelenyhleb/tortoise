@@ -7,7 +7,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="0.3"
+            android:layout_weight="9"
             android:orientation="vertical" android:id="@+id/linearLayout3">
 
         <TextView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@null"
-            android:layout_weight="0.5"
+            android:layout_weight="2"
             android:id="@+id/notification_previous"
     />
 
@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="0.5"
+            android:layout_weight="2"
             android:background="@null"
             android:id="@+id/notification_play_pause"
     />
@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="0.5"
+            android:layout_weight="2"
             android:background="@null"
             android:id="@+id/notification_next"
     />
