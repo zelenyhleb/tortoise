@@ -17,23 +17,23 @@ public class SQLiteProcessor {
         db = dbHelper.getWritableDatabase();
     }
 
-    void writeComposition(Composition composition) {
-        if (!readCompositions().contains(composition)){
+    void writeComposition(Track track) {
+        if (!readCompositions().contains(track)){
             ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(composition.getIdentifier()));
-            contentValues.put(Constants.COMPOSITION_AUTHOR, composition.getAuthor());
-            contentValues.put(Constants.COMPOSITION_NAME, composition.getName());
-            contentValues.put(Constants.COMPOSITION_PATH, composition.getPath());
-            contentValues.put(Constants.COMPOSITION_DURATION, composition.getDuration());
+            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(track.getIdentifier()));
+            contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
+            contentValues.put(Constants.COMPOSITION_NAME, track.getName());
+            contentValues.put(Constants.COMPOSITION_PATH, track.getPath());
+            contentValues.put(Constants.COMPOSITION_DURATION, track.getDuration());
 
             db.insert(Constants.COMPOSITIONS_LIST, null, contentValues);
         }
 
     }
 
-    List<Composition> readCompositions() {
+    List<Track> readCompositions() {
         Cursor c = db.query(Constants.COMPOSITIONS_LIST, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
-        List<Composition> compositions = new ArrayList<>();
+        List<Track> tracks = new ArrayList<>();
         if (c.moveToFirst()) {
             int compositionIdColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
             int compositionAuthorColIndex = c.getColumnIndex(Constants.COMPOSITION_AUTHOR);
@@ -42,7 +42,7 @@ public class SQLiteProcessor {
             int compositionDurationColIndex = c.getColumnIndex(Constants.COMPOSITION_DURATION);
 
             do {
-                compositions.add(new Composition(c.getString(compositionDurationColIndex),
+                tracks.add(new Track(c.getString(compositionDurationColIndex),
                         c.getString(compositionAuthorColIndex),
                         c.getString(compositionNameColIndex),
                         c.getString(compositionPathColIndex),
@@ -51,6 +51,6 @@ public class SQLiteProcessor {
             } while (c.moveToNext());
         }
         c.close();
-        return compositions;
+        return tracks;
     }
 }

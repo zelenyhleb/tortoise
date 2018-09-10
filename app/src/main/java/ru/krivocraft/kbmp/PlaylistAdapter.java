@@ -9,24 +9,24 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-class PlaylistAdapter extends ArrayAdapter<Composition> {
+class PlaylistAdapter extends ArrayAdapter<Track> {
 
     PlaylistAdapter(Playlist playlist, @NonNull Context context) {
-        super(context, R.layout.composition_list_item, playlist.getCompositions());
+        super(context, R.layout.composition_list_item, playlist.getTracks());
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        Composition composition = getItem(position);
+        Track track = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
         }
 
-        ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(composition.getName());
-        ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(composition.getAuthor());
+        ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
+        ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
 
         return convertView;
     }

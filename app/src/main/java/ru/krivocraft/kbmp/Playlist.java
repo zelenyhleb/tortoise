@@ -7,46 +7,46 @@ import java.util.List;
 
 class Playlist implements Serializable {
 
-    private List<Composition> compositions = new ArrayList<>();
+    private List<Track> tracks = new ArrayList<>();
 
-    void addComposition(Composition composition) {
-        compositions.add(composition);
+    void addComposition(Track track) {
+        tracks.add(track);
     }
 
-    void removeComposition(Composition composition) {
-        compositions.remove(composition);
+    void removeComposition(Track track) {
+        tracks.remove(track);
     }
 
     void shuffle() {
     }
 
-    Composition getComposition(int index) {
-        return compositions.get(index);
+    Track getComposition(int index) {
+        return tracks.get(index);
     }
 
-    void addCompositions(Collection<Composition> compositions) {
-        this.compositions.addAll(compositions);
+    void addCompositions(Collection<Track> tracks) {
+        this.tracks.addAll(tracks);
     }
 
-    List<Composition> getCompositions() {
-        return compositions;
+    List<Track> getTracks() {
+        return tracks;
     }
 
     int getSize() {
-        return compositions.size();
+        return tracks.size();
     }
 
-    int indexOf(Composition composition) {
-        return compositions.indexOf(composition);
+    int indexOf(Track track) {
+        return tracks.indexOf(track);
     }
 
-    boolean contains(Composition composition) {
-        return compositions.contains(composition);
+    boolean contains(Track track) {
+        return tracks.contains(track);
     }
 
     boolean contains(String path) {
-        for (Composition composition : compositions) {
-            if (composition.getPath().equals(path))
+        for (Track track : tracks) {
+            if (track.getPath().equals(path))
                 return true;
         }
         return false;

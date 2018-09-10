@@ -23,7 +23,7 @@ import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class PlaylistActivity extends AppCompatActivity implements Composition.OnCompositionStateChangedListener {
+public class PlaylistActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
 
     private boolean mBounded = false;
 
@@ -50,10 +50,10 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
             playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Composition composition = (Composition) adapterView.getItemAtPosition(i);
+                    Track track = (Track) adapterView.getItemAtPosition(i);
 
-                    if (!composition.equals(mService.getCurrentComposition())) {
-                        mService.newComposition(mService.getCurrentPlaylist().indexOf(composition));
+                    if (!track.equals(mService.getCurrentTrack())) {
+                        mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
                     }
 
                     Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
@@ -76,14 +76,14 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
-            List<Composition> compositions = database.readCompositions();
-            for (Composition composition : compositions) {
-                if (!playlist.contains(composition)) {
-                    playlist.addComposition(composition);
+            List<Track> tracks = database.readCompositions();
+            for (Track track : tracks) {
+                if (!playlist.contains(track)) {
+                    playlist.addComposition(track);
                 }
             }
-            for (Composition composition : database.readCompositions()) {
-                System.out.println(composition.getIdentifier() + ":" + composition.getAuthor() + ":" + composition.getName() + ":" + composition.getPath());
+            for (Track track : database.readCompositions()) {
+                System.out.println(track.getIdentifier() + ":" + track.getArtist() + ":" + track.getName() + ":" + track.getPath());
             }
         }
     }
@@ -124,10 +124,10 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
         }
     }
 
-    private Composition.OnCompositionFoundListener onCompositionFoundListener = new Composition.OnCompositionFoundListener() {
+    private Track.OnTrackFoundListener onTrackFoundListener = new Track.OnTrackFoundListener() {
         @Override
-        public void onCompositionFound(Composition composition) {
-            database.writeComposition(composition);
+        public void onTrackFound(Track track) {
+            database.writeComposition(track);
             loadCompositions();
             runOnUiThread(new Runnable() {
                 @Override
@@ -151,12 +151,12 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
 
     private void showFragment() {
         if (mBounded) {
-            Composition composition = mService.getCurrentComposition();
-            if (composition != null) {
+            Track track = mService.getCurrentTrack();
+            if (track != null) {
                 fragment = new PlayerFragment();
                 int progress = Utils.getSeconds(mService.getProgress());
-                int duration = Utils.getSeconds(Integer.parseInt(composition.getDuration()));
-                fragment.setData(composition.getAuthor(), composition.getName(), progress, duration, mService.isPlaying());
+                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                fragment.setData(track.getArtist(), track.getName(), progress, duration, mService.isPlaying());
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.container, fragment)
@@ -177,24 +177,14 @@ public class PlaylistActivity extends AppCompatActivity implements Composition.O
     }
 
     @Override
-    public void onNewComposition() {
-        refreshFragment();
-    }
-
-    @Override
-    public void onPlayComposition() {
-        refreshFragment();
-    }
-
-    @Override
-    public void onPauseComposition() {
+    public void onNewTrackState() {
         refreshFragment();
     }
 
     class RecursiveSearchTask extends AsyncTask<File, Void, Void> {
         @Override
         protected Void doInBackground(File... files) {
-            Utils.searchRecursively(files[0], onCompositionFoundListener);
+            Utils.searchRecursively(files[0], onTrackFoundListener);
             return null;
         }
     }

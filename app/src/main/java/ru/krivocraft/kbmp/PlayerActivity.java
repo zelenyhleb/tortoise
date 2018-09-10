@@ -14,7 +14,7 @@ import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, Composition.OnCompositionStateChangedListener {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
 
     private SeekBar compositionProgressBar;
 
@@ -23,6 +23,8 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private Timer compositionProgressTimer;
     private TextView compositionProgressTextView;
     private TextView compositionDurationTextView;
+    private TextView compositionNameTextView;
+    private TextView compositionAuthorTextView;
     private ImageButton playPauseButton;
 
     private PlayerService mService;
@@ -50,6 +52,14 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        playPauseButton = findViewById(R.id.play_pause);
+        compositionNameTextView = findViewById(R.id.composition_name);
+        compositionAuthorTextView = findViewById(R.id.composition_author);
+        compositionProgressTextView = findViewById(R.id.composition_progress);
+        compositionDurationTextView = findViewById(R.id.composition_duration);
+        compositionProgressBar = findViewById(R.id.composition_progress_bar);
+
         bindService(new Intent(this, PlayerService.class), mConnection, BIND_ABOVE_CLIENT);
     }
 
@@ -64,29 +74,19 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     private void initUI() {
-        Composition currentComposition = mService.getCurrentComposition();
-
-        playPauseButton = findViewById(R.id.play_pause);
-
-        TextView compositionNameTextView = findViewById(R.id.composition_name);
-        TextView compositionAuthorTextView = findViewById(R.id.composition_author);
-
-        compositionProgressTextView = findViewById(R.id.composition_progress);
-        compositionDurationTextView = findViewById(R.id.composition_duration);
+        Track currentTrack = mService.getCurrentTrack();
 
         int progress = Utils.getSeconds(mService.getProgress());
 
-        String compositionName = currentComposition.getName();
-        String compositionComposer = currentComposition.getAuthor();
-        String compositionDuration = currentComposition.getDuration();
+        String compositionName = currentTrack.getName();
+        String compositionComposer = currentTrack.getArtist();
+        String compositionDuration = currentTrack.getDuration();
 
         compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         compositionDurationTextView.setText(Utils.getFormattedTime((Integer.parseInt(compositionDuration) - progress) / 1000));
 
-        compositionProgressBar = findViewById(R.id.composition_progress_bar);
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
-
 
         compositionNameTextView.setText(compositionName);
         compositionAuthorTextView.setText(compositionComposer);
@@ -95,17 +95,19 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
         if (mService.isPlaying()) {
             startUIPlaying();
+        } else {
+            stopUIPlaying();
         }
     }
 
     private void updateBar() {
-        int duration = Integer.parseInt(mService.getCurrentComposition().getDuration());
+        int duration = Integer.parseInt(mService.getCurrentTrack().getDuration());
 
         int progressMillis = mService.getProgress();
         int estimatedMillis = duration - progressMillis;
 
         int progress = Utils.getSeconds(progressMillis);
-        int estimated = Utils.getSeconds(estimatedMillis);
+        int estimated = Utils.getSeconds(estimatedMillis) - 1;
 
         if (progress > compositionProgressBar.getMax()) {
             stopPlaying();
@@ -202,19 +204,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void onNewComposition() {
-        stopUIPlaying();
+    public void onNewTrackState() {
         initUI();
-        startUIPlaying();
-    }
-
-    @Override
-    public void onPlayComposition() {
-        startUIPlaying();
-    }
-
-    @Override
-    public void onPauseComposition() {
-        stopUIPlaying();
     }
 }

@@ -21,19 +21,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerService extends Service implements Composition.OnCompositionStateChangedListener {
+public class PlayerService extends Service implements Track.OnTrackStateChangedListener {
 
     private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
 
     private Playlist currentPlaylist;
-    private Composition currentComposition;
+    private Track currentTrack;
 
     private int currentCompositionProgress = 0;
 
     private boolean isPlaying = false;
 
-    private List<Composition.OnCompositionStateChangedListener> listeners = new ArrayList<>();
+    private List<Track.OnTrackStateChangedListener> listeners = new ArrayList<>();
     private final int NOTIFY_ID = 124;
     private NotificationManager notificationManager;
 
@@ -44,17 +44,7 @@ public class PlayerService extends Service implements Composition.OnCompositionS
     }
 
     @Override
-    public void onNewComposition() {
-        updateNotification();
-    }
-
-    @Override
-    public void onPlayComposition() {
-        updateNotification();
-    }
-
-    @Override
-    public void onPauseComposition() {
+    public void onNewTrackState() {
         updateNotification();
     }
 
@@ -90,7 +80,7 @@ public class PlayerService extends Service implements Composition.OnCompositionS
 
         player = new MediaPlayer();
         try {
-            player.setDataSource(currentComposition.getPath());
+            player.setDataSource(currentTrack.getPath());
             player.prepare();
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,8 +95,8 @@ public class PlayerService extends Service implements Composition.OnCompositionS
         player.start();
         isPlaying = true;
 
-        for (Composition.OnCompositionStateChangedListener listener : listeners) {
-            listener.onPlayComposition();
+        for (Track.OnTrackStateChangedListener listener : listeners) {
+            listener.onNewTrackState();
         }
     }
 
@@ -134,8 +124,8 @@ public class PlayerService extends Service implements Composition.OnCompositionS
         notificationLayout.setImageViewResource(R.id.notification_previous, R.drawable.ic_previous);
         notificationLayout.setOnClickPendingIntent(R.id.notification_previous, previousCompositionIntent);
 
-        notificationLayout.setTextViewText(R.id.notification_composition_author, currentComposition.getAuthor());
-        notificationLayout.setTextViewText(R.id.notification_composition_name, currentComposition.getName());
+        notificationLayout.setTextViewText(R.id.notification_composition_author, currentTrack.getArtist());
+        notificationLayout.setTextViewText(R.id.notification_composition_name, currentTrack.getName());
 
         Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -185,15 +175,15 @@ public class PlayerService extends Service implements Composition.OnCompositionS
     };
 
     void nextComposition() {
-        newComposition(currentPlaylist.indexOf(currentComposition) + 1);
+        newComposition(currentPlaylist.indexOf(currentTrack) + 1);
     }
 
     void previousComposition() {
-        newComposition(currentPlaylist.indexOf(currentComposition) - 1);
+        newComposition(currentPlaylist.indexOf(currentTrack) - 1);
     }
 
-    Composition getCurrentComposition() {
-        return currentComposition;
+    Track getCurrentTrack() {
+        return currentTrack;
     }
 
     Playlist getCurrentPlaylist() {
@@ -204,10 +194,10 @@ public class PlayerService extends Service implements Composition.OnCompositionS
         if (compositionIndex >= 0 && compositionIndex < currentPlaylist.getSize()) {
             stop();
             currentCompositionProgress = 0;
-            currentComposition = currentPlaylist.getComposition(compositionIndex);
+            currentTrack = currentPlaylist.getComposition(compositionIndex);
 
-            for (Composition.OnCompositionStateChangedListener listener : listeners) {
-                listener.onNewComposition();
+            for (Track.OnTrackStateChangedListener listener : listeners) {
+                listener.onNewTrackState();
             }
 
             start();
@@ -223,8 +213,8 @@ public class PlayerService extends Service implements Composition.OnCompositionS
 
             isPlaying = false;
 
-            for (Composition.OnCompositionStateChangedListener listener : listeners) {
-                listener.onPauseComposition();
+            for (Track.OnTrackStateChangedListener listener : listeners) {
+                listener.onNewTrackState();
             }
         }
     }
@@ -254,11 +244,11 @@ public class PlayerService extends Service implements Composition.OnCompositionS
         this.currentPlaylist = currentPlaylist;
     }
 
-    void addListener(Composition.OnCompositionStateChangedListener listener) {
+    void addListener(Track.OnTrackStateChangedListener listener) {
         listeners.add(listener);
     }
 
-    void removeListener(Composition.OnCompositionStateChangedListener listener) {
+    void removeListener(Track.OnTrackStateChangedListener listener) {
         listeners.remove(listener);
     }
 }

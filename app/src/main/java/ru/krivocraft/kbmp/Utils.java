@@ -29,7 +29,7 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static Composition getComposition(File file, int i) {
+    static Track getComposition(File file, int i) {
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -43,12 +43,12 @@ class Utils {
         String name = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
 
 
-        return new Composition(duration, composer, name, path, i);
+        return new Track(duration, composer, name, path, i);
     }
 
     private static int id = 0;
 
-    static void searchRecursively(File directory, Composition.OnCompositionFoundListener listener) {
+    static void searchRecursively(File directory, Track.OnTrackFoundListener listener) {
         File[] files = directory.listFiles();
         for (File file : files) {
             String fileName = file.getName();
@@ -57,9 +57,9 @@ class Utils {
                 searchRecursively(file, listener);
             } else {
                 if (fileName.endsWith(".mp3")) {
-                    Composition composition = getComposition(file, id);
-                    if (composition.getName() == null && composition.getAuthor() == null) {
-                        listener.onCompositionFound(composition);
+                    Track track = getComposition(file, id);
+                    if (!track.getName().equals(Constants.UNKNOWN_COMPOSITION) && !track.getArtist().equals(Constants.UNKNOWN_ARTIST)) {
+                        listener.onTrackFound(track);
                         id++;
                     }
                 }
