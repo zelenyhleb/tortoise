@@ -54,6 +54,7 @@ class Utils {
             String fileName = file.getName();
             if (file.isDirectory()) {
                 searchRecursively(file, listener);
+                System.out.println("search completed in " + directory);
             } else {
                 if (fileName.endsWith(".mp3")) {
                     Track track = getComposition(file, id);
@@ -65,6 +66,5 @@ class Utils {
                 }
             }
         }
-        System.out.println("search completed in " + directory);
     }
 }

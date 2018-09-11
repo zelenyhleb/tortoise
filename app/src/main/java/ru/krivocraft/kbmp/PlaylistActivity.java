@@ -176,6 +176,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
+    public void onClick(View v) {
+        startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
+    }
+
     @Override
     public void onNewTrackState() {
         refreshFragment();
