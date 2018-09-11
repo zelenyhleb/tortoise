@@ -13,6 +13,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         filter.addAction(Constants.ACTION_PAUSE);
         filter.addAction(Constants.ACTION_NEXT);
         filter.addAction(Constants.ACTION_PREVIOUS);
+        filter.addAction(Constants.ACTION_CLOSE);
         registerReceiver(receiver, filter);
 
         return START_NOT_STICKY;
@@ -76,9 +78,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        if (notificationManager != null) {
-            notificationManager.cancel(NOTIFY_ID);
-        }
+        sendBroadcast(new Intent().setAction(Constants.ACTION_PREVIOUS));
         unregisterReceiver(receiver);
     }
 
@@ -143,23 +143,16 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                 .setContentIntent(contentIntent)
                 .build();
 
-        if (notificationManager != null) {
-            if (isPlaying) {
-                notification.flags = Notification.FLAG_NO_CLEAR;
-                startForeground(NOTIFY_ID, notification);
-            } else {
-                stopForeground(true);
-                notificationManager.notify(NOTIFY_ID, notification);
-            }
-        } else {
-            Toast.makeText(this, "Impossible to create service notification", Toast.LENGTH_SHORT).show();
-        }
+        startForeground(NOTIFY_ID, notification);
+    }
+
+    private void dismissNotification() {
+        stopForeground(true);
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            System.out.println("broadcast received with action: " + intent.getAction());
             switch (Objects.requireNonNull(intent.getAction())) {
                 case Constants.ACTION_PLAY:
                     start();
@@ -172,6 +165,9 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                     break;
                 case Constants.ACTION_PREVIOUS:
                     previousComposition();
+                    break;
+                case Constants.ACTION_CLOSE:
+                    dismissNotification();
                     break;
             }
         }

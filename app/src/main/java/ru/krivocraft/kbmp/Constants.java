@@ -8,6 +8,7 @@ class Constants {
     static final String ACTION_PAUSE = "action_pause";
     static final String ACTION_NEXT = "action_next";
     static final String ACTION_PREVIOUS = "action_previous";
+    static final String ACTION_CLOSE = "action_close";
     static final String COMPOSITIONS_LIST = "compositions_list";
 
     static final String COMPOSITION_NAME = "composition_name";
