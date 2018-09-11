@@ -60,6 +60,7 @@ public class PlayerFragment extends Fragment {
 
         viewAuthor.setText(compositionAuthor);
         viewName.setText(compositionName);
+        viewName.setSelected(true);
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         bar.setMax(compositionDuration);

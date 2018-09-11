@@ -10,6 +10,7 @@
             android:layout_height="match_parent"
             android:id="@+id/playlist"
             android:layout_below="@id/settings"
+            android:layout_above="@id/container"
             android:layout_margin="8dp"
     />
 

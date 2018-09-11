@@ -55,9 +55,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     if (!track.equals(mService.getCurrentTrack())) {
                         mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
                     }
-
-                    Intent intent = new Intent(PlaylistActivity.this, PlayerActivity.class);
-                    startActivity(intent);
                 }
             });
 

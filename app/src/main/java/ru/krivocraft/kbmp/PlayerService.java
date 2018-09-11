@@ -69,6 +69,9 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
+        if (notificationManager != null) {
+            notificationManager.cancel(NOTIFY_ID);
+        }
         unregisterReceiver(receiver);
     }
 
