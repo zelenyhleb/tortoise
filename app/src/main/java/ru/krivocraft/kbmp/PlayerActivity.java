@@ -190,7 +190,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        stopPlaying();
         mService.setCurrentCompositionProgress(seekBar.getProgress() * 1000);
         startPlaying();
     }

@@ -1,94 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".PlayerActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/layout_player"
+                tools:context=".PlayerActivity">
 
     <ImageButton
-        android:id="@+id/play_pause"
-        android:src="@drawable/ic_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:onClick="onClick"
-        android:background="@null"
-        />
+            android:id="@+id/play_pause"
+            android:src="@drawable/ic_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="16dp"
+            android:onClick="onClick"
+            android:background="@null"
+    />
     <SeekBar
-        android:id="@+id/composition_progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/play_pause"
-        android:layout_marginBottom="4dp"/>
+            android:id="@+id/composition_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/play_pause"
+            android:layout_marginBottom="4dp"/>
     <TextView
-        android:id="@+id/composition_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/composition_progress_bar"
-        android:layout_centerHorizontal="true"
-        android:text="@string/song_author_test" />
-
-    <TextView
-        android:id="@+id/composition_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/composition_author"
-        android:layout_centerHorizontal="true"
-        android:text="@string/song_name_test"
-        android:textColor="@color/text_color"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
+            android:id="@+id/composition_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/composition_progress_bar"
+            android:layout_centerHorizontal="true"
+            android:text="@string/song_author_test"/>
 
     <TextView
-        android:id="@+id/composition_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/composition_progress_bar"
-        android:layout_margin="16dp"
-        android:text="@string/zerotime"
-        tools:ignore="RtlHardcoded" />
+            android:id="@+id/composition_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/composition_author"
+            android:layout_centerHorizontal="true"
+            android:text="@string/song_name_test"
+            android:textColor="@color/text_color"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
 
     <TextView
-        android:id="@+id/composition_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/composition_progress_bar"
-        android:layout_margin="16dp"
-        android:text="@string/zerotime"
-        tools:ignore="RtlHardcoded" />
+            android:id="@+id/composition_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/composition_progress_bar"
+            android:layout_margin="16dp"
+            android:text="@string/zerotime"
+            tools:ignore="RtlHardcoded"/>
 
+    <TextView
+            android:id="@+id/composition_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/composition_progress_bar"
+            android:layout_margin="16dp"
+            android:text="@string/zerotime"
+            tools:ignore="RtlHardcoded"/>
 
 
     <ImageButton
-        android:id="@+id/next"
-        android:src="@drawable/ic_next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:layout_toRightOf="@id/play_pause"
-        android:onClick="onClick"
-        tools:ignore="RtlHardcoded"
-        android:background="@null"/>
+            android:id="@+id/next"
+            android:src="@drawable/ic_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+            android:layout_toRightOf="@id/play_pause"
+            android:onClick="onClick"
+            tools:ignore="RtlHardcoded"
+            android:background="@null"/>
 
 
     <ImageButton
-        android:id="@+id/previous"
-        android:src="@drawable/ic_previous"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_toLeftOf="@id/play_pause"
-        android:onClick="onClick"
-        tools:ignore="RtlHardcoded"
-        android:layout_margin="16dp"
-        android:background="@null"/>
+            android:id="@+id/previous"
+            android:src="@drawable/ic_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:layout_toLeftOf="@id/play_pause"
+            android:onClick="onClick"
+            tools:ignore="RtlHardcoded"
+            android:layout_margin="16dp"
+            android:background="@null"/>
 
 
 </RelativeLayout>
