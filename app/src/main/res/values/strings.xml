@@ -4,4 +4,6 @@
     <string name="song_name_test">Рай полон детей</string>
     <string name="song_author_test">Loqiemean</string>
     <string name="clear_database">clear database</string>
+    <string name="unknown_artist">Unknown Artist</string>
+    <string name="unknown_track">Unknown Track</string>
 </resources>

@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,7 +26,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private boolean mBounded = false;
 
-    private PlaylistAdapter mPlaylistAdapter;
+    private Playlist.Adapter mAdapter;
     private PlayerService mService;
 
     private SQLiteProcessor database;
@@ -40,10 +41,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mService = binder.getServerInstance();
             mService.addListener(PlaylistActivity.this);
 
-            ListView playlistView = findViewById(R.id.playlist);
+            final ListView playlistView = findViewById(R.id.playlist);
 
-            mPlaylistAdapter = new PlaylistAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
-            playlistView.setAdapter(mPlaylistAdapter);
+            mAdapter = new Playlist.Adapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
+            playlistView.setAdapter(mAdapter);
 
             playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -52,12 +53,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
                     if (!track.equals(mService.getCurrentTrack())) {
                         mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
+                    } else {
+                        if (mService.isPlaying()) {
+                            mService.stop();
+                        } else {
+                            mService.start();
+                        }
                     }
                 }
             });
 
             refreshFragment();
-            loadCompositions();
         }
 
         @Override
@@ -122,7 +128,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 @Override
                 public void run() {
                     loadCompositions();
-                    mPlaylistAdapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
                 }
             });
         }

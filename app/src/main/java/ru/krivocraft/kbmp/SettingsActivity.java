@@ -1,7 +1,7 @@
 package ru.krivocraft.kbmp;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public class SettingsActivity extends AppCompatActivity {
