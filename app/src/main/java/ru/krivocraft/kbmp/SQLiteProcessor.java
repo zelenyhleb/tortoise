@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SQLiteProcessor {
+class SQLiteProcessor {
 
     private final SQLiteDatabase db;
 

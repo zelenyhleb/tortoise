@@ -154,8 +154,8 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         if (compositionProgressTimer != null) {
             compositionProgressTimer.cancel();
             compositionProgressTimer = null;
-            playPauseButton.setImageResource(R.drawable.ic_play);
         }
+        playPauseButton.setImageResource(R.drawable.ic_play);
     }
 
     public void onClick(View view) {
