@@ -3,6 +3,7 @@ package ru.krivocraft.kbmp;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.List;
 
 class Track implements Serializable {
 
@@ -22,7 +23,7 @@ class Track implements Serializable {
         this.path = path;
         this.identifier = identifier;
 
-        if (artist == null) {
+        if (artist.equals("<unknown>")) {
             this.artist = Constants.UNKNOWN_ARTIST;
         }
         if (name == null) {
@@ -68,8 +69,8 @@ class Track implements Serializable {
         return identifier;
     }
 
-    interface OnTrackFoundListener {
-        void onTrackFound(Track track);
+    interface OnTracksFoundListener {
+        void onTrackSearchingCompleted(List<Track> tracks);
     }
 
     interface OnTrackStateChangedListener {

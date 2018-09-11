@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -18,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -79,9 +77,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     playlist.addComposition(track);
                 }
             }
-            for (Track track : database.readCompositions()) {
-                System.out.println(track.getIdentifier() + ":" + track.getArtist() + ":" + track.getName() + ":" + track.getPath());
-            }
         }
     }
 
@@ -99,7 +94,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         database = new SQLiteProcessor(this);
 
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
-        searchTask.execute(Environment.getExternalStorageDirectory());
+        searchTask.execute();
 
         Intent serviceIntent = new Intent(this, PlayerService.class);
         startService(serviceIntent);
@@ -119,14 +114,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private Track.OnTrackFoundListener onTrackFoundListener = new Track.OnTrackFoundListener() {
+    private Track.OnTracksFoundListener onTracksFoundListener = new Track.OnTracksFoundListener() {
         @Override
-        public void onTrackFound(Track track) {
-            database.writeComposition(track);
-            loadCompositions();
+        public void onTrackSearchingCompleted(List<Track> tracks) {
+            database.writeCompositions(tracks);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    loadCompositions();
                     mPlaylistAdapter.notifyDataSetChanged();
                 }
             });
@@ -136,7 +131,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onResume() {
         super.onResume();
-        initPlaylist();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+            initPlaylist();
+        }
         refreshFragment();
     }
 
@@ -181,10 +178,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         refreshFragment();
     }
 
-    class RecursiveSearchTask extends AsyncTask<File, Void, Void> {
+    class RecursiveSearchTask extends AsyncTask<Void, Void, Void> {
+
         @Override
-        protected Void doInBackground(File... files) {
-            Utils.searchRecursively(files[0], onTrackFoundListener);
+        protected Void doInBackground(Void... voids) {
+            Utils.search(PlaylistActivity.this, onTracksFoundListener);
             return null;
         }
     }

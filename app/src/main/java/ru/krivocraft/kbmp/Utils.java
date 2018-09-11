@@ -1,8 +1,14 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -47,24 +53,35 @@ class Utils {
     }
 
     private static int id = 0;
+    static void search(Context context, Track.OnTracksFoundListener listener) {
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        String[] projection = {
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DURATION
+        };
+        final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
+        List<Track> tracks = new ArrayList<>();
 
-    static void searchRecursively(File directory, Track.OnTrackFoundListener listener) {
-        File[] files = directory.listFiles();
-        for (File file : files) {
-            String fileName = file.getName();
-            if (file.isDirectory()) {
-                searchRecursively(file, listener);
-                System.out.println("search completed in " + directory);
-            } else {
-                if (fileName.endsWith(".mp3")) {
-                    Track track = getComposition(file, id);
-                    if (!track.getName().equals(Constants.UNKNOWN_COMPOSITION) && !track.getArtist().equals(Constants.UNKNOWN_ARTIST)) {
-                        System.out.println("found " + fileName);
-                        listener.onTrackFound(track);
-                        id++;
-                    }
+        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String title = cursor.getString(0);
+                String artist = cursor.getString(1);
+                String path = cursor.getString(2);
+                String songDuration = cursor.getString(4);
+                cursor.moveToNext();
+                if (path != null && path.endsWith(".mp3")) {
+                    tracks.add(new Track(songDuration, artist, title, path, id));
+                    id++;
                 }
             }
+            listener.onTrackSearchingCompleted(tracks);
+            cursor.close();
         }
     }
 }

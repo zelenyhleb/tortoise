@@ -18,9 +18,8 @@ class SQLiteProcessor {
     }
 
     void writeComposition(Track track) {
-        if (!readCompositions().contains(track)){
+        if (!readCompositions().contains(track)) {
             ContentValues contentValues = new ContentValues();
-//            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(track.getIdentifier()));
             contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
             contentValues.put(Constants.COMPOSITION_NAME, track.getName());
             contentValues.put(Constants.COMPOSITION_PATH, track.getPath());
@@ -31,7 +30,13 @@ class SQLiteProcessor {
 
     }
 
-    void clearDatabase(){
+    void writeCompositions(List<Track> tracks) {
+        for (Track track : tracks) {
+            writeComposition(track);
+        }
+    }
+
+    void clearDatabase() {
         db.execSQL("delete from " + Constants.COMPOSITIONS_LIST);
     }
 
