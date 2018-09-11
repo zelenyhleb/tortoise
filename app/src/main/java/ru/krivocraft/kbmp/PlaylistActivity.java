@@ -13,10 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.*;
 
 import java.util.List;
 
@@ -50,7 +47,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Track track = (Track) adapterView.getItemAtPosition(i);
-
                     if (!track.equals(mService.getCurrentTrack())) {
                         mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
                     } else {
@@ -176,7 +172,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     public void onClick(View v) {
-        startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
+        switch (v.getId()) {
+            case R.id.settings:
+                startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
+                break;
+            case R.id.shuffle:
+                if (mBounded) {
+                    mService.getCurrentPlaylist().shuffle();
+                    mAdapter.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 
     @Override

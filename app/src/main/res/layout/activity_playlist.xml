@@ -24,6 +24,15 @@
             android:src="@drawable/ic_settings"
             android:onClick="onClick"
             android:tint="@color/text_color"/>
+    <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:id="@+id/shuffle"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_shuffle"
+            android:onClick="onClick"
+            android:tint="@color/text_color"/>
 
     <LinearLayout
             android:layout_width="match_parent"

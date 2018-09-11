@@ -13,9 +13,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,6 +81,10 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     public void start() {
+        start(currentCompositionProgress);
+    }
+
+    public void start(int progress) {
 
         if (player != null) {
             stop();
@@ -95,7 +97,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         } catch (IOException e) {
             e.printStackTrace();
         }
-        player.seekTo(currentCompositionProgress);
+        player.seekTo(progress);
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {

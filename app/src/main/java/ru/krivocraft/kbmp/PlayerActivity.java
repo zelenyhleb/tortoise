@@ -124,6 +124,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         }
     }
 
+    private void startPlaying(int progress) {
+        if (mBounded) {
+            mService.start(progress);
+        }
+    }
+
     private void stopPlaying() {
         if (mBounded) {
             mService.stop();
@@ -190,8 +196,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        mService.setCurrentCompositionProgress(seekBar.getProgress() * 1000);
-        startPlaying();
+        startPlaying(seekBar.getProgress() * 1000);
     }
 
     @Override

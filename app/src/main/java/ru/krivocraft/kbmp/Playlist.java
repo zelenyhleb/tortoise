@@ -10,9 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 class Playlist implements Serializable {
 
@@ -27,6 +25,7 @@ class Playlist implements Serializable {
     }
 
     void shuffle() {
+        Collections.shuffle(tracks);
     }
 
     Track getComposition(int index) {
