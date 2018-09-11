@@ -37,7 +37,7 @@
         android:layout_above="@id/composition_author"
         android:layout_centerHorizontal="true"
         android:text="@string/song_name_test"
-        android:textColor="@color/black"
+        android:textColor="@color/text_color"
         android:textSize="16sp"
         android:textStyle="bold" />
 

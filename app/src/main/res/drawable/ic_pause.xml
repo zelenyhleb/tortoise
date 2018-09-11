@@ -1,5 +1,5 @@
 <vector android:height="24dp" android:viewportHeight="512"
     android:viewportWidth="512" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#000" android:name="Прямоугольник 1" android:pathData="m85 56h150v400h-150v-400z"/>
-    <path android:fillColor="#000" android:name="Прямоугольник 1 копия" android:pathData="m277 56h150v400h-150v-400z"/>
+    <path android:fillColor="#fff" android:name="Прямоугольник 1" android:pathData="m85 56h150v400h-150v-400z"/>
+    <path android:fillColor="#fff" android:name="Прямоугольник 1 копия" android:pathData="m277 56h150v400h-150v-400z"/>
 </vector>

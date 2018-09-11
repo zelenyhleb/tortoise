@@ -52,13 +52,13 @@ class Utils {
         File[] files = directory.listFiles();
         for (File file : files) {
             String fileName = file.getName();
-            System.out.println("searching in " + fileName);
             if (file.isDirectory()) {
                 searchRecursively(file, listener);
             } else {
                 if (fileName.endsWith(".mp3")) {
                     Track track = getComposition(file, id);
                     if (!track.getName().equals(Constants.UNKNOWN_COMPOSITION) && !track.getArtist().equals(Constants.UNKNOWN_ARTIST)) {
+                        System.out.println("found " + fileName);
                         listener.onTrackFound(track);
                         id++;
                     }

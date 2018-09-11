@@ -31,6 +31,10 @@ class SQLiteProcessor {
 
     }
 
+    void clearDatabase(){
+        db.execSQL("delete from " + Constants.COMPOSITIONS_LIST);
+    }
+
     List<Track> readCompositions() {
         Cursor c = db.query(Constants.COMPOSITIONS_LIST, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
         List<Track> tracks = new ArrayList<>();
