@@ -19,8 +19,11 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_next" />
-                            <entry key="sourceFile" value="C:\Users\kefir\Pictures\next.psd" />
+                            <entry key="height" value="512" />
+                            <entry key="outputName" value="ic_icon" />
+                            <entry key="overrideSize" value="true" />
+                            <entry key="sourceFile" value="C:\Users\kefir\Pictures\icon.psd" />
+                            <entry key="width" value="512" />
                           </map>
                         </option>
                       </PersistentState>

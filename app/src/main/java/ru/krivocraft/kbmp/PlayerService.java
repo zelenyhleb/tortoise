@@ -64,6 +64,13 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
         addListener(this);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_PLAY);
+        filter.addAction(Constants.ACTION_PAUSE);
+        filter.addAction(Constants.ACTION_NEXT);
+        filter.addAction(Constants.ACTION_PREVIOUS);
+        registerReceiver(receiver, filter);
+
         return START_NOT_STICKY;
     }
 
@@ -131,26 +138,19 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         notificationLayout.setTextViewText(R.id.notification_composition_name, currentTrack.getName());
 
         Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_launcher)
                 .setContent(notificationLayout)
                 .setContentIntent(contentIntent)
                 .build();
 
-        if (isPlaying) {
-            notification.flags = Notification.FLAG_NO_CLEAR;
-        } else {
-            notification.flags = Notification.FLAG_LOCAL_ONLY;
-        }
-
         if (notificationManager != null) {
-            notificationManager.notify(NOTIFY_ID, notification);
-
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Constants.ACTION_PLAY);
-            filter.addAction(Constants.ACTION_PAUSE);
-            filter.addAction(Constants.ACTION_NEXT);
-            filter.addAction(Constants.ACTION_PREVIOUS);
-            registerReceiver(receiver, filter);
+            if (isPlaying) {
+                notification.flags = Notification.FLAG_NO_CLEAR;
+                startForeground(NOTIFY_ID, notification);
+            } else {
+                stopForeground(true);
+                notificationManager.notify(NOTIFY_ID, notification);
+            }
         } else {
             Toast.makeText(this, "Impossible to create service notification", Toast.LENGTH_SHORT).show();
         }
