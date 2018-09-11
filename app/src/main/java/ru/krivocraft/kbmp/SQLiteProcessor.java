@@ -20,7 +20,7 @@ class SQLiteProcessor {
     void writeComposition(Track track) {
         if (!readCompositions().contains(track)){
             ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(track.getIdentifier()));
+//            contentValues.put(Constants.COMPOSITION_IDENTIFIER, String.valueOf(track.getIdentifier()));
             contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
             contentValues.put(Constants.COMPOSITION_NAME, track.getName());
             contentValues.put(Constants.COMPOSITION_PATH, track.getPath());

@@ -95,9 +95,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         setContentView(R.layout.activity_playlist);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
-            return;
         }
-        initPlaylist();
     }
 
     private void initPlaylist() {
@@ -141,6 +139,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onResume() {
         super.onResume();
+        initPlaylist();
         refreshFragment();
     }
 
