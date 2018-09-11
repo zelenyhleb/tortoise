@@ -133,8 +133,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onResume() {
         super.onResume();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
-            initPlaylist();
+        if (!mBounded) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+                initPlaylist();
+            }
+        } else {
+            if (mService.getCurrentPlaylist().isEmpty()) {
+                initPlaylist();
+            }
         }
         refreshFragment();
     }

@@ -34,7 +34,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     private List<Track.OnTrackStateChangedListener> listeners = new ArrayList<>();
     private final int NOTIFY_ID = 124;
-    private NotificationManager notificationManager;
 
     @Nullable
     @Override
@@ -56,11 +55,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         currentPlaylist = new Playlist();
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.cancel(NOTIFY_ID);
-        }
-
         addListener(this);
 
         IntentFilter filter = new IntentFilter();
@@ -176,6 +170,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     };
 
     void nextComposition() {
+        System.out.println(currentPlaylist.indexOf(currentTrack));
         newComposition(currentPlaylist.indexOf(currentTrack) + 1);
     }
 
@@ -235,10 +230,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         } else {
             return currentCompositionProgress;
         }
-    }
-
-    void setCurrentCompositionProgress(int currentCompositionProgress) {
-        this.currentCompositionProgress = currentCompositionProgress;
     }
 
     public void setCurrentPlaylist(Playlist currentPlaylist) {

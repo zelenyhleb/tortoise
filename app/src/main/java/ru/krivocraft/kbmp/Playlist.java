@@ -28,6 +28,10 @@ class Playlist implements Serializable {
         Collections.shuffle(tracks);
     }
 
+    boolean isEmpty(){
+        return tracks.isEmpty();
+    }
+
     Track getComposition(int index) {
         return tracks.get(index);
     }
