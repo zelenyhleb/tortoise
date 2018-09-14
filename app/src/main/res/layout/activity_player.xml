@@ -38,41 +38,51 @@
             android:layout_marginBottom="4dp"/>
     <TextView
             android:id="@+id/composition_author"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:layout_margin="8dp"
             android:layout_above="@id/composition_progress_bar"
             android:layout_centerHorizontal="true"
             android:text="@string/song_author_test"/>
 
     <TextView
             android:id="@+id/composition_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
             android:layout_height="wrap_content"
             android:layout_above="@id/composition_author"
             android:layout_centerHorizontal="true"
+            android:singleLine="true"
+            android:layout_margin="8dp"
+            android:ellipsize="marquee"
             android:text="@string/song_name_test"
             android:textColor="@color/text_color"
             android:textSize="16sp"
             android:textStyle="bold"/>
 
-
     <TextView
             android:id="@+id/composition_progress"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/composition_progress_bar"
             android:layout_margin="16dp"
+            android:focusable="false"
             android:text="@string/zerotime"
             tools:ignore="RtlHardcoded"/>
 
     <TextView
             android:id="@+id/composition_duration"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
+            android:textAlignment="viewEnd"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/composition_progress_bar"
             android:layout_margin="16dp"
+            android:focusable="false"
             android:text="@string/zerotime"
             tools:ignore="RtlHardcoded"/>
 

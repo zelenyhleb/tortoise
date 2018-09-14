@@ -8,11 +8,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -87,17 +90,28 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
         compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         compositionDurationTextView.setText(Utils.getFormattedTime((Integer.parseInt(compositionDuration) - progress) / 1000));
-        Bitmap picture = currentTrack.getPicture();
-        if (picture != null) {
-            trackImage.setImageBitmap(picture);
-        } else {
-            trackImage.setImageDrawable(getDrawable(R.drawable.ic_track_image_default));
-        }
+
+        final Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fadein);
+
+        Track.GetBitmapTask task = new Track.GetBitmapTask();
+        task.setListener(new Track.OnPictureProcessedListener() {
+            @Override
+            public void onPictureProcessed(final Bitmap bitmap) {
+                if (bitmap != null) {
+                    trackImage.setImageBitmap(bitmap);
+                } else {
+                    trackImage.setImageDrawable(getDrawable(R.drawable.ic_track_image_default));
+                }
+                trackImage.startAnimation(fadeIn);
+            }
+        });
+        task.execute(new File(currentTrack.getPath()));
 
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
         compositionNameTextView.setText(compositionName);
+        compositionNameTextView.setSelected(true);
         compositionAuthorTextView.setText(compositionComposer);
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);

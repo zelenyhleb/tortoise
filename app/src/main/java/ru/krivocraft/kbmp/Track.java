@@ -1,6 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -68,12 +69,29 @@ class Track implements Serializable {
         return duration;
     }
 
-    int getIdentifier() {
-        return identifier;
+    static class GetBitmapTask extends AsyncTask<File, Void, Bitmap> {
+
+        private OnPictureProcessedListener listener;
+
+        @Override
+        protected Bitmap doInBackground(File... files) {
+            return Utils.getTrackBitmap(files[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (listener != null) {
+                listener.onPictureProcessed(bitmap);
+            }
+        }
+
+        void setListener(OnPictureProcessedListener listener) {
+            this.listener = listener;
+        }
     }
 
-    Bitmap getPicture() {
-        return Utils.getTrackBitmap(new File(path));
+    interface OnPictureProcessedListener {
+        void onPictureProcessed(Bitmap bitmap);
     }
 
     interface OnTracksFoundListener {

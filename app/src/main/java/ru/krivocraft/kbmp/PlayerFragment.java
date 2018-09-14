@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -25,7 +27,7 @@ public class PlayerFragment extends Fragment {
     private int compositionProgress;
     private int compositionDuration;
     private boolean compositionState;
-    private Bitmap picture;
+    private String compositionPath;
     private Timer timer = new Timer();
 
     public PlayerFragment() {
@@ -37,7 +39,7 @@ public class PlayerFragment extends Fragment {
         this.compositionProgress = compositionProgress;
         this.compositionDuration = compositionDuration;
         this.compositionState = compositionState;
-        this.picture = track.getPicture();
+        this.compositionPath = track.getPath();
     }
 
     void destroy() {
@@ -60,19 +62,30 @@ public class PlayerFragment extends Fragment {
             }
         });
 
-        TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
-        TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
-        ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
+        final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
+        final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
+        final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
         viewAuthor.setText(compositionAuthor);
         viewName.setText(compositionName);
         viewName.setSelected(true);
 
-        if (picture != null) {
-            viewImage.setImageBitmap(picture);
-        } else {
-            viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
-        }
+        Track.GetBitmapTask task = new Track.GetBitmapTask();
+
+        final Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fadein);
+
+        task.setListener(new Track.OnPictureProcessedListener() {
+            @Override
+            public void onPictureProcessed(final Bitmap bitmap) {
+                if (bitmap != null) {
+                    viewImage.setImageBitmap(bitmap);
+                } else {
+                    viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
+                }
+                viewImage.startAnimation(fadeIn);
+            }
+        });
+        task.execute(new File(compositionPath));
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         bar.setMax(compositionDuration);
