@@ -1,6 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -28,7 +29,7 @@ public class PlayerFragment extends Fragment {
     private int compositionDuration;
     private boolean compositionState;
     private String compositionPath;
-    private Timer timer = new Timer();
+    private Timer progressBarTimer = new Timer();
 
     public PlayerFragment() {
     }
@@ -43,7 +44,7 @@ public class PlayerFragment extends Fragment {
     }
 
     void destroy() {
-        timer.cancel();
+        progressBarTimer.cancel();
     }
 
     @Override
@@ -55,10 +56,12 @@ public class PlayerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
+        final Context context = getContext();
+
         rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), PlayerActivity.class));
+                startActivity(new Intent(context, PlayerActivity.class));
             }
         });
 
@@ -72,7 +75,7 @@ public class PlayerFragment extends Fragment {
 
         Track.GetBitmapTask task = new Track.GetBitmapTask();
 
-        final Animation fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fadein);
+        final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
 
         task.setListener(new Track.OnPictureProcessedListener() {
             @Override
@@ -80,35 +83,34 @@ public class PlayerFragment extends Fragment {
                 if (bitmap != null) {
                     viewImage.setImageBitmap(bitmap);
                 } else {
-                    viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
+                    viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
                 }
                 viewImage.startAnimation(fadeIn);
             }
         });
         task.execute(new File(compositionPath));
 
+        ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
+        ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
+
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         bar.setMax(compositionDuration);
         bar.setProgress(compositionProgress);
 
         ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-        ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
-        ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
-
         if (compositionState) {
             playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
             playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
-                        PendingIntent.getBroadcast(getContext(), 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
                 }
             });
-
-            timer.schedule(new TimerTask() {
+            progressBarTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     bar.setProgress(bar.getProgress() + 1);
@@ -120,7 +122,7 @@ public class PlayerFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        PendingIntent.getBroadcast(getContext(), 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
@@ -133,7 +135,7 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    PendingIntent.getBroadcast(getContext(), 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                    PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
@@ -143,7 +145,7 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    PendingIntent.getBroadcast(getContext(), 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                    PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }

@@ -1,7 +1,6 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -13,7 +12,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
@@ -43,7 +41,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     @Override
-    public void onNewTrackState() {
+    public void onNewTrackState(Track.TrackState state) {
         updateNotification();
     }
 
@@ -103,7 +101,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         isPlaying = true;
 
         for (Track.OnTrackStateChangedListener listener : listeners) {
-            listener.onNewTrackState();
+            listener.onNewTrackState(Track.TrackState.PLAY_TRACK);
         }
     }
 
@@ -194,7 +192,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             currentTrack = currentPlaylist.getComposition(compositionIndex);
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onNewTrackState();
+                listener.onNewTrackState(Track.TrackState.NEW_TRACK);
             }
 
             start();
@@ -211,7 +209,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             isPlaying = false;
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onNewTrackState();
+                listener.onNewTrackState(Track.TrackState.PAUSE_TRACK);
             }
         }
     }

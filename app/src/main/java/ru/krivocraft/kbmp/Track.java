@@ -3,7 +3,6 @@ package ru.krivocraft.kbmp;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
@@ -18,6 +17,12 @@ class Track implements Serializable {
     private String path;
 
     private int identifier;
+
+    enum TrackState {
+        NEW_TRACK,
+        PAUSE_TRACK,
+        PLAY_TRACK
+    }
 
     Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
 
@@ -99,6 +104,6 @@ class Track implements Serializable {
     }
 
     interface OnTrackStateChangedListener {
-        void onNewTrackState();
+        void onNewTrackState(TrackState state);
     }
 }

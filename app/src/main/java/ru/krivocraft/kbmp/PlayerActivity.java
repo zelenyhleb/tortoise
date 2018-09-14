@@ -45,7 +45,8 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
             mService.addListener(PlayerActivity.this);
 
-            initUI();
+            initStaticUI();
+            initNonStaticUI();
         }
 
         @Override
@@ -79,7 +80,15 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         }
     }
 
-    private void initUI() {
+    private void initNonStaticUI() {
+        if (mService.isPlaying()) {
+            startUIPlaying();
+        } else {
+            stopUIPlaying();
+        }
+    }
+
+    private void initStaticUI() {
         Track currentTrack = mService.getCurrentTrack();
 
         int progress = Utils.getSeconds(mService.getProgress());
@@ -115,12 +124,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionAuthorTextView.setText(compositionComposer);
 
         compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
-
-        if (mService.isPlaying()) {
-            startUIPlaying();
-        } else {
-            stopUIPlaying();
-        }
     }
 
     private void updateBar() {
@@ -231,7 +234,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void onNewTrackState() {
-        initUI();
+    public void onNewTrackState(Track.TrackState state) {
+        switch (state) {
+            case NEW_TRACK:
+                initStaticUI();
+                break;
+        }
+        initNonStaticUI();
     }
 }

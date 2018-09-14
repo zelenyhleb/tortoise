@@ -192,7 +192,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @Override
-    public void onNewTrackState() {
+    public void onNewTrackState(Track.TrackState state) {
         refreshFragment();
     }
 
