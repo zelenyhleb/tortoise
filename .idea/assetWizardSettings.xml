@@ -19,8 +19,11 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_shuffle" />
-                            <entry key="sourceFile" value="C:\Users\kefir\Pictures\shuffle.psd" />
+                            <entry key="height" value="512" />
+                            <entry key="outputName" value="ic_track_image_default" />
+                            <entry key="overrideSize" value="true" />
+                            <entry key="sourceFile" value="C:\Users\kefir\Pictures\track_image_default.psd" />
+                            <entry key="width" value="512" />
                           </map>
                         </option>
                       </PersistentState>

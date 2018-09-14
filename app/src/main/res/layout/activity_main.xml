@@ -17,6 +17,16 @@
             android:onClick="onClick"
             android:background="@null"
     />
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_track_image_default"
+            android:layout_above="@id/composition_name"
+            android:id="@+id/track_image"/>
     <SeekBar
             android:id="@+id/composition_progress_bar"
             android:layout_width="match_parent"
