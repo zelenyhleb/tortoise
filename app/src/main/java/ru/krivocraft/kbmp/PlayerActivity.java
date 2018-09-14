@@ -54,7 +54,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_player);
 
         playPauseButton = findViewById(R.id.play_pause);
         compositionNameTextView = findViewById(R.id.composition_name);
