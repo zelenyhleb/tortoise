@@ -157,7 +157,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 fragment = new PlayerFragment();
                 int progress = Utils.getSeconds(mService.getProgress());
                 int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                fragment.setData(track.getArtist(), track.getName(), progress, duration, mService.isPlaying());
+                fragment.setData(track, progress, duration, mService.isPlaying());
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.container, fragment)

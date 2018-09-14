@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -9,9 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,17 +25,19 @@ public class PlayerFragment extends Fragment {
     private int compositionProgress;
     private int compositionDuration;
     private boolean compositionState;
+    private Bitmap picture;
     private Timer timer = new Timer();
 
     public PlayerFragment() {
     }
 
-    void setData(String compositionAuthor, String compositionName, int compositionProgress, int compositionDuration, boolean compositionState) {
-        this.compositionAuthor = compositionAuthor;
-        this.compositionName = compositionName;
+    void setData(Track track, int compositionProgress, int compositionDuration, boolean compositionState) {
+        this.compositionAuthor = track.getArtist();
+        this.compositionName = track.getName();
         this.compositionProgress = compositionProgress;
         this.compositionDuration = compositionDuration;
         this.compositionState = compositionState;
+        this.picture = track.getPicture();
     }
 
     void destroy() {
@@ -57,10 +62,17 @@ public class PlayerFragment extends Fragment {
 
         TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
         TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
+        ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
         viewAuthor.setText(compositionAuthor);
         viewName.setText(compositionName);
         viewName.setSelected(true);
+
+        if (picture != null) {
+            viewImage.setImageBitmap(picture);
+        } else {
+            viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
+        }
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         bar.setMax(compositionDuration);
