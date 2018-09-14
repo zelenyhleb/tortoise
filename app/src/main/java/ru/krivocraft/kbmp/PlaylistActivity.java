@@ -56,10 +56,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                             mService.start();
                         }
                     }
+                    showFragment();
                 }
             });
 
-            refreshFragment();
         }
 
         @Override
@@ -142,26 +142,51 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 initPlaylist();
             }
         }
-        refreshFragment();
+        showFragment();
     }
 
     private void refreshFragment() {
-        hideFragment();
-        showFragment();
+        refreshFragmentNonStatic();
+    }
+
+    private void refreshFragmentNonStatic() {
+        if (mBounded) {
+            Track track = mService.getCurrentTrack();
+            if (fragment != null && track != null) {
+                int progress = Utils.getSeconds(mService.getProgress());
+                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                fragment.setData(track, progress, duration, mService.isPlaying());
+                fragment.initNonStaticUI();
+            }
+        }
+    }
+
+    private void refreshFragmentStatic() {
+        if (mBounded) {
+            Track track = mService.getCurrentTrack();
+            if (fragment != null && track != null) {
+                int progress = Utils.getSeconds(mService.getProgress());
+                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                fragment.setData(track, progress, duration, mService.isPlaying());
+                fragment.initStaticUI();
+            }
+        }
     }
 
     private void showFragment() {
         if (mBounded) {
-            Track track = mService.getCurrentTrack();
-            if (track != null) {
-                fragment = new PlayerFragment();
-                int progress = Utils.getSeconds(mService.getProgress());
-                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                fragment.setData(track, progress, duration, mService.isPlaying());
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.container, fragment)
-                        .commitAllowingStateLoss();
+            if (fragment == null) {
+                Track track = mService.getCurrentTrack();
+                if (track != null) {
+                    fragment = new PlayerFragment();
+                    int progress = Utils.getSeconds(mService.getProgress());
+                    int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                    fragment.setData(track, progress, duration, mService.isPlaying());
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .add(R.id.container, fragment)
+                            .commitAllowingStateLoss();
+                }
             }
         }
     }
@@ -193,6 +218,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     @Override
     public void onNewTrackState(Track.TrackState state) {
+        switch (state) {
+            case NEW_TRACK:
+                refreshFragmentStatic();
+        }
         refreshFragment();
     }
 
