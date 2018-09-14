@@ -234,7 +234,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void onNewTrackState(Track.TrackState state) {
+    public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
                 initStaticUI();

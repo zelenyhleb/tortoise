@@ -41,14 +41,11 @@ class Utils {
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-
-        String path = file.getPath();
-
-        retriever.setDataSource(path);
-
-        Bitmap bm = null;
+        retriever.setDataSource(file.getPath());
 
         byte[] artBytes = retriever.getEmbeddedPicture();
+        Bitmap bm = null;
+
         if (artBytes != null) {
             bm = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
         }

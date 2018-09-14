@@ -41,7 +41,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     @Override
-    public void onNewTrackState(Track.TrackState state) {
+    public void onTrackStateChanged(Track.TrackState state) {
         updateNotification();
     }
 
@@ -101,7 +101,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         isPlaying = true;
 
         for (Track.OnTrackStateChangedListener listener : listeners) {
-            listener.onNewTrackState(Track.TrackState.PLAY_TRACK);
+            listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
         }
     }
 
@@ -192,7 +192,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             currentTrack = currentPlaylist.getComposition(compositionIndex);
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onNewTrackState(Track.TrackState.NEW_TRACK);
+                listener.onTrackStateChanged(Track.TrackState.NEW_TRACK);
             }
 
             start();
@@ -209,7 +209,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             isPlaying = false;
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onNewTrackState(Track.TrackState.PAUSE_TRACK);
+                listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
             }
         }
     }

@@ -20,8 +20,7 @@ class Track implements Serializable {
 
     enum TrackState {
         NEW_TRACK,
-        PAUSE_TRACK,
-        PLAY_TRACK
+        PLAY_PAUSE_TRACK
     }
 
     Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
@@ -104,6 +103,6 @@ class Track implements Serializable {
     }
 
     interface OnTrackStateChangedListener {
-        void onNewTrackState(TrackState state);
+        void onTrackStateChanged(TrackState state);
     }
 }

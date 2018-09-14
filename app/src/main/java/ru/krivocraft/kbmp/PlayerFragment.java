@@ -81,9 +81,6 @@ public class PlayerFragment extends Fragment {
             viewName.setSelected(true);
 
             Track.GetBitmapTask task = new Track.GetBitmapTask();
-
-            final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
-
             task.setListener(new Track.OnPictureProcessedListener() {
                 @Override
                 public void onPictureProcessed(final Bitmap bitmap) {
@@ -92,7 +89,7 @@ public class PlayerFragment extends Fragment {
                     } else {
                         viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
                     }
-                    viewImage.startAnimation(fadeIn);
+                    viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
                 }
             });
             task.execute(new File(compositionPath));

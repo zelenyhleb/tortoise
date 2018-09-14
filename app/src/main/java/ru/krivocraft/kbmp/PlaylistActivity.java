@@ -32,10 +32,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mBounded = true;
-
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
+
             mService.addListener(PlaylistActivity.this);
 
             final ListView playlistView = findViewById(R.id.playlist);
@@ -60,6 +59,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 }
             });
 
+            mBounded = true;
         }
 
         @Override
@@ -145,30 +145,22 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         showFragment();
     }
 
-    private void refreshFragment() {
-        refreshFragmentNonStatic();
-    }
-
-    private void refreshFragmentNonStatic() {
+    private void refreshFragment(boolean newDataAvailable) {
         if (mBounded) {
-            Track track = mService.getCurrentTrack();
-            if (fragment != null && track != null) {
-                int progress = Utils.getSeconds(mService.getProgress());
-                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                fragment.setData(track, progress, duration, mService.isPlaying());
-                fragment.initNonStaticUI();
-            }
-        }
-    }
+            if (fragment != null) {
+                Track track = mService.getCurrentTrack();
+                if (track != null) {
+                    int progress = Utils.getSeconds(mService.getProgress());
+                    int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                    boolean playing = mService.isPlaying();
 
-    private void refreshFragmentStatic() {
-        if (mBounded) {
-            Track track = mService.getCurrentTrack();
-            if (fragment != null && track != null) {
-                int progress = Utils.getSeconds(mService.getProgress());
-                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                fragment.setData(track, progress, duration, mService.isPlaying());
-                fragment.initStaticUI();
+                    fragment.setData(track, progress, duration, playing);
+
+                    if (newDataAvailable) {
+                        fragment.initStaticUI();
+                    }
+                    fragment.initNonStaticUI();
+                }
             }
         }
     }
@@ -217,12 +209,13 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @Override
-    public void onNewTrackState(Track.TrackState state) {
+    public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
-                refreshFragmentStatic();
+                refreshFragment(true);
+            case PLAY_PAUSE_TRACK:
+                refreshFragment(false);
         }
-        refreshFragment();
     }
 
     class RecursiveSearchTask extends AsyncTask<Void, Void, Void> {
