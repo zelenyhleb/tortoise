@@ -23,7 +23,7 @@
             android:layout_margin="8dp"
             android:src="@drawable/ic_settings"
             android:onClick="onClick"
-            android:tint="@color/text_color"/>
+            android:tint="@color/white"/>
     <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:layout_margin="8dp"
             android:src="@drawable/ic_shuffle"
             android:onClick="onClick"
-            android:tint="@color/text_color"/>
+            android:tint="@color/white"/>
 
     <LinearLayout
             android:layout_width="match_parent"

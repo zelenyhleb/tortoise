@@ -9,7 +9,6 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:layout_margin="4dp"
-            android:textColor="@color/text_color"
             android:textSize="16sp"
             android:textStyle="bold"/>
 

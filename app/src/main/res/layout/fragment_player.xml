@@ -4,7 +4,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="@color/background_color"
                 tools:context=".PlayerFragment">
 
     <ProgressBar
@@ -36,7 +35,7 @@
                 android:singleLine="true"
                 android:layout_height="wrap_content"
                 android:text="@string/song_name_test"
-                android:textColor="@color/text_color"
+                android:textColor="@color/white"
                 android:textStyle="bold"
                 android:layout_margin="4dp"
                 android:id="@+id/fragment_composition_name"/>
