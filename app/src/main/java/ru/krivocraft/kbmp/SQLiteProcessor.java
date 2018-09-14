@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ class SQLiteProcessor {
         db = dbHelper.getWritableDatabase();
     }
 
-    void writeComposition(Track track) {
+    private void writeComposition(Track track) {
         if (!readCompositions().contains(track)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());

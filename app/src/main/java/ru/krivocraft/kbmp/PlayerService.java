@@ -32,7 +32,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     private boolean isPlaying = false;
 
     private List<Track.OnTrackStateChangedListener> listeners = new ArrayList<>();
-    private final int NOTIFY_ID = 124;
+    private final static int NOTIFY_ID = 124;
 
     @Nullable
     @Override
@@ -53,7 +53,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        currentPlaylist = new Playlist();
+        setCurrentPlaylist(new Playlist());
         addListener(this);
 
         IntentFilter filter = new IntentFilter();
@@ -231,7 +231,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         }
     }
 
-    public void setCurrentPlaylist(Playlist currentPlaylist) {
+    void setCurrentPlaylist(Playlist currentPlaylist) {
         this.currentPlaylist = currentPlaylist;
     }
 
