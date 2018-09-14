@@ -3,11 +3,13 @@ package ru.krivocraft.kbmp;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -26,6 +28,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private TextView compositionNameTextView;
     private TextView compositionAuthorTextView;
     private ImageButton playPauseButton;
+    private ImageView trackImage;
 
     private PlayerService mService;
 
@@ -59,7 +62,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         compositionProgressTextView = findViewById(R.id.composition_progress);
         compositionDurationTextView = findViewById(R.id.composition_duration);
         compositionProgressBar = findViewById(R.id.composition_progress_bar);
-
+        trackImage = findViewById(R.id.track_image);
         bindService(new Intent(this, PlayerService.class), mConnection, BIND_ABOVE_CLIENT);
     }
 
@@ -84,6 +87,12 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
         compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         compositionDurationTextView.setText(Utils.getFormattedTime((Integer.parseInt(compositionDuration) - progress) / 1000));
+        Bitmap picture = currentTrack.getPicture();
+        if (picture != null) {
+            trackImage.setImageBitmap(picture);
+        } else {
+            trackImage.setImageDrawable(getDrawable(R.drawable.ic_track_image_default));
+        }
 
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);

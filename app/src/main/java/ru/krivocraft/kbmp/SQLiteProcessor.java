@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,11 +52,12 @@ class SQLiteProcessor {
             int compositionDurationColIndex = c.getColumnIndex(Constants.COMPOSITION_DURATION);
 
             do {
-                tracks.add(new Track(c.getString(compositionDurationColIndex),
-                        c.getString(compositionAuthorColIndex),
-                        c.getString(compositionNameColIndex),
-                        c.getString(compositionPathColIndex),
-                        c.getInt(compositionIdColIndex)));
+                String duration = c.getString(compositionDurationColIndex);
+                String author = c.getString(compositionAuthorColIndex);
+                String name = c.getString(compositionNameColIndex);
+                String path = c.getString(compositionPathColIndex);
+                int id = c.getInt(compositionIdColIndex);
+                tracks.add(new Track(duration, author, name, path, id));
 
             } while (c.moveToNext());
         }

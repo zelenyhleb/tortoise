@@ -1,7 +1,10 @@
 package ru.krivocraft.kbmp;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
@@ -67,6 +70,10 @@ class Track implements Serializable {
 
     int getIdentifier() {
         return identifier;
+    }
+
+    Bitmap getPicture() {
+        return Utils.getTrackBitmap(new File(path));
     }
 
     interface OnTracksFoundListener {

@@ -2,11 +2,11 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.view.View;
-import android.widget.ListView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static Track getComposition(File file, int i) {
+    static Bitmap getTrackBitmap(File file) {
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -46,15 +46,18 @@ class Utils {
 
         retriever.setDataSource(path);
 
-        String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        String composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String name = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        Bitmap bm = null;
 
+        byte[] artBytes = retriever.getEmbeddedPicture();
+        if (artBytes != null) {
+            bm = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
+        }
 
-        return new Track(duration, composer, name, path, i);
+        return bm;
     }
 
     private static int id = 0;
+
     static void search(Context context, Track.OnTracksFoundListener listener) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
