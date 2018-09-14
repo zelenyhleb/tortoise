@@ -63,103 +63,106 @@ public class PlayerFragment extends Fragment {
         return rootView;
     }
 
-    void initStaticUI(){
-        rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(context, PlayerActivity.class));
-            }
-        });
-
-        final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
-        final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
-        final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
-
-        viewAuthor.setText(compositionAuthor);
-        viewName.setText(compositionName);
-        viewName.setSelected(true);
-
-        Track.GetBitmapTask task = new Track.GetBitmapTask();
-
-        final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
-
-        task.setListener(new Track.OnPictureProcessedListener() {
-            @Override
-            public void onPictureProcessed(final Bitmap bitmap) {
-                if (bitmap != null) {
-                    viewImage.setImageBitmap(bitmap);
-                } else {
-                    viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
+    void initStaticUI() {
+        if (context != null) {
+            rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(context, PlayerActivity.class));
                 }
-                viewImage.startAnimation(fadeIn);
-            }
-        });
-        task.execute(new File(compositionPath));
+            });
 
-        ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
-        ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
+            final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
+            final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
+            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
-        previousCompositionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
+            viewAuthor.setText(compositionAuthor);
+            viewName.setText(compositionName);
+            viewName.setSelected(true);
+
+            Track.GetBitmapTask task = new Track.GetBitmapTask();
+
+            final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+
+            task.setListener(new Track.OnPictureProcessedListener() {
+                @Override
+                public void onPictureProcessed(final Bitmap bitmap) {
+                    if (bitmap != null) {
+                        viewImage.setImageBitmap(bitmap);
+                    } else {
+                        viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
+                    }
+                    viewImage.startAnimation(fadeIn);
                 }
-            }
-        });
-        nextCompositionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+            });
+            task.execute(new File(compositionPath));
 
+            ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
+            ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
+
+            previousCompositionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            nextCompositionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
 
     void initNonStaticUI() {
-        final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-        bar.setMax(compositionDuration);
-        bar.setProgress(compositionProgress);
+        if (context != null) {
+            final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
+            bar.setMax(compositionDuration);
+            bar.setProgress(compositionProgress);
 
-        ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-        if (compositionState) {
-            playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
-            playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
+            ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
+            if (compositionState) {
+                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+                playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        } catch (PendingIntent.CanceledException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-            progressBarTimer = new Timer();
-            progressBarTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    bar.setProgress(bar.getProgress() + 1);
-                }
-            }, 0, 1000);
-        } else {
-            playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
-            playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
+                });
+                progressBarTimer = new Timer();
+                progressBarTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        bar.setProgress(bar.getProgress() + 1);
                     }
-                }
-            });
-            progressBarTimer.cancel();
+                }, 0, 1000);
+            } else {
+                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
+                playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        } catch (PendingIntent.CanceledException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                progressBarTimer.cancel();
+            }
         }
     }
 }
