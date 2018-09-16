@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, OldTrack.OnTrackStateChangedListener {
+public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
 
     private SeekBar compositionProgressBar;
 
@@ -89,7 +89,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     private void initStaticUI() {
-        OldTrack currentTrack = mService.getCurrentTrack();
+        Track currentTrack = mService.getCurrentTrack();
 
         int progress = Utils.getSeconds(mService.getProgress());
 
@@ -102,8 +102,8 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
         final Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fadein);
 
-        OldTrack.GetBitmapTask task = new OldTrack.GetBitmapTask();
-        task.setListener(new OldTrack.OnPictureProcessedListener() {
+        Track.GetBitmapTask task = new Track.GetBitmapTask();
+        task.setListener(new Track.OnPictureProcessedListener() {
             @Override
             public void onPictureProcessed(final Bitmap bitmap) {
                 if (bitmap != null) {
@@ -234,7 +234,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void onTrackStateChanged(OldTrack.TrackState state) {
+    public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
                 initStaticUI();

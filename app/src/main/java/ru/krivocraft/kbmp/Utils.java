@@ -55,7 +55,7 @@ class Utils {
 
     private static int id = 0;
 
-    static void search(Context context, OldTrack.OnTracksFoundListener listener) {
+    static void search(Context context, Track.OnTracksFoundListener listener) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -65,7 +65,7 @@ class Utils {
                 MediaStore.Audio.Media.DURATION
         };
         final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
-        List<OldTrack> tracks = new ArrayList<>();
+        List<Track> tracks = new ArrayList<>();
 
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
@@ -78,7 +78,7 @@ class Utils {
                 String songDuration = cursor.getString(4);
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    tracks.add(new OldTrack(songDuration, artist, title, path, id));
+                    tracks.add(new Track(songDuration, artist, title, path, id));
                     id++;
                 }
             }

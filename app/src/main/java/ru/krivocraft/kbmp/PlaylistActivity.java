@@ -21,7 +21,7 @@ import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTrackStateChangedListener {
+public class PlaylistActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
 
     private boolean mBounded = false;
 
@@ -47,7 +47,7 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
             playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    OldTrack track = (OldTrack) adapterView.getItemAtPosition(i);
+                    Track track = (Track) adapterView.getItemAtPosition(i);
                     if (!track.equals(mService.getCurrentTrack())) {
                         mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
                     } else {
@@ -75,8 +75,8 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
-            List<OldTrack> tracks = database.readCompositions();
-            for (OldTrack track : tracks) {
+            List<Track> tracks = database.readCompositions();
+            for (Track track : tracks) {
                 if (!playlist.contains(track)) {
                     playlist.addComposition(track);
                 }
@@ -118,9 +118,9 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
         }
     }
 
-    private OldTrack.OnTracksFoundListener onTracksFoundListener = new OldTrack.OnTracksFoundListener() {
+    private Track.OnTracksFoundListener onTracksFoundListener = new Track.OnTracksFoundListener() {
         @Override
-        public void onTrackSearchingCompleted(List<OldTrack> tracks) {
+        public void onTrackSearchingCompleted(List<Track> tracks) {
             database.writeCompositions(tracks);
             runOnUiThread(new Runnable() {
                 @Override
@@ -150,7 +150,7 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
     private void refreshFragment(boolean newDataAvailable) {
         if (mBounded) {
             if (fragment != null) {
-                OldTrack track = mService.getCurrentTrack();
+                Track track = mService.getCurrentTrack();
                 if (track != null) {
                     int progress = Utils.getSeconds(mService.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
@@ -170,7 +170,7 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
     private void showFragment() {
         if (mBounded) {
             if (fragment == null) {
-                OldTrack track = mService.getCurrentTrack();
+                Track track = mService.getCurrentTrack();
                 if (track != null) {
                     fragment = new PlayerFragment();
                     int progress = Utils.getSeconds(mService.getProgress());
@@ -200,7 +200,7 @@ public class PlaylistActivity extends AppCompatActivity implements OldTrack.OnTr
     }
 
     @Override
-    public void onTrackStateChanged(OldTrack.TrackState state) {
+    public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
                 refreshFragment(true);
