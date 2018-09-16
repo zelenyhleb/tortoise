@@ -17,7 +17,7 @@ class SQLiteProcessor {
         db = dbHelper.getWritableDatabase();
     }
 
-    private void writeComposition(Track track) {
+    private void writeComposition(OldTrack track) {
         if (!readCompositions().contains(track)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
@@ -30,8 +30,8 @@ class SQLiteProcessor {
 
     }
 
-    void writeCompositions(List<Track> tracks) {
-        for (Track track : tracks) {
+    void writeCompositions(List<OldTrack> tracks) {
+        for (OldTrack track : tracks) {
             writeComposition(track);
         }
     }
@@ -40,9 +40,9 @@ class SQLiteProcessor {
         db.execSQL("delete from " + Constants.COMPOSITIONS_LIST);
     }
 
-    List<Track> readCompositions() {
+    List<OldTrack> readCompositions() {
         Cursor c = db.query(Constants.COMPOSITIONS_LIST, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
-        List<Track> tracks = new ArrayList<>();
+        List<OldTrack> tracks = new ArrayList<>();
         if (c.moveToFirst()) {
             int compositionIdColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
             int compositionAuthorColIndex = c.getColumnIndex(Constants.COMPOSITION_AUTHOR);
@@ -56,7 +56,7 @@ class SQLiteProcessor {
                 String name = c.getString(compositionNameColIndex);
                 String path = c.getString(compositionPathColIndex);
                 int id = c.getInt(compositionIdColIndex);
-                tracks.add(new Track(duration, author, name, path, id));
+                tracks.add(new OldTrack(duration, author, name, path, id));
 
             } while (c.moveToNext());
         }

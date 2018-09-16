@@ -19,19 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerService extends Service implements Track.OnTrackStateChangedListener {
+public class PlayerService extends Service implements OldTrack.OnTrackStateChangedListener {
 
     private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
 
     private Playlist currentPlaylist;
-    private Track currentTrack;
+    private OldTrack currentTrack;
 
     private int currentCompositionProgress = 0;
 
     private boolean isPlaying = false;
 
-    private List<Track.OnTrackStateChangedListener> listeners = new ArrayList<>();
+    private List<OldTrack.OnTrackStateChangedListener> listeners = new ArrayList<>();
     private final static int NOTIFY_ID = 124;
 
     @Nullable
@@ -41,7 +41,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     @Override
-    public void onTrackStateChanged(Track.TrackState state) {
+    public void onTrackStateChanged(OldTrack.TrackState state) {
         updateNotification();
     }
 
@@ -100,8 +100,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         player.start();
         isPlaying = true;
 
-        for (Track.OnTrackStateChangedListener listener : listeners) {
-            listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
+        for (OldTrack.OnTrackStateChangedListener listener : listeners) {
+            listener.onTrackStateChanged(OldTrack.TrackState.PLAY_PAUSE_TRACK);
         }
     }
 
@@ -177,7 +177,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         newComposition(currentPlaylist.indexOf(currentTrack) - 1);
     }
 
-    Track getCurrentTrack() {
+    OldTrack getCurrentTrack() {
         return currentTrack;
     }
 
@@ -191,8 +191,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             currentCompositionProgress = 0;
             currentTrack = currentPlaylist.getComposition(compositionIndex);
 
-            for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onTrackStateChanged(Track.TrackState.NEW_TRACK);
+            for (OldTrack.OnTrackStateChangedListener listener : listeners) {
+                listener.onTrackStateChanged(OldTrack.TrackState.NEW_TRACK);
             }
 
             start();
@@ -208,8 +208,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
             isPlaying = false;
 
-            for (Track.OnTrackStateChangedListener listener : listeners) {
-                listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
+            for (OldTrack.OnTrackStateChangedListener listener : listeners) {
+                listener.onTrackStateChanged(OldTrack.TrackState.PLAY_PAUSE_TRACK);
             }
         }
     }
@@ -235,11 +235,11 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         this.currentPlaylist = currentPlaylist;
     }
 
-    void addListener(Track.OnTrackStateChangedListener listener) {
+    void addListener(OldTrack.OnTrackStateChangedListener listener) {
         listeners.add(listener);
     }
 
-    void removeListener(Track.OnTrackStateChangedListener listener) {
+    void removeListener(OldTrack.OnTrackStateChangedListener listener) {
         listeners.remove(listener);
     }
 }

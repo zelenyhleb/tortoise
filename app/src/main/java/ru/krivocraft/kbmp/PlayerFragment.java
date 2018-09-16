@@ -35,7 +35,7 @@ public class PlayerFragment extends Fragment {
     public PlayerFragment() {
     }
 
-    void setData(Track track, int compositionProgress, int compositionDuration, boolean compositionState) {
+    void setData(OldTrack track, int compositionProgress, int compositionDuration, boolean compositionState) {
         this.compositionAuthor = track.getArtist();
         this.compositionName = track.getName();
         this.compositionProgress = compositionProgress;
@@ -75,8 +75,8 @@ public class PlayerFragment extends Fragment {
             viewName.setText(compositionName);
             viewName.setSelected(true);
 
-            Track.GetBitmapTask task = new Track.GetBitmapTask();
-            task.setListener(new Track.OnPictureProcessedListener() {
+            OldTrack.GetBitmapTask task = new OldTrack.GetBitmapTask();
+            task.setListener(new OldTrack.OnPictureProcessedListener() {
                 @Override
                 public void onPictureProcessed(final Bitmap bitmap) {
                     if (bitmap != null) {

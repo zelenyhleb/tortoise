@@ -17,9 +17,9 @@ import java.util.List;
 
 class Playlist implements Serializable {
 
-    private List<Track> tracks = new ArrayList<>();
+    private List<OldTrack> tracks = new ArrayList<>();
 
-    void addComposition(Track track) {
+    void addComposition(OldTrack track) {
         tracks.add(track);
     }
 
@@ -31,11 +31,11 @@ class Playlist implements Serializable {
         return tracks.isEmpty();
     }
 
-    Track getComposition(int index) {
+    OldTrack getComposition(int index) {
         return tracks.get(index);
     }
 
-    private List<Track> getTracks() {
+    private List<OldTrack> getTracks() {
         return tracks;
     }
 
@@ -43,15 +43,15 @@ class Playlist implements Serializable {
         return tracks.size();
     }
 
-    int indexOf(Track track) {
+    int indexOf(OldTrack track) {
         return tracks.indexOf(track);
     }
 
-    boolean contains(Track track) {
+    boolean contains(OldTrack track) {
         return tracks.contains(track);
     }
 
-    static class Adapter extends ArrayAdapter<Track> {
+    static class Adapter extends ArrayAdapter<OldTrack> {
 
         Adapter(Playlist playlist, @NonNull Context context) {
             super(context, R.layout.composition_list_item, playlist.getTracks());
@@ -62,7 +62,7 @@ class Playlist implements Serializable {
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-            Track track = getItem(position);
+            OldTrack track = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);

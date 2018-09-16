@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
-class Track implements Serializable {
+class OldTrack implements Serializable {
 
     private String duration;
 
@@ -23,7 +23,7 @@ class Track implements Serializable {
         PLAY_PAUSE_TRACK
     }
 
-    Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
+    OldTrack(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
 
         this.duration = duration;
         this.artist = artist;
@@ -45,10 +45,10 @@ class Track implements Serializable {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof Track)) {
+        if (!(obj instanceof OldTrack)) {
             return false;
         }
-        Track track = (Track) obj;
+        OldTrack track = (OldTrack) obj;
         return track.path.equals(path);
     }
 
@@ -99,7 +99,7 @@ class Track implements Serializable {
     }
 
     interface OnTracksFoundListener {
-        void onTrackSearchingCompleted(List<Track> tracks);
+        void onTrackSearchingCompleted(List<OldTrack> tracks);
     }
 
     interface OnTrackStateChangedListener {
