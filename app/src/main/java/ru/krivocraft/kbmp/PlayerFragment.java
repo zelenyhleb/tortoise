@@ -43,7 +43,7 @@ public class PlayerFragment extends Fragment {
         this.compositionState = compositionState;
         this.compositionPath = track.getPath();
     }
-
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
