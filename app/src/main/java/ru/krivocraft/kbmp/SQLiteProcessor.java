@@ -65,6 +65,21 @@ class SQLiteProcessor {
         return tracks;
     }
 
+    void createPlaylist(String name) {
+        db.execSQL("create table " + name + " ("
+                + Constants.PLAYLIST_INDEX + "integer primary key autoincrement,"
+                + Constants.PLAYLIST_COMPOSITION_REFERENCE + "integer);");
+    }
+
+    void editPlaylist(String name, List<Track> tracks) {
+        for (Track track : tracks) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(Constants.PLAYLIST_INDEX, "null");
+            contentValues.put(Constants.PLAYLIST_COMPOSITION_REFERENCE, track.getIdentifier());
+            db.insert(name, null, contentValues);
+        }
+    }
+
     static class DBHelper extends SQLiteOpenHelper {
 
         DBHelper(Context context) {

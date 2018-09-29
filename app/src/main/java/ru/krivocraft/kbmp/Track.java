@@ -40,6 +40,10 @@ class Track implements Serializable {
 
     }
 
+    int getIdentifier() {
+        return identifier;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
