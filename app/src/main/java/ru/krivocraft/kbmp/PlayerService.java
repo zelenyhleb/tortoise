@@ -82,6 +82,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     public void onTrackStateChanged(Track.TrackState state) {
         updateNotification();
     }
+
     class LocalBinder extends Binder {
         PlayerService getServerInstance() {
             return PlayerService.this;
@@ -120,7 +121,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         start(currentCompositionProgress);
     }
 
-    public void start(int progress) {
+    public void start(final int progress) {
 
         if (player != null) {
             stop();
@@ -129,22 +130,26 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         player = new MediaPlayer();
         try {
             player.setDataSource(currentTrack.getPath());
-            player.prepare();
+            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    player.seekTo(progress);
+                    player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            nextComposition();
+                        }
+                    });
+                    player.start();
+                    isPlaying = true;
+                    for (Track.OnTrackStateChangedListener listener : listeners) {
+                        listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
+                    }
+                }
+            });
+            player.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        player.seekTo(progress);
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                nextComposition();
-            }
-        });
-        player.start();
-        isPlaying = true;
-
-        for (Track.OnTrackStateChangedListener listener : listeners) {
-            listener.onTrackStateChanged(Track.TrackState.PLAY_PAUSE_TRACK);
         }
     }
 

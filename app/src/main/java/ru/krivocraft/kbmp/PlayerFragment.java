@@ -43,7 +43,7 @@ public class PlayerFragment extends Fragment {
         this.compositionState = compositionState;
         this.compositionPath = track.getPath();
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +153,9 @@ public class PlayerFragment extends Fragment {
                         }
                     }
                 });
-                progressBarTimer.cancel();
+                if (progressBarTimer != null) {
+                    progressBarTimer.cancel();
+                }
             }
         }
     }
