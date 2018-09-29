@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +63,27 @@ class SQLiteProcessor {
         }
         c.close();
         return tracks;
+    }
+
+    static class DBHelper extends SQLiteOpenHelper {
+
+        DBHelper(Context context) {
+            super(context, Constants.COMPOSITIONS_LIST, null, 1);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("create table " + Constants.COMPOSITIONS_LIST + " ("
+                    + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
+                    + Constants.COMPOSITION_NAME + " text,"
+                    + Constants.COMPOSITION_DURATION + " text,"
+                    + Constants.COMPOSITION_AUTHOR + " text,"
+                    + Constants.COMPOSITION_PATH + " text" + ");");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        }
     }
 }
