@@ -34,6 +34,44 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     private List<Track.OnTrackStateChangedListener> listeners = new ArrayList<>();
     private final static int NOTIFY_ID = 124;
 
+    private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null) {
+                if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
+                    int state = intent.getIntExtra("state", -1);
+                    if (state == 0) {
+                        stop();
+                    }
+                }
+            }
+        }
+    };
+
+    private BroadcastReceiver controlReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (Objects.requireNonNull(intent.getAction())) {
+                case Constants.ACTION_PLAY:
+                    start();
+                    break;
+                case Constants.ACTION_PAUSE:
+                    stop();
+                    break;
+                case Constants.ACTION_NEXT:
+                    nextComposition();
+                    break;
+                case Constants.ACTION_PREVIOUS:
+                    previousComposition();
+                    break;
+                case Constants.ACTION_CLOSE:
+                    dismissNotification();
+                    break;
+            }
+        }
+    };
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,11 +82,11 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     public void onTrackStateChanged(Track.TrackState state) {
         updateNotification();
     }
-
     class LocalBinder extends Binder {
         PlayerService getServerInstance() {
             return PlayerService.this;
         }
+
     }
 
     @Override
@@ -56,13 +94,17 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         setCurrentPlaylist(new Playlist());
         addListener(this);
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_PLAY);
-        filter.addAction(Constants.ACTION_PAUSE);
-        filter.addAction(Constants.ACTION_NEXT);
-        filter.addAction(Constants.ACTION_PREVIOUS);
-        filter.addAction(Constants.ACTION_CLOSE);
-        registerReceiver(receiver, filter);
+        IntentFilter controlFilter = new IntentFilter();
+        controlFilter.addAction(Constants.ACTION_PLAY);
+        controlFilter.addAction(Constants.ACTION_PAUSE);
+        controlFilter.addAction(Constants.ACTION_NEXT);
+        controlFilter.addAction(Constants.ACTION_PREVIOUS);
+        controlFilter.addAction(Constants.ACTION_CLOSE);
+        registerReceiver(controlReceiver, controlFilter);
+
+        IntentFilter musicFilter = new IntentFilter();
+        musicFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(headsetReceiver, musicFilter);
 
         return START_NOT_STICKY;
     }
@@ -70,7 +112,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         sendBroadcast(new Intent().setAction(Constants.ACTION_PREVIOUS));
-        unregisterReceiver(receiver);
+        unregisterReceiver(controlReceiver);
+        unregisterReceiver(headsetReceiver);
     }
 
     public void start() {
@@ -144,29 +187,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     private void dismissNotification() {
         stopForeground(true);
     }
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (Objects.requireNonNull(intent.getAction())) {
-                case Constants.ACTION_PLAY:
-                    start();
-                    break;
-                case Constants.ACTION_PAUSE:
-                    stop();
-                    break;
-                case Constants.ACTION_NEXT:
-                    nextComposition();
-                    break;
-                case Constants.ACTION_PREVIOUS:
-                    previousComposition();
-                    break;
-                case Constants.ACTION_CLOSE:
-                    dismissNotification();
-                    break;
-            }
-        }
-    };
 
     void nextComposition() {
         System.out.println(currentPlaylist.indexOf(currentTrack));
