@@ -62,6 +62,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             });
 
             mBounded = true;
+            showFragment();
         }
 
         @Override
@@ -92,6 +93,15 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mBounded) {
+            mService.removeListener(PlaylistActivity.this);
+        }
+        unbindService(mConnection);
     }
 
     private void initPlaylist() {
@@ -144,7 +154,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 initPlaylist();
             }
         }
-        showFragment();
     }
 
     private void refreshFragment(boolean newDataAvailable) {
