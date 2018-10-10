@@ -51,9 +51,9 @@ class Playlist implements Serializable {
         return tracks.contains(track);
     }
 
-    static class Adapter extends ArrayAdapter<Track> {
+    static class TracksAdapter extends ArrayAdapter<Track> {
 
-        Adapter(Playlist playlist, @NonNull Context context) {
+        TracksAdapter(Playlist playlist, @NonNull Context context) {
             super(context, R.layout.composition_list_item, playlist.getTracks());
         }
 
@@ -73,6 +73,13 @@ class Playlist implements Serializable {
             }
 
             return convertView;
+        }
+    }
+
+    static class PlaylistsAdapter extends ArrayAdapter<Playlist> {
+
+        public PlaylistsAdapter(@NonNull Context context, int resource) {
+            super(context, resource);
         }
     }
 }

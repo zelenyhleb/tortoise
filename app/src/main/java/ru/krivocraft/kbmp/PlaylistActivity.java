@@ -10,12 +10,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -26,7 +24,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private boolean mBounded = false;
 
-    private Playlist.Adapter mAdapter;
+    private Playlist.TracksAdapter mTracksAdapter;
     private PlayerService mService;
 
     private SQLiteProcessor database;
@@ -40,7 +38,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
             mService.addListener(PlaylistActivity.this);
 
-            mAdapter = new Playlist.Adapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
+            mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
             AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -59,7 +57,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             };
 
             TrackListFragment fragment = new TrackListFragment();
-            fragment.setData(mAdapter, onItemClickListener);
+            fragment.setData(mTracksAdapter, onItemClickListener);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.playlist, fragment)
@@ -140,7 +138,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 @Override
                 public void run() {
                     loadCompositions();
-                    mAdapter.notifyDataSetChanged();
+                    mTracksAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -206,7 +204,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             case R.id.shuffle:
                 if (mBounded) {
                     mService.getCurrentPlaylist().shuffle();
-                    mAdapter.notifyDataSetChanged();
+                    mTracksAdapter.notifyDataSetChanged();
                 }
                 break;
         }
