@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -39,12 +40,8 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
             mService.addListener(PlaylistActivity.this);
 
-            final ListView playlistView = findViewById(R.id.playlist);
-
             mAdapter = new Playlist.Adapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
-            playlistView.setAdapter(mAdapter);
-
-            playlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Track track = (Track) adapterView.getItemAtPosition(i);
@@ -59,7 +56,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     }
                     showFragment();
                 }
-            });
+            };
+
+            TrackListFragment fragment = new TrackListFragment();
+            fragment.setData(mAdapter, onItemClickListener);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.playlist, fragment)
+                    .commitAllowingStateLoss();
 
             mBounded = true;
             showFragment();
