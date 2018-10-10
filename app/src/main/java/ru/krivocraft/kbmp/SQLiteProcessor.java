@@ -26,7 +26,7 @@ class SQLiteProcessor {
             contentValues.put(Constants.COMPOSITION_PATH, track.getPath());
             contentValues.put(Constants.COMPOSITION_DURATION, track.getDuration());
 
-            db.insert(Constants.COMPOSITIONS_LIST, null, contentValues);
+            db.insert(Constants.COMPOSITIONS, null, contentValues);
         }
 
     }
@@ -38,11 +38,11 @@ class SQLiteProcessor {
     }
 
     void clearDatabase() {
-        db.execSQL("delete from " + Constants.COMPOSITIONS_LIST);
+        db.execSQL("delete from " + Constants.COMPOSITIONS);
     }
 
     List<Track> readCompositions() {
-        Cursor c = db.query(Constants.COMPOSITIONS_LIST, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
+        Cursor c = db.query(Constants.COMPOSITIONS, null, null, null, null, null, Constants.COMPOSITION_IDENTIFIER);
         List<Track> tracks = new ArrayList<>();
         if (c.moveToFirst()) {
             int compositionIdColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
@@ -80,15 +80,23 @@ class SQLiteProcessor {
         }
     }
 
+    void deletePlaylist(String name) {
+        db.execSQL("drop table " + name);
+    }
+
+    Playlist getPlaylist() {
+        return null;
+    }
+
     static class DBHelper extends SQLiteOpenHelper {
 
         DBHelper(Context context) {
-            super(context, Constants.COMPOSITIONS_LIST, null, 1);
+            super(context, Constants.COMPOSITIONS, null, 1);
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("create table " + Constants.COMPOSITIONS_LIST + " ("
+            db.execSQL("create table " + Constants.COMPOSITIONS + " ("
                     + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
                     + Constants.COMPOSITION_NAME + " text,"
                     + Constants.COMPOSITION_DURATION + " text,"
