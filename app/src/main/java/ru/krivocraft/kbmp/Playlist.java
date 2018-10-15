@@ -17,7 +17,18 @@ import java.util.List;
 
 class Playlist implements Serializable {
 
+    private String name;
+    private String image;
+
     private List<Track> tracks = new ArrayList<>();
+
+    Playlist() {
+
+    }
+
+    Playlist(String name) {
+
+    }
 
     void addComposition(Track track) {
         tracks.add(track);
@@ -51,6 +62,10 @@ class Playlist implements Serializable {
         return tracks.contains(track);
     }
 
+    public String getName() {
+        return name;
+    }
+
     static class TracksAdapter extends ArrayAdapter<Track> {
 
         TracksAdapter(Playlist playlist, @NonNull Context context) {
@@ -78,8 +93,25 @@ class Playlist implements Serializable {
 
     static class PlaylistsAdapter extends ArrayAdapter<Playlist> {
 
-        public PlaylistsAdapter(@NonNull Context context, int resource) {
-            super(context, resource);
+        PlaylistsAdapter(List<Playlist> playlists, @NonNull Context context) {
+            super(context, R.layout.playlists_grid_item, playlists);
+        }
+
+        @SuppressLint("InflateParams")
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+
+            Playlist playlist = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
+            }
+            if (playlist != null) {
+                ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(playlist.getName());
+            }
+
+            return convertView;
         }
     }
 }

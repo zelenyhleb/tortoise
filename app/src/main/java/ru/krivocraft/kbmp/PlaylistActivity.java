@@ -10,12 +10,16 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -24,7 +28,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private boolean mBounded = false;
 
+    private enum FragmentState {
+        PLAYLISTS_GRID,
+        TRACKS_LIST
+    }
+
+    private FragmentState fragmentState = FragmentState.TRACKS_LIST;
+
+    private Fragment trackViewFragment;
+
     private Playlist.TracksAdapter mTracksAdapter;
+    private Playlist.PlaylistsAdapter mPlaylistsAdapter;
     private PlayerService mService;
 
     private SQLiteProcessor database;
@@ -35,33 +49,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
+            mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
+            mPlaylistsAdapter = new Playlist.PlaylistsAdapter(new ArrayList<Playlist>(), PlaylistActivity.this);
 
             mService.addListener(PlaylistActivity.this);
-
-            mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
-            AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Track track = (Track) adapterView.getItemAtPosition(i);
-                    if (!track.equals(mService.getCurrentTrack())) {
-                        mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
-                    } else {
-                        if (mService.isPlaying()) {
-                            mService.stop();
-                        } else {
-                            mService.start();
-                        }
-                    }
-                    showFragment();
-                }
-            };
-
-            TrackListFragment fragment = new TrackListFragment();
-            fragment.setData(mTracksAdapter, onItemClickListener);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.playlist, fragment)
-                    .commitAllowingStateLoss();
 
             mBounded = true;
             showFragment();
@@ -74,6 +65,60 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     };
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
     private PlayerFragment fragment;
+
+    private void showFragment() {
+        if (mBounded) {
+            FragmentManager supportFragmentManager = getSupportFragmentManager();
+            if (trackViewFragment != null) {
+                supportFragmentManager
+                        .beginTransaction()
+                        .remove(trackViewFragment)
+                        .commitAllowingStateLoss();
+            }
+
+            switch (fragmentState) {
+                case TRACKS_LIST:
+                    AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            Track track = (Track) adapterView.getItemAtPosition(i);
+                            if (!track.equals(mService.getCurrentTrack())) {
+                                mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
+                            } else {
+                                if (mService.isPlaying()) {
+                                    mService.stop();
+                                } else {
+                                    mService.start();
+                                }
+                            }
+                            showPlayerFragment();
+                        }
+                    };
+                    TrackListFragment trackListFragment = new TrackListFragment();
+                    trackListFragment.setData(mTracksAdapter, onListItemClickListener);
+                    trackViewFragment = trackListFragment;
+                    break;
+                case PLAYLISTS_GRID:
+                    AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            mTracksAdapter = new Playlist.TracksAdapter((Playlist) parent.getItemAtPosition(position), PlaylistActivity.this);
+                            fragmentState = FragmentState.TRACKS_LIST;
+                            showFragment();
+                        }
+                    };
+                    PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
+                    playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener);
+                    trackViewFragment = playlistGridFragment;
+                    break;
+            }
+
+            supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.playlist, trackViewFragment)
+                    .commitAllowingStateLoss();
+        }
+    }
 
     private void loadCompositions() {
         if (mBounded) {
@@ -158,7 +203,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void refreshFragment(boolean newDataAvailable) {
+    private void refreshPlayerFragment(boolean newDataAvailable) {
         if (mBounded) {
             if (fragment != null) {
                 Track track = mService.getCurrentTrack();
@@ -178,7 +223,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showFragment() {
+    private void showPlayerFragment() {
         if (mBounded) {
             if (fragment == null) {
                 Track track = mService.getCurrentTrack();
@@ -207,6 +252,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     mTracksAdapter.notifyDataSetChanged();
                 }
                 break;
+            case R.id.fragment_state:
+                ImageButton button = findViewById(R.id.fragment_state);
+                if (fragmentState == FragmentState.TRACKS_LIST) {
+                    fragmentState = FragmentState.PLAYLISTS_GRID;
+                    button.setImageDrawable(getDrawable(R.drawable.ic_playlists));
+                } else {
+                    fragmentState = FragmentState.TRACKS_LIST;
+                    button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
+                }
+                showFragment();
+                break;
         }
     }
 
@@ -214,9 +270,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
-                refreshFragment(true);
+                refreshPlayerFragment(true);
             case PLAY_PAUSE_TRACK:
-                refreshFragment(false);
+                refreshPlayerFragment(false);
         }
     }
 

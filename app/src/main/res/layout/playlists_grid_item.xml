@@ -3,5 +3,16 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+    <ImageView
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:id="@+id/fragment_playlist_picture"
+            android:src="@drawable/ic_track_image_default"/>
+
+    <TextView
+            android:layout_width="128dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_playlist_name"/>
+
 
 </LinearLayout>
