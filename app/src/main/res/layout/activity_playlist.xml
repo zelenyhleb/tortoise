@@ -20,6 +20,16 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="@null"
+            android:id="@+id/fragment_state"
+            android:layout_margin="8dp"
+            android:src="@drawable/ic_tracks"
+            android:onClick="onClick"
+            android:tint="@color/white"/>
+
+    <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
             android:id="@+id/settings"
             android:layout_margin="8dp"
             android:src="@drawable/ic_settings"
@@ -28,6 +38,7 @@
     <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/fragment_state"
             android:background="@null"
             android:id="@+id/shuffle"
             android:layout_margin="8dp"
