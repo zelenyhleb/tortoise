@@ -18,6 +18,7 @@
     <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/search_edit_text"
             android:layout_alignParentEnd="true"
             android:background="@null"
             android:id="@+id/fragment_state"
@@ -25,10 +26,21 @@
             android:src="@drawable/ic_tracks"
             android:onClick="onClick"
             android:tint="@color/white"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/settings"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_toStartOf="@+id/shuffle"
+            android:id="@+id/search_edit_text"
+
+    />
 
     <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/search_edit_text"
             android:background="@null"
             android:id="@+id/settings"
             android:layout_margin="8dp"
@@ -39,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/fragment_state"
+            android:layout_alignBottom="@id/search_edit_text"
             android:background="@null"
             android:id="@+id/shuffle"
             android:layout_margin="8dp"
