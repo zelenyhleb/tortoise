@@ -54,6 +54,16 @@ class Playlist implements Serializable {
         return tracks.size();
     }
 
+    Playlist search(CharSequence string){
+        Playlist playlist = new Playlist();
+        for (Track track : tracks) {
+            if (track.getName().contains(string) || track.getArtist().contains(string)){
+                playlist.addComposition(track);
+            }
+        }
+        return playlist;
+    }
+
     int indexOf(Track track) {
         return tracks.indexOf(track);
     }
@@ -68,8 +78,16 @@ class Playlist implements Serializable {
 
     static class TracksAdapter extends ArrayAdapter<Track> {
 
+        private Playlist playlist;
+
         TracksAdapter(Playlist playlist, @NonNull Context context) {
             super(context, R.layout.composition_list_item, playlist.getTracks());
+            this.playlist = playlist;
+        }
+
+        public void setPlaylist(Playlist playlist) {
+            this.playlist = playlist;
+            notifyDataSetChanged();
         }
 
         @SuppressLint("InflateParams")
