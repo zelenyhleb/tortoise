@@ -14,10 +14,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private Playlist.TracksAdapter mTracksAdapter;
     private Playlist.PlaylistsAdapter mPlaylistsAdapter;
     private PlayerService mService;
+    private EditText searchEditText;
 
     private SQLiteProcessor database;
 
@@ -51,8 +53,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mService = binder.getServerInstance();
             mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
             mPlaylistsAdapter = new Playlist.PlaylistsAdapter(new ArrayList<Playlist>(), PlaylistActivity.this);
-
             mService.addListener(PlaylistActivity.this);
+
+            searchEditText = findViewById(R.id.search_edit_text);
 
             mBounded = true;
             showFragment();
@@ -262,6 +265,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
                 }
                 showFragment();
+                break;
+            case R.id.search_button:
+                String string = searchEditText.getText().toString();
                 break;
         }
     }
