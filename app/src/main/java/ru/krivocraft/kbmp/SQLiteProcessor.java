@@ -16,6 +16,12 @@ class SQLiteProcessor {
     SQLiteProcessor(Context context) {
         DBHelper dbHelper = new DBHelper(context);
         db = dbHelper.getWritableDatabase();
+        db.execSQL("create table if not exists " + Constants.COMPOSITIONS + " ("
+                + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
+                + Constants.COMPOSITION_NAME + " text,"
+                + Constants.COMPOSITION_DURATION + " text,"
+                + Constants.COMPOSITION_AUTHOR + " text,"
+                + Constants.COMPOSITION_PATH + " text" + ");");
     }
 
     private void writeComposition(Track track) {
@@ -38,7 +44,7 @@ class SQLiteProcessor {
     }
 
     void clearDatabase() {
-        db.execSQL("delete from " + Constants.COMPOSITIONS);
+        db.execSQL("drop table " + Constants.COMPOSITIONS);
     }
 
     List<Track> readCompositions() {
@@ -92,16 +98,11 @@ class SQLiteProcessor {
 
         DBHelper(Context context) {
             super(context, Constants.COMPOSITIONS, null, 1);
+
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("create table " + Constants.COMPOSITIONS + " ("
-                    + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
-                    + Constants.COMPOSITION_NAME + " text,"
-                    + Constants.COMPOSITION_DURATION + " text,"
-                    + Constants.COMPOSITION_AUTHOR + " text,"
-                    + Constants.COMPOSITION_PATH + " text" + ");");
         }
 
         @Override
