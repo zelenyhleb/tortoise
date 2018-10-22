@@ -55,7 +55,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mPlaylistsAdapter = new Playlist.PlaylistsAdapter(new ArrayList<Playlist>(), PlaylistActivity.this);
             mService.addListener(PlaylistActivity.this);
 
-            searchEditText = findViewById(R.id.search_edit_text);
+//            searchEditText = findViewById(R.id.search_edit_text);
 
             mBounded = true;
             showFragment();
@@ -81,38 +81,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
             switch (fragmentState) {
                 case TRACKS_LIST:
-                    AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            Track track = (Track) adapterView.getItemAtPosition(i);
-                            if (!track.equals(mService.getCurrentTrack())) {
-                                mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
-                            } else {
-                                if (mService.isPlaying()) {
-                                    mService.stop();
-                                } else {
-                                    mService.start();
-                                }
-                            }
-                            showPlayerFragment();
-                        }
-                    };
-                    TrackListFragment trackListFragment = new TrackListFragment();
-                    trackListFragment.setData(mTracksAdapter, onListItemClickListener);
-                    trackViewFragment = trackListFragment;
+                    trackViewFragment = getTrackListFragment(mTracksAdapter);
                     break;
                 case PLAYLISTS_GRID:
-                    AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            mTracksAdapter = new Playlist.TracksAdapter((Playlist) parent.getItemAtPosition(position), PlaylistActivity.this);
-                            fragmentState = FragmentState.TRACKS_LIST;
-                            showFragment();
-                        }
-                    };
-                    PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
-                    playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener);
-                    trackViewFragment = playlistGridFragment;
+                    trackViewFragment = getPlaylistGridFragment();
                     break;
             }
 
@@ -121,6 +93,44 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     .add(R.id.playlist, trackViewFragment)
                     .commitAllowingStateLoss();
         }
+    }
+
+    @NonNull
+    private PlaylistGridFragment getPlaylistGridFragment() {
+        AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTracksAdapter = new Playlist.TracksAdapter((Playlist) parent.getItemAtPosition(position), PlaylistActivity.this);
+                fragmentState = FragmentState.TRACKS_LIST;
+                showFragment();
+            }
+        };
+        PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
+        playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener);
+        return playlistGridFragment;
+    }
+
+    @NonNull
+    private TrackListFragment getTrackListFragment(Playlist.TracksAdapter tracksAdapter) {
+        AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Track track = (Track) adapterView.getItemAtPosition(i);
+                if (!track.equals(mService.getCurrentTrack())) {
+                    mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
+                } else {
+                    if (mService.isPlaying()) {
+                        mService.stop();
+                    } else {
+                        mService.start();
+                    }
+                }
+                showPlayerFragment();
+            }
+        };
+        TrackListFragment trackListFragment = new TrackListFragment();
+        trackListFragment.setData(tracksAdapter, onListItemClickListener);
+        return trackListFragment;
     }
 
     private void loadCompositions() {
@@ -266,9 +276,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 }
                 showFragment();
                 break;
-            case R.id.search_button:
-                String string = searchEditText.getText().toString();
-                break;
+//            case R.id.search_button:
+//                String string = searchEditText.getText().toString();
+//                break;
         }
     }
 
