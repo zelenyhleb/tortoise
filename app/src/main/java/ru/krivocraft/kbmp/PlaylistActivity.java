@@ -11,12 +11,8 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.*;
 
@@ -40,6 +36,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private Playlist.TracksAdapter mTracksAdapter;
     private Playlist.PlaylistsAdapter mPlaylistsAdapter;
+
     private PlayerService mService;
     private EditText searchEditText;
 
@@ -58,7 +55,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 //            searchEditText = findViewById(R.id.search_edit_text);
 
             mBounded = true;
-            showFragment();
+            showMainTrackViewFragment();
         }
 
         @Override
@@ -69,30 +66,45 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
     private PlayerFragment fragment;
 
-    private void showFragment() {
+    private void showMainTrackViewFragment() {
         if (mBounded) {
-            FragmentManager supportFragmentManager = getSupportFragmentManager();
-            if (trackViewFragment != null) {
-                supportFragmentManager
-                        .beginTransaction()
-                        .remove(trackViewFragment)
-                        .commitAllowingStateLoss();
-            }
-
+            Fragment fragment = this.trackViewFragment;
+            removeFragment(fragment);
             switch (fragmentState) {
                 case TRACKS_LIST:
-                    trackViewFragment = getTrackListFragment(mTracksAdapter);
+                    fragment = getTrackListFragment(mTracksAdapter);
                     break;
                 case PLAYLISTS_GRID:
-                    trackViewFragment = getPlaylistGridFragment();
+                    fragment = getPlaylistGridFragment();
                     break;
             }
+            addFragment(R.id.playlist, fragment);
+            this.trackViewFragment = fragment;
+        }
+    }
 
-            supportFragmentManager
+    private void showPlaylistViewFragment(Playlist playlist){
+        Fragment fragment = this.trackViewFragment;
+        removeFragment(fragment);
+        fragment = getTrackListFragment(new Playlist.TracksAdapter(playlist, this));
+        addFragment(R.id.playlist, fragment);
+        this.trackViewFragment = fragment;
+    }
+
+    private void removeFragment(Fragment fragment) {
+        if (fragment != null) {
+            getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.playlist, trackViewFragment)
+                    .remove(fragment)
                     .commitAllowingStateLoss();
         }
+    }
+
+    private void addFragment(int container, Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(container, fragment)
+                .commitAllowingStateLoss();
     }
 
     @NonNull
@@ -102,7 +114,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mTracksAdapter = new Playlist.TracksAdapter((Playlist) parent.getItemAtPosition(position), PlaylistActivity.this);
                 fragmentState = FragmentState.TRACKS_LIST;
-                showFragment();
+                showMainTrackViewFragment();
             }
         };
         PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
@@ -179,8 +191,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initPlaylist();
             } else {
                 Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
@@ -245,10 +256,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     int progress = Utils.getSeconds(mService.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     fragment.setData(track, progress, duration, mService.isPlaying());
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .add(R.id.container, fragment)
-                            .commitAllowingStateLoss();
+                    addFragment(R.id.container, fragment);
                 }
             }
         }
@@ -274,7 +282,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     fragmentState = FragmentState.TRACKS_LIST;
                     button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
                 }
-                showFragment();
+                showMainTrackViewFragment();
                 break;
 //            case R.id.search_button:
 //                String string = searchEditText.getText().toString();
