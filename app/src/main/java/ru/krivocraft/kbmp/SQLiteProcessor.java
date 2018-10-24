@@ -71,6 +71,28 @@ class SQLiteProcessor {
         return tracks;
     }
 
+    Track readComposition(int requestedId) {
+        Cursor c = db.rawQuery("select * from " + Constants.COMPOSITIONS + " where '" + Constants.COMPOSITION_IDENTIFIER + "' = " + requestedId, null);
+        Track track = null;
+        if (c.moveToFirst()) {
+            int compositionIdColIndex = c.getColumnIndex(Constants.COMPOSITION_IDENTIFIER);
+            int compositionAuthorColIndex = c.getColumnIndex(Constants.COMPOSITION_AUTHOR);
+            int compositionNameColIndex = c.getColumnIndex(Constants.COMPOSITION_NAME);
+            int compositionPathColIndex = c.getColumnIndex(Constants.COMPOSITION_PATH);
+            int compositionDurationColIndex = c.getColumnIndex(Constants.COMPOSITION_DURATION);
+
+            String duration = c.getString(compositionDurationColIndex);
+            String author = c.getString(compositionAuthorColIndex);
+            String name = c.getString(compositionNameColIndex);
+            String path = c.getString(compositionPathColIndex);
+            int id = c.getInt(compositionIdColIndex);
+            track = new Track(duration, author, name, path, id);
+
+        }
+        c.close();
+        return track;
+    }
+
     void createPlaylist(String name) {
         db.execSQL("create table " + name + " ("
                 + Constants.PLAYLIST_INDEX + "integer primary key autoincrement,"

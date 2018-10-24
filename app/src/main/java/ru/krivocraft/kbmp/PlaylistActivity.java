@@ -9,11 +9,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 
 import java.util.ArrayList;
@@ -33,12 +35,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private FragmentState fragmentState = FragmentState.TRACKS_LIST;
 
     private Fragment trackViewFragment;
+    private PlayerFragment playerFragment;
 
     private Playlist.TracksAdapter mTracksAdapter;
     private Playlist.PlaylistsAdapter mPlaylistsAdapter;
 
+    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
+
     private PlayerService mService;
+
     private EditText searchEditText;
+    private FloatingActionButton addPlaylistButton;
 
     private SQLiteProcessor database;
 
@@ -63,8 +70,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mBounded = false;
         }
     };
-    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 0;
-    private PlayerFragment fragment;
 
     private void showMainTrackViewFragment() {
         if (mBounded) {
@@ -73,9 +78,13 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             switch (fragmentState) {
                 case TRACKS_LIST:
                     fragment = getTrackListFragment(mTracksAdapter);
+                    addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeoutshort));
+                    addPlaylistButton.setVisibility(View.INVISIBLE);
                     break;
                 case PLAYLISTS_GRID:
                     fragment = getPlaylistGridFragment();
+                    addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeinshort));
+                    addPlaylistButton.setVisibility(View.VISIBLE);
                     break;
             }
             addFragment(R.id.playlist, fragment);
@@ -103,6 +112,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private void addFragment(int container, Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
                 .add(container, fragment)
                 .commitAllowingStateLoss();
     }
@@ -112,9 +122,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mTracksAdapter = new Playlist.TracksAdapter((Playlist) parent.getItemAtPosition(position), PlaylistActivity.this);
-                fragmentState = FragmentState.TRACKS_LIST;
-                showMainTrackViewFragment();
+                showPlaylistViewFragment((Playlist) parent.getItemAtPosition(position));
             }
         };
         PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
@@ -162,6 +170,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
+        addPlaylistButton = findViewById(R.id.add_playlist_button);
+        addPlaylistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PlaylistActivity.this, PlaylistCreationActivity.class);
+                startActivity(intent);
+            }
+        });
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
@@ -229,19 +245,19 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private void refreshPlayerFragment(boolean newDataAvailable) {
         if (mBounded) {
-            if (fragment != null) {
+            if (playerFragment != null) {
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
                     int progress = Utils.getSeconds(mService.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     boolean playing = mService.isPlaying();
 
-                    fragment.setData(track, progress, duration, playing);
+                    playerFragment.setData(track, progress, duration, playing);
 
                     if (newDataAvailable) {
-                        fragment.initStaticUI();
+                        playerFragment.initStaticUI();
                     }
-                    fragment.initNonStaticUI();
+                    playerFragment.initNonStaticUI();
                 }
             }
         }
@@ -249,14 +265,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private void showPlayerFragment() {
         if (mBounded) {
-            if (fragment == null) {
+            if (playerFragment == null) {
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
-                    fragment = new PlayerFragment();
+                    playerFragment = new PlayerFragment();
                     int progress = Utils.getSeconds(mService.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    fragment.setData(track, progress, duration, mService.isPlaying());
-                    addFragment(R.id.container, fragment);
+                    playerFragment.setData(track, progress, duration, mService.isPlaying());
+                    addFragment(R.id.container, playerFragment);
                 }
             }
         }
@@ -265,29 +281,41 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.settings:
-                startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
+                buttonSettings();
                 break;
             case R.id.shuffle:
-                if (mBounded) {
-                    mService.getCurrentPlaylist().shuffle();
-                    mTracksAdapter.notifyDataSetChanged();
-                }
+                buttonShuffle();
                 break;
             case R.id.fragment_state:
-                ImageButton button = findViewById(R.id.fragment_state);
-                if (fragmentState == FragmentState.TRACKS_LIST) {
-                    fragmentState = FragmentState.PLAYLISTS_GRID;
-                    button.setImageDrawable(getDrawable(R.drawable.ic_playlists));
-                } else {
-                    fragmentState = FragmentState.TRACKS_LIST;
-                    button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
-                }
-                showMainTrackViewFragment();
+                buttonChangeTrackViewFragmentState();
                 break;
 //            case R.id.search_button:
 //                String string = searchEditText.getText().toString();
 //                break;
         }
+    }
+
+    private void buttonChangeTrackViewFragmentState() {
+        ImageButton button = findViewById(R.id.fragment_state);
+        if (fragmentState == FragmentState.TRACKS_LIST) {
+            fragmentState = FragmentState.PLAYLISTS_GRID;
+            button.setImageDrawable(getDrawable(R.drawable.ic_playlists));
+        } else {
+            fragmentState = FragmentState.TRACKS_LIST;
+            button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
+        }
+        showMainTrackViewFragment();
+    }
+
+    private void buttonShuffle() {
+        if (mBounded) {
+            mService.getCurrentPlaylist().shuffle();
+            mTracksAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void buttonSettings() {
+        startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
     }
 
     @Override

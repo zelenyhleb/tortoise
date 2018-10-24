@@ -26,8 +26,8 @@ class Playlist implements Serializable {
 
     }
 
-    Playlist(String name) {
-
+    Playlist(List<Track> tracks) {
+        this.tracks = tracks;
     }
 
     void addComposition(Track track) {
@@ -78,16 +78,8 @@ class Playlist implements Serializable {
 
     static class TracksAdapter extends ArrayAdapter<Track> {
 
-        private Playlist playlist;
-
         TracksAdapter(Playlist playlist, @NonNull Context context) {
             super(context, R.layout.composition_list_item, playlist.getTracks());
-            this.playlist = playlist;
-        }
-
-        public void setPlaylist(Playlist playlist) {
-            this.playlist = playlist;
-            notifyDataSetChanged();
         }
 
         @SuppressLint("InflateParams")
@@ -99,6 +91,31 @@ class Playlist implements Serializable {
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
+            }
+            if (track != null) {
+                ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
+                ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
+            }
+
+            return convertView;
+        }
+    }
+
+    static class SelectableTracksAdapter extends ArrayAdapter<Track> {
+
+        SelectableTracksAdapter(Playlist playlist, @NonNull Context context) {
+            super(context, R.layout.selectable_composition_list_item, playlist.getTracks());
+        }
+
+        @SuppressLint("InflateParams")
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+
+            Track track = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.selectable_composition_list_item, null);
             }
             if (track != null) {
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());

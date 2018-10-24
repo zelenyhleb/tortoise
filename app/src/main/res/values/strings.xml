@@ -6,4 +6,5 @@
     <string name="clear_database">clear database</string>
     <string name="unknown_artist">Unknown Artist</string>
     <string name="unknown_track">Unknown Track</string>
+    <string name="apply">apply</string>
 </resources>

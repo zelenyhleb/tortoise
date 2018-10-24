@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:descendantFocusability="blocksDescendants"
+                android:layout_height="match_parent">
+
+    <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/composition_checkbox"
+            android:clickable="false"
+            />
+
+    <TextView
+            android:id="@+id/composition_name_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:layout_toEndOf="@id/composition_checkbox"
+            android:layout_margin="4dp"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    <TextView
+            android:id="@+id/composition_author_text"
+            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/composition_checkbox"
+            android:layout_below="@id/composition_name_text"
+            android:layout_margin="4dp"
+            android:textSize="12sp"/>
+
+</RelativeLayout>
