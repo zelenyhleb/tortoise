@@ -43,20 +43,18 @@ public class PlaylistCreationActivity extends AppCompatActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_apply:
-                commit(String.valueOf(new Random().nextInt()));
+                int i = new Random().nextInt();
+                if (i < 0) {
+                    i = i * -1;
+                }
+                commit(String.valueOf("playlist" + i));
+                supportFinishAfterTransition();
                 break;
         }
     }
 
     private void commit(String playlistName) {
         sqLiteProcessor.createPlaylist(playlistName);
-        List<Track> tracks = new ArrayList<>();
-        for (Integer i : selectedIds) {
-            Track track = sqLiteProcessor.readComposition(i);
-            if (track != null) {
-                tracks.add(track);
-            }
-        }
-        sqLiteProcessor.editPlaylist(playlistName, tracks);
+        sqLiteProcessor.editPlaylist(playlistName, selectedIds);
     }
 }

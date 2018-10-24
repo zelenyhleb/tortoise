@@ -17,7 +17,7 @@ class SQLiteProcessor {
         DBHelper dbHelper = new DBHelper(context);
         db = dbHelper.getWritableDatabase();
         db.execSQL("create table if not exists " + Constants.COMPOSITIONS + " ("
-                + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement,"
+                + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement, "
                 + Constants.COMPOSITION_NAME + " text,"
                 + Constants.COMPOSITION_DURATION + " text,"
                 + Constants.COMPOSITION_AUTHOR + " text,"
@@ -93,17 +93,48 @@ class SQLiteProcessor {
         return track;
     }
 
-    void createPlaylist(String name) {
-        db.execSQL("create table " + name + " ("
-                + Constants.PLAYLIST_INDEX + "integer primary key autoincrement,"
-                + Constants.PLAYLIST_COMPOSITION_REFERENCE + "integer);");
+    List<Playlist> getPlaylists() {
+        Cursor co = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        List<Playlist> playlists = new ArrayList<>();
+
+        if (co.moveToFirst()) {
+            while (!co.isAfterLast()) { //for each playlist
+
+                String tableName = co.getString(0);
+                if (tableName.contains("playlist")) {
+                    Cursor ci = db.query(tableName, null,null,null,null, null, Constants.PLAYLIST_INDEX);
+                    if (ci.moveToFirst()) {
+                        int playlistTrackReferenceIndex = ci.getColumnIndex(Constants.PLAYLIST_COMPOSITION_REFERENCE);
+                        Playlist playlist = new Playlist();
+
+                        while (!ci.isAfterLast()) { //for each track in playlist
+                            playlist.addComposition(readComposition(ci.getInt(playlistTrackReferenceIndex)));
+                            ci.moveToNext();
+                        }
+
+                        playlists.add(playlist);
+                    }
+                    ci.close();
+                }
+
+                co.moveToNext();
+            }
+        }
+        co.close();
+        return playlists;
     }
 
-    void editPlaylist(String name, List<Track> tracks) {
-        for (Track track : tracks) {
+    void createPlaylist(String name) {
+        db.execSQL("create table if not exists " + name + " ("
+                + Constants.PLAYLIST_INDEX + " integer primary key autoincrement, "
+                + Constants.PLAYLIST_COMPOSITION_REFERENCE + " integer);");
+    }
+
+    void editPlaylist(String name, List<Integer> ids) {
+        for (Integer integer : ids) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(Constants.PLAYLIST_INDEX, "null");
-            contentValues.put(Constants.PLAYLIST_COMPOSITION_REFERENCE, track.getIdentifier());
+            contentValues.put(Constants.PLAYLIST_COMPOSITION_REFERENCE, integer);
             db.insert(name, null, contentValues);
         }
     }

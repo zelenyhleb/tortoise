@@ -44,7 +44,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private PlayerService mService;
 
-    private EditText searchEditText;
     private FloatingActionButton addPlaylistButton;
 
     private SQLiteProcessor database;
@@ -56,10 +55,8 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
             mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
-            mPlaylistsAdapter = new Playlist.PlaylistsAdapter(new ArrayList<Playlist>(), PlaylistActivity.this);
+            mPlaylistsAdapter = new Playlist.PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
             mService.addListener(PlaylistActivity.this);
-
-//            searchEditText = findViewById(R.id.search_edit_text);
 
             mBounded = true;
             showMainTrackViewFragment();
@@ -78,13 +75,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             switch (fragmentState) {
                 case TRACKS_LIST:
                     fragment = getTrackListFragment(mTracksAdapter);
-                    addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeoutshort));
-                    addPlaylistButton.setVisibility(View.INVISIBLE);
+                    hideAddButton();
                     break;
                 case PLAYLISTS_GRID:
                     fragment = getPlaylistGridFragment();
-                    addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeinshort));
-                    addPlaylistButton.setVisibility(View.VISIBLE);
+                    showAddButton();
                     break;
             }
             addFragment(R.id.playlist, fragment);
@@ -92,7 +87,21 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showPlaylistViewFragment(Playlist playlist){
+    private void showAddButton() {
+        if (addPlaylistButton.getVisibility() == View.INVISIBLE) {
+            addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeinshort));
+            addPlaylistButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideAddButton() {
+        if (addPlaylistButton.getVisibility() == View.VISIBLE) {
+            addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeoutshort));
+            addPlaylistButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void showPlaylistViewFragment(Playlist playlist) {
         Fragment fragment = this.trackViewFragment;
         removeFragment(fragment);
         fragment = getTrackListFragment(new Playlist.TracksAdapter(playlist, this));
@@ -123,10 +132,13 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 showPlaylistViewFragment((Playlist) parent.getItemAtPosition(position));
+                hideAddButton();
             }
         };
         PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
         playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener);
+        mPlaylistsAdapter.notifyDataSetChanged();
+
         return playlistGridFragment;
     }
 
@@ -150,6 +162,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         };
         TrackListFragment trackListFragment = new TrackListFragment();
         trackListFragment.setData(tracksAdapter, onListItemClickListener);
+        tracksAdapter.notifyDataSetChanged();
         return trackListFragment;
     }
 
@@ -170,6 +183,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
+
+        database = new SQLiteProcessor(this);
+
         addPlaylistButton = findViewById(R.id.add_playlist_button);
         addPlaylistButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,8 +209,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private void initPlaylist() {
-        database = new SQLiteProcessor(this);
-
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
         searchTask.execute();
 
