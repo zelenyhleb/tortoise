@@ -46,22 +46,12 @@ class Playlist implements Serializable {
         return tracks.get(index);
     }
 
-    private List<Track> getTracks() {
+    List<Track> getTracks() {
         return tracks;
     }
 
     int getSize() {
         return tracks.size();
-    }
-
-    Playlist search(CharSequence string){
-        Playlist playlist = new Playlist();
-        for (Track track : tracks) {
-            if (track.getName().contains(string) || track.getArtist().contains(string)){
-                playlist.addComposition(track);
-            }
-        }
-        return playlist;
     }
 
     int indexOf(Track track) {

@@ -18,7 +18,7 @@ public class TrackListFragment extends Fragment {
         //required empty public constructor
     }
 
-    void setData(Playlist.TracksAdapter tracksAdapter, AdapterView.OnItemClickListener listener){
+    void setData(Playlist.TracksAdapter tracksAdapter, AdapterView.OnItemClickListener listener) {
         this.listener = listener;
         this.tracksAdapter = tracksAdapter;
     }

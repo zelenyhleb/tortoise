@@ -16,9 +16,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -303,9 +304,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             case R.id.fragment_state:
                 buttonChangeTrackViewFragmentState();
                 break;
-//            case R.id.search_button:
-//                String string = searchEditText.getText().toString();
-//                break;
         }
     }
 

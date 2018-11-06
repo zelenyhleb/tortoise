@@ -53,6 +53,16 @@ class Utils {
         return bm;
     }
 
+    static Playlist search(CharSequence string, Playlist playlistToSearch){
+        Playlist playlist = new Playlist();
+        for (Track track : playlistToSearch.getTracks()) {
+            if (track.getName().contains(string) || track.getArtist().contains(string)){
+                playlist.addComposition(track);
+            }
+        }
+        return playlist;
+    }
+
     private static int id = 0;
 
     static void search(Context context, Track.OnTracksFoundListener listener) {

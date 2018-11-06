@@ -31,11 +31,17 @@ class Track implements Serializable {
         this.path = path;
         this.identifier = identifier;
 
-        if (artist.equals("<unknown>")) {
-            this.artist = Constants.UNKNOWN_ARTIST;
-        }
-        if (name == null) {
-            this.name = Constants.UNKNOWN_COMPOSITION;
+        String[] meta = name.split(" - ");
+        if (meta.length > 1) {
+            this.artist = meta[0];
+            this.name = meta[1];
+        } else {
+            if (artist.equals("<unknown>")) {
+                this.artist = Constants.UNKNOWN_ARTIST;
+            }
+            if (name.equals("<unknown>")) {
+                this.name = Constants.UNKNOWN_COMPOSITION;
+            }
         }
 
     }
