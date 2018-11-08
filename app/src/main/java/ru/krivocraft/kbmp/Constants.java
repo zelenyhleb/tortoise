@@ -29,4 +29,7 @@ class Constants {
     static final int ONE_SECOND = 1000;
     static final int ZERO = 0;
 
+    static final int NOTIFY_ID = 124;
+    static final int HEADSET_STATE_PLUG_OUT = 0;
+    static final int HEADSET_STATE_PLUG_IN = 1;
 }

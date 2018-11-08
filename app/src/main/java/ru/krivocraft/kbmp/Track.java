@@ -16,7 +16,9 @@ class Track implements Serializable {
     private String name;
     private String path;
 
-    boolean checked = false;
+    private int progress;
+    private boolean playing = false;
+    private boolean checked = false;
 
     private int identifier;
 
@@ -50,6 +52,30 @@ class Track implements Serializable {
 
     int getIdentifier() {
         return identifier;
+    }
+
+    boolean isPlaying() {
+        return playing;
+    }
+
+    void setPlaying(boolean playing) {
+        this.playing = playing;
+    }
+
+    boolean isChecked() {
+        return checked;
+    }
+
+    void setChecked(boolean checked) {
+        this.checked = checked;
+    }
+
+    int getProgress() {
+        return progress;
+    }
+
+    void setProgress(int progress) {
+        this.progress = progress;
     }
 
     @Override

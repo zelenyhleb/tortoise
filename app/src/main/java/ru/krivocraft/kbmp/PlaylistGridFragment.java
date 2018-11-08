@@ -30,7 +30,6 @@ public class PlaylistGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_playlistgrid, container, false);
         GridView gridView = rootView.findViewById(R.id.playlists_grid);
         gridView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
         gridView.setOnItemClickListener(listener);
         return rootView;
     }

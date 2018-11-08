@@ -50,7 +50,7 @@ class Playlist implements Serializable {
         return tracks.isEmpty();
     }
 
-    Track getComposition(int index) {
+    Track getTrack(int index) {
         return tracks.get(index);
     }
 
@@ -141,7 +141,7 @@ class Playlist implements Serializable {
             if (track != null) {
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
                 ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
-                ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.checked);
+                ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isChecked());
             }
 
             return convertView;

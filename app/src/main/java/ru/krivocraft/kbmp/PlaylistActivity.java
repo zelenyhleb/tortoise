@@ -272,7 +272,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             if (playerFragment != null) {
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
-                    int progress = Utils.getSeconds(mService.getProgress());
+                    int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     boolean playing = mService.isPlaying();
 
@@ -295,7 +295,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
                     playerFragment = new PlayerFragment();
-                    int progress = Utils.getSeconds(mService.getProgress());
+                    int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     playerFragment.setData(track, progress, duration, mService.isPlaying());
                     addFragment(R.id.container, playerFragment);

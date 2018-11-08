@@ -91,7 +91,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void initStaticUI() {
         Track currentTrack = mService.getCurrentTrack();
 
-        int progress = Utils.getSeconds(mService.getProgress());
+        int progress = Utils.getSeconds(mService.getPlayerProgress());
 
         String compositionName = currentTrack.getName();
         String compositionComposer = currentTrack.getArtist();
@@ -129,7 +129,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
     private void updateBar() {
         int duration = Integer.parseInt(mService.getCurrentTrack().getDuration());
 
-        int progressMillis = mService.getProgress();
+        int progressMillis = mService.getPlayerProgress();
         int estimatedMillis = duration - progressMillis;
 
         int progress = Utils.getSeconds(progressMillis);

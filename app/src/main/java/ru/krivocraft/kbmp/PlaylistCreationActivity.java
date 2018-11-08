@@ -31,13 +31,13 @@ public class PlaylistCreationActivity extends AppCompatActivity {
                 CheckBox checkBox = view.findViewById(R.id.composition_checkbox);
                 Track track = (Track) parent.getItemAtPosition(position);
                 if (selectedIds.contains(position)) {
-                    track.checked = false;
-                    selectedIds.remove(Integer.valueOf(position));
+                    track.setChecked(false);
+                    selectedIds.remove(Integer.valueOf(position + 1));
                 } else {
-                    track.checked = true;
-                    selectedIds.add(position);
+                    track.setChecked(true);
+                    selectedIds.add(position + 1);
                 }
-                checkBox.setChecked(track.checked);
+                checkBox.setChecked(track.isChecked());
             }
         });
     }
