@@ -17,21 +17,28 @@ import java.util.List;
 
 class Playlist implements Serializable {
 
-    private String name;
-    private String image;
-
     private List<Track> tracks = new ArrayList<>();
+    private Context context;
+    private TracksAdapter tracksAdapter = null;
+    private SelectableTracksAdapter selectableTracksAdapter = null;
 
-    Playlist() {
 
+    Playlist(Context context) {
+        this.context = context;
     }
 
-    Playlist(List<Track> tracks) {
+    Playlist(List<Track> tracks, Context context) {
+        this(context);
         this.tracks = tracks;
+    }
+
+    Context getContext() {
+        return context;
     }
 
     void addComposition(Track track) {
         tracks.add(track);
+        notifyAdapters();
     }
 
     void shuffle() {
@@ -44,6 +51,29 @@ class Playlist implements Serializable {
 
     Track getComposition(int index) {
         return tracks.get(index);
+    }
+
+    TracksAdapter getTracksAdapter() {
+        if (tracksAdapter == null) {
+            this.tracksAdapter = new TracksAdapter();
+        }
+        return tracksAdapter;
+    }
+
+    SelectableTracksAdapter getSelectableTracksAdapter() {
+        if (selectableTracksAdapter == null) {
+            this.selectableTracksAdapter = new SelectableTracksAdapter();
+        }
+        return selectableTracksAdapter;
+    }
+
+    private void notifyAdapters() {
+        if (tracksAdapter != null) {
+            tracksAdapter.notifyDataSetChanged();
+        }
+        if (selectableTracksAdapter != null) {
+            selectableTracksAdapter.notifyDataSetChanged();
+        }
     }
 
     List<Track> getTracks() {
@@ -62,14 +92,10 @@ class Playlist implements Serializable {
         return tracks.contains(track);
     }
 
-    public String getName() {
-        return name;
-    }
+    class TracksAdapter extends ArrayAdapter<Track> {
 
-    static class TracksAdapter extends ArrayAdapter<Track> {
-
-        TracksAdapter(Playlist playlist, @NonNull Context context) {
-            super(context, R.layout.composition_list_item, playlist.getTracks());
+        TracksAdapter() {
+            super(context, R.layout.composition_list_item, getTracks());
         }
 
         @SuppressLint("InflateParams")
@@ -91,10 +117,10 @@ class Playlist implements Serializable {
         }
     }
 
-    static class SelectableTracksAdapter extends ArrayAdapter<Track> {
+    class SelectableTracksAdapter extends ArrayAdapter<Track> {
 
-        SelectableTracksAdapter(Playlist playlist, @NonNull Context context) {
-            super(context, R.layout.selectable_composition_list_item, playlist.getTracks());
+        SelectableTracksAdapter() {
+            super(context, R.layout.selectable_composition_list_item, getTracks());
         }
 
         @SuppressLint("InflateParams")
@@ -116,27 +142,4 @@ class Playlist implements Serializable {
         }
     }
 
-    static class PlaylistsAdapter extends ArrayAdapter<Playlist> {
-
-        PlaylistsAdapter(List<Playlist> playlists, @NonNull Context context) {
-            super(context, R.layout.playlists_grid_item, playlists);
-        }
-
-        @SuppressLint("InflateParams")
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-            Playlist playlist = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
-            }
-            if (playlist != null) {
-                ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(playlist.getName());
-            }
-
-            return convertView;
-        }
-    }
 }

@@ -54,9 +54,14 @@ class Utils {
     }
 
     static Playlist search(CharSequence string, Playlist playlistToSearch){
-        Playlist playlist = new Playlist();
+        Playlist playlist = new Playlist(playlistToSearch.getContext());
         for (Track track : playlistToSearch.getTracks()) {
-            if (track.getName().contains(string) || track.getArtist().contains(string)){
+
+            String formattedName = track.getName().toLowerCase();
+            String formattedArtist = track.getArtist().toLowerCase();
+            String formattedSearchStr = string.toString().toLowerCase();
+
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)){
                 playlist.addComposition(track);
             }
         }

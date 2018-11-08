@@ -12,14 +12,14 @@ import android.widget.GridView;
 
 public class PlaylistGridFragment extends Fragment {
 
-    private Playlist.PlaylistsAdapter adapter;
+    private PlaylistsAdapter adapter;
     private AdapterView.OnItemClickListener listener;
 
     public PlaylistGridFragment() {
         //required empty public constructor
     }
 
-    void setData(Playlist.PlaylistsAdapter adapter, AdapterView.OnItemClickListener listener) {
+    void setData(PlaylistsAdapter adapter, AdapterView.OnItemClickListener listener) {
         this.adapter = adapter;
         this.listener = listener;
     }

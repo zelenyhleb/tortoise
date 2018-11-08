@@ -39,7 +39,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private PlayerFragment playerFragment;
 
     private Playlist.TracksAdapter mTracksAdapter;
-    private Playlist.PlaylistsAdapter mPlaylistsAdapter;
+    private PlaylistsAdapter mPlaylistsAdapter;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -55,8 +55,8 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
-            mTracksAdapter = new Playlist.TracksAdapter(mService.getCurrentPlaylist(), PlaylistActivity.this);
-            mPlaylistsAdapter = new Playlist.PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
+            mTracksAdapter = mService.getCurrentPlaylist().getTracksAdapter();
+            mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
             mService.addListener(PlaylistActivity.this);
 
             mBounded = true;
@@ -75,7 +75,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             removeFragment(fragment);
             switch (fragmentState) {
                 case TRACKS_LIST:
-                    fragment = getTrackListFragment(mTracksAdapter);
+                    fragment = getTrackListFragment();
                     hideAddButton();
                     break;
                 case PLAYLISTS_GRID:
@@ -102,10 +102,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showPlaylistViewFragment(Playlist playlist) {
+    private void showPlaylistViewFragment() {
         Fragment fragment = this.trackViewFragment;
         removeFragment(fragment);
-        fragment = getTrackListFragment(new Playlist.TracksAdapter(playlist, this));
+        fragment = getTrackListFragment();
         addFragment(R.id.playlist, fragment);
         this.trackViewFragment = fragment;
     }
@@ -132,7 +132,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showPlaylistViewFragment((Playlist) parent.getItemAtPosition(position));
+                showPlaylistViewFragment();
                 hideAddButton();
             }
         };
@@ -144,13 +144,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @NonNull
-    private TrackListFragment getTrackListFragment(Playlist.TracksAdapter tracksAdapter) {
+    private TrackListFragment getTrackListFragment() {
+        final Playlist currentPlaylist = mService.getCurrentPlaylist();
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Track track = (Track) adapterView.getItemAtPosition(i);
                 if (!track.equals(mService.getCurrentTrack())) {
-                    mService.newComposition(mService.getCurrentPlaylist().indexOf(track));
+                    mService.newComposition(currentPlaylist.indexOf(track));
                 } else {
                     if (mService.isPlaying()) {
                         mService.stop();
@@ -162,8 +163,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.setData(tracksAdapter, onListItemClickListener);
-        tracksAdapter.notifyDataSetChanged();
+        trackListFragment.setData(currentPlaylist, onListItemClickListener);
         return trackListFragment;
     }
 

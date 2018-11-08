@@ -7,4 +7,5 @@
     <string name="unknown_artist">Unknown Artist</string>
     <string name="unknown_track">Unknown Track</string>
     <string name="apply">apply</string>
+    <string name="unknown">unknown</string>
 </resources>

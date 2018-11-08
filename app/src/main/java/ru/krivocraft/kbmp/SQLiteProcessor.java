@@ -12,8 +12,10 @@ import java.util.List;
 class SQLiteProcessor {
 
     private final SQLiteDatabase db;
+    private final Context context;
 
     SQLiteProcessor(Context context) {
+        this.context = context;
         DBHelper dbHelper = new DBHelper(context);
         db = dbHelper.getWritableDatabase();
         db.execSQL("create table if not exists " + Constants.COMPOSITIONS + " ("
@@ -105,7 +107,7 @@ class SQLiteProcessor {
                     Cursor ci = db.query(tableName, null,null,null,null, null, Constants.PLAYLIST_INDEX);
                     if (ci.moveToFirst()) {
                         int playlistTrackReferenceIndex = ci.getColumnIndex(Constants.PLAYLIST_COMPOSITION_REFERENCE);
-                        Playlist playlist = new Playlist();
+                        Playlist playlist = new Playlist(context);
 
                         while (!ci.isAfterLast()) { //for each track in playlist
                             playlist.addComposition(readComposition(ci.getInt(playlistTrackReferenceIndex)));

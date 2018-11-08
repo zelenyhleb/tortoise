@@ -92,7 +92,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        setCurrentPlaylist(new Playlist());
+        setCurrentPlaylist(new Playlist(new SQLiteProcessor(this).readCompositions(), this));
         addListener(this);
 
         IntentFilter controlFilter = new IntentFilter();
