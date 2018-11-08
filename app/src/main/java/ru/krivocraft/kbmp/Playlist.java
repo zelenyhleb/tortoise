@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -140,6 +141,7 @@ class Playlist implements Serializable {
             if (track != null) {
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
                 ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
+                ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.checked);
             }
 
             return convertView;

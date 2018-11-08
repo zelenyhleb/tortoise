@@ -23,19 +23,21 @@ public class PlaylistCreationActivity extends AppCompatActivity {
 
         sqLiteProcessor = new SQLiteProcessor(this);
 
-        ListView listView = findViewById(R.id.playlist_editor_list);
+        final ListView listView = findViewById(R.id.playlist_editor_list);
         listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(null, null), this).getSelectableTracksAdapter());
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 CheckBox checkBox = view.findViewById(R.id.composition_checkbox);
+                Track track = (Track) parent.getItemAtPosition(position);
                 if (selectedIds.contains(position)) {
-                    checkBox.setChecked(false);
+                    track.checked = false;
                     selectedIds.remove(Integer.valueOf(position));
                 } else {
-                    checkBox.setChecked(true);
+                    track.checked = true;
                     selectedIds.add(position);
                 }
+                checkBox.setChecked(track.checked);
             }
         });
     }

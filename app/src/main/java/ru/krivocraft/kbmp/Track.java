@@ -16,6 +16,8 @@ class Track implements Serializable {
     private String name;
     private String path;
 
+    boolean checked = false;
+
     private int identifier;
 
     enum TrackState {
