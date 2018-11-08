@@ -145,25 +145,34 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     @NonNull
     private TrackListFragment getTrackListFragment() {
-        final Playlist currentPlaylist = mService.getCurrentPlaylist();
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Playlist.TracksAdapter adapter = (Playlist.TracksAdapter) adapterView.getAdapter();
                 Track track = (Track) adapterView.getItemAtPosition(i);
-                if (!track.equals(mService.getCurrentTrack())) {
-                    mService.newComposition(currentPlaylist.indexOf(track));
+                Playlist newPlaylist = adapter.getPlaylist();
+
+                if (!newPlaylist.equals(mService.getCurrentPlaylist())) {
+                    mService.setCurrentPlaylist(newPlaylist);
+                    mService.newComposition(newPlaylist.indexOf(track));
+                    mService.start();
                 } else {
-                    if (mService.isPlaying()) {
-                        mService.stop();
+                    if (!track.equals(mService.getCurrentTrack())) {
+                        mService.newComposition(newPlaylist.indexOf(track));
                     } else {
-                        mService.start();
+                        if (mService.isPlaying()) {
+                            mService.stop();
+                        } else {
+                            mService.start();
+                        }
                     }
                 }
+
                 showPlayerFragment();
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.setData(currentPlaylist, onListItemClickListener);
+        trackListFragment.setData(mService.getCurrentPlaylist(), onListItemClickListener);
         return trackListFragment;
     }
 
@@ -274,6 +283,8 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     }
                     playerFragment.initNonStaticUI();
                 }
+            } else {
+                showPlayerFragment();
             }
         }
     }

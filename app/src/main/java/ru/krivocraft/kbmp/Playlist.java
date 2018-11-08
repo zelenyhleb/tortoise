@@ -115,6 +115,10 @@ class Playlist implements Serializable {
 
             return convertView;
         }
+
+        Playlist getPlaylist() {
+            return Playlist.this;
+        }
     }
 
     class SelectableTracksAdapter extends ArrayAdapter<Track> {

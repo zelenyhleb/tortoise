@@ -45,6 +45,9 @@ public class TrackListFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Playlist playlistSearched = Utils.search(s, playlist);
                 listView.setAdapter(playlistSearched.getTracksAdapter());
+                if (s.length() == 0) {
+                    listView.setAdapter(playlist.getTracksAdapter());
+                }
             }
 
             @Override
