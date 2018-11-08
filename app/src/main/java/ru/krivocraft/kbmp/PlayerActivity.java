@@ -140,7 +140,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
         } else {
             compositionProgressBar.setProgress(progress);
             compositionProgressTextView.setText(Utils.getFormattedTime(progress));
-            compositionDurationTextView.setText(Utils.getFormattedTime(estimated));
+            compositionDurationTextView.setText(String.format("-%s", Utils.getFormattedTime(estimated)));
         }
     }
 
@@ -179,7 +179,6 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
 
         }
         playPauseButton.setImageResource(R.drawable.ic_pause);
-
     }
 
     private void stopUIPlaying() {

@@ -9,6 +9,7 @@
     <ProgressBar
             android:id="@+id/fragment_progressbar"
             style="?android:attr/progressBarStyleHorizontal"
+            android:background="@null"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

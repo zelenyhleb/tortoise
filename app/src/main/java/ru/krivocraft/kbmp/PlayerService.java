@@ -43,6 +43,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                     int state = intent.getIntExtra("state", -1);
                     if (state == 0) {
                         stop();
+                    } else if(state == 1) {
+                        start();
                     }
                 }
             }
@@ -92,7 +94,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        setCurrentPlaylist(new Playlist(new SQLiteProcessor(this).readCompositions(), this));
+        setCurrentPlaylist(new Playlist(this));
         addListener(this);
 
         IntentFilter controlFilter = new IntentFilter();

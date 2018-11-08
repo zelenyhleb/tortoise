@@ -17,7 +17,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         ListView databaseView = findViewById(R.id.listdb);
 
-        List<Track> tracks = new SQLiteProcessor(this).readCompositions();
+        List<Track> tracks = new SQLiteProcessor(this).readCompositions(null, null);
         List<String> trackDatas = new ArrayList<>();
         for (Track track : tracks) {
             trackDatas.add(track.getIdentifier() + " | " + track.getName() + " | " + track.getArtist() + " | " + track.getPath());

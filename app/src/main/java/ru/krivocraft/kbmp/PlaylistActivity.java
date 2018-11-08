@@ -75,7 +75,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             removeFragment(fragment);
             switch (fragmentState) {
                 case TRACKS_LIST:
-                    fragment = getTrackListFragment();
+                    fragment = getTrackListFragment(new Playlist(new SQLiteProcessor(this).readCompositions(null, null), this));
                     hideAddButton();
                     break;
                 case PLAYLISTS_GRID:
@@ -102,10 +102,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showPlaylistViewFragment() {
+    private void showPlaylistViewFragment(Playlist playlist) {
         Fragment fragment = this.trackViewFragment;
         removeFragment(fragment);
-        fragment = getTrackListFragment();
+        fragment = getTrackListFragment(playlist);
         addFragment(R.id.playlist, fragment);
         this.trackViewFragment = fragment;
     }
@@ -132,7 +132,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showPlaylistViewFragment();
+                showPlaylistViewFragment((Playlist) parent.getItemAtPosition(position));
                 hideAddButton();
             }
         };
@@ -144,7 +144,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @NonNull
-    private TrackListFragment getTrackListFragment() {
+    private TrackListFragment getTrackListFragment(Playlist playlist) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -172,14 +172,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.setData(mService.getCurrentPlaylist(), onListItemClickListener);
+        trackListFragment.setData(playlist, onListItemClickListener);
         return trackListFragment;
     }
 
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
-            List<Track> tracks = database.readCompositions();
+            List<Track> tracks = database.readCompositions(null, null);
             for (Track track : tracks) {
                 if (!playlist.contains(track)) {
                     playlist.addComposition(track);

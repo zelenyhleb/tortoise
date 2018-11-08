@@ -24,7 +24,7 @@ public class PlaylistCreationActivity extends AppCompatActivity {
         sqLiteProcessor = new SQLiteProcessor(this);
 
         ListView listView = findViewById(R.id.playlist_editor_list);
-        listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(), this).getSelectableTracksAdapter());
+        listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(null, null), this).getSelectableTracksAdapter());
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
