@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 public class TrackListFragment extends Fragment {
@@ -31,7 +32,10 @@ public class TrackListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         final ListView listView = rootView.findViewById(R.id.fragment_track_list);
-        listView.setAdapter(playlist.getTracksAdapter());
+
+        final Playlist.TracksAdapter tracksAdapter = playlist.getTracksAdapter();
+
+        listView.setAdapter(tracksAdapter);
         listView.setOnItemClickListener(listener);
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
@@ -45,7 +49,7 @@ public class TrackListFragment extends Fragment {
                 Playlist playlistSearched = Utils.search(s, playlist);
                 listView.setAdapter(playlistSearched.getTracksAdapter());
                 if (s.length() == 0) {
-                    listView.setAdapter(playlist.getTracksAdapter());
+                    listView.setAdapter(tracksAdapter);
                 }
             }
 
@@ -53,6 +57,16 @@ public class TrackListFragment extends Fragment {
             public void afterTextChanged(Editable s) {
             }
         });
+
+        ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
+        buttonShuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlist.shuffle();
+                tracksAdapter.notifyDataSetChanged();
+            }
+        });
+
         return rootView;
     }
 }

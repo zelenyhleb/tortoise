@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -9,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,13 +110,13 @@ class Playlist implements Serializable {
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
             Track track = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
             }
             if (track != null) {
+                ((ImageView) convertView.findViewById(R.id.item_track_image)).setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
                 ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
             }

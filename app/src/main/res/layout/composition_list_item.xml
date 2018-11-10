@@ -3,11 +3,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+    <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="4dp"
+            android:id="@+id/item_track_image"/>
+
     <TextView
             android:id="@+id/composition_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
+            android:layout_toEndOf="@id/item_track_image"
             android:layout_margin="4dp"
             android:textSize="16sp"
             android:textStyle="bold"/>
@@ -17,6 +24,7 @@
             android:layout_width="wrap_content"
             android:singleLine="true"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/item_track_image"
             android:layout_below="@id/composition_name_text"
             android:layout_margin="4dp"
             android:textSize="12sp"/>

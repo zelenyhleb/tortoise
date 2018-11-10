@@ -309,9 +309,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             case R.id.settings:
                 buttonSettings();
                 break;
-            case R.id.shuffle:
-                buttonShuffle();
-                break;
             case R.id.fragment_state:
                 buttonChangeTrackViewFragmentState();
                 break;
@@ -328,13 +325,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
         }
         showMainTrackViewFragment();
-    }
-
-    private void buttonShuffle() {
-        if (mBounded) {
-            mService.getCurrentPlaylist().shuffle();
-            mTracksAdapter.notifyDataSetChanged();
-        }
     }
 
     private void buttonSettings() {
