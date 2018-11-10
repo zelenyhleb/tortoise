@@ -19,6 +19,8 @@ class Constants {
     static final String COMPOSITION_PROGRESS = "composition_progress";
     static final String COMPOSITION_STATE = "composition_is_playing";
 
+    static final String PLAYLIST_PREFIX = "playlist_";
+
     static final String PLAYLIST_INDEX = "playlist_index";
     static final String PLAYLISTS = "playlists";
     static final String PLAYLIST_COMPOSITION_REFERENCE = "composition_reference";

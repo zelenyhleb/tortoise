@@ -81,12 +81,11 @@ class SQLiteProcessor {
             while (!co.isAfterLast()) { //for each playlist
 
                 String tableName = co.getString(0);
-                if (tableName.contains("playlist")) {
+                if (tableName.contains(Constants.PLAYLIST_PREFIX)) {
                     Cursor ci = db.query(tableName, null, null, null, null, null, Constants.PLAYLIST_INDEX);
                     if (ci.moveToFirst()) {
                         int playlistTrackReferenceIndex = ci.getColumnIndex(Constants.PLAYLIST_COMPOSITION_REFERENCE);
-                        Playlist playlist = new Playlist(context);
-
+                        Playlist playlist = new Playlist(context, tableName);
                         while (!ci.isAfterLast()) { //for each track in playlist
 
                             String whereClause = Constants.COMPOSITION_IDENTIFIER + " = ?";
@@ -110,15 +109,24 @@ class SQLiteProcessor {
     }
 
     void createPlaylist(String name) {
+        name = formatPlaylistName(name);
+
         db.execSQL("create table if not exists " + name + " ("
                 + Constants.PLAYLIST_INDEX + " integer primary key autoincrement, "
                 + Constants.PLAYLIST_COMPOSITION_REFERENCE + " integer);");
     }
 
+    private String formatPlaylistName(String name) {
+        name = Constants.PLAYLIST_PREFIX + name;
+        name = name.replace(" ", "_");
+        return name;
+    }
+
     void editPlaylist(String name, List<Integer> ids) {
+        name = formatPlaylistName(name);
         for (Integer integer : ids) {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.PLAYLIST_COMPOSITION_REFERENCE, integer);
+            contentValues.put(Constants.PLAYLIST_COMPOSITION_REFERENCE, integer + 1);
             db.insert(name, null, contentValues);
         }
     }

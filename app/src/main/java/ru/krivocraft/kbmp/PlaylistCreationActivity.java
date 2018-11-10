@@ -1,10 +1,13 @@
 package ru.krivocraft.kbmp;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -32,10 +35,10 @@ public class PlaylistCreationActivity extends AppCompatActivity {
                 Track track = (Track) parent.getItemAtPosition(position);
                 if (selectedIds.contains(position)) {
                     track.setChecked(false);
-                    selectedIds.remove(Integer.valueOf(position + 1));
+                    selectedIds.remove(Integer.valueOf(position));
                 } else {
                     track.setChecked(true);
-                    selectedIds.add(position + 1);
+                    selectedIds.add(position);
                 }
                 checkBox.setChecked(track.isChecked());
             }
@@ -45,18 +48,39 @@ public class PlaylistCreationActivity extends AppCompatActivity {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_apply:
-                int i = new Random().nextInt();
-                if (i < 0) {
-                    i = i * -1;
-                }
-                commit(String.valueOf("playlist" + i));
-                supportFinishAfterTransition();
+                showDialog();
                 break;
         }
+    }
+
+    private void showDialog() {
+        final EditText view = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setView(view)
+                .setIcon(R.drawable.ic_launcher)
+                .setTitle("Enter playlist name")
+                .setPositiveButton("Commit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        commit(view.getText().toString());
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .create();
+        builder.show();
     }
 
     private void commit(String playlistName) {
         sqLiteProcessor.createPlaylist(playlistName);
         sqLiteProcessor.editPlaylist(playlistName, selectedIds);
+        //finish activity, we don't need it anymore
+        supportFinishAfterTransition();
     }
 }

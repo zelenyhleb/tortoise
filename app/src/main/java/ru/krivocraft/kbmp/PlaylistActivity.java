@@ -261,6 +261,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 initPlaylist();
             }
         } else {
+            mPlaylistsAdapter.notifyDataSetChanged();
             if (mService.getCurrentPlaylist().isEmpty()) {
                 initPlaylist();
             }
