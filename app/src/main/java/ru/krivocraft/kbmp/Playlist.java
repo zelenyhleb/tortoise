@@ -51,7 +51,11 @@ class Playlist implements Serializable {
     }
 
     Track getTrack(int index) {
-        return tracks.get(index);
+        if (tracks.size() > 0) {
+            return tracks.get(index);
+        } else {
+            return null;
+        }
     }
 
     TracksAdapter getTracksAdapter() {

@@ -39,7 +39,9 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                     int state = intent.getIntExtra("state", -1);
                     switch (state) {
                         case Constants.HEADSET_STATE_PLUG_IN:
-                            start();
+                            if (getCurrentTrack()!=null){
+                                start();
+                            }
                             break;
                         case Constants.HEADSET_STATE_PLUG_OUT:
                             stop();
