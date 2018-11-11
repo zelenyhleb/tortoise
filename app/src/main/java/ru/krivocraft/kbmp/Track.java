@@ -18,15 +18,17 @@ class Track implements Serializable {
 
     private int progress;
     private boolean playing = false;
+    private boolean selected = false;
     private boolean checked = false;
 
     private int identifier;
 
+
+
     enum TrackState {
         NEW_TRACK,
-        PLAY_PAUSE_TRACK
+        PLAY_PAUSE_TRACK;
     }
-
     Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
 
         this.duration = duration;
@@ -48,6 +50,14 @@ class Track implements Serializable {
             }
         }
 
+    }
+
+    boolean isSelected() {
+        return selected;
+    }
+
+    void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     int getIdentifier() {

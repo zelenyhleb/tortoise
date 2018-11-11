@@ -1,8 +1,6 @@
 package ru.krivocraft.kbmp;
 
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +37,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                     int state = intent.getIntExtra("state", -1);
                     switch (state) {
                         case Constants.HEADSET_STATE_PLUG_IN:
-                            if (getCurrentTrack()!=null){
+                            if (getCurrentTrack() != null) {
                                 start();
                             }
                             break;
@@ -134,6 +132,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         player = new MediaPlayer();
         try {
             player.setDataSource(getCurrentTrack().getPath());
+            getCurrentTrack().setSelected(true);
             player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
@@ -184,13 +183,26 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         notificationLayout.setTextViewText(R.id.notification_composition_author, getCurrentTrack().getArtist());
         notificationLayout.setTextViewText(R.id.notification_composition_name, getCurrentTrack().getName());
 
-        Notification notification = new NotificationCompat.Builder(this)
+        NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        String CHANNEL_ID = "channel_01";
+
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContent(notificationLayout)
-                .setContentIntent(contentIntent)
-                .build();
+                .setContentIntent(contentIntent);
 
-        startForeground(Constants.NOTIFY_ID, notification);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Tortoise", NotificationManager.IMPORTANCE_DEFAULT);
+            notification.setChannelId(CHANNEL_ID);
+            if (service != null) {
+                service.createNotificationChannel(channel);
+            }
+        }
+
+
+        if (service != null) {
+            service.notify(Constants.NOTIFY_ID, notification.build());
+        }
     }
 
     private void dismissNotification() {
@@ -212,7 +224,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     void newComposition(int compositionIndex) {
         if (compositionIndex >= 0 && compositionIndex < getCurrentPlaylist().getSize()) {
             stop();
-            getCurrentTrack().setProgress(0);
+            getCurrentTrack().setSelected(false);
             setTrackIndex(compositionIndex);
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
@@ -247,7 +259,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         return getCurrentTrack().isPlaying();
     }
 
-    void setPlaying(boolean playing) {
+    private void setPlaying(boolean playing) {
         getCurrentTrack().setPlaying(playing);
     }
 

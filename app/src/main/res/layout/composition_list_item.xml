@@ -7,7 +7,15 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="4dp"
+            android:background="@null"
             android:id="@+id/item_track_image"/>
+
+    <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_margin="12dp"
+            android:background="@null"
+            android:id="@+id/item_track_state"/>
 
     <TextView
             android:id="@+id/composition_name_text"

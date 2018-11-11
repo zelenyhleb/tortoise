@@ -13,10 +13,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends Fragment implements Track.OnTrackStateChangedListener {
 
     private Playlist playlist;
     private AdapterView.OnItemClickListener listener;
+    private ListView listView;
 
     public TrackListFragment() {
         //required empty public constructor
@@ -31,8 +32,7 @@ public class TrackListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
-        final ListView listView = rootView.findViewById(R.id.fragment_track_list);
-
+        listView = rootView.findViewById(R.id.fragment_track_list);
         final Playlist.TracksAdapter tracksAdapter = playlist.getTracksAdapter();
 
         listView.setAdapter(tracksAdapter);
@@ -68,5 +68,12 @@ public class TrackListFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onTrackStateChanged(Track.TrackState state) {
+        if (listView != null) {
+            listView.invalidateViews();
+        }
     }
 }

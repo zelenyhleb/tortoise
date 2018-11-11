@@ -16,9 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.*;
 
 import java.util.List;
 
@@ -167,11 +165,13 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                         }
                     }
                 }
-
                 showPlayerFragment();
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
+        if (mBounded) {
+            mService.addListener(trackListFragment);
+        }
         trackListFragment.setData(playlist, onListItemClickListener);
         return trackListFragment;
     }

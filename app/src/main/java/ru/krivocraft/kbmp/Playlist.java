@@ -127,7 +127,21 @@ class Playlist implements Serializable {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
             }
             if (track != null) {
-                ((ImageView) convertView.findViewById(R.id.item_track_image)).setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+
+                ImageView trackImage = convertView.findViewById(R.id.item_track_image);
+                ImageView trackState = convertView.findViewById(R.id.item_track_state);
+
+                if (!track.isSelected()) {
+                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+                    trackState.setImageDrawable(null);
+                } else {
+                    if (track.isPlaying()) {
+                        trackState.setImageDrawable(context.getDrawable(R.drawable.ic_pause));
+                    } else {
+                        trackState.setImageDrawable(context.getDrawable(R.drawable.ic_play));
+                    }
+                }
+
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
                 ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
             }
