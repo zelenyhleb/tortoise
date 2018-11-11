@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -33,7 +35,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private FragmentState fragmentState = FragmentState.TRACKS_LIST;
 
-    private Fragment trackViewFragment;
+    private AbstractTrackViewFragment trackViewFragment;
     private PlayerFragment playerFragment;
 
     private Playlist.TracksAdapter mTracksAdapter;
@@ -69,7 +71,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
     private void showMainTrackViewFragment() {
         if (mBounded) {
-            Fragment fragment = this.trackViewFragment;
+            AbstractTrackViewFragment fragment = this.trackViewFragment;
             removeFragment(fragment);
             switch (fragmentState) {
                 case TRACKS_LIST:
@@ -101,7 +103,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private void showPlaylistViewFragment(Playlist playlist) {
-        Fragment fragment = this.trackViewFragment;
+        AbstractTrackViewFragment fragment = this.trackViewFragment;
         removeFragment(fragment);
         fragment = getTrackListFragment(playlist);
         addFragment(R.id.playlist, fragment);
@@ -134,8 +136,36 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 hideAddButton();
             }
         };
+        AdapterView.OnItemLongClickListener onGridItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlaylistActivity.this);
+                alertDialogBuilder
+                        .setIcon(R.drawable.ic_launcher)
+                        .setTitle("Are you sure want to delete this playlist?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
+                                database.deletePlaylist(playlist.getName());
+                                mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
+                                invalidateTrackViewFragment();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .create();
+                alertDialogBuilder.show();
+                return true;
+            }
+        };
         PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
-        playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener);
+        playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
         mPlaylistsAdapter.notifyDataSetChanged();
 
         return playlistGridFragment;
@@ -169,9 +199,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
-        if (mBounded) {
-            mService.addListener(trackListFragment);
-        }
         trackListFragment.setData(playlist, onListItemClickListener);
         return trackListFragment;
     }
@@ -266,6 +293,14 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 initPlaylist();
             }
         }
+        mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
+        invalidateTrackViewFragment();
+    }
+
+    private void invalidateTrackViewFragment() {
+        if (trackViewFragment != null) {
+            trackViewFragment.invalidate();
+        }
     }
 
     private void refreshPlayerFragment(boolean newDataAvailable) {
@@ -340,6 +375,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             case PLAY_PAUSE_TRACK:
                 refreshPlayerFragment(false);
         }
+        invalidateTrackViewFragment();
     }
 
     class RecursiveSearchTask extends AsyncTask<Void, Void, Void> {

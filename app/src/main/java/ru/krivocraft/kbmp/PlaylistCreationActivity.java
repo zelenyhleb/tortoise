@@ -56,7 +56,6 @@ public class PlaylistCreationActivity extends AppCompatActivity {
     private void showDialog() {
         final EditText view = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
         builder.setView(view)
                 .setIcon(R.drawable.ic_launcher)
                 .setTitle("Enter playlist name")

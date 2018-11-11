@@ -10,17 +10,30 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class PlaylistGridFragment extends Fragment {
+public class PlaylistGridFragment extends AbstractTrackViewFragment {
 
     private PlaylistsAdapter adapter;
     private AdapterView.OnItemClickListener listener;
+    private AdapterView.OnItemLongClickListener longClickListener;
+    private GridView gridView;
 
     public PlaylistGridFragment() {
-        //required empty public constructor
+        super();
     }
 
-    void setData(PlaylistsAdapter adapter, AdapterView.OnItemClickListener listener) {
+    @Override
+    void invalidate() {
+        if (gridView != null) {
+            gridView.invalidateViews();
+        }
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    void setData(PlaylistsAdapter adapter, AdapterView.OnItemClickListener listener, AdapterView.OnItemLongClickListener onGridItemLongClickListener) {
         this.adapter = adapter;
+        this.longClickListener = onGridItemLongClickListener;
         this.listener = listener;
     }
 
@@ -28,9 +41,15 @@ public class PlaylistGridFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_playlistgrid, container, false);
-        GridView gridView = rootView.findViewById(R.id.playlists_grid);
+        gridView = rootView.findViewById(R.id.playlists_grid);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(listener);
+        gridView.setOnItemLongClickListener(longClickListener);
         return rootView;
+    }
+
+    @Override
+    public void onTrackStateChanged(Track.TrackState state) {
+
     }
 }

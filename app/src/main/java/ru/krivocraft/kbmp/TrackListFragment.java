@@ -13,14 +13,25 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-public class TrackListFragment extends Fragment implements Track.OnTrackStateChangedListener {
+public class TrackListFragment extends AbstractTrackViewFragment {
 
     private Playlist playlist;
     private AdapterView.OnItemClickListener listener;
+    private Playlist.TracksAdapter adapter;
     private ListView listView;
 
     public TrackListFragment() {
-        //required empty public constructor
+        super();
+    }
+
+    @Override
+    void invalidate() {
+        if (listView != null) {
+            listView.invalidateViews();
+        }
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     void setData(Playlist playlist, AdapterView.OnItemClickListener listener) {
@@ -33,9 +44,9 @@ public class TrackListFragment extends Fragment implements Track.OnTrackStateCha
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         listView = rootView.findViewById(R.id.fragment_track_list);
-        final Playlist.TracksAdapter tracksAdapter = playlist.getTracksAdapter();
+        adapter = playlist.getTracksAdapter();
 
-        listView.setAdapter(tracksAdapter);
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(listener);
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
@@ -49,7 +60,7 @@ public class TrackListFragment extends Fragment implements Track.OnTrackStateCha
                 Playlist playlistSearched = Utils.search(s, playlist);
                 listView.setAdapter(playlistSearched.getTracksAdapter());
                 if (s.length() == 0) {
-                    listView.setAdapter(tracksAdapter);
+                    listView.setAdapter(adapter);
                 }
             }
 
@@ -63,7 +74,7 @@ public class TrackListFragment extends Fragment implements Track.OnTrackStateCha
             @Override
             public void onClick(View v) {
                 playlist.shuffle();
-                tracksAdapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -72,8 +83,6 @@ public class TrackListFragment extends Fragment implements Track.OnTrackStateCha
 
     @Override
     public void onTrackStateChanged(Track.TrackState state) {
-        if (listView != null) {
-            listView.invalidateViews();
-        }
+
     }
 }

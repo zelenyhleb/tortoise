@@ -132,6 +132,7 @@ class SQLiteProcessor {
     }
 
     void deletePlaylist(String name) {
+        name = formatPlaylistName(name);
         db.execSQL("drop table " + name);
     }
 
