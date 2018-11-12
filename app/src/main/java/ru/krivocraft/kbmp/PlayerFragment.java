@@ -129,13 +129,8 @@ public class PlayerFragment extends Fragment {
                         }
                     }
                 });
-                progressBarTimer = new Timer();
-                progressBarTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        bar.setProgress(bar.getProgress() + 1);
-                    }
-                }, 0, 1000);
+                cancelCurrentTimer();
+                startNewTimer(bar);
             } else {
                 playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
                 playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
@@ -148,10 +143,24 @@ public class PlayerFragment extends Fragment {
                         }
                     }
                 });
-                if (progressBarTimer != null) {
-                    progressBarTimer.cancel();
-                }
+                cancelCurrentTimer();
             }
+        }
+    }
+
+    private void startNewTimer(final ProgressBar bar) {
+        progressBarTimer = new Timer();
+        progressBarTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                bar.setProgress(bar.getProgress() + 1);
+            }
+        }, 1000, 1000);
+    }
+
+    private void cancelCurrentTimer() {
+        if (progressBarTimer != null) {
+            progressBarTimer.cancel();
         }
     }
 }

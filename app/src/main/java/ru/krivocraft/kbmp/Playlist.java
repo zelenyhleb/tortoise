@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.*;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -31,7 +32,11 @@ class Playlist implements Serializable {
 
     Playlist(Context context, String name) {
         this(context);
-        this.name = formatName(name);
+        if (name.contains(Constants.PLAYLIST_PREFIX)) {
+            this.name = formatName(name);
+        } else {
+            this.name = name;
+        }
     }
 
     Playlist(List<Track> tracks, Context context) {
@@ -39,7 +44,7 @@ class Playlist implements Serializable {
         this.tracks = tracks;
     }
 
-    private String formatName(String unformatted){
+    private String formatName(String unformatted) {
         return unformatted.replaceAll(Constants.PLAYLIST_PREFIX, "").replace("_", " ");
     }
 
@@ -52,7 +57,7 @@ class Playlist implements Serializable {
         notifyAdapters();
     }
 
-    String getName(){
+    String getName() {
         return name;
     }
 
@@ -132,9 +137,11 @@ class Playlist implements Serializable {
                 ImageView trackState = convertView.findViewById(R.id.item_track_state);
 
                 if (!track.isSelected()) {
+                    trackImage.setAlpha(1.0f);
                     trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
                     trackState.setImageDrawable(null);
                 } else {
+                    trackImage.setAlpha(0.2f);
                     if (track.isPlaying()) {
                         trackState.setImageDrawable(context.getDrawable(R.drawable.ic_pause));
                     } else {

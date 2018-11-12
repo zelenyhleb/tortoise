@@ -33,7 +33,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             String action = intent.getAction();
             if (action != null) {
                 if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
-
                     int state = intent.getIntExtra("state", -1);
                     switch (state) {
                         case Constants.HEADSET_STATE_PLUG_IN:
@@ -251,7 +250,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     private void release() {
-        player.release();
+        player.reset();
         player = null;
     }
 

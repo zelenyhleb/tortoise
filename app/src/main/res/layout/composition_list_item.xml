@@ -13,7 +13,7 @@
     <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:layout_margin="12dp"
+            android:layout_margin="14dp"
             android:background="@null"
             android:id="@+id/item_track_state"/>
 

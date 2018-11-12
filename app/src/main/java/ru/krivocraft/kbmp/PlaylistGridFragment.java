@@ -23,11 +23,11 @@ public class PlaylistGridFragment extends AbstractTrackViewFragment {
 
     @Override
     void invalidate() {
-        if (gridView != null) {
-            gridView.invalidateViews();
-        }
         if (adapter != null) {
             adapter.notifyDataSetChanged();
+        }
+        if (gridView != null) {
+            gridView.invalidateViews();
         }
     }
 

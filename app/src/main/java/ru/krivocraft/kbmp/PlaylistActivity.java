@@ -20,7 +20,7 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 
-import java.util.List;
+import java.util.*;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -41,6 +41,9 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     private Playlist.TracksAdapter mTracksAdapter;
     private PlaylistsAdapter mPlaylistsAdapter;
 
+    private List<Playlist> playlists;
+    private Playlist allTracksPlaylist;
+
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
     private PlayerService mService;
@@ -55,8 +58,10 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
+
             mTracksAdapter = mService.getCurrentPlaylist().getTracksAdapter();
-            mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
+            mPlaylistsAdapter = new PlaylistsAdapter(playlists, PlaylistActivity.this);
+
             mService.addListener(PlaylistActivity.this);
 
             mBounded = true;
@@ -75,7 +80,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             removeFragment(fragment);
             switch (fragmentState) {
                 case TRACKS_LIST:
-                    fragment = getTrackListFragment(new Playlist(new SQLiteProcessor(this).readCompositions(null, null), this));
+                    fragment = getTrackListFragment(allTracksPlaylist);
                     hideAddButton();
                     break;
                 case PLAYLISTS_GRID:
@@ -115,7 +120,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
-                    .commitAllowingStateLoss();
+                    .commit();
         }
     }
 
@@ -124,7 +129,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 .beginTransaction()
                 .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
                 .add(container, fragment)
-                .commitAllowingStateLoss();
+                .commit();
     }
 
     @NonNull
@@ -139,36 +144,36 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemLongClickListener onGridItemLongClickListener = new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlaylistActivity.this);
-                alertDialogBuilder
-                        .setIcon(R.drawable.ic_launcher)
-                        .setTitle("Are you sure want to delete this playlist?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
-                                database.deletePlaylist(playlist.getName());
-                                mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
-                                invalidateTrackViewFragment();
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .create();
-                alertDialogBuilder.show();
+                showPlaylistDeletionDialog(parent, position);
                 return true;
             }
         };
         PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
         playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
-        mPlaylistsAdapter.notifyDataSetChanged();
-
         return playlistGridFragment;
+    }
+
+    private void showPlaylistDeletionDialog(final AdapterView<?> parent, final int position) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlaylistActivity.this);
+        alertDialogBuilder.setIcon(R.drawable.ic_launcher);
+        alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
+        alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
+                database.deletePlaylist(playlist.getName());
+                invalidateTrackViewFragment();
+            }
+        });
+        alertDialogBuilder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        alertDialogBuilder.create();
+        alertDialogBuilder.show();
     }
 
     @NonNull
@@ -223,6 +228,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
 
         database = new SQLiteProcessor(this);
 
+        playlists = getAllCustomPlaylists();
+        allTracksPlaylist = getAllTracksPlaylist();
+
+        playlists.addAll(compilePlaylistsByAuthor());
+
         addPlaylistButton = findViewById(R.id.add_playlist_button);
         addPlaylistButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,9 +241,16 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 startActivity(intent);
             }
         });
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
-        }
+    }
+
+    @NonNull
+    private Playlist getAllTracksPlaylist() {
+        return new Playlist(database.readCompositions(null, null), this);
+    }
+
+    @NonNull
+    private List<Playlist> getAllCustomPlaylists() {
+        return database.getPlaylists();
     }
 
     @Override
@@ -245,25 +262,42 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         unbindService(mConnection);
     }
 
-    private void initPlaylist() {
-        RecursiveSearchTask searchTask = new RecursiveSearchTask();
-        searchTask.execute();
-
+    private void startService() {
         Intent serviceIntent = new Intent(this, PlayerService.class);
         startService(serviceIntent);
 
         bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
     }
 
+    private void startSearchTask() {
+        RecursiveSearchTask searchTask = new RecursiveSearchTask();
+        searchTask.execute();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initPlaylist();
+                startService();
             } else {
                 Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private List<Playlist> compilePlaylistsByAuthor(){
+        Map<String, Playlist> playlistMap = new HashMap<>();
+        for (Track track : allTracksPlaylist.getTracks()) {
+            Playlist playlist = playlistMap.get(track.getArtist());
+            if (playlist == null){
+                playlist = new Playlist(this, track.getArtist());
+                playlistMap.put(track.getArtist(), playlist);
+            }
+            if (!playlist.contains(track)) {
+                playlist.addComposition(track);
+            }
+        }
+        return new ArrayList<>(playlistMap.values());
     }
 
     private Track.OnTracksFoundListener onTracksFoundListener = new Track.OnTracksFoundListener() {
@@ -274,7 +308,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                 @Override
                 public void run() {
                     loadCompositions();
-                    mTracksAdapter.notifyDataSetChanged();
+                    invalidateTrackViewFragment();
                 }
             });
         }
@@ -283,17 +317,17 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onResume() {
         super.onResume();
+
         if (!mBounded) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
-                initPlaylist();
-            }
-        } else {
-            mPlaylistsAdapter.notifyDataSetChanged();
-            if (mService.getCurrentPlaylist().isEmpty()) {
-                initPlaylist();
-            }
+            startService();
         }
-        mPlaylistsAdapter = new PlaylistsAdapter(database.getPlaylists(), PlaylistActivity.this);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
+            startSearchTask();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
+        }
+
         invalidateTrackViewFragment();
     }
 

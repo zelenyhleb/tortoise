@@ -175,7 +175,7 @@ public class PlayerActivity extends AppCompatActivity implements SeekBar.OnSeekB
                         }
                     });
                 }
-            }, Constants.ZERO, Constants.ONE_SECOND);
+            }, Constants.ONE_SECOND, Constants.ONE_SECOND);
 
         }
         playPauseButton.setImageResource(R.drawable.ic_pause);
