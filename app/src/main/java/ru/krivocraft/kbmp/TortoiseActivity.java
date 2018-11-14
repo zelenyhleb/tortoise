@@ -574,7 +574,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Utils.search(TortoiseActivity.this, onTracksFoundListener);
+            Utils.search(TortoiseActivity.this, onTracksFoundListener, allTracksPlaylist);
             return null;
         }
     }

@@ -48,6 +48,15 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+        int duration = seekBar.getMax();
+        int progress = seekBar.getProgress();
+        updateTextViews(duration, progress);
+    }
+
+    private void updateTextViews(int duration, int progress) {
+        int estimated = duration - progress;
+        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+        compositionDurationTextView.setText(String.format("-%s", Utils.getFormattedTime(estimated)));
     }
 
     @Override
@@ -152,20 +161,10 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
     }
 
     void updateBar() {
-        int duration = Integer.parseInt(serviceInstance.getCurrentTrack().getDuration());
-
         int progressMillis = serviceInstance.getPlayerProgress();
-        int estimatedMillis = duration - progressMillis;
-
         int progress = Utils.getSeconds(progressMillis);
-        int estimated = Utils.getSeconds(estimatedMillis) - 1;
-
-        if (progress > compositionProgressBar.getMax()) {
-            serviceInstance.stop();
-        } else {
+        if (progress <= compositionProgressBar.getMax()) {
             compositionProgressBar.setProgress(progress);
-            compositionProgressTextView.setText(Utils.getFormattedTime(progress));
-            compositionDurationTextView.setText(String.format("-%s", Utils.getFormattedTime(estimated)));
         }
     }
 

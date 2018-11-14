@@ -53,7 +53,7 @@ class Utils {
         return bm;
     }
 
-    static Playlist search(CharSequence string, Playlist playlistToSearch){
+    static Playlist search(CharSequence string, Playlist playlistToSearch) {
         Playlist playlist = new Playlist(playlistToSearch.getContext(), "temp");
         for (Track track : playlistToSearch.getTracks()) {
 
@@ -61,7 +61,7 @@ class Utils {
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
 
-            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)){
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
                 playlist.addComposition(track);
             }
         }
@@ -70,7 +70,7 @@ class Utils {
 
     private static int id = 0;
 
-    static void search(Context context, Track.OnTracksFoundListener listener) {
+    static void search(Context context, Track.OnTracksFoundListener listener, Playlist existingTracks) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -93,7 +93,10 @@ class Utils {
                 String songDuration = cursor.getString(4);
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    tracks.add(new Track(songDuration, artist, title, path, id));
+                    Track track = new Track(songDuration, artist, title, path, id);
+                    if (!existingTracks.contains(track)) {
+                        tracks.add(track);
+                    }
                     id++;
                 }
             }
