@@ -31,6 +31,7 @@ public class SmallPlayerFragment extends Fragment {
     private Timer progressBarTimer;
     private View rootView;
     private Context context;
+    private View.OnClickListener listener;
 
     public SmallPlayerFragment() {
     }
@@ -44,6 +45,10 @@ public class SmallPlayerFragment extends Fragment {
         this.compositionPath = track.getPath();
     }
 
+    void setOnClickListener(View.OnClickListener listener) {
+        this.listener = listener;
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_player_small, container, false);
@@ -55,12 +60,7 @@ public class SmallPlayerFragment extends Fragment {
 
     void initStaticUI() {
         if (context != null) {
-            rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(context, PlayerActivity.class));
-                }
-            });
+            rootView.findViewById(R.id.text_container).setOnClickListener(listener);
 
             final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
             final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);

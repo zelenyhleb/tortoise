@@ -12,10 +12,6 @@
             android:supportsRtl="true"
             android:theme="@style/DarkTheme">
         <activity
-                android:name=".PlayerActivity"
-                android:launchMode="singleTask"
-                android:screenOrientation="portrait"/>
-        <activity
                 android:name=".TortoiseActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait">

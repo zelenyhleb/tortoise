@@ -20,7 +20,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import java.util.*;
 
@@ -29,16 +30,12 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 public class TortoiseActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
 
     private boolean mBounded = false;
+
     private ViewPager pager;
-
-    private enum FragmentState {
-        PLAYLISTS_GRID,
-        TRACKS_LIST
-    }
-
-    private FragmentState fragmentState = FragmentState.TRACKS_LIST;
+    private PlayerFragmentAdapter pagerAdapter;
 
     private AbstractTrackViewFragment trackViewFragment;
+    private PlayerFragment playerFragment;
     private SmallPlayerFragment smallPlayerFragment;
 
     private PlaylistsAdapter mPlaylistsAdapter;
@@ -50,9 +47,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
-    private PlayerService mService;
-
+    private PlayerService serviceInstance;
     private FloatingActionButton addPlaylistButton;
+
+    private boolean startedByNotification = false;
 
     private SQLiteProcessor database;
 
@@ -61,11 +59,13 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
-            mService = binder.getServerInstance();
+            serviceInstance = binder.getServerInstance();
 
             mPlaylistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
 
-            pager.setAdapter(new PlayerFragmentAdapter());
+            pagerAdapter = new PlayerFragmentAdapter();
+
+            pager.setAdapter(pagerAdapter);
             pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
             pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -81,6 +81,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                         hideAddButton();
                     }
                     invalidateTrackViewFragment();
+                    if (position == Constants.INDEX_FRAGMENT_PLAYER) {
+                        hideSmallPlayerFragment();
+                    } else {
+                        showSmallPlayerFragment();
+                    }
 
                 }
 
@@ -91,11 +96,16 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             });
 
 
-            mService.addListener(TortoiseActivity.this);
+            serviceInstance.addListener(TortoiseActivity.this);
 
             mBounded = true;
+            showSmallPlayerFragment();
 
-            showPlayerFragment();
+            if (startedByNotification){
+                pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
+                startedByNotification = false;
+            }
+
         }
 
         @Override
@@ -118,7 +128,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void removeFragment(Fragment fragment) {
+    private void removeFragment(final Fragment fragment) {
         if (fragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -130,7 +140,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private void addFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
+                .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort)
                 .add(R.id.container, fragment)
                 .commit();
     }
@@ -192,23 +202,23 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 Track track = (Track) adapterView.getItemAtPosition(i);
                 Playlist newPlaylist = adapter.getPlaylist();
 
-                if (!newPlaylist.equals(mService.getCurrentPlaylist())) {
-                    mService.getCurrentPlaylist().deselect();
-                    mService.setCurrentPlaylist(newPlaylist);
-                    mService.newComposition(newPlaylist.indexOf(track));
-                    mService.start();
+                if (!newPlaylist.equals(serviceInstance.getCurrentPlaylist())) {
+                    serviceInstance.getCurrentPlaylist().deselect();
+                    serviceInstance.setCurrentPlaylist(newPlaylist);
+                    serviceInstance.newComposition(newPlaylist.indexOf(track));
+                    serviceInstance.start();
                 } else {
-                    if (!track.equals(mService.getCurrentTrack())) {
-                        mService.newComposition(newPlaylist.indexOf(track));
+                    if (!track.equals(serviceInstance.getCurrentTrack())) {
+                        serviceInstance.newComposition(newPlaylist.indexOf(track));
                     } else {
-                        if (mService.isPlaying()) {
-                            mService.stop();
+                        if (serviceInstance.isPlaying()) {
+                            serviceInstance.stop();
                         } else {
-                            mService.start();
+                            serviceInstance.start();
                         }
                     }
                 }
-                showPlayerFragment();
+                showSmallPlayerFragment();
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
@@ -238,6 +248,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_tortoise);
 
         database = new SQLiteProcessor(this);
@@ -251,6 +262,9 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         playlists.addAll(compilePlaylistsByAuthor());
 
         pager = findViewById(R.id.pager);
+        if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {
+            startedByNotification = true;
+        }
 
         addPlaylistButton = findViewById(R.id.add_playlist_button);
         addPlaylistButton.setOnClickListener(new View.OnClickListener() {
@@ -285,7 +299,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
-            mService.removeListener(TortoiseActivity.this);
+            serviceInstance.removeListener(TortoiseActivity.this);
         }
         unbindService(mConnection);
     }
@@ -370,13 +384,19 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private void refreshPlayerFragment(boolean newDataAvailable) {
         if (mBounded) {
             if (smallPlayerFragment != null) {
-                Track track = mService.getCurrentTrack();
+                Track track = serviceInstance.getCurrentTrack();
                 if (track != null) {
-                    int progress = Utils.getSeconds(mService.getPlayerProgress());
+                    int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    boolean playing = mService.isPlaying();
+                    boolean playing = serviceInstance.isPlaying();
 
                     smallPlayerFragment.setData(track, progress, duration, playing);
+                    smallPlayerFragment.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
+                        }
+                    });
 
                     if (newDataAvailable) {
                         smallPlayerFragment.initStaticUI();
@@ -384,23 +404,40 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     smallPlayerFragment.initNonStaticUI();
                 }
             } else {
-                showPlayerFragment();
+                showSmallPlayerFragment();
             }
         }
     }
 
-    private void showPlayerFragment() {
+    private int VIEWPAGER_PAGE_COUNT = 3;
+
+    private void showSmallPlayerFragment() {
         if (mBounded) {
-            if (smallPlayerFragment == null) {
-                Track track = mService.getCurrentTrack();
+            if (smallPlayerFragment == null && pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYER) {
+                Track track = serviceInstance.getCurrentTrack();
                 if (track != null) {
+                    createPlayerFragment();
                     smallPlayerFragment = new SmallPlayerFragment();
-                    int progress = Utils.getSeconds(mService.getPlayerProgress());
+                    int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    smallPlayerFragment.setData(track, progress, duration, mService.isPlaying());
+                    smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
                     addFragment(smallPlayerFragment);
                 }
             }
+        }
+    }
+
+    private void createPlayerFragment() {
+        if (VIEWPAGER_PAGE_COUNT != 4) {
+            VIEWPAGER_PAGE_COUNT = 4;
+            pagerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void hideSmallPlayerFragment() {
+        if (smallPlayerFragment != null) {
+            removeFragment(smallPlayerFragment);
+            smallPlayerFragment = null;
         }
     }
 
@@ -409,15 +446,26 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         switch (state) {
             case NEW_TRACK:
                 refreshPlayerFragment(true);
+                if (playerFragment != null) {
+                    playerFragment.updateUI();
+                }
             case PLAY_PAUSE_TRACK:
+                if (mBounded) {
+                    if (serviceInstance.isPlaying()) {
+                        startPlayerFragmentUIPlaying();
+                    } else {
+                        stopPlayerFragmentUIPlaying();
+                    }
+                }
                 refreshPlayerFragment(false);
+                break;
         }
+
         invalidateTrackViewFragment();
     }
 
     private class PlayerFragmentAdapter extends FragmentPagerAdapter {
 
-        private int PAGE_COUNT = 3;
 
         PlayerFragmentAdapter() {
             super(TortoiseActivity.this.getSupportFragmentManager());
@@ -436,8 +484,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
                     if (selectedPlaylist == null) {
                         if (mBounded) {
-                            if (mService.getCurrentPlaylist() != null) {
-                                selectedPlaylist = mService.getCurrentPlaylist();
+                            if (serviceInstance.getCurrentPlaylist() != null) {
+                                selectedPlaylist = serviceInstance.getCurrentPlaylist();
                             } else {
                                 selectedPlaylist = allTracksPlaylist;
                             }
@@ -448,13 +496,59 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     TrackListFragment trackListFragment = getTrackListFragment(selectedPlaylist);
                     trackViewFragment = trackListFragment;
                     return trackListFragment;
+                case Constants.INDEX_FRAGMENT_PLAYER:
+                    PlayerFragment playerFragment = getPlayerFragment();
+                    TortoiseActivity.this.playerFragment = playerFragment;
+                    return playerFragment;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return PAGE_COUNT;
+            return VIEWPAGER_PAGE_COUNT;
+        }
+    }
+
+    @NonNull
+    private PlayerFragment getPlayerFragment() {
+        PlayerFragment playerFragment = new PlayerFragment();
+        playerFragment.setContext(TortoiseActivity.this);
+        playerFragment.setServiceInstance(serviceInstance);
+        return playerFragment;
+    }
+
+    private Timer compositionProgressTimer;
+
+    private void startPlayerFragmentUIPlaying() {
+        if (compositionProgressTimer == null) {
+            compositionProgressTimer = new Timer();
+            compositionProgressTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (playerFragment != null) {
+                                playerFragment.updateBar();
+                            }
+                        }
+                    });
+                }
+            }, Constants.ONE_SECOND, Constants.ONE_SECOND);
+        }
+        if (playerFragment != null) {
+            playerFragment.startUIPlaying();
+        }
+    }
+
+    private void stopPlayerFragmentUIPlaying() {
+        if (compositionProgressTimer != null) {
+            compositionProgressTimer.cancel();
+            compositionProgressTimer = null;
+        }
+        if (playerFragment != null) {
+            playerFragment.stopUIPlaying();
         }
     }
 

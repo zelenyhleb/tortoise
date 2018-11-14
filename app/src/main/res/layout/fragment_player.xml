@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
+                android:animateLayoutChanges="true"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/layout_player"
-                tools:context=".PlayerActivity">
+>
 
     <ImageButton
             android:id="@+id/play_pause"
@@ -14,7 +15,6 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_margin="16dp"
-            android:onClick="onClick"
             android:background="@null"
     />
 
@@ -94,7 +94,6 @@
             android:layout_alignParentBottom="true"
             android:layout_margin="16dp"
             android:layout_toRightOf="@id/play_pause"
-            android:onClick="onClick"
             tools:ignore="RtlHardcoded"
             android:background="@null"/>
 
@@ -107,7 +106,6 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="16dp"
             android:layout_toLeftOf="@id/play_pause"
-            android:onClick="onClick"
             tools:ignore="RtlHardcoded"
             android:layout_margin="16dp"
             android:background="@null"/>

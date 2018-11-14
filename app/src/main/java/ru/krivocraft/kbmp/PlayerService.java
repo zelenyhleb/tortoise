@@ -1,6 +1,9 @@
 package ru.krivocraft.kbmp;
 
-import android.app.*;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -169,7 +172,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     }
 
     private void updateNotification() {
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, TortoiseActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
 
         PendingIntent playIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent pauseIntent = PendingIntent.getBroadcast(this, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT);
