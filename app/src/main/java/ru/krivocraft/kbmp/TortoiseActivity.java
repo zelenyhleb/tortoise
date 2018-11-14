@@ -101,8 +101,13 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             mBounded = true;
             showSmallPlayerFragment();
 
-            if (startedByNotification){
+            if (startedByNotification) {
                 pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
+                if (serviceInstance.isPlaying()) {
+                    startPlayerFragmentUIPlaying();
+                } else {
+                    stopPlayerFragmentUIPlaying();
+                }
                 startedByNotification = false;
             }
 
@@ -531,14 +536,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                         public void run() {
                             if (playerFragment != null) {
                                 playerFragment.updateBar();
+                                playerFragment.startUIPlaying();
                             }
                         }
                     });
                 }
             }, Constants.ONE_SECOND, Constants.ONE_SECOND);
-        }
-        if (playerFragment != null) {
-            playerFragment.startUIPlaying();
         }
     }
 
