@@ -66,6 +66,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
             ViewPager pager = findViewById(R.id.pager);
             pager.setAdapter(new PlayerFragmentAdapter());
+            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
             pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -74,7 +75,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
                 @Override
                 public void onPageSelected(int position) {
-                    if (position == 0) {
+                    if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
                         showAddButton();
                     } else {
                         hideAddButton();
@@ -205,6 +206,13 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         return trackListFragment;
     }
 
+    @NonNull
+    private SettingsFragment getSettingsFragment() {
+        SettingsFragment settingsFragment = new SettingsFragment();
+        settingsFragment.setContext(this);
+        return settingsFragment;
+    }
+
     private void loadCompositions() {
         if (mBounded) {
             Playlist playlist = mService.getCurrentPlaylist();
@@ -221,7 +229,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playlist);
+        setContentView(R.layout.activity_tortoise);
 
         database = new SQLiteProcessor(this);
 
@@ -371,18 +379,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.settings:
-                buttonSettings();
-                break;
-        }
-    }
-
-    private void buttonSettings() {
-        startActivity(new Intent(TortoiseActivity.this, SettingsActivity.class));
-    }
-
     @Override
     public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
@@ -396,7 +392,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private class PlayerFragmentAdapter extends FragmentPagerAdapter {
 
-        private int PAGE_COUNT = 2;
+        private int PAGE_COUNT = 3;
 
         PlayerFragmentAdapter() {
             super(TortoiseActivity.this.getSupportFragmentManager());
@@ -405,9 +401,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         @Override
         public Fragment getItem(int position) {
             switch (position) {
-                case 0:
+                case Constants.INDEX_FRAGMENT_SETTINGS:
+                    return getSettingsFragment();
+                case Constants.INDEX_FRAGMENT_PLAYLISTGRID:
                     return getPlaylistGridFragment();
-                case 1:
+                case Constants.INDEX_FRAGMENT_TRACKLIST:
                     return getTrackListFragment(mService.getCurrentPlaylist());
             }
             return null;

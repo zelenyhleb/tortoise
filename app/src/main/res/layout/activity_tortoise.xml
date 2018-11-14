@@ -6,22 +6,11 @@
                 tools:context=".TortoiseActivity">
 
     <android.support.v4.view.ViewPager
-            android:layout_below="@id/settings"
             android:layout_above="@id/container"
-            android:layout_margin="8dp"
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:id="@+id/settings"
-            android:layout_margin="8dp"
-            android:src="@drawable/ic_settings"
-            android:onClick="onClick"
-            android:tint="@color/white"/>
 
     <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"

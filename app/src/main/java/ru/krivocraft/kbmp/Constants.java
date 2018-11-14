@@ -2,8 +2,6 @@ package ru.krivocraft.kbmp;
 
 class Constants {
 
-    static final String COMPOSITION = "composition";
-    static final String PLAYLIST = "playlist";
     static final String ACTION_PLAY = "action_play";
     static final String ACTION_PAUSE = "action_pause";
     static final String ACTION_NEXT = "action_next";
@@ -34,4 +32,8 @@ class Constants {
     static final int NOTIFY_ID = 124;
     static final int HEADSET_STATE_PLUG_OUT = 0;
     static final int HEADSET_STATE_PLUG_IN = 1;
+
+    final static int INDEX_FRAGMENT_SETTINGS = 0;
+    final static int INDEX_FRAGMENT_PLAYLISTGRID = 1;
+    final static int INDEX_FRAGMENT_TRACKLIST = 2;
 }

@@ -32,8 +32,6 @@
                 android:exported="false"
                 android:stopWithTask="true"/>
 
-        <activity android:name=".SettingsActivity">
-        </activity>
         <activity android:name=".PlaylistCreationActivity">
         </activity>
     </application>

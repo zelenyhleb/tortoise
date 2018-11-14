@@ -2,7 +2,6 @@ package ru.krivocraft.kbmp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.*;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -119,7 +118,7 @@ class Playlist implements Serializable {
     class TracksAdapter extends ArrayAdapter<Track> {
 
         TracksAdapter() {
-            super(context, R.layout.composition_list_item, getTracks());
+            super(context, R.layout.track_list_item, getTracks());
         }
 
         @SuppressLint("InflateParams")
@@ -129,7 +128,7 @@ class Playlist implements Serializable {
             Track track = getItem(position);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.composition_list_item, null);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item, null);
             }
             if (track != null) {
 
@@ -164,7 +163,7 @@ class Playlist implements Serializable {
     class SelectableTracksAdapter extends ArrayAdapter<Track> {
 
         SelectableTracksAdapter() {
-            super(context, R.layout.selectable_composition_list_item, getTracks());
+            super(context, R.layout.track_list_item_selectable, getTracks());
         }
 
         @SuppressLint("InflateParams")
@@ -175,7 +174,7 @@ class Playlist implements Serializable {
             Track track = getItem(position);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.selectable_composition_list_item, null);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item_selectable, null);
             }
             if (track != null) {
                 ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
