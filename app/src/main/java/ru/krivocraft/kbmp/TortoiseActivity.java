@@ -41,6 +41,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private PlaylistsAdapter mPlaylistsAdapter;
 
     private List<Playlist> playlists;
+    private List<Playlist> customPlaylists;
     private Playlist allTracksPlaylist;
 
     private Playlist selectedPlaylist;
@@ -166,7 +167,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemLongClickListener onGridItemLongClickListener = new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
-                showPlaylistDeletionDialog(parent, position);
+                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
+                if (customPlaylists.contains(playlist)) {
+                    showPlaylistDeletionDialog(parent, position);
+                }
                 return true;
             }
         };
@@ -224,6 +228,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     }
                 }
                 showSmallPlayerFragment();
+                invalidateTrackViewFragment();
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
@@ -262,7 +267,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         playlists = new ArrayList<>();
         playlists.add(allTracksPlaylist);
-        playlists.addAll(getAllCustomPlaylists());
+
+        customPlaylists = getAllCustomPlaylists();
+
+        playlists.addAll(customPlaylists);
 
         playlists.addAll(compilePlaylistsByAuthor());
 
