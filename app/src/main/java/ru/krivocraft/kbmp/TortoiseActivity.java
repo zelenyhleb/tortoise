@@ -39,7 +39,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private FragmentState fragmentState = FragmentState.TRACKS_LIST;
 
     private AbstractTrackViewFragment trackViewFragment;
-    private PlayerFragment playerFragment;
+    private SmallPlayerFragment smallPlayerFragment;
 
     private PlaylistsAdapter mPlaylistsAdapter;
 
@@ -262,6 +262,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
+            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     @NonNull
     private Playlist getAllTracksPlaylist() {
         return new Playlist(database.readCompositions(null, null), this, "All Tracks");
@@ -360,19 +369,19 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private void refreshPlayerFragment(boolean newDataAvailable) {
         if (mBounded) {
-            if (playerFragment != null) {
+            if (smallPlayerFragment != null) {
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
                     int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     boolean playing = mService.isPlaying();
 
-                    playerFragment.setData(track, progress, duration, playing);
+                    smallPlayerFragment.setData(track, progress, duration, playing);
 
                     if (newDataAvailable) {
-                        playerFragment.initStaticUI();
+                        smallPlayerFragment.initStaticUI();
                     }
-                    playerFragment.initNonStaticUI();
+                    smallPlayerFragment.initNonStaticUI();
                 }
             } else {
                 showPlayerFragment();
@@ -382,14 +391,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private void showPlayerFragment() {
         if (mBounded) {
-            if (playerFragment == null) {
+            if (smallPlayerFragment == null) {
                 Track track = mService.getCurrentTrack();
                 if (track != null) {
-                    playerFragment = new PlayerFragment();
+                    smallPlayerFragment = new SmallPlayerFragment();
                     int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    playerFragment.setData(track, progress, duration, mService.isPlaying());
-                    addFragment(playerFragment);
+                    smallPlayerFragment.setData(track, progress, duration, mService.isPlaying());
+                    addFragment(smallPlayerFragment);
                 }
             }
         }
