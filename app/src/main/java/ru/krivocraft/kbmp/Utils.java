@@ -54,7 +54,7 @@ class Utils {
     }
 
     static Playlist search(CharSequence string, Playlist playlistToSearch){
-        Playlist playlist = new Playlist(playlistToSearch.getContext());
+        Playlist playlist = new Playlist(playlistToSearch.getContext(), "temp");
         for (Track track : playlistToSearch.getTracks()) {
 
             String formattedName = track.getName().toLowerCase();

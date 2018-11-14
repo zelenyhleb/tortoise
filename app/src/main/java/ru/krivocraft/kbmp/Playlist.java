@@ -28,12 +28,9 @@ class Playlist implements Serializable {
     private String name;
     private boolean selected;
 
-    Playlist(Context context) {
-        this.context = context;
-    }
 
     Playlist(Context context, String name) {
-        this(context);
+        this.context = context;
         if (name.contains(Constants.PLAYLIST_PREFIX)) {
             this.name = formatName(name);
         } else {
@@ -41,8 +38,8 @@ class Playlist implements Serializable {
         }
     }
 
-    Playlist(List<Track> tracks, Context context) {
-        this(context);
+    Playlist(List<Track> tracks, Context context, String name) {
+        this(context, name);
         this.tracks = tracks;
     }
 

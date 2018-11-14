@@ -12,7 +12,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class PlaylistCreationActivity extends AppCompatActivity {
 
@@ -27,7 +26,7 @@ public class PlaylistCreationActivity extends AppCompatActivity {
         sqLiteProcessor = new SQLiteProcessor(this);
 
         final ListView listView = findViewById(R.id.playlist_editor_list);
-        listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(null, null), this).getSelectableTracksAdapter());
+        listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(null, null), this, "allTracks").getSelectableTracksAdapter());
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

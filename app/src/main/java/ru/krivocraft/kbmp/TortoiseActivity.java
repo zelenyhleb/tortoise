@@ -225,11 +225,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private void loadCompositions() {
         if (mBounded) {
-            Playlist playlist = mService.getCurrentPlaylist();
             List<Track> tracks = database.readCompositions(null, null);
             for (Track track : tracks) {
-                if (!playlist.contains(track)) {
-                    playlist.addComposition(track);
+                if (!allTracksPlaylist.contains(track)) {
+                    allTracksPlaylist.addComposition(track);
                 }
             }
         }
@@ -243,8 +242,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         database = new SQLiteProcessor(this);
 
-        playlists = getAllCustomPlaylists();
         allTracksPlaylist = getAllTracksPlaylist();
+
+        playlists = new ArrayList<>();
+        playlists.add(allTracksPlaylist);
+        playlists.addAll(getAllCustomPlaylists());
 
         playlists.addAll(compilePlaylistsByAuthor());
 
@@ -262,7 +264,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     @NonNull
     private Playlist getAllTracksPlaylist() {
-        return new Playlist(database.readCompositions(null, null), this);
+        return new Playlist(database.readCompositions(null, null), this, "All Tracks");
     }
 
     @NonNull
@@ -424,7 +426,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     return playlistGridFragment;
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
                     if (selectedPlaylist == null) {
-                        selectedPlaylist = allTracksPlaylist;
+                        if (mBounded) {
+                            if (mService.getCurrentPlaylist() != null) {
+                                selectedPlaylist = mService.getCurrentPlaylist();
+                            } else {
+                                selectedPlaylist = allTracksPlaylist;
+                            }
+                        } else {
+                            selectedPlaylist = allTracksPlaylist;
+                        }
                     }
                     TrackListFragment trackListFragment = getTrackListFragment(selectedPlaylist);
                     trackViewFragment = trackListFragment;
