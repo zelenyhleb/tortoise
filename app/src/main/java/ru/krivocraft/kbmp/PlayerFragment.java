@@ -1,166 +1,184 @@
 package ru.krivocraft.kbmp;
 
-import android.app.PendingIntent;
+import android.animation.LayoutTransition;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
 
-    private String compositionAuthor;
-    private String compositionName;
-    private int compositionProgress;
-    private int compositionDuration;
-    private boolean compositionState;
-    private String compositionPath;
-    private Timer progressBarTimer;
-    private View rootView;
+    private PlayerService serviceInstance;
     private Context context;
+    private ImageButton playPauseButton;
+    private TextView compositionNameTextView;
+    private TextView compositionAuthorTextView;
+    private TextView compositionProgressTextView;
+    private TextView compositionDurationTextView;
+    private SeekBar compositionProgressBar;
+    private ImageView trackImage;
 
     public PlayerFragment() {
+
     }
 
-    void setData(Track track, int compositionProgress, int compositionDuration, boolean compositionState) {
-        this.compositionAuthor = track.getArtist();
-        this.compositionName = track.getName();
-        this.compositionProgress = compositionProgress;
-        this.compositionDuration = compositionDuration;
-        this.compositionState = compositionState;
-        this.compositionPath = track.getPath();
+    void setServiceInstance(PlayerService serviceInstance) {
+        this.serviceInstance = serviceInstance;
+    }
+
+    void setContext(Context context) {
+        this.context = context;
+    }
+
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        serviceInstance.start(seekBar.getProgress() * 1000);
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_player, container, false);
-        context = getContext();
-        initStaticUI();
-        initNonStaticUI();
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+
+        playPauseButton = rootView.findViewById(R.id.play_pause);
+        compositionNameTextView = rootView.findViewById(R.id.composition_name);
+        compositionAuthorTextView = rootView.findViewById(R.id.composition_author);
+        compositionProgressTextView = rootView.findViewById(R.id.composition_progress);
+        compositionDurationTextView = rootView.findViewById(R.id.composition_duration);
+        compositionProgressBar = rootView.findViewById(R.id.composition_progress_bar);
+        trackImage = rootView.findViewById(R.id.track_image);
+
+        RelativeLayout playerLayout = rootView.findViewById(R.id.layout_player);
+        playerLayout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+
+        ImageButton previousTrack = rootView.findViewById(R.id.previous);
+        ImageButton nextTrack = rootView.findViewById(R.id.next);
+
+        previousTrack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                serviceInstance.previousComposition();
+            }
+        });
+
+        nextTrack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                serviceInstance.nextComposition();
+            }
+        });
+
+        updateUI();
+
         return rootView;
     }
 
-    void initStaticUI() {
-        if (context != null) {
-            rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(context, PlayerActivity.class));
-                }
-            });
+    void updateUI() {
+        Track currentTrack = serviceInstance.getCurrentTrack();
 
-            final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
-            final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
-            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
+        if (currentTrack!=null){
 
-            viewAuthor.setText(compositionAuthor);
-            viewName.setText(compositionName);
-            viewName.setSelected(true);
+            int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
+
+            String compositionName = currentTrack.getName();
+            String compositionComposer = currentTrack.getArtist();
+            String compositionDuration = currentTrack.getDuration();
+
+            compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+            compositionDurationTextView.setText(Utils.getFormattedTime((Integer.parseInt(compositionDuration) - progress) / 1000));
+
+            final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
 
             Track.GetBitmapTask task = new Track.GetBitmapTask();
             task.setListener(new Track.OnPictureProcessedListener() {
                 @Override
                 public void onPictureProcessed(final Bitmap bitmap) {
                     if (bitmap != null) {
-                        viewImage.setImageBitmap(bitmap);
+                        trackImage.setImageBitmap(bitmap);
                     } else {
-                        viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
+                        trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
                     }
-                    viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
+                    trackImage.startAnimation(fadeIn);
                 }
             });
-            task.execute(new File(compositionPath));
+            task.execute(new File(currentTrack.getPath()));
 
-            ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
-            ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
+            compositionProgressBar.setProgress(progress);
+            compositionProgressBar.setOnSeekBarChangeListener(this);
 
-            previousCompositionButton.setOnClickListener(new View.OnClickListener() {
+            compositionNameTextView.setText(compositionName);
+            compositionNameTextView.setSelected(true);
+            compositionAuthorTextView.setText(compositionComposer);
+
+            playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
+                    if (serviceInstance.isPlaying()) {
+                        serviceInstance.stop();
+                    } else {
+                        serviceInstance.start();
                     }
                 }
             });
-            nextCompositionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+
+            compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
+        }
+
+    }
+
+    void updateBar(){
+        int duration = Integer.parseInt(serviceInstance.getCurrentTrack().getDuration());
+
+        int progressMillis = serviceInstance.getPlayerProgress();
+        int estimatedMillis = duration - progressMillis;
+
+        int progress = Utils.getSeconds(progressMillis);
+        int estimated = Utils.getSeconds(estimatedMillis) - 1;
+
+        if (progress > compositionProgressBar.getMax()) {
+            serviceInstance.stop();
+        } else {
+            compositionProgressBar.setProgress(progress);
+            compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+            compositionDurationTextView.setText(String.format("-%s", Utils.getFormattedTime(estimated)));
         }
     }
 
-    void initNonStaticUI() {
-        if (context != null) {
-            final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-            bar.setMax(compositionDuration);
-            bar.setProgress(compositionProgress);
 
-            ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-            if (compositionState) {
-                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
-                playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                        } catch (PendingIntent.CanceledException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                cancelCurrentTimer();
-                startNewTimer(bar);
-            } else {
-                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
-                playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
-                        } catch (PendingIntent.CanceledException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                cancelCurrentTimer();
-            }
-        }
+    void startUIPlaying() {
+        playPauseButton.setImageResource(R.drawable.ic_pause);
     }
 
-    private void startNewTimer(final ProgressBar bar) {
-        progressBarTimer = new Timer();
-        progressBarTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                bar.setProgress(bar.getProgress() + 1);
-            }
-        }, 1000, 1000);
+    void stopUIPlaying() {
+        playPauseButton.setImageResource(R.drawable.ic_play);
     }
 
-    private void cancelCurrentTimer() {
-        if (progressBarTimer != null) {
-            progressBarTimer.cancel();
+    @Override
+    public void onTrackStateChanged(Track.TrackState state) {
+        switch (state) {
+            case NEW_TRACK:
+                updateUI();
+                break;
         }
+
     }
 }

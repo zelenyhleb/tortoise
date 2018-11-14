@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:context=".SmallPlayerFragment">
+
+    <ProgressBar
+            android:id="@+id/fragment_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:background="@null"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="4dp"
+            android:layout_below="@id/fragment_progressbar"
+            android:id="@+id/fragment_track_image"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/text_container"
+            android:layout_toEndOf="@id/fragment_track_image"
+            android:layout_below="@id/fragment_progressbar"
+            android:layout_toStartOf="@id/fragment_button_previous"
+            android:orientation="vertical">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:layout_height="wrap_content"
+                android:text="@string/song_name_test"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_margin="4dp"
+                android:id="@+id/fragment_composition_name"/>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:layout_height="wrap_content"
+                android:text="@string/song_author_test"
+                android:layout_margin="4dp"
+                android:id="@+id/fragment_composition_author"/>
+
+    </LinearLayout>
+
+    <ImageButton
+            android:id="@+id/fragment_button_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_margin="16dp"
+            android:layout_toStartOf="@id/fragment_button_playpause"
+            android:src="@drawable/ic_previous"
+            android:background="@null"/>
+
+    <ImageButton
+            android:id="@+id/fragment_button_playpause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/fragment_button_next"
+            android:src="@drawable/ic_play"
+            android:background="@null"/>
+
+    <ImageButton
+            android:id="@+id/fragment_button_next"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_next"
+            android:layout_margin="16dp"
+            android:layout_alignParentEnd="true"
+            android:background="@null"/>
+
+</RelativeLayout>

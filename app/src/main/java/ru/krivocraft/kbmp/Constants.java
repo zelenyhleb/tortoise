@@ -7,6 +7,7 @@ class Constants {
     static final String ACTION_NEXT = "action_next";
     static final String ACTION_PREVIOUS = "action_previous";
     static final String ACTION_CLOSE = "action_close";
+    static final String ACTION_SHOW_PLAYER= "action_show_player";
     static final String COMPOSITIONS = "compositions_list";
 
     static final String COMPOSITION_NAME = "composition_name";
@@ -36,4 +37,5 @@ class Constants {
     final static int INDEX_FRAGMENT_SETTINGS = 0;
     final static int INDEX_FRAGMENT_PLAYLISTGRID = 1;
     final static int INDEX_FRAGMENT_TRACKLIST = 2;
+    final static int INDEX_FRAGMENT_PLAYER = 3;
 }
