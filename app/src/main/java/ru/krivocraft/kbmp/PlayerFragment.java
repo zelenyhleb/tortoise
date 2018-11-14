@@ -95,7 +95,7 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
     void updateUI() {
         Track currentTrack = serviceInstance.getCurrentTrack();
 
-        if (currentTrack!=null){
+        if (currentTrack != null) {
 
             int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
 
@@ -129,6 +129,12 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
             compositionNameTextView.setSelected(true);
             compositionAuthorTextView.setText(compositionComposer);
 
+            if (serviceInstance.isPlaying()) {
+                startUIPlaying();
+            } else {
+                stopUIPlaying();
+            }
+
             playPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -145,7 +151,7 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
 
     }
 
-    void updateBar(){
+    void updateBar() {
         int duration = Integer.parseInt(serviceInstance.getCurrentTrack().getDuration());
 
         int progressMillis = serviceInstance.getPlayerProgress();

@@ -549,12 +549,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                         public void run() {
                             if (playerFragment != null) {
                                 playerFragment.updateBar();
-                                playerFragment.startUIPlaying();
                             }
                         }
                     });
                 }
             }, Constants.ONE_SECOND, Constants.ONE_SECOND);
+        }
+        if (playerFragment != null) {
+            playerFragment.startUIPlaying();
         }
     }
 
