@@ -81,7 +81,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     } else {
                         hideAddButton();
                     }
-                    invalidateTrackViewFragment();
+
+                    if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID || position == Constants.INDEX_FRAGMENT_TRACKLIST) {
+                        trackViewFragment = (AbstractTrackViewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
+                        invalidateTrackViewFragment();
+                    }
+
                     if (position == Constants.INDEX_FRAGMENT_PLAYER) {
                         hideSmallPlayerFragment();
                     } else {
@@ -491,24 +496,9 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     trackViewFragment = null;
                     return getSettingsFragment();
                 case Constants.INDEX_FRAGMENT_PLAYLISTGRID:
-                    PlaylistGridFragment playlistGridFragment = getPlaylistGridFragment();
-                    trackViewFragment = playlistGridFragment;
-                    return playlistGridFragment;
+                    return getPlaylistGridFragment();
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
-                    if (selectedPlaylist == null) {
-                        if (mBounded) {
-                            if (serviceInstance.getCurrentPlaylist() != null) {
-                                selectedPlaylist = serviceInstance.getCurrentPlaylist();
-                            } else {
-                                selectedPlaylist = allTracksPlaylist;
-                            }
-                        } else {
-                            selectedPlaylist = allTracksPlaylist;
-                        }
-                    }
-                    TrackListFragment trackListFragment = getTrackListFragment(selectedPlaylist);
-                    trackViewFragment = trackListFragment;
-                    return trackListFragment;
+                    return getTrackListFragment(getSelectedPlaylist());
                 case Constants.INDEX_FRAGMENT_PLAYER:
                     PlayerFragment playerFragment = getPlayerFragment();
                     TortoiseActivity.this.playerFragment = playerFragment;
@@ -521,6 +511,21 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         public int getCount() {
             return VIEWPAGER_PAGE_COUNT;
         }
+    }
+
+    private Playlist getSelectedPlaylist() {
+        if (selectedPlaylist == null) {
+            if (mBounded) {
+                if (serviceInstance.getCurrentPlaylist() != null) {
+                    selectedPlaylist = serviceInstance.getCurrentPlaylist();
+                } else {
+                    selectedPlaylist = allTracksPlaylist;
+                }
+            } else {
+                selectedPlaylist = allTracksPlaylist;
+            }
+        }
+        return selectedPlaylist;
     }
 
     @NonNull
