@@ -149,7 +149,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
                     }
                 }
             });
-            player.prepareAsync();
+            player.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -188,10 +188,14 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContent(notificationLayout)
+//                .setStyle(new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle())
+//                .setCustomContentView(notificationLayout)
+                .setSound(null)
                 .setContentIntent(contentIntent);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Tortoise", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setImportance(NotificationManager.IMPORTANCE_LOW);
             notification.setChannelId(CHANNEL_ID);
             if (service != null) {
                 service.createNotificationChannel(channel);
@@ -199,9 +203,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         }
 
 
-        if (service != null) {
-            service.notify(Constants.NOTIFY_ID, notification.build());
-        }
+        startForeground(Constants.NOTIFY_ID, notification.build());
     }
 
     private void dismissNotification() {
@@ -222,7 +224,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     void newComposition(int compositionIndex) {
         if (compositionIndex >= 0 && compositionIndex < getCurrentPlaylist().getSize()) {
-            stop();
             getCurrentTrack().setSelected(false);
             setTrackIndex(compositionIndex);
 
@@ -251,6 +252,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     private void release() {
         player.reset();
+        player.release();
         player = null;
     }
 

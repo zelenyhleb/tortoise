@@ -16,7 +16,7 @@
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"/>
         <activity
-                android:name=".PlaylistActivity"
+                android:name=".TortoiseActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait">
             <intent-filter>

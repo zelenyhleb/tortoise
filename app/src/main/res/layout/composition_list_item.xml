@@ -24,6 +24,7 @@
             android:singleLine="true"
             android:layout_toEndOf="@id/item_track_image"
             android:layout_margin="4dp"
+            android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"/>
 
@@ -34,6 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/item_track_image"
             android:layout_below="@id/composition_name_text"
+            android:textColor="@color/white"
             android:layout_margin="4dp"
             android:textSize="12sp"/>
 

@@ -3,28 +3,15 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".PlaylistActivity">
+                tools:context=".TortoiseActivity">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/playlist"
-            android:orientation="horizontal"
+    <android.support.v4.view.ViewPager
             android:layout_below="@id/settings"
             android:layout_above="@id/container"
             android:layout_margin="8dp"
-    />
-
-    <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:background="@null"
-            android:id="@+id/fragment_state"
-            android:layout_margin="8dp"
-            android:src="@drawable/ic_tracks"
-            android:onClick="onClick"
-            android:tint="@color/white"/>
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     <ImageButton
             android:layout_width="wrap_content"

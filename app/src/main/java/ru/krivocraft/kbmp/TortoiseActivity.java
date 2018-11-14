@@ -13,7 +13,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -24,7 +26,7 @@ import java.util.*;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class PlaylistActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
+public class TortoiseActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
 
     private boolean mBounded = false;
 
@@ -60,12 +62,34 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mService = binder.getServerInstance();
 
             mTracksAdapter = mService.getCurrentPlaylist().getTracksAdapter();
-            mPlaylistsAdapter = new PlaylistsAdapter(playlists, PlaylistActivity.this);
+            mPlaylistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
 
-            mService.addListener(PlaylistActivity.this);
+            ViewPager pager = findViewById(R.id.pager);
+            pager.setAdapter(new PlayerFragmentAdapter());
+            pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    if (position == 0) {
+                        showAddButton();
+                    } else {
+                        hideAddButton();
+                    }
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
+
+            mService.addListener(TortoiseActivity.this);
 
             mBounded = true;
-            showMainTrackViewFragment();
         }
 
         @Override
@@ -73,25 +97,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             mBounded = false;
         }
     };
-
-    private void showMainTrackViewFragment() {
-        if (mBounded) {
-            AbstractTrackViewFragment fragment = this.trackViewFragment;
-            removeFragment(fragment);
-            switch (fragmentState) {
-                case TRACKS_LIST:
-                    fragment = getTrackListFragment(allTracksPlaylist);
-                    hideAddButton();
-                    break;
-                case PLAYLISTS_GRID:
-                    fragment = getPlaylistGridFragment();
-                    showAddButton();
-                    break;
-            }
-            addFragment(R.id.playlist, fragment);
-            this.trackViewFragment = fragment;
-        }
-    }
 
     private void showAddButton() {
         if (addPlaylistButton.getVisibility() == View.INVISIBLE) {
@@ -107,14 +112,6 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showPlaylistViewFragment(Playlist playlist) {
-        AbstractTrackViewFragment fragment = this.trackViewFragment;
-        removeFragment(fragment);
-        fragment = getTrackListFragment(playlist);
-        addFragment(R.id.playlist, fragment);
-        this.trackViewFragment = fragment;
-    }
-
     private void removeFragment(Fragment fragment) {
         if (fragment != null) {
             getSupportFragmentManager()
@@ -124,11 +121,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void addFragment(int container, Fragment fragment) {
+    private void showPlayerFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
-                .add(container, fragment)
+                .add(R.id.container, fragment)
                 .commit();
     }
 
@@ -137,7 +134,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showPlaylistViewFragment((Playlist) parent.getItemAtPosition(position));
+//                TODO: MOVE PAGER TO SELECTED PLAYLIST
                 hideAddButton();
             }
         };
@@ -154,7 +151,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private void showPlaylistDeletionDialog(final AdapterView<?> parent, final int position) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PlaylistActivity.this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(TortoiseActivity.this);
         alertDialogBuilder.setIcon(R.drawable.ic_launcher);
         alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
         alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
@@ -237,7 +234,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         addPlaylistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PlaylistActivity.this, PlaylistCreationActivity.class);
+                Intent intent = new Intent(TortoiseActivity.this, PlaylistCreationActivity.class);
                 startActivity(intent);
             }
         });
@@ -257,7 +254,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
-            mService.removeListener(PlaylistActivity.this);
+            mService.removeListener(TortoiseActivity.this);
         }
         unbindService(mConnection);
     }
@@ -285,11 +282,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private List<Playlist> compilePlaylistsByAuthor(){
+    private List<Playlist> compilePlaylistsByAuthor() {
         Map<String, Playlist> playlistMap = new HashMap<>();
         for (Track track : allTracksPlaylist.getTracks()) {
             Playlist playlist = playlistMap.get(track.getArtist());
-            if (playlist == null){
+            if (playlist == null) {
                 playlist = new Playlist(this, track.getArtist());
                 playlistMap.put(track.getArtist(), playlist);
             }
@@ -368,7 +365,7 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
                     int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     playerFragment.setData(track, progress, duration, mService.isPlaying());
-                    addFragment(R.id.container, playerFragment);
+                    showPlayerFragment(playerFragment);
                 }
             }
         }
@@ -379,26 +376,11 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
             case R.id.settings:
                 buttonSettings();
                 break;
-            case R.id.fragment_state:
-                buttonChangeTrackViewFragmentState();
-                break;
         }
-    }
-
-    private void buttonChangeTrackViewFragmentState() {
-        ImageButton button = findViewById(R.id.fragment_state);
-        if (fragmentState == FragmentState.TRACKS_LIST) {
-            fragmentState = FragmentState.PLAYLISTS_GRID;
-            button.setImageDrawable(getDrawable(R.drawable.ic_playlists));
-        } else {
-            fragmentState = FragmentState.TRACKS_LIST;
-            button.setImageDrawable(getDrawable(R.drawable.ic_tracks));
-        }
-        showMainTrackViewFragment();
     }
 
     private void buttonSettings() {
-        startActivity(new Intent(PlaylistActivity.this, SettingsActivity.class));
+        startActivity(new Intent(TortoiseActivity.this, SettingsActivity.class));
     }
 
     @Override
@@ -412,11 +394,36 @@ public class PlaylistActivity extends AppCompatActivity implements Track.OnTrack
         invalidateTrackViewFragment();
     }
 
+    private class PlayerFragmentAdapter extends FragmentPagerAdapter {
+
+        private int PAGE_COUNT = 2;
+
+        PlayerFragmentAdapter() {
+            super(TortoiseActivity.this.getSupportFragmentManager());
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return getPlaylistGridFragment();
+                case 1:
+                    return getTrackListFragment(mService.getCurrentPlaylist());
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return PAGE_COUNT;
+        }
+    }
+
     class RecursiveSearchTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Utils.search(PlaylistActivity.this, onTracksFoundListener);
+            Utils.search(TortoiseActivity.this, onTracksFoundListener);
             return null;
         }
     }
