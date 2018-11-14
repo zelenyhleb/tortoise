@@ -2,7 +2,6 @@ package ru.krivocraft.kbmp;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -34,9 +33,17 @@ public class TrackListFragment extends AbstractTrackViewFragment {
         }
     }
 
-    void setData(Playlist playlist, AdapterView.OnItemClickListener listener) {
+    void init(Playlist playlist, AdapterView.OnItemClickListener listener) {
         this.listener = listener;
+        this.updateData(playlist);
+    }
+
+    void updateData(Playlist playlist) {
         this.playlist = playlist;
+        this.adapter = playlist.getTracksAdapter();
+        if (listView != null) {
+            this.listView.setAdapter(adapter);
+        }
     }
 
     @Override
@@ -44,8 +51,6 @@ public class TrackListFragment extends AbstractTrackViewFragment {
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         listView = rootView.findViewById(R.id.fragment_track_list);
-        adapter = playlist.getTracksAdapter();
-
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(listener);
 

@@ -22,6 +22,8 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     private MediaPlayer player;
     private Binder mBinder = new LocalBinder();
 
+    private static boolean running = false;
+
     private Playlist currentPlaylist;
     private int trackIndex = 0;
 
@@ -72,6 +74,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             }
         }
     };
+    private Track track;
 
     @Nullable
     @Override
@@ -91,6 +94,10 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     }
 
+    static boolean isRunning() {
+        return running;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         setCurrentPlaylist(new Playlist(this));
@@ -108,6 +115,7 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         musicFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(headsetReceiver, musicFilter);
 
+        running = true;
         return START_STICKY;
     }
 
@@ -116,6 +124,12 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
         sendBroadcast(new Intent().setAction(Constants.ACTION_PREVIOUS));
         unregisterReceiver(controlReceiver);
         unregisterReceiver(headsetReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
+        running = false;
+        super.onDestroy();
     }
 
     public void start() {

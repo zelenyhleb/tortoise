@@ -29,6 +29,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 public class TortoiseActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
 
     private boolean mBounded = false;
+    private ViewPager pager;
 
     private enum FragmentState {
         PLAYLISTS_GRID,
@@ -40,11 +41,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private AbstractTrackViewFragment trackViewFragment;
     private PlayerFragment playerFragment;
 
-    private Playlist.TracksAdapter mTracksAdapter;
     private PlaylistsAdapter mPlaylistsAdapter;
 
     private List<Playlist> playlists;
     private Playlist allTracksPlaylist;
+
+    private Playlist selectedPlaylist;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -61,10 +63,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
             mService = binder.getServerInstance();
 
-            mTracksAdapter = mService.getCurrentPlaylist().getTracksAdapter();
             mPlaylistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
 
-            ViewPager pager = findViewById(R.id.pager);
             pager.setAdapter(new PlayerFragmentAdapter());
             pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
             pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -80,6 +80,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     } else {
                         hideAddButton();
                     }
+                    invalidateTrackViewFragment();
+
                 }
 
                 @Override
@@ -88,9 +90,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 }
             });
 
+
             mService.addListener(TortoiseActivity.this);
 
             mBounded = true;
+
+            showPlayerFragment();
         }
 
         @Override
@@ -122,7 +127,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void showPlayerFragment(Fragment fragment) {
+    private void addFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
@@ -135,8 +140,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                TODO: MOVE PAGER TO SELECTED PLAYLIST
-                hideAddButton();
+                selectedPlaylist = (Playlist) parent.getItemAtPosition(position);
+                pager.setCurrentItem(Constants.INDEX_FRAGMENT_TRACKLIST);
+                if (trackViewFragment instanceof TrackListFragment) {
+                    TrackListFragment fragment = (TrackListFragment) trackViewFragment;
+                    fragment.updateData(selectedPlaylist);
+                }
             }
         };
         AdapterView.OnItemLongClickListener onGridItemLongClickListener = new AdapterView.OnItemLongClickListener() {
@@ -184,6 +193,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 Playlist newPlaylist = adapter.getPlaylist();
 
                 if (!newPlaylist.equals(mService.getCurrentPlaylist())) {
+                    mService.getCurrentPlaylist().deselect();
                     mService.setCurrentPlaylist(newPlaylist);
                     mService.newComposition(newPlaylist.indexOf(track));
                     mService.start();
@@ -202,7 +212,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             }
         };
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.setData(playlist, onListItemClickListener);
+        trackListFragment.init(playlist, onListItemClickListener);
         return trackListFragment;
     }
 
@@ -238,6 +248,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         playlists.addAll(compilePlaylistsByAuthor());
 
+        pager = findViewById(R.id.pager);
+
         addPlaylistButton = findViewById(R.id.add_playlist_button);
         addPlaylistButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -267,9 +279,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         unbindService(mConnection);
     }
 
-    private void startService() {
+    private void bindService() {
         Intent serviceIntent = new Intent(this, PlayerService.class);
-        startService(serviceIntent);
+        if (!PlayerService.isRunning()) {
+            startService(serviceIntent);
+        }
 
         bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
     }
@@ -283,7 +297,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startService();
+                bindService();
             } else {
                 Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
             }
@@ -324,7 +338,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         super.onResume();
 
         if (!mBounded) {
-            startService();
+            bindService();
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
@@ -373,7 +387,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     int progress = Utils.getSeconds(mService.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     playerFragment.setData(track, progress, duration, mService.isPlaying());
-                    showPlayerFragment(playerFragment);
+                    addFragment(playerFragment);
                 }
             }
         }
@@ -402,11 +416,19 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         public Fragment getItem(int position) {
             switch (position) {
                 case Constants.INDEX_FRAGMENT_SETTINGS:
+                    trackViewFragment = null;
                     return getSettingsFragment();
                 case Constants.INDEX_FRAGMENT_PLAYLISTGRID:
-                    return getPlaylistGridFragment();
+                    PlaylistGridFragment playlistGridFragment = getPlaylistGridFragment();
+                    trackViewFragment = playlistGridFragment;
+                    return playlistGridFragment;
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
-                    return getTrackListFragment(mService.getCurrentPlaylist());
+                    if (selectedPlaylist == null) {
+                        selectedPlaylist = allTracksPlaylist;
+                    }
+                    TrackListFragment trackListFragment = getTrackListFragment(selectedPlaylist);
+                    trackViewFragment = trackListFragment;
+                    return trackListFragment;
             }
             return null;
         }

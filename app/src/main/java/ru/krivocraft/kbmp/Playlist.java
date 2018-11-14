@@ -21,9 +21,12 @@ class Playlist implements Serializable {
 
     private List<Track> tracks = new ArrayList<>();
     private Context context;
+
     private TracksAdapter tracksAdapter = null;
     private SelectableTracksAdapter selectableTracksAdapter = null;
+
     private String name;
+    private boolean selected;
 
     Playlist(Context context) {
         this.context = context;
@@ -58,6 +61,13 @@ class Playlist implements Serializable {
 
     String getName() {
         return name;
+    }
+
+    void deselect(){
+        for (Track track : tracks) {
+            track.setPlaying(false);
+            track.setSelected(false);
+        }
     }
 
     void shuffle() {
