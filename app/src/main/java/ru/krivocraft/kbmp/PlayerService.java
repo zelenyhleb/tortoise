@@ -74,7 +74,6 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
             }
         }
     };
-    private Track track;
 
     @Nullable
     @Override
@@ -238,8 +237,12 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
 
     void newComposition(int compositionIndex) {
         if (compositionIndex >= 0 && compositionIndex < getCurrentPlaylist().getSize()) {
+            stop();
+
             getCurrentTrack().setSelected(false);
             setTrackIndex(compositionIndex);
+
+            getCurrentTrack().setProgress(0);
 
             for (Track.OnTrackStateChangedListener listener : listeners) {
                 listener.onTrackStateChanged(Track.TrackState.NEW_TRACK);
