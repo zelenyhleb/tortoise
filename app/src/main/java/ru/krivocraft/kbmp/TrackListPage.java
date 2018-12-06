@@ -12,14 +12,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-public class TrackListFragment extends AbstractTrackViewFragment {
+public class TrackListPage extends AbstractTrackViewFragment {
 
     private Playlist playlist;
     private AdapterView.OnItemClickListener listener;
     private Playlist.TracksAdapter adapter;
     private ListView listView;
 
-    public TrackListFragment() {
+    public TrackListPage() {
         super();
     }
 

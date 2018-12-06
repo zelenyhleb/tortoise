@@ -6,11 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -19,11 +17,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -35,7 +34,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private PlayerFragmentAdapter pagerAdapter;
 
     private AbstractTrackViewFragment trackViewFragment;
-    private PlayerFragment playerFragment;
     private SmallPlayerFragment smallPlayerFragment;
 
     private PlaylistsAdapter mPlaylistsAdapter;
@@ -49,7 +47,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
     private PlayerService serviceInstance;
-    private FloatingActionButton addPlaylistButton;
 
     private boolean startedByNotification = false;
 
@@ -76,12 +73,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
                 @Override
                 public void onPageSelected(int position) {
-                    if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
-                        showAddButton();
-                    } else {
-                        hideAddButton();
-                    }
-
                     if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID || position == Constants.INDEX_FRAGMENT_TRACKLIST) {
                         trackViewFragment = (AbstractTrackViewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
                         invalidateTrackViewFragment();
@@ -109,11 +100,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
             if (startedByNotification) {
                 pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
-                if (serviceInstance.isPlaying()) {
-                    startPlayerFragmentUIPlaying();
-                } else {
-                    stopPlayerFragmentUIPlaying();
-                }
                 startedByNotification = false;
             }
 
@@ -125,46 +111,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         }
     };
 
-    private void showAddButton() {
-        if (addPlaylistButton.getVisibility() == View.INVISIBLE) {
-            addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeinshort));
-            addPlaylistButton.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideAddButton() {
-        if (addPlaylistButton.getVisibility() == View.VISIBLE) {
-            addPlaylistButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fadeoutshort));
-            addPlaylistButton.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void removeFragment(final Fragment fragment) {
-        if (fragment != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(fragment)
-                    .commit();
-        }
-    }
-
-    private void addFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort)
-                .add(R.id.container, fragment)
-                .commit();
-    }
-
     @NonNull
-    private PlaylistGridFragment getPlaylistGridFragment() {
+    private PlaylistGridPage getPlaylistGridFragment() {
         AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedPlaylist = (Playlist) parent.getItemAtPosition(position);
                 pager.setCurrentItem(Constants.INDEX_FRAGMENT_TRACKLIST);
-                if (trackViewFragment instanceof TrackListFragment) {
-                    TrackListFragment fragment = (TrackListFragment) trackViewFragment;
+                if (trackViewFragment instanceof TrackListPage) {
+                    TrackListPage fragment = (TrackListPage) trackViewFragment;
                     fragment.updateData(selectedPlaylist);
                 }
             }
@@ -174,41 +129,37 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
                 Playlist playlist = (Playlist) parent.getItemAtPosition(position);
                 if (customPlaylists.contains(playlist)) {
-                    showPlaylistDeletionDialog(parent, position);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(TortoiseActivity.this);
+                    alertDialogBuilder.setIcon(R.drawable.ic_launcher);
+                    alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
+                    alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Playlist playlist1 = (Playlist) parent.getItemAtPosition(position);
+                            database.deletePlaylist(playlist1.getName());
+                            invalidateTrackViewFragment();
+                        }
+                    });
+                    alertDialogBuilder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    alertDialogBuilder.create();
+                    alertDialogBuilder.show();
                 }
                 return true;
             }
         };
-        PlaylistGridFragment playlistGridFragment = new PlaylistGridFragment();
-        playlistGridFragment.setData(mPlaylistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
-        return playlistGridFragment;
-    }
-
-    private void showPlaylistDeletionDialog(final AdapterView<?> parent, final int position) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(TortoiseActivity.this);
-        alertDialogBuilder.setIcon(R.drawable.ic_launcher);
-        alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
-        alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
-                database.deletePlaylist(playlist.getName());
-                invalidateTrackViewFragment();
-            }
-        });
-        alertDialogBuilder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        alertDialogBuilder.create();
-        alertDialogBuilder.show();
+        PlaylistGridPage playlistGridPage = new PlaylistGridPage();
+        playlistGridPage.setData(mPlaylistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
+        return playlistGridPage;
     }
 
     @NonNull
-    private TrackListFragment getTrackListFragment(Playlist playlist) {
+    private TrackListPage getTrackListFragment(Playlist playlist) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -236,16 +187,16 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 invalidateTrackViewFragment();
             }
         };
-        TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(playlist, onListItemClickListener);
-        return trackListFragment;
+        TrackListPage trackListPage = new TrackListPage();
+        trackListPage.init(playlist, onListItemClickListener);
+        return trackListPage;
     }
 
     @NonNull
-    private SettingsFragment getSettingsFragment() {
-        SettingsFragment settingsFragment = new SettingsFragment();
-        settingsFragment.setContext(this);
-        return settingsFragment;
+    private SettingsPage getSettingsFragment() {
+        SettingsPage settingsPage = new SettingsPage();
+        settingsPage.setContext(this);
+        return settingsPage;
     }
 
     private void loadCompositions() {
@@ -277,26 +228,19 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         playlists.addAll(customPlaylists);
 
-        playlists.addAll(compilePlaylistsByAuthor());
+        playlists.addAll(Utils.compilePlaylistsByAuthor(this, allTracksPlaylist));
 
         pager = findViewById(R.id.pager);
         if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {
             startedByNotification = true;
         }
-
-        addPlaylistButton = findViewById(R.id.add_playlist_button);
-        addPlaylistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(TortoiseActivity.this, PlaylistCreationActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
+        if (pager.getCurrentItem() == Constants.INDEX_FRAGMENT_PLAYER) {
+            pager.setCurrentItem(Constants.INDEX_FRAGMENT_TRACKLIST);
+        } else if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
             pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
         } else {
             super.onBackPressed();
@@ -332,8 +276,23 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private void startSearchTask() {
+
+        Track.OnTracksFoundListener listener = new Track.OnTracksFoundListener() {
+            @Override
+            public void onTrackSearchingCompleted(List<Track> tracks) {
+                database.writeCompositions(tracks);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadCompositions();
+                        invalidateTrackViewFragment();
+                    }
+                });
+            }
+        };
+
         RecursiveSearchTask searchTask = new RecursiveSearchTask();
-        searchTask.execute();
+        searchTask.execute(new SearchTaskBundle(this, listener, allTracksPlaylist));
     }
 
     @Override
@@ -346,35 +305,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             }
         }
     }
-
-    private List<Playlist> compilePlaylistsByAuthor() {
-        Map<String, Playlist> playlistMap = new HashMap<>();
-        for (Track track : allTracksPlaylist.getTracks()) {
-            Playlist playlist = playlistMap.get(track.getArtist());
-            if (playlist == null) {
-                playlist = new Playlist(this, track.getArtist());
-                playlistMap.put(track.getArtist(), playlist);
-            }
-            if (!playlist.contains(track)) {
-                playlist.addComposition(track);
-            }
-        }
-        return new ArrayList<>(playlistMap.values());
-    }
-
-    private Track.OnTracksFoundListener onTracksFoundListener = new Track.OnTracksFoundListener() {
-        @Override
-        public void onTrackSearchingCompleted(List<Track> tracks) {
-            database.writeCompositions(tracks);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    loadCompositions();
-                    invalidateTrackViewFragment();
-                }
-            });
-        }
-    };
 
     @Override
     protected void onResume() {
@@ -399,7 +329,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
         }
     }
 
-    private void refreshPlayerFragment(boolean newDataAvailable) {
+    private void refreshSmallPlayerFragment(boolean newDataAvailable) {
         if (mBounded) {
             if (smallPlayerFragment != null) {
                 Track track = serviceInstance.getCurrentTrack();
@@ -439,7 +369,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                     int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
-                    addFragment(smallPlayerFragment);
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort)
+                            .add(R.id.container, smallPlayerFragment)
+                            .commit();
                 }
             }
         }
@@ -454,28 +388,21 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private void hideSmallPlayerFragment() {
         if (smallPlayerFragment != null) {
-            removeFragment(smallPlayerFragment);
-            smallPlayerFragment = null;
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(smallPlayerFragment)
+                    .commit();
         }
+        smallPlayerFragment = null;
     }
 
     @Override
     public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
-                refreshPlayerFragment(true);
-                if (playerFragment != null) {
-                    playerFragment.updateUI();
-                }
+                refreshSmallPlayerFragment(true);
             case PLAY_PAUSE_TRACK:
-                if (mBounded) {
-                    if (serviceInstance.isPlaying()) {
-                        startPlayerFragmentUIPlaying();
-                    } else {
-                        stopPlayerFragmentUIPlaying();
-                    }
-                }
-                refreshPlayerFragment(false);
+                refreshSmallPlayerFragment(false);
                 break;
         }
 
@@ -483,7 +410,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private class PlayerFragmentAdapter extends FragmentPagerAdapter {
-
 
         PlayerFragmentAdapter() {
             super(TortoiseActivity.this.getSupportFragmentManager());
@@ -500,9 +426,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
                     return getTrackListFragment(getSelectedPlaylist());
                 case Constants.INDEX_FRAGMENT_PLAYER:
-                    PlayerFragment playerFragment = getPlayerFragment();
-                    TortoiseActivity.this.playerFragment = playerFragment;
-                    return playerFragment;
+                    return getPlayerPage();
             }
             return null;
         }
@@ -529,54 +453,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @NonNull
-    private PlayerFragment getPlayerFragment() {
-        PlayerFragment playerFragment = new PlayerFragment();
-        playerFragment.setContext(TortoiseActivity.this);
-        playerFragment.setServiceInstance(serviceInstance);
-        return playerFragment;
-    }
-
-    private Timer compositionProgressTimer;
-
-    private void startPlayerFragmentUIPlaying() {
-        if (compositionProgressTimer == null) {
-            compositionProgressTimer = new Timer();
-            compositionProgressTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (playerFragment != null) {
-                                playerFragment.updateBar();
-                            }
-                        }
-                    });
-                }
-            }, Constants.ONE_SECOND, Constants.ONE_SECOND);
+    private PlayerPage getPlayerPage() {
+        PlayerPage playerPage = new PlayerPage();
+        playerPage.setContext(TortoiseActivity.this);
+        playerPage.setServiceInstance(serviceInstance);
+        if (serviceInstance != null) {
+            serviceInstance.addListener(playerPage);
         }
-        if (playerFragment != null) {
-            playerFragment.startUIPlaying();
-        }
-    }
-
-    private void stopPlayerFragmentUIPlaying() {
-        if (compositionProgressTimer != null) {
-            compositionProgressTimer.cancel();
-            compositionProgressTimer = null;
-        }
-        if (playerFragment != null) {
-            playerFragment.stopUIPlaying();
-        }
-    }
-
-    class RecursiveSearchTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Utils.search(TortoiseActivity.this, onTracksFoundListener, allTracksPlaylist);
-            return null;
-        }
+        return playerPage;
     }
 
 }

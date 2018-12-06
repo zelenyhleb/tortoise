@@ -10,7 +10,9 @@ import android.provider.MediaStore;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -66,6 +68,21 @@ class Utils {
             }
         }
         return playlist;
+    }
+
+    static List<Playlist> compilePlaylistsByAuthor(Context context, Playlist allTracksPlaylist) {
+        Map<String, Playlist> playlistMap = new HashMap<>();
+        for (Track track : allTracksPlaylist.getTracks()) {
+            Playlist playlist = playlistMap.get(track.getArtist());
+            if (playlist == null) {
+                playlist = new Playlist(context, track.getArtist());
+                playlistMap.put(track.getArtist(), playlist);
+            }
+            if (!playlist.contains(track)) {
+                playlist.addComposition(track);
+            }
+        }
+        return new ArrayList<>(playlistMap.values());
     }
 
     private static int id = 0;

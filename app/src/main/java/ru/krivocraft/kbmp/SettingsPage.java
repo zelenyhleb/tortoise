@@ -15,12 +15,12 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsFragment extends Fragment {
+public class SettingsPage extends Fragment {
 
     private Context context;
     private SQLiteProcessor processor;
 
-    public SettingsFragment() {
+    public SettingsPage() {
 
     }
 

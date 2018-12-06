@@ -1,22 +1,25 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-public class PlaylistGridFragment extends AbstractTrackViewFragment {
+public class PlaylistGridPage extends AbstractTrackViewFragment {
 
     private PlaylistsAdapter adapter;
     private AdapterView.OnItemClickListener listener;
     private AdapterView.OnItemLongClickListener longClickListener;
     private GridView gridView;
 
-    public PlaylistGridFragment() {
+    public PlaylistGridPage() {
         super();
     }
 
@@ -44,6 +47,19 @@ public class PlaylistGridFragment extends AbstractTrackViewFragment {
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(listener);
         gridView.setOnItemLongClickListener(longClickListener);
+
+        FloatingActionButton addPlaylistButton = rootView.findViewById(R.id.add_playlist_button);
+        addPlaylistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = getContext();
+                if (context != null) {
+                    Intent intent = new Intent(context, PlaylistCreationActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
         return rootView;
     }
 

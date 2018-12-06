@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -23,6 +24,7 @@ import java.util.Objects;
 public class PlayerService extends Service implements Track.OnTrackStateChangedListener {
 
     private MediaPlayer player;
+    private MediaSession session;
     private Binder mBinder = new LocalBinder();
 
     private static boolean running = false;
@@ -35,22 +37,18 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null) {
-                if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
-                    int state = intent.getIntExtra("state", -1);
-                    switch (state) {
-                        case Constants.HEADSET_STATE_PLUG_IN:
-                            if (getCurrentTrack() != null) {
-                                start();
-                            }
-                            break;
-                        case Constants.HEADSET_STATE_PLUG_OUT:
-                            stop();
-                            break;
-                    }
-
+            if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction())) {
+                switch (intent.getIntExtra("state", -1)) {
+                    case Constants.HEADSET_STATE_PLUG_IN:
+                        if (getCurrentTrack() != null) {
+                            start();
+                        }
+                        break;
+                    case Constants.HEADSET_STATE_PLUG_OUT:
+                        stop();
+                        break;
                 }
+
             }
         }
     };
@@ -104,6 +102,9 @@ public class PlayerService extends Service implements Track.OnTrackStateChangedL
     public int onStartCommand(Intent intent, int flags, int startId) {
         setCurrentPlaylist(new Playlist(this, "default"));
         addListener(this);
+
+        session = new MediaSession(this, "Tortoise");
+
 
         IntentFilter controlFilter = new IntentFilter();
         controlFilter.addAction(Constants.ACTION_PLAY);

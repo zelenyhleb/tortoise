@@ -4,6 +4,9 @@ import android.animation.LayoutTransition;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,8 +18,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.*;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
+public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
 
     private PlayerService serviceInstance;
     private Context context;
@@ -27,9 +32,15 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
     private TextView compositionDurationTextView;
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
+    private Handler mHandler;
 
-    public PlayerFragment() {
-
+    public PlayerPage() {
+        mHandler = new Handler(Looper.getMainLooper()) {
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                updateBar();
+            }
+        };
     }
 
     void setServiceInstance(PlayerService serviceInstance) {
@@ -40,6 +51,28 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
         this.context = context;
     }
 
+    private Timer compositionProgressTimer;
+
+    private void startUI() {
+        if (compositionProgressTimer == null) {
+            compositionProgressTimer = new Timer();
+            compositionProgressTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mHandler.sendEmptyMessage(0);
+                }
+            }, Constants.ONE_SECOND, Constants.ONE_SECOND);
+        }
+        playPauseButton.setImageResource(R.drawable.ic_pause);
+    }
+
+    private void stopUI() {
+        if (compositionProgressTimer != null) {
+            compositionProgressTimer.cancel();
+            compositionProgressTimer = null;
+        }
+        playPauseButton.setImageResource(R.drawable.ic_play);
+    }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
@@ -101,7 +134,7 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
         return rootView;
     }
 
-    void updateUI() {
+    private void updateUI() {
         Track currentTrack = serviceInstance.getCurrentTrack();
 
         if (currentTrack != null) {
@@ -139,9 +172,9 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
             compositionAuthorTextView.setText(compositionComposer);
 
             if (serviceInstance.isPlaying()) {
-                startUIPlaying();
+                startUI();
             } else {
-                stopUIPlaying();
+                stopUI();
             }
 
             playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -160,7 +193,7 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
 
     }
 
-    void updateBar() {
+    private void updateBar() {
         int progressMillis = serviceInstance.getPlayerProgress();
         int progress = Utils.getSeconds(progressMillis);
         if (progress <= compositionProgressBar.getMax()) {
@@ -169,19 +202,20 @@ public class PlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeL
     }
 
 
-    void startUIPlaying() {
-        playPauseButton.setImageResource(R.drawable.ic_pause);
-    }
-
-    void stopUIPlaying() {
-        playPauseButton.setImageResource(R.drawable.ic_play);
-    }
-
     @Override
     public void onTrackStateChanged(Track.TrackState state) {
         switch (state) {
             case NEW_TRACK:
                 updateUI();
+                break;
+            case PLAY_PAUSE_TRACK:
+                if (serviceInstance != null) {
+                    if (serviceInstance.isPlaying()) {
+                        startUI();
+                    } else {
+                        stopUI();
+                    }
+                }
                 break;
         }
 

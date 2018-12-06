@@ -90,9 +90,10 @@ class SQLiteProcessor {
 
                             String whereClause = Constants.COMPOSITION_IDENTIFIER + " = ?";
                             String[] selectionArgs = {String.valueOf(ci.getInt(playlistTrackReferenceIndex))};
-                            Track track = readCompositions(selectionArgs, whereClause).get(0);
-
-                            playlist.addComposition(track);
+                            if (readCompositions(selectionArgs, whereClause).size()>0) {
+                                Track track = readCompositions(selectionArgs, whereClause).get(0);
+                                playlist.addComposition(track);
+                            }
                             ci.moveToNext();
                         }
 
