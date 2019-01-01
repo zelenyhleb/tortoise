@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
@@ -137,6 +138,26 @@ class Playlist implements Serializable {
 
     boolean contains(Track track) {
         return tracks.contains(track);
+    }
+
+    interface OnPlaylistCompilingCompleted {
+        void onPlaylistCompiled(List<Playlist> list);
+    }
+
+    static class CompilePlaylistsTask extends AsyncTask<Playlist, Void, List<Playlist>> {
+
+        OnPlaylistCompilingCompleted listener;
+        Context context;
+
+        @Override
+        protected List<Playlist> doInBackground(Playlist... playlists) {
+            return Utils.compilePlaylistsByAuthor(context, playlists[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<Playlist> playlists) {
+            listener.onPlaylistCompiled(playlists);
+        }
     }
 
     class TracksAdapter extends ArrayAdapter<Track> {

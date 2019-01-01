@@ -55,6 +55,9 @@ class PlaybackManager {
         }
 
         player.start();
+
+        selectedTrack.setPlaying(true);
+
         playerState = PlaybackStateCompat.STATE_PLAYING;
         updatePlaybackState();
     }
@@ -66,9 +69,13 @@ class PlaybackManager {
     }
 
     void pause() {
+        Track selectedTrack = playlist.getSelectedTrack();
+
         if (isPlaying()) {
             player.pause();
+            selectedTrack.setPlaying(false);
         }
+
         playerState = PlaybackStateCompat.STATE_PAUSED;
         updatePlaybackState();
     }

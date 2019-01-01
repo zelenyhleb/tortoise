@@ -46,9 +46,9 @@ class NotificationBuilder {
                     .setContentIntent(contentIntent);
 
             if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                notification.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
+                notification.addAction(pauseAction).setSmallIcon(R.drawable.ic_play).setOngoing(true);
             } else {
-                notification.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
+                notification.addAction(playAction).setSmallIcon(R.drawable.ic_pause).setOngoing(false);
             }
 
             notification.addAction(nextAction);
@@ -65,6 +65,13 @@ class NotificationBuilder {
             if (service != null) {
                 service.notify(Constants.NOTIFY_ID, notification.build());
             }
+        }
+    }
+
+    void removeNotification() {
+        NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        if (service != null) {
+            service.cancel(Constants.NOTIFY_ID);
         }
     }
 

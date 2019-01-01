@@ -230,7 +230,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
 
         playlists.addAll(customPlaylists);
 
-        playlists.addAll(Utils.compilePlaylistsByAuthor(this, allTracksPlaylist));
+        Playlist.CompilePlaylistsTask task = new Playlist.CompilePlaylistsTask();
+        task.context = this;
+        task.listener = new Playlist.OnPlaylistCompilingCompleted() {
+            @Override
+            public void onPlaylistCompiled(List<Playlist> list) {
+                playlists.addAll(list);
+            }
+        };
+        task.execute(allTracksPlaylist);
 
         pager = findViewById(R.id.pager);
         if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {

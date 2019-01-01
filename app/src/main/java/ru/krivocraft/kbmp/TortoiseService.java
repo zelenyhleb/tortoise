@@ -16,11 +16,9 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TortoiseService extends MediaBrowserServiceCompat implements Track.StateCallback, MediaPlayer.OnCompletionListener {
 
@@ -54,7 +52,6 @@ public class TortoiseService extends MediaBrowserServiceCompat implements Track.
     };
 
     private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
-
         @Override
         public void onPlay() {
             play();
@@ -172,6 +169,7 @@ public class TortoiseService extends MediaBrowserServiceCompat implements Track.
         running = false;
         sendBroadcast(new Intent().setAction(Constants.ACTION_PREVIOUS));
         unregisterReceiver(headsetReceiver);
+        removeNotification();
         super.onDestroy();
     }
 
@@ -204,8 +202,8 @@ public class TortoiseService extends MediaBrowserServiceCompat implements Track.
             notificationBuilder.updateNotification(mediaSession);
     }
 
-    private void dismissNotification() {
-        stopForeground(true);
+    private void removeNotification() {
+        notificationBuilder.removeNotification();
     }
 
     Track getCurrentTrack() {

@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +93,7 @@ public class SmallPlayerFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PREVIOUS), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS).send();
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
@@ -101,7 +103,7 @@ public class SmallPlayerFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_NEXT), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_NEXT).send();
                     } catch (PendingIntent.CanceledException e) {
                         e.printStackTrace();
                     }
@@ -123,7 +125,7 @@ public class SmallPlayerFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         try {
-                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PAUSE), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PAUSE).send();
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
                         }
@@ -137,7 +139,7 @@ public class SmallPlayerFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         try {
-                            PendingIntent.getBroadcast(context, 0, new Intent().setAction(Constants.ACTION_PLAY), PendingIntent.FLAG_CANCEL_CURRENT).send();
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY).send();
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
                         }

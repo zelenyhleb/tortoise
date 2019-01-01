@@ -40,8 +40,6 @@ class Utils {
     }
 
     static Bitmap getTrackBitmap(File file) {
-
-
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(file.getPath());
 

@@ -53,7 +53,7 @@ class Track implements Serializable {
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, Utils.getTrackBitmap(new File(path)))
+//                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, Utils.getTrackBitmap(new File(path)))
                 .build();
     }
 
