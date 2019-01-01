@@ -10,6 +10,8 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +23,9 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.OnTrackStateChangedListener {
+public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.StateCallback {
 
-    private PlayerService serviceInstance;
+    private TortoiseService serviceInstance;
     private Context context;
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -43,7 +45,7 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
         };
     }
 
-    void setServiceInstance(PlayerService serviceInstance) {
+    void setServiceInstance(TortoiseService serviceInstance) {
         this.serviceInstance = serviceInstance;
     }
 
@@ -76,7 +78,7 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        serviceInstance.start(seekBar.getProgress() * 1000);
+        serviceInstance.seekTo(seekBar.getProgress() * 1000);
     }
 
     @Override
@@ -118,14 +120,14 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
         previousTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serviceInstance.previousComposition();
+                serviceInstance.skipToPrevious();
             }
         });
 
         nextTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serviceInstance.nextComposition();
+                serviceInstance.skipToNext();
             }
         });
 
@@ -139,7 +141,7 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
 
         if (currentTrack != null) {
 
-            int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
+            int progress = Utils.getSeconds(serviceInstance.getProgress());
 
             String compositionName = currentTrack.getName();
             String compositionComposer = currentTrack.getArtist();
@@ -181,9 +183,9 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
                 @Override
                 public void onClick(View v) {
                     if (serviceInstance.isPlaying()) {
-                        serviceInstance.stop();
+                        serviceInstance.pause();
                     } else {
-                        serviceInstance.start();
+                        serviceInstance.play();
                     }
                 }
             });
@@ -194,30 +196,24 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
     }
 
     private void updateBar() {
-        int progressMillis = serviceInstance.getPlayerProgress();
+        int progressMillis = serviceInstance.getProgress();
         int progress = Utils.getSeconds(progressMillis);
         if (progress <= compositionProgressBar.getMax()) {
             compositionProgressBar.setProgress(progress);
         }
     }
 
+    @Override
+    public void onMetadataChanged(MediaMetadataCompat metadata) {
+        updateUI();
+    }
 
     @Override
-    public void onTrackStateChanged(Track.TrackState state) {
-        switch (state) {
-            case NEW_TRACK:
-                updateUI();
-                break;
-            case PLAY_PAUSE_TRACK:
-                if (serviceInstance != null) {
-                    if (serviceInstance.isPlaying()) {
-                        startUI();
-                    } else {
-                        stopUI();
-                    }
-                }
-                break;
+    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            startUI();
+        } else {
+            stopUI();
         }
-
     }
 }

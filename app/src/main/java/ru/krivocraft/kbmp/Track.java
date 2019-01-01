@@ -3,6 +3,8 @@ package ru.krivocraft.kbmp;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.File;
 import java.io.Serializable;
@@ -22,11 +24,6 @@ class Track implements Serializable {
     private boolean checked = false;
 
     private int identifier;
-
-    enum TrackState {
-        NEW_TRACK,
-        PLAY_PAUSE_TRACK;
-    }
 
     Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
 
@@ -49,6 +46,15 @@ class Track implements Serializable {
             }
         }
 
+    }
+
+    MediaMetadataCompat getAsMediaMetadata() {
+        return new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, Utils.getTrackBitmap(new File(path)))
+                .build();
     }
 
     boolean isSelected() {
@@ -96,7 +102,7 @@ class Track implements Serializable {
             return false;
         }
         Track track = (Track) obj;
-        return track.path.equals(path);
+        return this.identifier == track.identifier;
     }
 
     @Override
@@ -149,7 +155,9 @@ class Track implements Serializable {
         void onTrackSearchingCompleted(List<Track> tracks);
     }
 
-    interface OnTrackStateChangedListener {
-        void onTrackStateChanged(TrackState state);
+    interface StateCallback {
+        void onMetadataChanged(MediaMetadataCompat metadata);
+
+        void onPlaybackStateChanged(PlaybackStateCompat playbackState);
     }
 }

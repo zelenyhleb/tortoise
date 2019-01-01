@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.media.MediaMetadataCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ class Playlist implements Serializable {
 
     private String name;
     private boolean selected;
+    private int cursor;
 
 
     Playlist(Context context, String name) {
@@ -47,6 +49,21 @@ class Playlist implements Serializable {
         return unformatted.replaceAll(Constants.PLAYLIST_PREFIX, "").replace("_", " ");
     }
 
+    void setCursor(int newCursor) {
+        cursor = newCursor;
+    }
+
+    int getCursor() {
+        return cursor;
+    }
+
+    Track getSelectedTrack() {
+        if (cursor < getSize() && cursor >= 0)
+            return tracks.get(cursor);
+        else
+            return null;
+    }
+
     Context getContext() {
         return context;
     }
@@ -60,7 +77,7 @@ class Playlist implements Serializable {
         return name;
     }
 
-    void deselect(){
+    void deselect() {
         for (Track track : tracks) {
             track.setPlaying(false);
             track.setSelected(false);

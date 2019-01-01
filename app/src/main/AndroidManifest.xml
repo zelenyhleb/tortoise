@@ -3,6 +3,7 @@
           package="ru.krivocraft.kbmp">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
             android:allowBackup="true"
@@ -23,10 +24,20 @@
         </activity>
 
         <service
-                android:name=".PlayerService"
+                android:name=".TortoiseService"
                 android:enabled="true"
                 android:exported="false"
-                android:stopWithTask="true"/>
+                android:stopWithTask="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
         <activity android:name=".PlaylistCreationActivity">
         </activity>

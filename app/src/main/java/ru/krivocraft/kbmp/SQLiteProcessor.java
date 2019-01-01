@@ -18,6 +18,10 @@ class SQLiteProcessor {
         this.context = context;
         DBHelper dbHelper = new DBHelper(context);
         db = dbHelper.getWritableDatabase();
+        createMainTable();
+    }
+
+    private void createMainTable() {
         db.execSQL("create table if not exists " + Constants.COMPOSITIONS + " ("
                 + Constants.COMPOSITION_IDENTIFIER + " integer primary key autoincrement, "
                 + Constants.COMPOSITION_NAME + " text,"
@@ -27,19 +31,18 @@ class SQLiteProcessor {
     }
 
     private void writeComposition(Track track) {
-        if (!readCompositions(null, null).contains(track)) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
-            contentValues.put(Constants.COMPOSITION_NAME, track.getName());
-            contentValues.put(Constants.COMPOSITION_PATH, track.getPath());
-            contentValues.put(Constants.COMPOSITION_DURATION, track.getDuration());
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Constants.COMPOSITION_AUTHOR, track.getArtist());
+        contentValues.put(Constants.COMPOSITION_NAME, track.getName());
+        contentValues.put(Constants.COMPOSITION_PATH, track.getPath());
+        contentValues.put(Constants.COMPOSITION_DURATION, track.getDuration());
 
-            db.insert(Constants.COMPOSITIONS, null, contentValues);
-        }
-
+        db.insert(Constants.COMPOSITIONS, null, contentValues);
     }
 
     void writeCompositions(List<Track> tracks) {
+        clearDatabase();
+        createMainTable();
         for (Track track : tracks) {
             writeComposition(track);
         }
@@ -90,7 +93,7 @@ class SQLiteProcessor {
 
                             String whereClause = Constants.COMPOSITION_IDENTIFIER + " = ?";
                             String[] selectionArgs = {String.valueOf(ci.getInt(playlistTrackReferenceIndex))};
-                            if (readCompositions(selectionArgs, whereClause).size()>0) {
+                            if (readCompositions(selectionArgs, whereClause).size() > 0) {
                                 Track track = readCompositions(selectionArgs, whereClause).get(0);
                                 playlist.addComposition(track);
                             }

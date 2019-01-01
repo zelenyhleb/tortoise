@@ -13,6 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +28,7 @@ import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class TortoiseActivity extends AppCompatActivity implements Track.OnTrackStateChangedListener {
+public class TortoiseActivity extends AppCompatActivity implements Track.StateCallback {
 
     private boolean mBounded = false;
 
@@ -46,7 +48,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
-    private PlayerService serviceInstance;
+    private TortoiseService serviceInstance;
 
     private boolean startedByNotification = false;
 
@@ -56,7 +58,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            PlayerService.LocalBinder binder = (PlayerService.LocalBinder) iBinder;
+            TortoiseService.LocalBinder binder = (TortoiseService.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
             mPlaylistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
@@ -167,19 +169,19 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 Track track = (Track) adapterView.getItemAtPosition(i);
                 Playlist newPlaylist = adapter.getPlaylist();
 
-                if (!newPlaylist.equals(serviceInstance.getCurrentPlaylist())) {
-                    serviceInstance.getCurrentPlaylist().deselect();
-                    serviceInstance.setCurrentPlaylist(newPlaylist);
-                    serviceInstance.newComposition(newPlaylist.indexOf(track));
-                    serviceInstance.start();
+                if (!newPlaylist.equals(serviceInstance.getPlaylist())) {
+                    serviceInstance.getPlaylist().deselect();
+                    serviceInstance.setPlaylist(newPlaylist);
+                    serviceInstance.skipToNew(newPlaylist.indexOf(track));
+                    serviceInstance.play();
                 } else {
                     if (!track.equals(serviceInstance.getCurrentTrack())) {
-                        serviceInstance.newComposition(newPlaylist.indexOf(track));
+                        serviceInstance.skipToNew(newPlaylist.indexOf(track));
                     } else {
                         if (serviceInstance.isPlaying()) {
-                            serviceInstance.stop();
+                            serviceInstance.pause();
                         } else {
-                            serviceInstance.start();
+                            serviceInstance.play();
                         }
                     }
                 }
@@ -267,8 +269,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     private void bindService() {
-        Intent serviceIntent = new Intent(this, PlayerService.class);
-        if (!PlayerService.isRunning()) {
+        Intent serviceIntent = new Intent(this, TortoiseService.class);
+        if (!TortoiseService.isRunning()) {
             startService(serviceIntent);
         }
 
@@ -334,7 +336,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
             if (smallPlayerFragment != null) {
                 Track track = serviceInstance.getCurrentTrack();
                 if (track != null) {
-                    int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
+                    int progress = Utils.getSeconds(serviceInstance.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     boolean playing = serviceInstance.isPlaying();
 
@@ -366,7 +368,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
                 if (track != null) {
                     createPlayerFragment();
                     smallPlayerFragment = new SmallPlayerFragment();
-                    int progress = Utils.getSeconds(serviceInstance.getPlayerProgress());
+                    int progress = Utils.getSeconds(serviceInstance.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                     smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
                     getSupportFragmentManager()
@@ -397,15 +399,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     }
 
     @Override
-    public void onTrackStateChanged(Track.TrackState state) {
-        switch (state) {
-            case NEW_TRACK:
-                refreshSmallPlayerFragment(true);
-            case PLAY_PAUSE_TRACK:
-                refreshSmallPlayerFragment(false);
-                break;
-        }
+    public void onMetadataChanged(MediaMetadataCompat metadata) {
+        refreshSmallPlayerFragment(true);
+        invalidateTrackViewFragment();
+    }
 
+    @Override
+    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        refreshSmallPlayerFragment(false);
         invalidateTrackViewFragment();
     }
 
@@ -440,8 +441,8 @@ public class TortoiseActivity extends AppCompatActivity implements Track.OnTrack
     private Playlist getSelectedPlaylist() {
         if (selectedPlaylist == null) {
             if (mBounded) {
-                if (serviceInstance.getCurrentPlaylist() != null) {
-                    selectedPlaylist = serviceInstance.getCurrentPlaylist();
+                if (serviceInstance.getPlaylist() != null) {
+                    selectedPlaylist = serviceInstance.getPlaylist();
                 } else {
                     selectedPlaylist = allTracksPlaylist;
                 }
