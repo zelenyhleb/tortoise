@@ -1,8 +1,8 @@
 package ru.krivocraft.kbmp;
 
 import android.Manifest;
+import android.animation.LayoutTransition;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -10,40 +10,27 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class MainActivity extends AppCompatActivity implements Track.StateCallback {
+public class TortoiseActivity extends AppCompatActivity implements Track.StateCallback {
 
     private boolean mBounded = false;
 
-    private ViewPager pager;
-
-    private AbstractTrackViewFragment trackViewFragment;
     private SmallPlayerFragment smallPlayerFragment;
 
-    private PlaylistsAdapter playlistsAdapter;
-
-    private List<Playlist> playlists;
-    private List<Playlist> customPlaylists;
     private Playlist allTracksPlaylist;
-
-    private Playlist selectedPlaylist;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -60,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
             Service.LocalBinder binder = (Service.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
-            serviceInstance.addListener(MainActivity.this);
+            serviceInstance.addListener(TortoiseActivity.this);
 
             mBounded = true;
             showSmallPlayerFragment();
@@ -69,6 +56,13 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
                 startedByNotification = false;
             }
 
+            loadCompositions();
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
+                    .add(R.id.list_container, getTrackListFragment(allTracksPlaylist))
+                    .commit();
         }
 
         @Override
@@ -76,53 +70,6 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
             mBounded = false;
         }
     };
-
-    @NonNull
-    private PlaylistGridPage getPlaylistGridFragment() {
-        AdapterView.OnItemClickListener onGridItemClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedPlaylist = (Playlist) parent.getItemAtPosition(position);
-                pager.setCurrentItem(Constants.INDEX_FRAGMENT_TRACKLIST);
-                if (trackViewFragment instanceof TrackListPage) {
-                    TrackListPage fragment = (TrackListPage) trackViewFragment;
-                    fragment.updateData(selectedPlaylist);
-                }
-            }
-        };
-        AdapterView.OnItemLongClickListener onGridItemLongClickListener = new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
-                Playlist playlist = (Playlist) parent.getItemAtPosition(position);
-                if (customPlaylists.contains(playlist)) {
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                    alertDialogBuilder.setIcon(R.drawable.ic_launcher);
-                    alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
-                    alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            Playlist playlist1 = (Playlist) parent.getItemAtPosition(position);
-                            database.deletePlaylist(playlist1.getName());
-                            invalidateTrackViewFragment();
-                        }
-                    });
-                    alertDialogBuilder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-                    alertDialogBuilder.create();
-                    alertDialogBuilder.show();
-                }
-                return true;
-            }
-        };
-        PlaylistGridPage playlistGridPage = new PlaylistGridPage();
-        playlistGridPage.setData(playlistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
-        return playlistGridPage;
-    }
 
     @NonNull
     private TrackListPage getTrackListFragment(Playlist playlist) {
@@ -150,10 +97,12 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
                     }
                 }
                 showSmallPlayerFragment();
-                invalidateTrackViewFragment();
             }
         };
         TrackListPage trackListPage = new TrackListPage();
+        if (serviceInstance != null) {
+            serviceInstance.addListener(trackListPage);
+        }
         trackListPage.init(playlist, onListItemClickListener, true);
         return trackListPage;
     }
@@ -171,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
             for (Track track : tracks) {
                 if (!allTracksPlaylist.contains(track)) {
                     allTracksPlaylist.addComposition(track);
+                    allTracksPlaylist.notifyAdapters();
                 }
             }
         }
@@ -184,54 +134,15 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
         database = new SQLiteProcessor(this);
         allTracksPlaylist = new Playlist(this, "All Tracks");
 
-        playlists = new ArrayList<>();
-        playlists.add(allTracksPlaylist);
-        customPlaylists = getAllCustomPlaylists();
-        playlists.addAll(customPlaylists);
+        RelativeLayout layout = findViewById(R.id.main_layout);
+        layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
-        playlistsAdapter = new PlaylistsAdapter(playlists, MainActivity.this);
-
-        Playlist.CompilePlaylistsTask task = new Playlist.CompilePlaylistsTask();
-        task.listener = new Playlist.OnPlaylistCompilingCompleted() {
-            @Override
-            public void onPlaylistCompiled(List<Playlist> list) {
-                playlists.addAll(list);
-                playlistsAdapter.notifyDataSetChanged();
-            }
-        };
-        task.execute(allTracksPlaylist);
-
-        pager = findViewById(R.id.pager);
-        pager.setAdapter(new PagerAdapter());
-        pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID || position == Constants.INDEX_FRAGMENT_TRACKLIST) {
-                    trackViewFragment = (AbstractTrackViewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
-                    invalidateTrackViewFragment();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
     }
 
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
-            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
-        } else {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
+
     }
 
     @NonNull
@@ -243,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
-            serviceInstance.removeListener(MainActivity.this);
+            serviceInstance.removeListener(TortoiseActivity.this);
         }
         unbindService(mConnection);
     }
@@ -267,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
                     @Override
                     public void run() {
                         loadCompositions();
-                        invalidateTrackViewFragment();
                     }
                 });
             }
@@ -306,13 +216,6 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
             startedByNotification = true;
         }
 
-        invalidateTrackViewFragment();
-    }
-
-    private void invalidateTrackViewFragment() {
-        if (trackViewFragment != null) {
-            trackViewFragment.invalidate();
-        }
     }
 
     private void refreshSmallPlayerFragment(boolean newDataAvailable) {
@@ -328,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
                     smallPlayerFragment.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
+                            startActivity(new Intent(TortoiseActivity.this, PlayerActivity.class));
                         }
                     });
 
@@ -375,54 +278,12 @@ public class MainActivity extends AppCompatActivity implements Track.StateCallba
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
         refreshSmallPlayerFragment(true);
-        invalidateTrackViewFragment();
     }
 
     @Override
     public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
         refreshSmallPlayerFragment(false);
-        invalidateTrackViewFragment();
     }
 
-    private class PagerAdapter extends FragmentPagerAdapter {
-
-        PagerAdapter() {
-            super(MainActivity.this.getSupportFragmentManager());
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case Constants.INDEX_FRAGMENT_SETTINGS:
-                    trackViewFragment = null;
-                    return getSettingsFragment();
-                case Constants.INDEX_FRAGMENT_PLAYLISTGRID:
-                    return getPlaylistGridFragment();
-                case Constants.INDEX_FRAGMENT_TRACKLIST:
-                    return getTrackListFragment(getSelectedPlaylist());
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-    }
-
-    private Playlist getSelectedPlaylist() {
-        if (selectedPlaylist == null) {
-            if (mBounded) {
-                if (serviceInstance.getPlaylist() != null) {
-                    selectedPlaylist = serviceInstance.getPlaylist();
-                } else {
-                    selectedPlaylist = allTracksPlaylist;
-                }
-            } else {
-                selectedPlaylist = allTracksPlaylist;
-            }
-        }
-        return selectedPlaylist;
-    }
 
 }

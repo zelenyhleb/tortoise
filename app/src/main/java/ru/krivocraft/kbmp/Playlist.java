@@ -70,7 +70,6 @@ class Playlist implements Serializable {
 
     void addComposition(Track track) {
         tracks.add(track);
-        notifyAdapters();
     }
 
     String getName() {
@@ -114,7 +113,7 @@ class Playlist implements Serializable {
         return selectableTracksAdapter;
     }
 
-    private void notifyAdapters() {
+    void notifyAdapters() {
         if (tracksAdapter != null) {
             tracksAdapter.notifyDataSetChanged();
         }

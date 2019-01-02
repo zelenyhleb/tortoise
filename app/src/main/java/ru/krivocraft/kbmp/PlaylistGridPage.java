@@ -64,14 +64,4 @@ public class PlaylistGridPage extends AbstractTrackViewFragment {
 
         return rootView;
     }
-
-    @Override
-    public void onMetadataChanged(MediaMetadataCompat metadata) {
-
-    }
-
-    @Override
-    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-
-    }
 }

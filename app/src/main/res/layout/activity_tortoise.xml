@@ -3,11 +3,15 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".MainActivity">
+                android:animateLayoutChanges="true"
+                android:id="@+id/main_layout"
+                tools:context=".TortoiseActivity">
 
-    <android.support.v4.view.ViewPager
+    <LinearLayout
+            android:id="@+id/list_container"
+            android:orientation="vertical"
             android:layout_above="@id/container"
-            android:id="@+id/pager"
+            android:layout_margin="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
@@ -17,5 +21,7 @@
             android:id="@+id/container"
             android:orientation="vertical"
             android:layout_alignParentBottom="true"/>
+
+    
 
 </RelativeLayout>

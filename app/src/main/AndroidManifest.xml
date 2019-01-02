@@ -13,7 +13,7 @@
             android:supportsRtl="true"
             android:theme="@style/DarkTheme">
         <activity
-                android:name=".MainActivity"
+                android:name=".TortoiseActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait">
             <intent-filter>
