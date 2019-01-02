@@ -28,7 +28,7 @@ import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class TortoiseActivity extends AppCompatActivity implements Track.StateCallback {
+public class MainActivity extends AppCompatActivity implements Track.StateCallback {
 
     private boolean mBounded = false;
 
@@ -47,7 +47,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
-    private TortoiseService serviceInstance;
+    private Service serviceInstance;
 
     private boolean startedByNotification = false;
 
@@ -57,10 +57,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            TortoiseService.LocalBinder binder = (TortoiseService.LocalBinder) iBinder;
+            Service.LocalBinder binder = (Service.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
-            serviceInstance.addListener(TortoiseActivity.this);
+            serviceInstance.addListener(MainActivity.this);
 
             mBounded = true;
             showSmallPlayerFragment();
@@ -95,7 +95,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             public boolean onItemLongClick(final AdapterView<?> parent, View view, final int position, long id) {
                 Playlist playlist = (Playlist) parent.getItemAtPosition(position);
                 if (customPlaylists.contains(playlist)) {
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(TortoiseActivity.this);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
                     alertDialogBuilder.setIcon(R.drawable.ic_launcher);
                     alertDialogBuilder.setTitle("Are you sure want to delete this playlist?");
                     alertDialogBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
@@ -189,7 +189,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         customPlaylists = getAllCustomPlaylists();
         playlists.addAll(customPlaylists);
 
-        playlistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
+        playlistsAdapter = new PlaylistsAdapter(playlists, MainActivity.this);
 
         Playlist.CompilePlaylistsTask task = new Playlist.CompilePlaylistsTask();
         task.listener = new Playlist.OnPlaylistCompilingCompleted() {
@@ -243,14 +243,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
-            serviceInstance.removeListener(TortoiseActivity.this);
+            serviceInstance.removeListener(MainActivity.this);
         }
         unbindService(mConnection);
     }
 
     private void bindService() {
-        Intent serviceIntent = new Intent(this, TortoiseService.class);
-        if (!TortoiseService.isRunning()) {
+        Intent serviceIntent = new Intent(this, Service.class);
+        if (!Service.isRunning()) {
             startService(serviceIntent);
         }
 
@@ -328,7 +328,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
                     smallPlayerFragment.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            startActivity(new Intent(TortoiseActivity.this, PlayerActivity.class));
+                            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
                         }
                     });
 
@@ -387,7 +387,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
     private class PagerAdapter extends FragmentPagerAdapter {
 
         PagerAdapter() {
-            super(TortoiseActivity.this.getSupportFragmentManager());
+            super(MainActivity.this.getSupportFragmentManager());
         }
 
         @Override

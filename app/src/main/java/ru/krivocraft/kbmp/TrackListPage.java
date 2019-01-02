@@ -48,6 +48,7 @@ public class TrackListPage extends AbstractTrackViewFragment {
         if (listView != null) {
             this.listView.setAdapter(adapter);
         }
+        invalidate();
     }
 
     @Override

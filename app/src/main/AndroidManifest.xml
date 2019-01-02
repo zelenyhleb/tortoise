@@ -13,7 +13,7 @@
             android:supportsRtl="true"
             android:theme="@style/DarkTheme">
         <activity
-                android:name=".TortoiseActivity"
+                android:name=".MainActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait">
             <intent-filter>
@@ -24,7 +24,7 @@
         </activity>
 
         <service
-                android:name=".TortoiseService"
+                android:name=".Service"
                 android:enabled="true"
                 android:exported="false"
                 android:stopWithTask="true">

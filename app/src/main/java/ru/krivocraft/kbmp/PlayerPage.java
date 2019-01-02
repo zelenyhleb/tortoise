@@ -25,7 +25,7 @@ import java.util.TimerTask;
 
 public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.StateCallback {
 
-    private TortoiseService serviceInstance;
+    private Service serviceInstance;
     private Context context;
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -44,7 +44,7 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
         };
     }
 
-    void setServiceInstance(TortoiseService serviceInstance) {
+    void setServiceInstance(Service serviceInstance) {
         this.serviceInstance = serviceInstance;
     }
 

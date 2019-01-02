@@ -20,7 +20,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TortoiseService extends MediaBrowserServiceCompat implements Track.StateCallback, MediaPlayer.OnCompletionListener {
+public class Service extends MediaBrowserServiceCompat implements Track.StateCallback, MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
     private NotificationBuilder notificationBuilder;
@@ -107,8 +107,8 @@ public class TortoiseService extends MediaBrowserServiceCompat implements Track.
     }
 
     class LocalBinder extends Binder {
-        TortoiseService getServerInstance() {
-            return TortoiseService.this;
+        Service getServerInstance() {
+            return Service.this;
         }
 
     }

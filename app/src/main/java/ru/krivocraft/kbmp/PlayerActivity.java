@@ -15,13 +15,13 @@ import android.widget.AdapterView;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    private TortoiseService serviceInstance;
+    private Service serviceInstance;
     private ViewPager pager;
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            serviceInstance = ((TortoiseService.LocalBinder) service).getServerInstance();
+            serviceInstance = ((Service.LocalBinder) service).getServerInstance();
 
             pager.setAdapter(new PagerAdapter());
             pager.invalidate();
@@ -38,7 +38,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         pager = findViewById(R.id.pager_p);
-        bindService(new Intent(this, TortoiseService.class), connection, BIND_ABOVE_CLIENT);
+        bindService(new Intent(this, Service.class), connection, BIND_ABOVE_CLIENT);
     }
 
     @Override
