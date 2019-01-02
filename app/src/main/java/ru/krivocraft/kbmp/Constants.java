@@ -37,5 +37,7 @@ class Constants {
     final static int INDEX_FRAGMENT_SETTINGS = 0;
     final static int INDEX_FRAGMENT_PLAYLISTGRID = 1;
     final static int INDEX_FRAGMENT_TRACKLIST = 2;
-    final static int INDEX_FRAGMENT_PLAYER = 3;
+
+    final static int INDEX_FRAGMENT_PLAYER = 0;
+    final static int INDEX_FRAGMENT_PLAYLIST = 1;
 }

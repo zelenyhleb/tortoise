@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.media.MediaMetadataCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -147,11 +146,10 @@ class Playlist implements Serializable {
     static class CompilePlaylistsTask extends AsyncTask<Playlist, Void, List<Playlist>> {
 
         OnPlaylistCompilingCompleted listener;
-        Context context;
 
         @Override
         protected List<Playlist> doInBackground(Playlist... playlists) {
-            return Utils.compilePlaylistsByAuthor(context, playlists[0]);
+            return Utils.compilePlaylistsByAuthor(playlists[0]);
         }
 
         @Override

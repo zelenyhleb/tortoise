@@ -33,12 +33,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
     private boolean mBounded = false;
 
     private ViewPager pager;
-    private PlayerFragmentAdapter pagerAdapter;
 
     private AbstractTrackViewFragment trackViewFragment;
     private SmallPlayerFragment smallPlayerFragment;
 
-    private PlaylistsAdapter mPlaylistsAdapter;
+    private PlaylistsAdapter playlistsAdapter;
 
     private List<Playlist> playlists;
     private List<Playlist> customPlaylists;
@@ -61,47 +60,12 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             TortoiseService.LocalBinder binder = (TortoiseService.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
-            mPlaylistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
-
-            pagerAdapter = new PlayerFragmentAdapter();
-
-            pager.setAdapter(pagerAdapter);
-            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
-            pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID || position == Constants.INDEX_FRAGMENT_TRACKLIST) {
-                        trackViewFragment = (AbstractTrackViewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
-                        invalidateTrackViewFragment();
-                    }
-
-                    if (position == Constants.INDEX_FRAGMENT_PLAYER) {
-                        hideSmallPlayerFragment();
-                    } else {
-                        showSmallPlayerFragment();
-                    }
-
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-
-                }
-            });
-
-
             serviceInstance.addListener(TortoiseActivity.this);
 
             mBounded = true;
             showSmallPlayerFragment();
 
             if (startedByNotification) {
-                pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
                 startedByNotification = false;
             }
 
@@ -156,7 +120,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             }
         };
         PlaylistGridPage playlistGridPage = new PlaylistGridPage();
-        playlistGridPage.setData(mPlaylistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
+        playlistGridPage.setData(playlistsAdapter, onGridItemClickListener, onGridItemLongClickListener);
         return playlistGridPage;
     }
 
@@ -164,15 +128,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
     private TrackListPage getTrackListFragment(Playlist playlist) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Playlist.TracksAdapter adapter = (Playlist.TracksAdapter) adapterView.getAdapter();
-                Track track = (Track) adapterView.getItemAtPosition(i);
+                Track track = (Track) adapterView.getItemAtPosition(position);
                 Playlist newPlaylist = adapter.getPlaylist();
 
                 if (!newPlaylist.equals(serviceInstance.getPlaylist())) {
                     serviceInstance.getPlaylist().deselect();
                     serviceInstance.setPlaylist(newPlaylist);
-                    serviceInstance.skipToNew(newPlaylist.indexOf(track));
+                    serviceInstance.skipToNew(position);
                     serviceInstance.play();
                 } else {
                     if (!track.equals(serviceInstance.getCurrentTrack())) {
@@ -190,7 +154,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             }
         };
         TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(playlist, onListItemClickListener);
+        trackListPage.init(playlist, onListItemClickListener, true);
         return trackListPage;
     }
 
@@ -212,54 +176,62 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_tortoise);
 
         database = new SQLiteProcessor(this);
-
-        allTracksPlaylist = getAllTracksPlaylist();
+        allTracksPlaylist = new Playlist(this, "All Tracks");
 
         playlists = new ArrayList<>();
         playlists.add(allTracksPlaylist);
-
         customPlaylists = getAllCustomPlaylists();
-
         playlists.addAll(customPlaylists);
 
+        playlistsAdapter = new PlaylistsAdapter(playlists, TortoiseActivity.this);
+
         Playlist.CompilePlaylistsTask task = new Playlist.CompilePlaylistsTask();
-        task.context = this;
         task.listener = new Playlist.OnPlaylistCompilingCompleted() {
             @Override
             public void onPlaylistCompiled(List<Playlist> list) {
                 playlists.addAll(list);
+                playlistsAdapter.notifyDataSetChanged();
             }
         };
         task.execute(allTracksPlaylist);
 
         pager = findViewById(R.id.pager);
-        if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {
-            startedByNotification = true;
-        }
+        pager.setAdapter(new PagerAdapter());
+        pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == Constants.INDEX_FRAGMENT_PLAYLISTGRID || position == Constants.INDEX_FRAGMENT_TRACKLIST) {
+                    trackViewFragment = (AbstractTrackViewFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
+                    invalidateTrackViewFragment();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() == Constants.INDEX_FRAGMENT_PLAYER) {
-            pager.setCurrentItem(Constants.INDEX_FRAGMENT_TRACKLIST);
-        } else if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
+        if (pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYLISTGRID) {
             pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLISTGRID);
         } else {
             super.onBackPressed();
         }
-    }
-
-    @NonNull
-    private Playlist getAllTracksPlaylist() {
-        return new Playlist(database.readCompositions(null, null), this, "All Tracks");
     }
 
     @NonNull
@@ -330,6 +302,10 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
 
+        if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {
+            startedByNotification = true;
+        }
+
         invalidateTrackViewFragment();
     }
 
@@ -352,7 +328,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
                     smallPlayerFragment.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
+                            startActivity(new Intent(TortoiseActivity.this, PlayerActivity.class));
                         }
                     });
 
@@ -367,14 +343,11 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         }
     }
 
-    private int VIEWPAGER_PAGE_COUNT = 3;
-
     private void showSmallPlayerFragment() {
         if (mBounded) {
-            if (smallPlayerFragment == null && pager.getCurrentItem() != Constants.INDEX_FRAGMENT_PLAYER) {
+            if (smallPlayerFragment == null) {
                 Track track = serviceInstance.getCurrentTrack();
                 if (track != null) {
-                    createPlayerFragment();
                     smallPlayerFragment = new SmallPlayerFragment();
                     int progress = Utils.getSeconds(serviceInstance.getProgress());
                     int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
@@ -389,21 +362,14 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         }
     }
 
-    private void createPlayerFragment() {
-        if (VIEWPAGER_PAGE_COUNT != 4) {
-            VIEWPAGER_PAGE_COUNT = 4;
-            pagerAdapter.notifyDataSetChanged();
-        }
-    }
-
     private void hideSmallPlayerFragment() {
         if (smallPlayerFragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(smallPlayerFragment)
                     .commit();
+            smallPlayerFragment = null;
         }
-        smallPlayerFragment = null;
     }
 
     @Override
@@ -418,9 +384,9 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         invalidateTrackViewFragment();
     }
 
-    private class PlayerFragmentAdapter extends FragmentPagerAdapter {
+    private class PagerAdapter extends FragmentPagerAdapter {
 
-        PlayerFragmentAdapter() {
+        PagerAdapter() {
             super(TortoiseActivity.this.getSupportFragmentManager());
         }
 
@@ -434,15 +400,13 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
                     return getPlaylistGridFragment();
                 case Constants.INDEX_FRAGMENT_TRACKLIST:
                     return getTrackListFragment(getSelectedPlaylist());
-                case Constants.INDEX_FRAGMENT_PLAYER:
-                    return getPlayerPage();
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return VIEWPAGER_PAGE_COUNT;
+            return 3;
         }
     }
 
@@ -459,17 +423,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             }
         }
         return selectedPlaylist;
-    }
-
-    @NonNull
-    private PlayerPage getPlayerPage() {
-        PlayerPage playerPage = new PlayerPage();
-        playerPage.setContext(TortoiseActivity.this);
-        playerPage.setServiceInstance(serviceInstance);
-        if (serviceInstance != null) {
-            serviceInstance.addListener(playerPage);
-        }
-        return playerPage;
     }
 
 }

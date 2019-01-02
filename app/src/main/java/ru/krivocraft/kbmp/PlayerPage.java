@@ -35,7 +35,6 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
     private Handler mHandler;
-
     public PlayerPage() {
         mHandler = new Handler(Looper.getMainLooper()) {
             public void handleMessage(Message msg) {

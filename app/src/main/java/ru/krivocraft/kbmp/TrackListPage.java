@@ -20,6 +20,7 @@ public class TrackListPage extends AbstractTrackViewFragment {
     private AdapterView.OnItemClickListener listener;
     private Playlist.TracksAdapter adapter;
     private ListView listView;
+    private boolean showControls;
 
     public TrackListPage() {
         super();
@@ -35,8 +36,9 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    void init(Playlist playlist, AdapterView.OnItemClickListener listener) {
+    void init(Playlist playlist, AdapterView.OnItemClickListener listener, boolean showControls) {
         this.listener = listener;
+        this.showControls = showControls;
         this.updateData(playlist);
     }
 
@@ -57,33 +59,39 @@ public class TrackListPage extends AbstractTrackViewFragment {
         listView.setOnItemClickListener(listener);
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
-        searchFrame.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Playlist playlistSearched = Utils.search(s, playlist);
-                listView.setAdapter(playlistSearched.getTracksAdapter());
-                if (s.length() == 0) {
-                    listView.setAdapter(adapter);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
-        buttonShuffle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playlist.shuffle();
-                adapter.notifyDataSetChanged();
-            }
-        });
+
+        if (showControls){
+            searchFrame.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    Playlist playlistSearched = Utils.search(s, playlist);
+                    listView.setAdapter(playlistSearched.getTracksAdapter());
+                    if (s.length() == 0) {
+                        listView.setAdapter(adapter);
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+            buttonShuffle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playlist.shuffle();
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        } else {
+            searchFrame.setVisibility(View.INVISIBLE);
+            buttonShuffle.setVisibility(View.INVISIBLE);
+        }
+
 
         return rootView;
     }

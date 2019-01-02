@@ -7,21 +7,19 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.IOException;
 
-class PlaybackManager {
+class PlaybackManager implements MediaPlayer.OnCompletionListener{
     private MediaPlayer player;
     private int playerState;
-    private Context context;
     private Callback callback;
 
     private Playlist playlist;
     private Track cache;
 
     PlaybackManager(Context context, Callback callback) {
-        this(context, callback, new Playlist(context, "initial"));
+        this(callback, new Playlist(context, "initial"));
     }
 
-    PlaybackManager(Context context, Callback callback, Playlist playlist) {
-        this.context = context;
+    private PlaybackManager(Callback callback, Playlist playlist) {
         this.callback = callback;
         this.playlist = playlist;
     }
@@ -40,6 +38,7 @@ class PlaybackManager {
         if (mediaChanged) {
             if (player == null) {
                 player = new MediaPlayer();
+                player.setOnCompletionListener(this);
             } else {
                 player.reset();
             }
@@ -88,6 +87,7 @@ class PlaybackManager {
 
             playlist.setCursor(index);
             playlist.getSelectedTrack().setProgress(0);
+            playlist.getSelectedTrack().setSelected(true);
             callback.onTrackChanged(playlist.getSelectedTrack());
 
             play();
@@ -146,6 +146,11 @@ class PlaybackManager {
             builder.setActions(availableActions).setState(playerState, getCurrentStreamPosition(), 1, SystemClock.elapsedRealtime());
             callback.onPlaybackStateChanged(builder.build());
         }
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        nextTrack();
     }
 
 

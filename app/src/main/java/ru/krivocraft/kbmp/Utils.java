@@ -68,7 +68,8 @@ class Utils {
         return playlist;
     }
 
-    static List<Playlist> compilePlaylistsByAuthor(Context context, Playlist allTracksPlaylist) {
+    static List<Playlist> compilePlaylistsByAuthor(Playlist allTracksPlaylist) {
+        Context context = allTracksPlaylist.getContext();
         Map<String, Playlist> playlistMap = new HashMap<>();
         for (Track track : allTracksPlaylist.getTracks()) {
             Playlist playlist = playlistMap.get(track.getArtist());
