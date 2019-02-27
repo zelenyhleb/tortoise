@@ -41,7 +41,10 @@
 
         <activity android:name=".PlaylistCreationActivity">
         </activity>
-        <activity android:name=".PlayerActivity">
+        <activity
+                android:name=".PlayerActivity"
+                android:screenOrientation="portrait"
+                android:launchMode="singleTop">
         </activity>
     </application>
 

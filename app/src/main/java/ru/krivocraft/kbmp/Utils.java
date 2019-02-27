@@ -53,32 +53,32 @@ class Utils {
         return bm;
     }
 
-    static Playlist search(CharSequence string, Playlist playlistToSearch) {
-        Playlist playlist = new Playlist(playlistToSearch.getContext(), "temp");
-        for (Track track : playlistToSearch.getTracks()) {
+    static TrackList search(CharSequence string, TrackList trackListToSearch) {
+        TrackList trackList = new TrackList(trackListToSearch.getContext(), "temp");
+        for (Track track : trackListToSearch.getTracks()) {
 
             String formattedName = track.getName().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
 
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                playlist.addComposition(track);
+                trackList.addTrack(track);
             }
         }
-        return playlist;
+        return trackList;
     }
 
-    static List<Playlist> compilePlaylistsByAuthor(Playlist allTracksPlaylist) {
-        Context context = allTracksPlaylist.getContext();
-        Map<String, Playlist> playlistMap = new HashMap<>();
-        for (Track track : allTracksPlaylist.getTracks()) {
-            Playlist playlist = playlistMap.get(track.getArtist());
-            if (playlist == null) {
-                playlist = new Playlist(context, track.getArtist());
-                playlistMap.put(track.getArtist(), playlist);
+    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
+        Context context = allTracksTrackList.getContext();
+        Map<String, TrackList> playlistMap = new HashMap<>();
+        for (Track track : allTracksTrackList.getTracks()) {
+            TrackList trackList = playlistMap.get(track.getArtist());
+            if (trackList == null) {
+                trackList = new TrackList(context, track.getArtist());
+                playlistMap.put(track.getArtist(), trackList);
             }
-            if (!playlist.contains(track)) {
-                playlist.addComposition(track);
+            if (!trackList.contains(track)) {
+                trackList.addTrack(track);
             }
         }
         return new ArrayList<>(playlistMap.values());
@@ -86,7 +86,7 @@ class Utils {
 
     private static int id = 0;
 
-    static void search(Context context, Track.OnTracksFoundListener listener, Playlist existingTracks) {
+    static void search(Context context, OnTracksFoundListener listener, TrackList existingTracks) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -119,5 +119,38 @@ class Utils {
             listener.onTrackSearchingCompleted(tracks);
             cursor.close();
         }
+    }
+
+    static ArrayList<Track> search(Context context) {
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        String[] projection = {
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DURATION
+        };
+        final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
+        ArrayList<Track> tracks = new ArrayList<>();
+
+        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String title = cursor.getString(0);
+                String artist = cursor.getString(1);
+                String path = cursor.getString(2);
+                String songDuration = cursor.getString(4);
+                cursor.moveToNext();
+                if (path != null && path.endsWith(".mp3")) {
+                    Track track = new Track(songDuration, artist, title, path, id);
+                    tracks.add(track);
+                    id++;
+                }
+            }
+            cursor.close();
+        }
+        return tracks;
     }
 }

@@ -2,8 +2,6 @@ package ru.krivocraft.kbmp;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -16,9 +14,9 @@ import android.widget.ListView;
 
 public class TrackListPage extends AbstractTrackViewFragment {
 
-    private Playlist playlist;
+    private TrackList trackList;
     private AdapterView.OnItemClickListener listener;
-    private Playlist.TracksAdapter adapter;
+    private TrackList.TracksAdapter adapter;
     private ListView listView;
     private boolean showControls;
 
@@ -36,15 +34,15 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    void init(Playlist playlist, AdapterView.OnItemClickListener listener, boolean showControls) {
+    void init(TrackList trackList, AdapterView.OnItemClickListener listener, boolean showControls) {
         this.listener = listener;
         this.showControls = showControls;
-        this.updateData(playlist);
+        this.updateData(trackList);
     }
 
-    void updateData(Playlist playlist) {
-        this.playlist = playlist;
-        this.adapter = playlist.getTracksAdapter();
+    void updateData(TrackList trackList) {
+        this.trackList = trackList;
+        this.adapter = trackList.getTracksAdapter();
         if (listView != null) {
             this.listView.setAdapter(adapter);
         }
@@ -70,8 +68,8 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    Playlist playlistSearched = Utils.search(s, playlist);
-                    listView.setAdapter(playlistSearched.getTracksAdapter());
+                    TrackList trackListSearched = Utils.search(s, trackList);
+                    listView.setAdapter(trackListSearched.getTracksAdapter());
                     if (s.length() == 0) {
                         listView.setAdapter(adapter);
                     }
@@ -84,7 +82,7 @@ public class TrackListPage extends AbstractTrackViewFragment {
             buttonShuffle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    playlist.shuffle();
+                    trackList.shuffle();
                     adapter.notifyDataSetChanged();
                 }
             });

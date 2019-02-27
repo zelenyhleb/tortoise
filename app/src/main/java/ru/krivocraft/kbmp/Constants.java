@@ -8,7 +8,9 @@ class Constants {
     static final String ACTION_PREVIOUS = "action_previous";
     static final String ACTION_CLOSE = "action_close";
     static final String ACTION_SHOW_PLAYER= "action_show_player";
-    static final String COMPOSITIONS = "compositions_list";
+    static final String ACTION_SEEK_TO = "action_seek_to";
+    static final String ACTION_SEEK_TO_EXTRA = "action_seek_to_extra";
+    static final String ACTION_UPDATE_TRACKLIST= "action_update_track_list";
 
     static final String COMPOSITION_NAME = "composition_name";
     static final String COMPOSITION_AUTHOR = "composition_author";
@@ -17,6 +19,8 @@ class Constants {
     static final String COMPOSITION_DURATION = "composition_duration";
     static final String COMPOSITION_PROGRESS = "composition_progress";
     static final String COMPOSITION_STATE = "composition_is_playing";
+
+    static final String EXTRA_POSITION = "extra_position";
 
     static final String PLAYLIST_PREFIX = "playlist_";
 

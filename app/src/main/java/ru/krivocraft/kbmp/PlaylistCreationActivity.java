@@ -16,17 +16,15 @@ import java.util.List;
 public class PlaylistCreationActivity extends AppCompatActivity {
 
     private List<Integer> selectedIds = new ArrayList<>();
-    private SQLiteProcessor sqLiteProcessor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist_creation);
 
-        sqLiteProcessor = new SQLiteProcessor(this);
 
         final ListView listView = findViewById(R.id.playlist_editor_list);
-        listView.setAdapter(new Playlist(sqLiteProcessor.readCompositions(null, null), this, "allTracks").getSelectableTracksAdapter());
+//        listView.setAdapter(new TrackList(sqLiteProcessor.readCompositions(null, null), this, "allTracks").getSelectableTracksAdapter());
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -76,8 +74,8 @@ public class PlaylistCreationActivity extends AppCompatActivity {
     }
 
     private void commit(String playlistName) {
-        sqLiteProcessor.createPlaylist(playlistName);
-        sqLiteProcessor.editPlaylist(playlistName, selectedIds);
+//        sqLiteProcessor.createPlaylist(playlistName);
+//        sqLiteProcessor.editPlaylist(playlistName, selectedIds);
         //finish activity, we don't need it anymore
         supportFinishAfterTransition();
     }

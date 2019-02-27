@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, Track.StateCallback {
+public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
 
     private Service serviceInstance;
     private Context context;
@@ -151,8 +151,8 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
 
             final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
 
-            Track.GetBitmapTask task = new Track.GetBitmapTask();
-            task.setListener(new Track.OnPictureProcessedListener() {
+            GetBitmapTask task = new GetBitmapTask();
+            task.setListener(new OnPictureProcessedListener() {
                 @Override
                 public void onPictureProcessed(final Bitmap bitmap) {
                     if (bitmap != null) {

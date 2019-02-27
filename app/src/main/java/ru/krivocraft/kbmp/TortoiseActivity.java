@@ -2,8 +2,11 @@ package ru.krivocraft.kbmp;
 
 import android.Manifest;
 import android.animation.LayoutTransition;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -19,26 +22,21 @@ import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import java.util.List;
 import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class TortoiseActivity extends AppCompatActivity implements Track.StateCallback {
+public class TortoiseActivity extends AppCompatActivity implements StateCallback {
 
     private boolean mBounded = false;
 
     private SmallPlayerFragment smallPlayerFragment;
-
-    private Playlist allTracksPlaylist;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
     private Service serviceInstance;
 
     private boolean startedByNotification = false;
-
-    private SQLiteProcessor database;
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -47,22 +45,17 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             Service.LocalBinder binder = (Service.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
-            serviceInstance.addListener(TortoiseActivity.this);
+            serviceInstance.addStateCallbackListener(TortoiseActivity.this);
 
             mBounded = true;
-            showSmallPlayerFragment();
+            refreshSmallPlayerFragment(true);
 
             if (startedByNotification) {
                 startedByNotification = false;
             }
 
-            loadCompositions();
+            serviceInstance.getTrackProvider().search();
 
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
-                    .add(R.id.list_container, getTrackListFragment(allTracksPlaylist))
-                    .commit();
         }
 
         @Override
@@ -71,23 +64,36 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         }
     };
 
+    private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
+                        .add(R.id.list_container, getTrackListFragment(serviceInstance.getPlaylist()))
+                        .commit();
+            }
+        }
+    };
+
     @NonNull
-    private TrackListPage getTrackListFragment(Playlist playlist) {
+    private TrackListPage getTrackListFragment(TrackList trackList) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Playlist.TracksAdapter adapter = (Playlist.TracksAdapter) adapterView.getAdapter();
+                TrackList.TracksAdapter adapter = (TrackList.TracksAdapter) adapterView.getAdapter();
                 Track track = (Track) adapterView.getItemAtPosition(position);
-                Playlist newPlaylist = adapter.getPlaylist();
+                TrackList newTrackList = adapter.getPlaylist();
 
-                if (!newPlaylist.equals(serviceInstance.getPlaylist())) {
+                if (!newTrackList.equals(serviceInstance.getPlaylist())) {
                     serviceInstance.getPlaylist().deselect();
-                    serviceInstance.setPlaylist(newPlaylist);
+                    serviceInstance.setPlaylist(newTrackList);
                     serviceInstance.skipToNew(position);
                     serviceInstance.play();
                 } else {
                     if (!track.equals(serviceInstance.getCurrentTrack())) {
-                        serviceInstance.skipToNew(newPlaylist.indexOf(track));
+                        serviceInstance.skipToNew(newTrackList.indexOf(track));
                     } else {
                         if (serviceInstance.isPlaying()) {
                             serviceInstance.pause();
@@ -96,34 +102,15 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
                         }
                     }
                 }
-                showSmallPlayerFragment();
+                refreshSmallPlayerFragment(true);
             }
         };
         TrackListPage trackListPage = new TrackListPage();
         if (serviceInstance != null) {
-            serviceInstance.addListener(trackListPage);
+            serviceInstance.addStateCallbackListener(trackListPage);
         }
-        trackListPage.init(playlist, onListItemClickListener, true);
+        trackListPage.init(trackList, onListItemClickListener, true);
         return trackListPage;
-    }
-
-    @NonNull
-    private SettingsPage getSettingsFragment() {
-        SettingsPage settingsPage = new SettingsPage();
-        settingsPage.setContext(this);
-        return settingsPage;
-    }
-
-    private void loadCompositions() {
-        if (mBounded) {
-            List<Track> tracks = database.readCompositions(null, null);
-            for (Track track : tracks) {
-                if (!allTracksPlaylist.contains(track)) {
-                    allTracksPlaylist.addComposition(track);
-                    allTracksPlaylist.notifyAdapters();
-                }
-            }
-        }
     }
 
     @Override
@@ -131,32 +118,27 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tortoise);
 
-        database = new SQLiteProcessor(this);
-        allTracksPlaylist = new Playlist(this, "All Tracks");
-
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.ACTION_UPDATE_TRACKLIST);
+        registerReceiver(trackListUpdateReceiver, intentFilter);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
-    }
-
-    @NonNull
-    private List<Playlist> getAllCustomPlaylists() {
-        return database.getPlaylists();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mBounded) {
-            serviceInstance.removeListener(TortoiseActivity.this);
+            serviceInstance.removeStateCallbackListener(TortoiseActivity.this);
         }
         unbindService(mConnection);
+        unregisterReceiver(trackListUpdateReceiver);
     }
 
     private void bindService() {
@@ -166,25 +148,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
         }
 
         bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
-    }
-
-    private void startSearchTask() {
-
-        Track.OnTracksFoundListener listener = new Track.OnTracksFoundListener() {
-            @Override
-            public void onTrackSearchingCompleted(List<Track> tracks) {
-                database.writeCompositions(tracks);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadCompositions();
-                    }
-                });
-            }
-        };
-
-        RecursiveSearchTask searchTask = new RecursiveSearchTask();
-        searchTask.execute(new SearchTaskBundle(this, listener, allTracksPlaylist));
     }
 
     @Override
@@ -206,9 +169,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             bindService();
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED) {
-            startSearchTask();
-        } else {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
 
@@ -216,6 +177,7 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
             startedByNotification = true;
         }
 
+        refreshSmallPlayerFragment(false);
     }
 
     private void refreshSmallPlayerFragment(boolean newDataAvailable) {
@@ -228,12 +190,6 @@ public class TortoiseActivity extends AppCompatActivity implements Track.StateCa
                     boolean playing = serviceInstance.isPlaying();
 
                     smallPlayerFragment.setData(track, progress, duration, playing);
-                    smallPlayerFragment.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startActivity(new Intent(TortoiseActivity.this, PlayerActivity.class));
-                        }
-                    });
 
                     if (newDataAvailable) {
                         smallPlayerFragment.initStaticUI();

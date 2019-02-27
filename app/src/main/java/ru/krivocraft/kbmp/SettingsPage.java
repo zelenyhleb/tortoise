@@ -18,7 +18,7 @@ import java.util.List;
 public class SettingsPage extends Fragment {
 
     private Context context;
-    private SQLiteProcessor processor;
+//    private SQLiteProcessor processor;
 
     public SettingsPage() {
 
@@ -26,7 +26,7 @@ public class SettingsPage extends Fragment {
 
     void setContext(Context context){
         this.context = context;
-        this.processor = new SQLiteProcessor(context);
+//        this.processor = new SQLiteProcessor(context);
     }
 
     @Nullable
@@ -35,11 +35,11 @@ public class SettingsPage extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         ListView databaseView = rootView.findViewById(R.id.listdb);
 
-        List<Track> tracks = processor.readCompositions(null, null);
+//        List<Track> tracks = processor.readCompositions(null, null);
         List<String> trackDatas = new ArrayList<>();
-        for (Track track : tracks) {
-            trackDatas.add(track.getIdentifier() + " | " + track.getName() + " | " + track.getArtist() + " | " + track.getPath());
-        }
+//        for (Track track : tracks) {
+//            trackDatas.add(track.getIdentifier() + " | " + track.getName() + " | " + track.getArtist() + " | " + track.getPath());
+//        }
         ArrayAdapter arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, trackDatas);
         databaseView.setAdapter(arrayAdapter);
 
@@ -47,7 +47,7 @@ public class SettingsPage extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                processor.clearDatabase();
+//                processor.clearDatabase();
             }
         });
 

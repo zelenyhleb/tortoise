@@ -20,17 +20,19 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Service extends MediaBrowserServiceCompat implements Track.StateCallback, MediaPlayer.OnCompletionListener {
+public class Service extends MediaBrowserServiceCompat implements StateCallback, MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
     private NotificationBuilder notificationBuilder;
 
     private PlaybackManager playbackManager;
+    private TrackProvider trackProvider;
+
     private static boolean running = false;
 
     private Binder mBinder = new LocalBinder();
 
-    private List<Track.StateCallback> listeners = new ArrayList<>();
+    private List<StateCallback> listeners = new ArrayList<>();
 
     private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
         @Override
@@ -47,6 +49,15 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
                         break;
                 }
 
+            }
+        }
+    };
+
+    private BroadcastReceiver additionalPlaybackControlsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Constants.ACTION_SEEK_TO.equals(intent.getAction())) {
+                seekTo(intent.getIntExtra(Constants.ACTION_SEEK_TO_EXTRA, 0));
             }
         }
     };
@@ -71,6 +82,11 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
         public void onSkipToPrevious() {
             skipToPrevious();
         }
+
+        @Override
+        public void onSeekTo(long pos) {
+            seekTo((int) pos);
+        }
     };
 
     @Nullable
@@ -89,7 +105,6 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
 
     }
-
 
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -129,12 +144,12 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
 
         mediaSession.setCallback(callback);
 
-        playbackManager = new PlaybackManager(this, new PlaybackManager.Callback() {
+        playbackManager = new PlaybackManager(this, new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
                 mediaSession.setActive(true);
-                for (Track.StateCallback listener : listeners) {
+                for (StateCallback listener : listeners) {
                     listener.onPlaybackStateChanged(stateCompat);
                 }
             }
@@ -143,34 +158,51 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
             public void onTrackChanged(Track track) {
                 mediaSession.setMetadata(track.getAsMediaMetadata());
                 mediaSession.setActive(true);
-                for (Track.StateCallback listener : listeners) {
+                for (StateCallback listener : listeners) {
                     listener.onMetadataChanged(track.getAsMediaMetadata());
                 }
             }
         });
 
-        IntentFilter musicFilter = new IntentFilter();
-        musicFilter.addAction(Intent.ACTION_HEADSET_PLUG);
-        registerReceiver(headsetReceiver, musicFilter);
+        trackProvider = new TrackProvider(this, new TrackProvider.OnNewTrackListListener() {
+            @Override
+            public void onNewTrackList(TrackList trackList) {
+                playbackManager.setTrackList(trackList);
+                sendBroadcast(new Intent(Constants.ACTION_UPDATE_TRACKLIST));
+            }
+        });
+        trackProvider.search();
+
+        IntentFilter headsetFilter = new IntentFilter();
+        headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(headsetReceiver, headsetFilter);
+
+        IntentFilter additionalPlaybackControlsFilter = new IntentFilter();
+        headsetFilter.addAction(Constants.ACTION_SEEK_TO);
+        registerReceiver(additionalPlaybackControlsReceiver, additionalPlaybackControlsFilter);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        addListener(this);
+        addStateCallbackListener(this);
 
         MediaButtonReceiver.handleIntent(mediaSession, intent);
 
         running = true;
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        running = false;
-        sendBroadcast(new Intent().setAction(Constants.ACTION_PREVIOUS));
         unregisterReceiver(headsetReceiver);
         removeNotification();
+
+        running = false;
         super.onDestroy();
+    }
+
+    TrackProvider getTrackProvider() {
+        return trackProvider;
     }
 
     void play() {
@@ -207,7 +239,7 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
     }
 
     Track getCurrentTrack() {
-        return playbackManager.getPlaylist().getSelectedTrack();
+        return playbackManager.getTrackList().getSelectedTrack();
     }
 
     boolean isPlaying() {
@@ -219,22 +251,22 @@ public class Service extends MediaBrowserServiceCompat implements Track.StateCal
     }
 
     private void setTrackIndex(int index) {
-        playbackManager.getPlaylist().setCursor(index);
+        playbackManager.getTrackList().setCursor(index);
     }
 
-    Playlist getPlaylist() {
-        return playbackManager.getPlaylist();
+    TrackList getPlaylist() {
+        return playbackManager.getTrackList();
     }
 
-    void setPlaylist(Playlist currentPlaylist) {
-        playbackManager.setPlaylist(currentPlaylist);
+    void setPlaylist(TrackList currentTrackList) {
+        playbackManager.setTrackList(currentTrackList);
     }
 
-    void addListener(Track.StateCallback listener) {
+    void addStateCallbackListener(StateCallback listener) {
         listeners.add(listener);
     }
 
-    void removeListener(Track.StateCallback listener) {
+    void removeStateCallbackListener(StateCallback listener) {
         listeners.remove(listener);
     }
 

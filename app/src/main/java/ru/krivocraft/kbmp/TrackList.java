@@ -15,10 +15,11 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-class Playlist implements Serializable {
+class TrackList implements Serializable {
 
     private List<Track> tracks = new ArrayList<>();
     private Context context;
@@ -31,7 +32,7 @@ class Playlist implements Serializable {
     private int cursor;
 
 
-    Playlist(Context context, String name) {
+    TrackList(Context context, String name) {
         this.context = context;
         if (name.contains(Constants.PLAYLIST_PREFIX)) {
             this.name = formatName(name);
@@ -40,7 +41,7 @@ class Playlist implements Serializable {
         }
     }
 
-    Playlist(List<Track> tracks, Context context, String name) {
+    TrackList(List<Track> tracks, Context context, String name) {
         this(context, name);
         this.tracks = tracks;
     }
@@ -68,8 +69,12 @@ class Playlist implements Serializable {
         return context;
     }
 
-    void addComposition(Track track) {
+    void addTrack(Track track) {
         tracks.add(track);
+    }
+
+    void addTracks(List<Track> tracks) {
+        this.tracks.addAll(tracks);
     }
 
     String getName() {
@@ -139,21 +144,21 @@ class Playlist implements Serializable {
     }
 
     interface OnPlaylistCompilingCompleted {
-        void onPlaylistCompiled(List<Playlist> list);
+        void onPlaylistCompiled(List<TrackList> list);
     }
 
-    static class CompilePlaylistsTask extends AsyncTask<Playlist, Void, List<Playlist>> {
+    static class CompilePlaylistsTask extends AsyncTask<TrackList, Void, List<TrackList>> {
 
         OnPlaylistCompilingCompleted listener;
 
         @Override
-        protected List<Playlist> doInBackground(Playlist... playlists) {
-            return Utils.compilePlaylistsByAuthor(playlists[0]);
+        protected List<TrackList> doInBackground(TrackList... trackLists) {
+            return Utils.compilePlaylistsByAuthor(trackLists[0]);
         }
 
         @Override
-        protected void onPostExecute(List<Playlist> playlists) {
-            listener.onPlaylistCompiled(playlists);
+        protected void onPostExecute(List<TrackList> trackLists) {
+            listener.onPlaylistCompiled(trackLists);
         }
     }
 
@@ -197,8 +202,8 @@ class Playlist implements Serializable {
             return convertView;
         }
 
-        Playlist getPlaylist() {
-            return Playlist.this;
+        TrackList getPlaylist() {
+            return TrackList.this;
         }
     }
 

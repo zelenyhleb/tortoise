@@ -5,12 +5,12 @@ import android.content.Context;
 class SearchTaskBundle {
 
     Context context;
-    Track.OnTracksFoundListener listener;
-    Playlist allTracksPlaylist;
+    OnTracksFoundListener listener;
+    TrackList allTracksTrackList;
 
-    SearchTaskBundle(Context context, Track.OnTracksFoundListener listener, Playlist allTracksPlaylist) {
+    SearchTaskBundle(Context context, OnTracksFoundListener listener, TrackList allTracksTrackList) {
         this.context = context;
         this.listener = listener;
-        this.allTracksPlaylist = allTracksPlaylist;
+        this.allTracksTrackList = allTracksTrackList;
     }
 }

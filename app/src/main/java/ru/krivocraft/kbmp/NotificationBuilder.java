@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,20 +14,33 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 class NotificationBuilder {
-    private Context context;
 
-    NotificationBuilder(Context context) {
-        this.context = context.getApplicationContext();
+    private Service context;
+    private NotificationCompat.Action playAction;
+    private NotificationCompat.Action pauseAction;
+    private NotificationCompat.Action nextAction;
+    private NotificationCompat.Action previousAction;
+
+
+    NotificationBuilder(Service context) {
+        this.context = context;
+
+        playAction = new NotificationCompat.Action(R.drawable.ic_play, "play",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_PLAY));
+
+        pauseAction = new NotificationCompat.Action(R.drawable.ic_pause, "pause",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_PAUSE));
+
+        nextAction = new NotificationCompat.Action(R.drawable.ic_next, "next",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
+
+        previousAction = new NotificationCompat.Action(R.drawable.ic_previous, "previous",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
     }
 
     void updateNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, TortoiseActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
-
-            NotificationCompat.Action playAction = new NotificationCompat.Action(R.drawable.ic_play, "play", MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY));
-            NotificationCompat.Action pauseAction = new NotificationCompat.Action(R.drawable.ic_pause, "pause", MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PAUSE));
-            NotificationCompat.Action nextAction = new NotificationCompat.Action(R.drawable.ic_next, "next", MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
-            NotificationCompat.Action previousAction = new NotificationCompat.Action(R.drawable.ic_previous, "previous", MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
             android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
@@ -37,7 +51,7 @@ class NotificationBuilder {
             NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
             String CHANNEL_ID = "channel_01";
 
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .addAction(previousAction)
                     .setContentTitle(mediaSession.getController().getMetadata().getDescription().getTitle())
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())
@@ -46,32 +60,34 @@ class NotificationBuilder {
                     .setContentIntent(contentIntent);
 
             if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                notification.addAction(pauseAction).setSmallIcon(R.drawable.ic_play).setOngoing(true);
+                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play).setOngoing(true);
             } else {
-                notification.addAction(playAction).setSmallIcon(R.drawable.ic_pause).setOngoing(false);
+                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause).setOngoing(false);
             }
 
-            notification.addAction(nextAction);
+            notificationBuilder.addAction(nextAction);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Tortoise", NotificationManager.IMPORTANCE_DEFAULT);
                 channel.setImportance(NotificationManager.IMPORTANCE_LOW);
-                notification.setChannelId(CHANNEL_ID);
+                notificationBuilder.setChannelId(CHANNEL_ID);
                 if (service != null) {
                     service.createNotificationChannel(channel);
                 }
             }
 
-            if (service != null) {
-                service.notify(Constants.NOTIFY_ID, notification.build());
-            }
+            Notification notification = notificationBuilder.build();
+            showNotification(notification);
         }
     }
 
+    void showNotification(Notification notification) {
+        context.startForeground(Constants.NOTIFY_ID, notification);
+    }
+
     void removeNotification() {
-        NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        if (service != null) {
-            service.cancel(Constants.NOTIFY_ID);
+        if (context != null) {
+            context.stopForeground(true);
         }
     }
 

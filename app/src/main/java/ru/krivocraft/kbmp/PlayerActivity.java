@@ -83,7 +83,7 @@ public class PlayerActivity extends AppCompatActivity {
             playerPage.setContext(PlayerActivity.this);
             playerPage.setServiceInstance(serviceInstance);
             if (serviceInstance != null) {
-                serviceInstance.addListener(playerPage);
+                serviceInstance.addStateCallbackListener(playerPage);
             }
             return playerPage;
         }

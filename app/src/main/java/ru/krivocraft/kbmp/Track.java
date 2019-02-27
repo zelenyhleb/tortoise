@@ -52,8 +52,8 @@ class Track implements Serializable {
         return new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
-//                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, Utils.getTrackBitmap(new File(path)))
                 .build();
     }
 
@@ -126,38 +126,4 @@ class Track implements Serializable {
         return duration;
     }
 
-    static class GetBitmapTask extends AsyncTask<File, Void, Bitmap> {
-
-        private OnPictureProcessedListener listener;
-
-        @Override
-        protected Bitmap doInBackground(File... files) {
-            return Utils.getTrackBitmap(files[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (listener != null) {
-                listener.onPictureProcessed(bitmap);
-            }
-        }
-
-        void setListener(OnPictureProcessedListener listener) {
-            this.listener = listener;
-        }
-    }
-
-    interface OnPictureProcessedListener {
-        void onPictureProcessed(Bitmap bitmap);
-    }
-
-    interface OnTracksFoundListener {
-        void onTrackSearchingCompleted(List<Track> tracks);
-    }
-
-    interface StateCallback {
-        void onMetadataChanged(MediaMetadataCompat metadata);
-
-        void onPlaybackStateChanged(PlaybackStateCompat playbackState);
-    }
 }
