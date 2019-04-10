@@ -62,7 +62,7 @@ public class SmallPlayerFragment extends Fragment {
                 public void onClick(View v) {
                     Context context = getContext();
                     if (context != null)
-                        context.startActivity(new Intent(context, PlayerActivity.class));
+                        context.sendBroadcast(new Intent(Constants.ACTION_SHOW_PLAYER));
                 }
             });
 

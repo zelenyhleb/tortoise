@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -86,7 +87,7 @@ class Utils {
 
     private static int id = 0;
 
-    static void search(Context context, OnTracksFoundListener listener, TrackList existingTracks) {
+    static List<Track> search(Context context, TrackList existingTracks) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -116,12 +117,12 @@ class Utils {
                     id++;
                 }
             }
-            listener.onTrackSearchingCompleted(tracks);
             cursor.close();
         }
+        return tracks;
     }
 
-    static ArrayList<Track> search(Context context) {
+    static ArrayList<Track> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -134,7 +135,7 @@ class Utils {
         ArrayList<Track> tracks = new ArrayList<>();
 
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
+        Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {

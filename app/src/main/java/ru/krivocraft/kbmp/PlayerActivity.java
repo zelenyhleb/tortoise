@@ -78,14 +78,14 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         @NonNull
-        private PlayerPage getPlayerPage() {
-            PlayerPage playerPage = new PlayerPage();
-            playerPage.setContext(PlayerActivity.this);
-            playerPage.setServiceInstance(serviceInstance);
+        private LargePlayerFragment getPlayerPage() {
+            LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
+            largePlayerFragment.setContext(PlayerActivity.this);
+            largePlayerFragment.setServiceInstance(serviceInstance);
             if (serviceInstance != null) {
-                serviceInstance.addStateCallbackListener(playerPage);
+                serviceInstance.addStateCallbackListener(largePlayerFragment);
             }
-            return playerPage;
+            return largePlayerFragment;
         }
 
         private TrackListPage getTrackListPage() {

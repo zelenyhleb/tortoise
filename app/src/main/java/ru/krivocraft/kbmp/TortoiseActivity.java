@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -31,6 +32,7 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
     private boolean mBounded = false;
 
     private SmallPlayerFragment smallPlayerFragment;
+    private LargePlayerFragment largePlayerFragment;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -54,8 +56,6 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
                 startedByNotification = false;
             }
 
-            serviceInstance.getTrackProvider().search();
-
         }
 
         @Override
@@ -68,14 +68,22 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort)
-                        .add(R.id.list_container, getTrackListFragment(serviceInstance.getPlaylist()))
-                        .commit();
+                showTrackListFragment();
             }
         }
     };
+
+    private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Constants.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
+                hideSmallPlayerFragment();
+                hideTrackListFragment();
+                showLargePlayerFragment();
+            }
+        }
+    };
+    private TrackListPage trackListFragment;
 
     @NonNull
     private TrackListPage getTrackListFragment(TrackList trackList) {
@@ -113,6 +121,13 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
         return trackListPage;
     }
 
+    private LargePlayerFragment getLargePlayerFragment() {
+        LargePlayerFragment playerFragment = new LargePlayerFragment();
+        playerFragment.setContext(this);
+        playerFragment.setServiceInstance(serviceInstance);
+        return playerFragment;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,14 +136,24 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Constants.ACTION_UPDATE_TRACKLIST);
-        registerReceiver(trackListUpdateReceiver, intentFilter);
+        IntentFilter trackListUpdateFilter = new IntentFilter();
+        trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_TRACKLIST);
+        registerReceiver(trackListUpdateReceiver, trackListUpdateFilter);
+
+        IntentFilter showPlayerFilter = new IntentFilter();
+        showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
+        registerReceiver(showPlayerReceiver, showPlayerFilter);
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (largePlayerFragment != null) {
+            hideLargePlayerFragment();
+            showSmallPlayerFragment();
+            showTrackListFragment();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -203,31 +228,61 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
     }
 
     private void showSmallPlayerFragment() {
-        if (mBounded) {
-            if (smallPlayerFragment == null) {
-                Track track = serviceInstance.getCurrentTrack();
-                if (track != null) {
-                    smallPlayerFragment = new SmallPlayerFragment();
-                    int progress = Utils.getSeconds(serviceInstance.getProgress());
-                    int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort)
-                            .add(R.id.container, smallPlayerFragment)
-                            .commit();
-                }
+        if (largePlayerFragment == null || !largePlayerFragment.isVisible()) {
+            Track track = serviceInstance.getCurrentTrack();
+            if (track != null) {
+                smallPlayerFragment = new SmallPlayerFragment();
+                int progress = Utils.getSeconds(serviceInstance.getProgress());
+                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
+                smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
+                showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
             }
         }
     }
 
     private void hideSmallPlayerFragment() {
-        if (smallPlayerFragment != null) {
+        hideFragment(smallPlayerFragment);
+        smallPlayerFragment = null;
+    }
+
+    private void showLargePlayerFragment() {
+        largePlayerFragment = getLargePlayerFragment();
+        showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.list_container, largePlayerFragment);
+    }
+
+    private void hideLargePlayerFragment() {
+        hideFragment(largePlayerFragment);
+        largePlayerFragment = null;
+    }
+
+    private void showTrackListFragment() {
+        trackListFragment = getTrackListFragment(serviceInstance.getPlaylist());
+        showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.list_container, trackListFragment);
+    }
+
+    private void hideTrackListFragment() {
+        hideFragment(trackListFragment);
+        trackListFragment = null;
+    }
+
+    private void showFragment(int animation1, int animation2, int container, Fragment fragment) {
+        if (mBounded) {
+            if (fragment != null && !fragment.isVisible()) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(animation1, animation2)
+                        .add(container, fragment)
+                        .commit();
+            }
+        }
+    }
+
+    private void hideFragment(Fragment fragment) {
+        if (fragment != null && fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .remove(smallPlayerFragment)
+                    .remove(fragment)
                     .commit();
-            smallPlayerFragment = null;
         }
     }
 

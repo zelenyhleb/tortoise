@@ -53,15 +53,6 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
         }
     };
 
-    private BroadcastReceiver additionalPlaybackControlsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_SEEK_TO.equals(intent.getAction())) {
-                seekTo(intent.getIntExtra(Constants.ACTION_SEEK_TO_EXTRA, 0));
-            }
-        }
-    };
-
     private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
         @Override
         public void onPlay() {
@@ -164,22 +155,17 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
             }
         });
 
-        trackProvider = new TrackProvider(this, new TrackProvider.OnNewTrackListListener() {
+        trackProvider = new TrackProvider(this);
+        trackProvider.search(new TrackProvider.OnUpdateCallback() {
             @Override
-            public void onNewTrackList(TrackList trackList) {
-                playbackManager.setTrackList(trackList);
-                sendBroadcast(new Intent(Constants.ACTION_UPDATE_TRACKLIST));
+            public void onUpdate() {
+                playbackManager.setTrackList(trackProvider.getStorage());
             }
         });
-        trackProvider.search();
 
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(headsetReceiver, headsetFilter);
-
-        IntentFilter additionalPlaybackControlsFilter = new IntentFilter();
-        headsetFilter.addAction(Constants.ACTION_SEEK_TO);
-        registerReceiver(additionalPlaybackControlsReceiver, additionalPlaybackControlsFilter);
     }
 
     @Override
@@ -247,7 +233,7 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
     }
 
     int getProgress() {
-        return playbackManager.getProgress();
+        return playbackManager.getCurrentStreamPosition();
     }
 
     private void setTrackIndex(int index) {

@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
+public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
 
     private Service serviceInstance;
     private Context context;
@@ -35,7 +35,8 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
     private Handler mHandler;
-    public PlayerPage() {
+
+    public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
@@ -46,6 +47,7 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
 
     void setServiceInstance(Service serviceInstance) {
         this.serviceInstance = serviceInstance;
+        this.serviceInstance.addStateCallbackListener(this);
     }
 
     void setContext(Context context) {
@@ -195,16 +197,20 @@ public class PlayerPage extends Fragment implements SeekBar.OnSeekBarChangeListe
     }
 
     private void updateBar() {
-        int progressMillis = serviceInstance.getProgress();
-        int progress = Utils.getSeconds(progressMillis);
+        int progress = compositionProgressBar.getProgress();
         if (progress <= compositionProgressBar.getMax()) {
-            compositionProgressBar.setProgress(progress);
+            compositionProgressBar.setProgress(progress + 1);
         }
+    }
+
+    private void resetBar() {
+        compositionProgressBar.setProgress(0);
     }
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
         updateUI();
+        resetBar();
     }
 
     @Override

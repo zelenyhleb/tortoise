@@ -121,14 +121,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    int getProgress() {
-        if (player != null) {
-            return player.getCurrentPosition();
-        } else {
-            return 0;
-        }
-    }
-
     void setTrackList(TrackList trackList) {
         if (trackList != this.trackList)
             this.trackList = trackList;
@@ -148,7 +140,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             if (playerState == PlaybackStateCompat.STATE_PLAYING) {
                 availableActions |= PlaybackStateCompat.ACTION_PAUSE;
-            } else if(playerState == PlaybackStateCompat.STATE_PAUSED){
+            } else if (playerState == PlaybackStateCompat.STATE_PAUSED) {
                 availableActions |= PlaybackStateCompat.ACTION_PLAY;
             }
 
