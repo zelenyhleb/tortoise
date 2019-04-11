@@ -32,36 +32,38 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void play() {
-        Track selectedTrack = trackList.getSelectedTrack();
-        boolean mediaChanged = (cache == null || !cache.equals(selectedTrack));
+        if (trackList.getCursor() >= 0) {
+            Track selectedTrack = trackList.getSelectedTrack();
+            boolean mediaChanged = (cache == null || !cache.equals(selectedTrack));
 
-        if (mediaChanged) {
-            if (player == null) {
-                player = new MediaPlayer();
-                player.setOnCompletionListener(this);
-                player.setOnPreparedListener(this);
-            } else {
-                player.reset();
+            if (mediaChanged) {
+                if (player == null) {
+                    player = new MediaPlayer();
+                    player.setOnCompletionListener(this);
+                    player.setOnPreparedListener(this);
+                } else {
+                    player.reset();
+                }
+
+                try {
+                    player.setDataSource(selectedTrack.getPath());
+                    player.prepareAsync();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                cache = selectedTrack;
+
+                return;
             }
 
-            try {
-                player.setDataSource(selectedTrack.getPath());
-                player.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            player.start();
 
-            cache = selectedTrack;
+            selectedTrack.setPlaying(true);
 
-            return;
+            playerState = PlaybackStateCompat.STATE_PLAYING;
+            updatePlaybackState();
         }
-
-        player.start();
-
-        selectedTrack.setPlaying(true);
-
-        playerState = PlaybackStateCompat.STATE_PLAYING;
-        updatePlaybackState();
     }
 
     void seekTo(int position) {

@@ -135,6 +135,7 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
 
         mediaSession.setCallback(callback);
 
+
         playbackManager = new PlaybackManager(this, new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
@@ -163,6 +164,8 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
             }
         });
 
+        addStateCallbackListener(this);
+
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(headsetReceiver, headsetFilter);
@@ -170,10 +173,7 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        addStateCallbackListener(this);
-
         MediaButtonReceiver.handleIntent(mediaSession, intent);
-
         running = true;
         return START_NOT_STICKY;
     }
@@ -185,10 +185,6 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
 
         running = false;
         super.onDestroy();
-    }
-
-    TrackProvider getTrackProvider() {
-        return trackProvider;
     }
 
     void play() {
@@ -216,8 +212,7 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
     }
 
     private void updateNotification() {
-        if (getCurrentTrack() != null)
-            notificationBuilder.updateNotification(mediaSession);
+        notificationBuilder.updateNotification(mediaSession);
     }
 
     private void removeNotification() {

@@ -235,7 +235,7 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
                 int progress = Utils.getSeconds(serviceInstance.getProgress());
                 int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
                 smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
-                showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
+                showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
             }
         }
     }

@@ -39,6 +39,7 @@ class TrackList implements Serializable {
         } else {
             this.name = name;
         }
+        cursor = -1;
     }
 
     TrackList(List<Track> tracks, Context context, String name) {
