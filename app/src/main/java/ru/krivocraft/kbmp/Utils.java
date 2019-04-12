@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,39 +114,6 @@ class Utils {
                     if (!existingTracks.contains(track)) {
                         tracks.add(track);
                     }
-                    id++;
-                }
-            }
-            cursor.close();
-        }
-        return tracks;
-    }
-
-    static ArrayList<Track> search(ContentResolver contentResolver) {
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        String[] projection = {
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DURATION
-        };
-        final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
-        ArrayList<Track> tracks = new ArrayList<>();
-
-        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                String title = cursor.getString(0);
-                String artist = cursor.getString(1);
-                String path = cursor.getString(2);
-                String songDuration = cursor.getString(4);
-                cursor.moveToNext();
-                if (path != null && path.endsWith(".mp3")) {
-                    Track track = new Track(songDuration, artist, title, path, id);
-                    tracks.add(track);
                     id++;
                 }
             }

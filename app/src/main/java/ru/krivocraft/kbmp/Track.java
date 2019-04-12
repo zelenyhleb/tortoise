@@ -1,14 +1,9 @@
 package ru.krivocraft.kbmp;
 
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.List;
 
 class Track implements Serializable {
 
