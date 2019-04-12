@@ -102,7 +102,7 @@ class Track implements Serializable {
             return false;
         }
         Track track = (Track) obj;
-        return this.identifier == track.identifier;
+        return this.path.equals(track.path);
     }
 
     @Override

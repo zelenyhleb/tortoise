@@ -10,13 +10,15 @@ import java.util.ArrayList;
 class TrackProvider {
     private Context context;
     private TrackList storage;
+    private OnUpdateCallback callback;
 
-    TrackProvider(Context context) {
+    TrackProvider(Context context, OnUpdateCallback callback) {
         this.context = context;
+        this.callback = callback;
         this.storage = new TrackList(context, "storage");
     }
 
-    void search(final OnUpdateCallback callback) {
+    void search() {
         new GetFromDiskTask(context.getContentResolver(), storage, new OnUpdateCallback() {
             @Override
             public void onUpdate() {
@@ -39,7 +41,7 @@ class TrackProvider {
 
         @Override
         protected ArrayList<Track> doInBackground(Void... voids) {
-            return Utils.search(contentResolver);
+            return Utils.search(contentResolver, storage);
         }
 
         @Override

@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class TortoiseActivity extends AppCompatActivity implements StateCallback {
+public class TortoiseActivity extends AppCompatActivity {
 
     private boolean mBounded = false;
 
@@ -47,14 +47,14 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
             Service.LocalBinder binder = (Service.LocalBinder) iBinder;
             serviceInstance = binder.getServerInstance();
 
-            serviceInstance.addStateCallbackListener(TortoiseActivity.this);
-
             mBounded = true;
-            refreshSmallPlayerFragment(true);
+            showSmallPlayerFragment();
 
             if (startedByNotification) {
                 startedByNotification = false;
             }
+
+            serviceInstance.getTrackProvider().search();
 
         }
 
@@ -68,6 +68,7 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
+                hideTrackListFragment();
                 showTrackListFragment();
             }
         }
@@ -110,7 +111,7 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
                         }
                     }
                 }
-                refreshSmallPlayerFragment(true);
+                showSmallPlayerFragment();
             }
         };
         TrackListPage trackListPage = new TrackListPage();
@@ -119,6 +120,13 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
         }
         trackListPage.init(trackList, onListItemClickListener, true);
         return trackListPage;
+    }
+
+    private SmallPlayerFragment getSmallPlayerFragment() {
+        SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+        smallPlayerFragment.setContext(this);
+        smallPlayerFragment.setServiceInstance(serviceInstance);
+        return smallPlayerFragment;
     }
 
     private LargePlayerFragment getLargePlayerFragment() {
@@ -159,9 +167,6 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBounded) {
-            serviceInstance.removeStateCallbackListener(TortoiseActivity.this);
-        }
         unbindService(mConnection);
         unregisterReceiver(trackListUpdateReceiver);
     }
@@ -202,39 +207,13 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
             startedByNotification = true;
         }
 
-        refreshSmallPlayerFragment(false);
-    }
-
-    private void refreshSmallPlayerFragment(boolean newDataAvailable) {
-        if (mBounded) {
-            if (smallPlayerFragment != null) {
-                Track track = serviceInstance.getCurrentTrack();
-                if (track != null) {
-                    int progress = Utils.getSeconds(serviceInstance.getProgress());
-                    int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                    boolean playing = serviceInstance.isPlaying();
-
-                    smallPlayerFragment.setData(track, progress, duration, playing);
-
-                    if (newDataAvailable) {
-                        smallPlayerFragment.initStaticUI();
-                    }
-                    smallPlayerFragment.initNonStaticUI();
-                }
-            } else {
-                showSmallPlayerFragment();
-            }
-        }
+        showSmallPlayerFragment();
     }
 
     private void showSmallPlayerFragment() {
-        if (largePlayerFragment == null || !largePlayerFragment.isVisible()) {
-            Track track = serviceInstance.getCurrentTrack();
-            if (track != null) {
-                smallPlayerFragment = new SmallPlayerFragment();
-                int progress = Utils.getSeconds(serviceInstance.getProgress());
-                int duration = Utils.getSeconds(Integer.parseInt(track.getDuration()));
-                smallPlayerFragment.setData(track, progress, duration, serviceInstance.isPlaying());
+        if ((largePlayerFragment == null || !largePlayerFragment.isVisible()) && smallPlayerFragment == null) {
+            if (serviceInstance != null && serviceInstance.getCurrentTrack() != null) {
+                smallPlayerFragment = getSmallPlayerFragment();
                 showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
             }
         }
@@ -285,16 +264,5 @@ public class TortoiseActivity extends AppCompatActivity implements StateCallback
                     .commit();
         }
     }
-
-    @Override
-    public void onMetadataChanged(MediaMetadataCompat metadata) {
-        refreshSmallPlayerFragment(true);
-    }
-
-    @Override
-    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-        refreshSmallPlayerFragment(false);
-    }
-
 
 }

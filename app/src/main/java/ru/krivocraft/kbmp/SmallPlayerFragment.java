@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
@@ -22,34 +23,28 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SmallPlayerFragment extends Fragment {
+public class SmallPlayerFragment extends Fragment implements StateCallback {
 
-    private String compositionAuthor;
-    private String compositionName;
-    private int compositionProgress;
-    private int compositionDuration;
-    private boolean compositionState;
-    private String compositionPath;
     private Timer progressBarTimer;
     private View rootView;
     private Context context;
+    private Service serviceInstance;
 
     public SmallPlayerFragment() {
     }
 
-    void setData(Track track, int compositionProgress, int compositionDuration, boolean compositionState) {
-        this.compositionAuthor = track.getArtist();
-        this.compositionName = track.getName();
-        this.compositionProgress = compositionProgress;
-        this.compositionDuration = compositionDuration;
-        this.compositionState = compositionState;
-        this.compositionPath = track.getPath();
+    void setServiceInstance(Service serviceInstance) {
+        this.serviceInstance = serviceInstance;
+        this.serviceInstance.addStateCallbackListener(this);
+    }
+
+    void setContext(Context context) {
+        this.context = context;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_player_small, container, false);
-        context = getContext();
         initStaticUI();
         initNonStaticUI();
         return rootView;
@@ -57,6 +52,9 @@ public class SmallPlayerFragment extends Fragment {
 
     void initStaticUI() {
         if (context != null) {
+
+            Track currentTrack = serviceInstance.getCurrentTrack();
+
             rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -70,8 +68,8 @@ public class SmallPlayerFragment extends Fragment {
             final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
             final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
-            viewAuthor.setText(compositionAuthor);
-            viewName.setText(compositionName);
+            viewAuthor.setText(currentTrack.getArtist());
+            viewName.setText(currentTrack.getName());
             viewName.setSelected(true);
 
             GetBitmapTask task = new GetBitmapTask();
@@ -86,7 +84,7 @@ public class SmallPlayerFragment extends Fragment {
                     viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
                 }
             });
-            task.execute(new File(compositionPath));
+            task.execute(new File(currentTrack.getPath()));
 
             ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
             ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
@@ -117,12 +115,12 @@ public class SmallPlayerFragment extends Fragment {
     void initNonStaticUI() {
         if (context != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-            bar.setMax(compositionDuration);
-            bar.setProgress(compositionProgress);
+            bar.setMax(Utils.getSeconds(Integer.parseInt(serviceInstance.getCurrentTrack().getDuration())));
+            bar.setProgress(Utils.getSeconds(serviceInstance.getProgress()));
 
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-            if (compositionState) {
-                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+            if (serviceInstance.isPlaying()) {
+                playPauseCompositionButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pause));
                 playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -136,7 +134,7 @@ public class SmallPlayerFragment extends Fragment {
                 cancelCurrentTimer();
                 startNewTimer(bar);
             } else {
-                playPauseCompositionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_play));
+                playPauseCompositionButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_play));
                 playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -166,5 +164,15 @@ public class SmallPlayerFragment extends Fragment {
         if (progressBarTimer != null) {
             progressBarTimer.cancel();
         }
+    }
+
+    @Override
+    public void onMetadataChanged(MediaMetadataCompat metadata) {
+        initStaticUI();
+    }
+
+    @Override
+    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        initNonStaticUI();
     }
 }

@@ -156,8 +156,7 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
             }
         });
 
-        trackProvider = new TrackProvider(this);
-        trackProvider.search(new TrackProvider.OnUpdateCallback() {
+        trackProvider = new TrackProvider(this, new TrackProvider.OnUpdateCallback() {
             @Override
             public void onUpdate() {
                 playbackManager.setTrackList(trackProvider.getStorage());
@@ -229,6 +228,10 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
 
     int getProgress() {
         return playbackManager.getCurrentStreamPosition();
+    }
+
+    TrackProvider getTrackProvider() {
+        return trackProvider;
     }
 
     private void setTrackIndex(int index) {

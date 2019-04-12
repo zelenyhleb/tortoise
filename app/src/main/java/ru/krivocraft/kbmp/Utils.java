@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +88,7 @@ class Utils {
 
     private static int id = 0;
 
-    static List<Track> search(Context context, TrackList existingTracks) {
+    static ArrayList<Track> search(ContentResolver contentResolver, TrackList existingTracks) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.TITLE,
@@ -97,10 +98,10 @@ class Utils {
                 MediaStore.Audio.Media.DURATION
         };
         final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
-        List<Track> tracks = new ArrayList<>();
+        ArrayList<Track> tracks = new ArrayList<>();
 
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
+        Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
