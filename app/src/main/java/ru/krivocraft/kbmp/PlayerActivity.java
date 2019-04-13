@@ -81,7 +81,6 @@ public class PlayerActivity extends AppCompatActivity {
         private LargePlayerFragment getPlayerPage() {
             LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
             largePlayerFragment.setContext(PlayerActivity.this);
-            largePlayerFragment.setServiceInstance(serviceInstance);
             if (serviceInstance != null) {
                 serviceInstance.addStateCallbackListener(largePlayerFragment);
             }

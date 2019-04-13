@@ -28,18 +28,26 @@ public class SmallPlayerFragment extends Fragment implements StateCallback {
     private Timer progressBarTimer;
     private View rootView;
     private Context context;
-    private Service serviceInstance;
+
+    private String trackArtist;
+    private String trackTitle;
+    private int trackDuration;
+    private int trackProgress;
+    private boolean trackIsPlaying;
 
     public SmallPlayerFragment() {
     }
 
-    void setServiceInstance(Service serviceInstance) {
-        this.serviceInstance = serviceInstance;
-        this.serviceInstance.addStateCallbackListener(this);
-    }
-
     void setContext(Context context) {
         this.context = context;
+    }
+
+    void setInitialData(String trackArtist, String trackTitle, int trackDuration, int trackProgress, boolean trackIsPlaying){
+        this.trackArtist = trackArtist;
+        this.trackTitle = trackTitle;
+        this.trackDuration = trackDuration;
+        this.trackProgress = trackProgress;
+        this.trackIsPlaying = trackIsPlaying;
     }
 
     @Override
@@ -52,9 +60,6 @@ public class SmallPlayerFragment extends Fragment implements StateCallback {
 
     void initStaticUI() {
         if (context != null) {
-
-            Track currentTrack = serviceInstance.getCurrentTrack();
-
             rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -68,23 +73,23 @@ public class SmallPlayerFragment extends Fragment implements StateCallback {
             final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
             final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
-            viewAuthor.setText(currentTrack.getArtist());
-            viewName.setText(currentTrack.getName());
+            viewAuthor.setText(trackArtist);
+            viewName.setText(trackTitle);
             viewName.setSelected(true);
 
-            GetBitmapTask task = new GetBitmapTask();
-            task.setListener(new OnPictureProcessedListener() {
-                @Override
-                public void onPictureProcessed(final Bitmap bitmap) {
-                    if (bitmap != null) {
-                        viewImage.setImageBitmap(bitmap);
-                    } else {
-                        viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
-                    }
-                    viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
-                }
-            });
-            task.execute(new File(currentTrack.getPath()));
+//            GetBitmapTask task = new GetBitmapTask();
+//            task.setListener(new OnPictureProcessedListener() {
+//                @Override
+//                public void onPictureProcessed(final Bitmap bitmap) {
+//                    if (bitmap != null) {
+//                        viewImage.setImageBitmap(bitmap);
+//                    } else {
+//                        viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
+//                    }
+//                    viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
+//                }
+//            });
+//            task.execute(new File(currentTrack.getPath()));
 
             ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
             ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
@@ -115,11 +120,11 @@ public class SmallPlayerFragment extends Fragment implements StateCallback {
     void initNonStaticUI() {
         if (context != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-            bar.setMax(Utils.getSeconds(Integer.parseInt(serviceInstance.getCurrentTrack().getDuration())));
-            bar.setProgress(Utils.getSeconds(serviceInstance.getProgress()));
+            bar.setMax(Utils.getSeconds(trackDuration));
+            bar.setProgress(Utils.getSeconds(trackProgress));
 
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-            if (serviceInstance.isPlaying()) {
+            if (trackIsPlaying) {
                 playPauseCompositionButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pause));
                 playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -168,11 +173,16 @@ public class SmallPlayerFragment extends Fragment implements StateCallback {
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
+        trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+        trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         initStaticUI();
     }
 
     @Override
     public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+        trackProgress = (int) playbackState.getPosition();
         initNonStaticUI();
     }
 }

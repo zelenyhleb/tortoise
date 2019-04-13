@@ -21,8 +21,6 @@ import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import java.util.Objects;
-
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class TortoiseActivity extends AppCompatActivity {
@@ -36,8 +34,6 @@ public class TortoiseActivity extends AppCompatActivity {
 
     private Service serviceInstance;
 
-    private boolean startedByNotification = false;
-
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -48,12 +44,7 @@ public class TortoiseActivity extends AppCompatActivity {
             mBounded = true;
             showSmallPlayerFragment();
 
-            if (startedByNotification) {
-                startedByNotification = false;
-            }
-
             serviceInstance.getTrackProvider().search();
-
         }
 
         @Override
@@ -123,15 +114,45 @@ public class TortoiseActivity extends AppCompatActivity {
     private SmallPlayerFragment getSmallPlayerFragment() {
         SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
         smallPlayerFragment.setContext(this);
-        smallPlayerFragment.setServiceInstance(serviceInstance);
+
+        Track currentTrack = serviceInstance.getCurrentTrack();
+
+        String artist = currentTrack.getArtist();
+        String title = currentTrack.getName();
+        int duration = Integer.parseInt(currentTrack.getDuration());
+        int progress = currentTrack.getProgress();
+        boolean playing = serviceInstance.isPlaying();
+
+        smallPlayerFragment.setInitialData(artist, title, duration, progress, playing);
+
+        serviceInstance.addStateCallbackListener(smallPlayerFragment);
+
         return smallPlayerFragment;
     }
 
     private LargePlayerFragment getLargePlayerFragment() {
-        LargePlayerFragment playerFragment = new LargePlayerFragment();
-        playerFragment.setContext(this);
-        playerFragment.setServiceInstance(serviceInstance);
-        return playerFragment;
+        LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
+        largePlayerFragment.setContext(this);
+        largePlayerFragment.setCallback(new SeekToCallback() {
+            @Override
+            public void onSeekTo(int position) {
+                serviceInstance.seekTo(position);
+            }
+        });
+
+        Track currentTrack = serviceInstance.getCurrentTrack();
+
+        String artist = currentTrack.getArtist();
+        String title = currentTrack.getName();
+        int duration = Integer.parseInt(currentTrack.getDuration());
+        int progress = currentTrack.getProgress();
+        boolean playing = serviceInstance.isPlaying();
+
+        largePlayerFragment.setInitialData(artist, title, duration, progress, playing);
+
+        serviceInstance.addStateCallbackListener(largePlayerFragment);
+
+        return largePlayerFragment;
     }
 
     @Override
@@ -192,20 +213,14 @@ public class TortoiseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (!mBounded) {
-            bindService();
-        }
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
+        } else {
+            if (!mBounded) {
+                bindService();
+            }
         }
 
-        if (Objects.equals(getIntent().getAction(), Constants.ACTION_SHOW_PLAYER)) {
-            startedByNotification = true;
-        }
-
-        showSmallPlayerFragment();
     }
 
     private void showSmallPlayerFragment() {

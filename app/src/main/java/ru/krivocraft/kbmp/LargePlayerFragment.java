@@ -1,6 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.animation.LayoutTransition;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +31,6 @@ import java.util.TimerTask;
 
 public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
 
-    private Service serviceInstance;
     private Context context;
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -39,6 +40,13 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
     private Handler mHandler;
+    private SeekToCallback callback;
+
+    private String trackArtist;
+    private String trackTitle;
+    private int trackDuration;
+    private int trackProgress;
+    private boolean trackIsPlaying;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -49,13 +57,20 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    void setServiceInstance(Service serviceInstance) {
-        this.serviceInstance = serviceInstance;
-        this.serviceInstance.addStateCallbackListener(this);
+    void setCallback(SeekToCallback callback) {
+        this.callback = callback;
     }
 
     void setContext(Context context) {
         this.context = context;
+    }
+
+    void setInitialData(String trackArtist, String trackTitle, int trackDuration, int trackProgress, boolean trackIsPlaying) {
+        this.trackArtist = trackArtist;
+        this.trackTitle = trackTitle;
+        this.trackDuration = trackDuration;
+        this.trackProgress = trackProgress;
+        this.trackIsPlaying = trackIsPlaying;
     }
 
     private Timer compositionProgressTimer;
@@ -83,7 +98,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        serviceInstance.seekTo(seekBar.getProgress() * 1000);
+        callback.onSeekTo(seekBar.getProgress() * 1000);
     }
 
     @Override
@@ -106,7 +121,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_player_large, container, false);
 
         playPauseButton = rootView.findViewById(R.id.play_pause);
         compositionNameTextView = rootView.findViewById(R.id.composition_name);
@@ -125,14 +140,22 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         previousTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serviceInstance.skipToPrevious();
+                try {
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS).send();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         nextTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                serviceInstance.skipToNext();
+                try {
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_NEXT).send();
+                } catch (PendingIntent.CanceledException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -142,63 +165,64 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     }
 
     private void updateUI() {
-        Track currentTrack = serviceInstance.getCurrentTrack();
+//        Track currentTrack = serviceInstance.getCurrentTrack();
+        int progress = Utils.getSeconds(trackProgress);
+        int duration = Utils.getSeconds(trackDuration);
 
-        if (currentTrack != null) {
+        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+        compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
 
-            int progress = Utils.getSeconds(serviceInstance.getProgress());
+//        final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
+//
+//        GetBitmapTask task = new GetBitmapTask();
+//        task.setListener(new OnPictureProcessedListener() {
+//            @Override
+//            public void onPictureProcessed(final Bitmap bitmap) {
+//                if (bitmap != null) {
+//                    trackImage.setImageBitmap(bitmap);
+//                } else {
+//                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+//                }
+//                trackImage.startAnimation(fadeIn);
+//            }
+//        });
+//        task.execute(new File(currentTrack.getPath()));
 
-            String compositionName = currentTrack.getName();
-            String compositionComposer = currentTrack.getArtist();
-            String compositionDuration = currentTrack.getDuration();
+        compositionProgressBar.setProgress(progress);
+        compositionProgressBar.setOnSeekBarChangeListener(this);
 
-            compositionProgressTextView.setText(Utils.getFormattedTime(progress));
-            compositionDurationTextView.setText(Utils.getFormattedTime((Integer.parseInt(compositionDuration) - progress) / 1000));
+        compositionNameTextView.setText(trackTitle);
+        compositionNameTextView.setSelected(true);
+        compositionAuthorTextView.setText(trackArtist);
 
-            final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
-
-            GetBitmapTask task = new GetBitmapTask();
-            task.setListener(new OnPictureProcessedListener() {
-                @Override
-                public void onPictureProcessed(final Bitmap bitmap) {
-                    if (bitmap != null) {
-                        trackImage.setImageBitmap(bitmap);
-                    } else {
-                        trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-                    }
-                    trackImage.startAnimation(fadeIn);
-                }
-            });
-            task.execute(new File(currentTrack.getPath()));
-
-            compositionProgressBar.setProgress(progress);
-            compositionProgressBar.setOnSeekBarChangeListener(this);
-
-            compositionNameTextView.setText(compositionName);
-            compositionNameTextView.setSelected(true);
-            compositionAuthorTextView.setText(compositionComposer);
-
-            if (serviceInstance.isPlaying()) {
-                startUI();
-            } else {
-                stopUI();
-            }
-
-            playPauseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (serviceInstance.isPlaying()) {
-                        serviceInstance.pause();
-                    } else {
-                        serviceInstance.play();
-                    }
-                }
-            });
-
-            compositionProgressBar.setMax(Integer.parseInt(compositionDuration) / 1000);
+        if (trackIsPlaying) {
+            startUI();
+        } else {
+            stopUI();
         }
 
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (trackIsPlaying) {
+                    try {
+                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PAUSE).send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY).send();
+                    } catch (PendingIntent.CanceledException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        compositionProgressBar.setMax(duration);
     }
+
 
     private void updateBar() {
         int progress = compositionProgressBar.getProgress();
@@ -213,12 +237,17 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
+        trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+        trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         updateUI();
         resetBar();
     }
 
     @Override
     public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+        trackProgress = (int) playbackState.getPosition();
         if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             startUI();
         } else {
