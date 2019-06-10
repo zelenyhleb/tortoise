@@ -107,7 +107,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    static void writeToStorage(SharedPreferences storage, Track track) {
+    private static void writeToStorage(SharedPreferences storage, Track track) {
         Gson gson = new Gson();
         String jsonTrack = gson.toJson(track);
         SharedPreferences.Editor editor = storage.edit();
