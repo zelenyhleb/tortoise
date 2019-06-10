@@ -1,8 +1,10 @@
 package ru.krivocraft.kbmp;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 
+import java.io.File;
 import java.io.Serializable;
 
 class Track implements Serializable {
@@ -12,6 +14,8 @@ class Track implements Serializable {
     private String artist;
     private String name;
     private String path;
+
+    private Bitmap art;
 
     private int progress;
     private boolean playing = false;
@@ -41,6 +45,17 @@ class Track implements Serializable {
             }
         }
 
+        GetBitmapTask task = new GetBitmapTask();
+        task.setListener(new OnPictureProcessedListener() {
+            @Override
+            public void onPictureProcessed(final Bitmap bitmap) {
+                if (bitmap != null) {
+                    Track.this.art = bitmap;
+                }
+            }
+        });
+        task.execute(new File(getPath()));
+
     }
 
     MediaMetadataCompat getAsMediaMetadata() {
@@ -48,6 +63,7 @@ class Track implements Serializable {
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
                 .build();
     }

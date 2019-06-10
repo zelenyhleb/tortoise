@@ -1,15 +1,19 @@
 package ru.krivocraft.kbmp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
     private MediaPlayer player;
+    private SharedPreferences storage;
 
     private int playerState;
 
@@ -19,12 +23,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private Track cache;
 
     PlaybackManager(Context context, PlayerStateCallback playerStateCallback) {
-        this(playerStateCallback, new TrackList(context, "initial"));
-    }
-
-    private PlaybackManager(PlayerStateCallback playerStateCallback, TrackList trackList) {
         this.playerStateCallback = playerStateCallback;
-        this.trackList = trackList;
+        this.trackList = new TrackList(context, "initial");
+        this.storage = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
     }
 
     boolean isPlaying() {
@@ -100,9 +101,18 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             selectedTrack.setSelected(true);
 
             playerStateCallback.onTrackChanged(selectedTrack);
+            writeToStorage(storage, selectedTrack);
 
             play();
         }
+    }
+
+    static void writeToStorage(SharedPreferences storage, Track track) {
+        Gson gson = new Gson();
+        String jsonTrack = gson.toJson(track);
+        SharedPreferences.Editor editor = storage.edit();
+        editor.putString("last_track", jsonTrack);
+        editor.apply();
     }
 
     void nextTrack() {
@@ -136,7 +146,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         return player != null ? player.getCurrentPosition() : 0;
     }
 
-    void updatePlaybackState() {
+    private void updatePlaybackState() {
         if (playerStateCallback != null) {
             long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_SEEK_TO;
 
