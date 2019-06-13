@@ -14,14 +14,14 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 class NotificationBuilder {
 
-    private Service context;
+    private MediaPlaybackService context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
     private NotificationCompat.Action previousAction;
 
 
-    NotificationBuilder(Service context) {
+    NotificationBuilder(MediaPlaybackService context) {
         this.context = context;
 
         playAction = new NotificationCompat.Action(R.drawable.ic_play, "play",
@@ -39,7 +39,7 @@ class NotificationBuilder {
 
     void updateNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, TortoiseActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
 
             android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());

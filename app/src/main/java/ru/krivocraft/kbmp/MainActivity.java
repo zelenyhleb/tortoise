@@ -7,15 +7,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.RelativeLayout;
@@ -23,41 +27,24 @@ import android.widget.Toast;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class TortoiseActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
-    private boolean mBounded = false;
 
     private SmallPlayerFragment smallPlayerFragment;
     private LargePlayerFragment largePlayerFragment;
+    private MediaBrowserCompat mediaBrowser;
+    private MediaControllerCompat mediaControllerCompat;
+    private TrackList trackList;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
-    private Service serviceInstance;
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Service.LocalBinder binder = (Service.LocalBinder) iBinder;
-            serviceInstance = binder.getServerInstance();
-
-            mBounded = true;
-            showSmallPlayerFragment();
-
-            serviceInstance.getTrackProvider().search();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mBounded = false;
-        }
-    };
 
     private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
-                hideTrackListFragment();
+                MainActivity.this.trackList = (TrackList) intent.getSerializableExtra("tracklist_extra");
+//                hideTrackListFragment();
                 showTrackListFragment();
             }
         }
@@ -80,77 +67,36 @@ public class TortoiseActivity extends AppCompatActivity {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                TrackList.TracksAdapter adapter = (TrackList.TracksAdapter) adapterView.getAdapter();
+                TracksAdapter adapter = (TracksAdapter) adapterView.getAdapter();
                 Track track = (Track) adapterView.getItemAtPosition(position);
                 TrackList newTrackList = adapter.getPlaylist();
 
-                if (!newTrackList.equals(serviceInstance.getPlaylist())) {
-                    serviceInstance.getPlaylist().deselect();
-                    serviceInstance.setPlaylist(newTrackList);
-                    serviceInstance.skipToNew(position);
-                    serviceInstance.play();
+                if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    mediaControllerCompat.getTransportControls().pause();
                 } else {
-                    if (!track.equals(serviceInstance.getCurrentTrack())) {
-                        serviceInstance.skipToNew(newTrackList.indexOf(track));
-                    } else {
-                        if (serviceInstance.isPlaying()) {
-                            serviceInstance.pause();
-                        } else {
-                            serviceInstance.play();
-                        }
-                    }
+                    mediaControllerCompat.getTransportControls().play();
                 }
+
                 showSmallPlayerFragment();
             }
         };
         TrackListPage trackListPage = new TrackListPage();
-        if (serviceInstance != null) {
-            serviceInstance.addStateCallbackListener(trackListPage);
-        }
-        trackListPage.init(trackList, onListItemClickListener, true);
+        trackListPage.init(trackList, onListItemClickListener, true, MainActivity.this.getApplicationContext());
         return trackListPage;
     }
 
     private SmallPlayerFragment getSmallPlayerFragment() {
         SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-        smallPlayerFragment.setContext(this);
-
-        Track currentTrack = serviceInstance.getCurrentTrack();
-
-        String artist = currentTrack.getArtist();
-        String title = currentTrack.getName();
-        int duration = Integer.parseInt(currentTrack.getDuration());
-        int progress = currentTrack.getProgress();
-        boolean playing = serviceInstance.isPlaying();
-
-        smallPlayerFragment.setInitialData(artist, title, duration, progress, playing);
-
-        serviceInstance.addStateCallbackListener(smallPlayerFragment);
+        smallPlayerFragment.init(MainActivity.this);
 
         return smallPlayerFragment;
     }
 
     private LargePlayerFragment getLargePlayerFragment() {
         LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
-        largePlayerFragment.setContext(this);
-        largePlayerFragment.setCallback(new SeekToCallback() {
-            @Override
-            public void onSeekTo(int position) {
-                serviceInstance.seekTo(position);
-            }
-        });
+        largePlayerFragment.initControls(MainActivity.this);
 
-        Track currentTrack = serviceInstance.getCurrentTrack();
-
-        String artist = currentTrack.getArtist();
-        String title = currentTrack.getName();
-        int duration = Integer.parseInt(currentTrack.getDuration());
-        int progress = currentTrack.getProgress();
-        boolean playing = serviceInstance.isPlaying();
-
-        largePlayerFragment.setInitialData(artist, title, duration, progress, playing);
-
-        serviceInstance.addStateCallbackListener(largePlayerFragment);
+        largePlayerFragment.setInitialData();
 
         return largePlayerFragment;
     }
@@ -170,6 +116,35 @@ public class TortoiseActivity extends AppCompatActivity {
         IntentFilter showPlayerFilter = new IntentFilter();
         showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
         registerReceiver(showPlayerReceiver, showPlayerFilter);
+
+        mediaBrowser = new MediaBrowserCompat(
+                MainActivity.this,
+                new ComponentName(MainActivity.this, MediaPlaybackService.class),
+                new MediaBrowserCompat.ConnectionCallback() {
+                    @Override
+                    public void onConnected() {
+                        try {
+                            MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
+                            MediaControllerCompat controller = new MediaControllerCompat(MainActivity.this, token);
+                            MediaControllerCompat.setMediaController(MainActivity.this, controller);
+                            MainActivity.this.mediaControllerCompat = controller;
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onConnectionFailed() {
+                        Log.e("TAG", "onConnectionFailed");
+                    }
+
+                    @Override
+                    public void onConnectionSuspended() {
+                        Log.e("TAG", "onConnectionSuspended");
+                    }
+                },
+                null);
+        mediaBrowser.connect();
     }
 
     @Override
@@ -186,24 +161,15 @@ public class TortoiseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mConnection);
+        mediaBrowser.disconnect();
         unregisterReceiver(trackListUpdateReceiver);
-    }
-
-    private void bindService() {
-        Intent serviceIntent = new Intent(this, Service.class);
-        if (!Service.isRunning()) {
-            startService(serviceIntent);
-        }
-
-        bindService(serviceIntent, mConnection, BIND_ABOVE_CLIENT);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                bindService();
+//                bindService();
             } else {
                 Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
             }
@@ -215,17 +181,12 @@ public class TortoiseActivity extends AppCompatActivity {
         super.onResume();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
-        } else {
-            if (!mBounded) {
-                bindService();
-            }
         }
-
     }
 
     private void showSmallPlayerFragment() {
         if ((largePlayerFragment == null || !largePlayerFragment.isVisible()) && smallPlayerFragment == null) {
-            if (serviceInstance != null && serviceInstance.getCurrentTrack() != null) {
+            if (mediaControllerCompat != null && mediaControllerCompat.getMetadata() != null) {
                 smallPlayerFragment = getSmallPlayerFragment();
                 showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
             }
@@ -248,7 +209,7 @@ public class TortoiseActivity extends AppCompatActivity {
     }
 
     private void showTrackListFragment() {
-        trackListFragment = getTrackListFragment(serviceInstance.getPlaylist());
+        trackListFragment = getTrackListFragment(trackList);
         showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.list_container, trackListFragment);
     }
 
@@ -258,14 +219,12 @@ public class TortoiseActivity extends AppCompatActivity {
     }
 
     private void showFragment(int animation1, int animation2, int container, Fragment fragment) {
-        if (mBounded) {
-            if (fragment != null && !fragment.isVisible()) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(animation1, animation2)
-                        .add(container, fragment)
-                        .commit();
-            }
+        if (fragment != null && !fragment.isVisible()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(animation1, animation2)
+                    .add(container, fragment)
+                    .commit();
         }
     }
 

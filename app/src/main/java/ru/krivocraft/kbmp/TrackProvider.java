@@ -15,7 +15,7 @@ class TrackProvider {
     TrackProvider(Context context, OnUpdateCallback callback) {
         this.context = context;
         this.callback = callback;
-        this.storage = new TrackList(context, "storage");
+        this.storage = new TrackList("storage");
     }
 
     void search() {
@@ -23,7 +23,6 @@ class TrackProvider {
             @Override
             public void onUpdate() {
                 callback.onUpdate();
-                context.sendBroadcast(new Intent(Constants.ACTION_UPDATE_TRACKLIST));
             }
         }).execute();
     }

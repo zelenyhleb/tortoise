@@ -1,17 +1,7 @@
 package ru.krivocraft.kbmp;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +11,6 @@ import java.util.List;
 class TrackList implements Serializable {
 
     private List<Track> tracks = new ArrayList<>();
-    private Context context;
 
     private TracksAdapter tracksAdapter = null;
     private SelectableTracksAdapter selectableTracksAdapter = null;
@@ -31,8 +20,7 @@ class TrackList implements Serializable {
     private int cursor;
 
 
-    TrackList(Context context, String name) {
-        this.context = context;
+    TrackList(String name) {
         if (name.contains(Constants.PLAYLIST_PREFIX)) {
             this.name = formatName(name);
         } else {
@@ -41,8 +29,8 @@ class TrackList implements Serializable {
         cursor = -1;
     }
 
-    TrackList(List<Track> tracks, Context context, String name) {
-        this(context, name);
+    TrackList(List<Track> tracks, String name) {
+        this(name);
         this.tracks = tracks;
     }
 
@@ -63,10 +51,6 @@ class TrackList implements Serializable {
             return tracks.get(cursor);
         else
             return null;
-    }
-
-    Context getContext() {
-        return context;
     }
 
     void addTrack(Track track) {
@@ -104,16 +88,16 @@ class TrackList implements Serializable {
         }
     }
 
-    TracksAdapter getTracksAdapter() {
+    TracksAdapter getTracksAdapter(Context context) {
         if (tracksAdapter == null) {
-            this.tracksAdapter = new TracksAdapter();
+            this.tracksAdapter = new TracksAdapter(this, context);
         }
         return tracksAdapter;
     }
 
-    SelectableTracksAdapter getSelectableTracksAdapter() {
+    SelectableTracksAdapter getSelectableTracksAdapter(Context context) {
         if (selectableTracksAdapter == null) {
-            this.selectableTracksAdapter = new SelectableTracksAdapter();
+            this.selectableTracksAdapter = new SelectableTracksAdapter(this, context);
         }
         return selectableTracksAdapter;
     }
@@ -159,77 +143,6 @@ class TrackList implements Serializable {
         @Override
         protected void onPostExecute(List<TrackList> trackLists) {
             listener.onPlaylistCompiled(trackLists);
-        }
-    }
-
-    class TracksAdapter extends ArrayAdapter<Track> {
-
-        TracksAdapter() {
-            super(context, R.layout.track_list_item, getTracks());
-        }
-
-        @SuppressLint("InflateParams")
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            Track track = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item, null);
-            }
-            if (track != null) {
-
-                ImageView trackImage = convertView.findViewById(R.id.item_track_image);
-                ImageView trackState = convertView.findViewById(R.id.item_track_state);
-
-                if (!track.isSelected()) {
-                    trackImage.setAlpha(1.0f);
-                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-                    trackState.setImageDrawable(null);
-                } else {
-                    trackImage.setAlpha(0.2f);
-                    if (track.isPlaying()) {
-                        trackState.setImageDrawable(context.getDrawable(R.drawable.ic_pause));
-                    } else {
-                        trackState.setImageDrawable(context.getDrawable(R.drawable.ic_play));
-                    }
-                }
-
-                ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
-                ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
-            }
-
-            return convertView;
-        }
-
-        TrackList getPlaylist() {
-            return TrackList.this;
-        }
-    }
-
-    class SelectableTracksAdapter extends ArrayAdapter<Track> {
-
-        SelectableTracksAdapter() {
-            super(context, R.layout.track_list_item_selectable, getTracks());
-        }
-
-        @SuppressLint("InflateParams")
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-            Track track = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item_selectable, null);
-            }
-            if (track != null) {
-                ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
-                ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
-                ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isChecked());
-            }
-
-            return convertView;
         }
     }
 

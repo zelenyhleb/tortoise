@@ -1,9 +1,9 @@
 package ru.krivocraft.kbmp;
 
 import android.animation.LayoutTransition;
-import android.app.PendingIntent;
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,26 +12,22 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
 
-    private Context context;
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
     private TextView compositionAuthorTextView;
@@ -40,13 +36,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
     private Handler mHandler;
-    private SeekToCallback callback;
 
     private String trackArtist;
     private String trackTitle;
     private int trackDuration;
     private int trackProgress;
     private boolean trackIsPlaying;
+    private MediaControllerCompat.TransportControls transportControls;
+    private SharedPreferences cache;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -57,20 +54,23 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    void setCallback(SeekToCallback callback) {
-        this.callback = callback;
+    void initControls(Activity context) {
+        this.cache = context.getSharedPreferences("cache", Context.MODE_PRIVATE);
+        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+        this.transportControls = mediaController.getTransportControls();
     }
 
-    void setContext(Context context) {
-        this.context = context;
-    }
-
-    void setInitialData(String trackArtist, String trackTitle, int trackDuration, int trackProgress, boolean trackIsPlaying) {
-        this.trackArtist = trackArtist;
-        this.trackTitle = trackTitle;
-        this.trackDuration = trackDuration;
+    void setInitialData() {
+        getInitialMetadata();
         this.trackProgress = trackProgress;
         this.trackIsPlaying = trackIsPlaying;
+    }
+
+    private void getInitialMetadata() {
+        Track track = SharedStorageManager.readFromCache(cache);
+        this.trackArtist = track.getArtist();
+        this.trackTitle = track.getName();
+        this.trackDuration = Integer.parseInt(track.getDuration());
     }
 
     private Timer compositionProgressTimer;
@@ -98,7 +98,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        callback.onSeekTo(seekBar.getProgress() * 1000);
+        transportControls.seekTo(seekBar.getProgress() * 1000);
     }
 
     @Override
@@ -140,22 +140,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         previousTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS).send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
+                transportControls.skipToPrevious();
             }
         });
 
         nextTrack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_SKIP_TO_NEXT).send();
-                } catch (PendingIntent.CanceledException e) {
-                    e.printStackTrace();
-                }
+                transportControls.skipToNext();
             }
         });
 
@@ -205,17 +197,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             @Override
             public void onClick(View v) {
                 if (trackIsPlaying) {
-                    try {
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PAUSE).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    }
+                    transportControls.pause();
                 } else {
-                    try {
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_PLAY).send();
-                    } catch (PendingIntent.CanceledException e) {
-                        e.printStackTrace();
-                    }
+                    transportControls.play();
                 }
             }
         });

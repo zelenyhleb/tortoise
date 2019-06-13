@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
@@ -16,7 +17,7 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
     private TrackList trackList;
     private AdapterView.OnItemClickListener listener;
-    private TrackList.TracksAdapter adapter;
+    private TracksAdapter adapter;
     private ListView listView;
     private boolean showControls;
 
@@ -34,19 +35,21 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    void init(TrackList trackList, AdapterView.OnItemClickListener listener, boolean showControls) {
+    void init(TrackList trackList, AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
         this.listener = listener;
         this.showControls = showControls;
-        this.updateData(trackList);
+        this.trackList = trackList;
     }
 
-    void updateData(TrackList trackList) {
-        this.trackList = trackList;
-        this.adapter = trackList.getTracksAdapter();
-        if (listView != null) {
-            this.listView.setAdapter(adapter);
+    void updateData(TrackList trackList, Context context) {
+        if (context != null) {
+            this.trackList = trackList;
+            this.adapter = trackList.getTracksAdapter(context);
+            if (listView != null) {
+                this.listView.setAdapter(adapter);
+            }
+            invalidate();
         }
-        invalidate();
     }
 
     @Override
@@ -60,7 +63,9 @@ public class TrackListPage extends AbstractTrackViewFragment {
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
 
-        if (showControls){
+        updateData(trackList, getContext());
+
+        if (showControls) {
             searchFrame.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -68,10 +73,13 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    TrackList trackListSearched = Utils.search(s, trackList);
-                    listView.setAdapter(trackListSearched.getTracksAdapter());
-                    if (s.length() == 0) {
-                        listView.setAdapter(adapter);
+                    Context context = getContext();
+                    if (context != null) {
+                        TrackList trackListSearched = Utils.search(s, trackList);
+                        listView.setAdapter(trackListSearched.getTracksAdapter(context));
+                        if (s.length() == 0) {
+                            listView.setAdapter(adapter);
+                        }
                     }
                 }
 

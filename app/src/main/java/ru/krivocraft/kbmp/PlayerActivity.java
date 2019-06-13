@@ -15,13 +15,13 @@ import android.widget.AdapterView;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    private Service serviceInstance;
+    private MediaPlaybackService mediaPlaybackServiceInstance;
     private ViewPager pager;
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            serviceInstance = ((Service.LocalBinder) service).getServerInstance();
+            mediaPlaybackServiceInstance = ((MediaPlaybackService.LocalBinder) service).getServerInstance();
 
             pager.setAdapter(new PagerAdapter());
             pager.invalidate();
@@ -38,7 +38,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         pager = findViewById(R.id.pager_p);
-        bindService(new Intent(this, Service.class), connection, BIND_ABOVE_CLIENT);
+        bindService(new Intent(this, MediaPlaybackService.class), connection, BIND_ABOVE_CLIENT);
     }
 
     @Override
@@ -80,30 +80,29 @@ public class PlayerActivity extends AppCompatActivity {
         @NonNull
         private LargePlayerFragment getPlayerPage() {
             LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
-            largePlayerFragment.setContext(PlayerActivity.this);
-            if (serviceInstance != null) {
-                serviceInstance.addStateCallbackListener(largePlayerFragment);
+            if (mediaPlaybackServiceInstance != null) {
+                mediaPlaybackServiceInstance.addStateCallbackListener(largePlayerFragment);
             }
             return largePlayerFragment;
         }
 
         private TrackListPage getTrackListPage() {
             TrackListPage trackListPage = new TrackListPage();
-            trackListPage.init(serviceInstance.getPlaylist(), new AdapterView.OnItemClickListener() {
+            trackListPage.init(mediaPlaybackServiceInstance.getPlaylist(), new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Track track = (Track) parent.getItemAtPosition(position);
-                    if (!track.equals(serviceInstance.getCurrentTrack())) {
-                        serviceInstance.skipToNew(position);
+                    if (!track.equals(mediaPlaybackServiceInstance.getCurrentTrack())) {
+                        mediaPlaybackServiceInstance.skipToNew(position);
                     } else {
-                        if (serviceInstance.isPlaying()) {
-                            serviceInstance.pause();
+                        if (mediaPlaybackServiceInstance.isPlaying()) {
+                            mediaPlaybackServiceInstance.pause();
                         } else {
-                            serviceInstance.play();
+                            mediaPlaybackServiceInstance.play();
                         }
                     }
                 }
-            }, false);
+            }, false, PlayerActivity.this.getApplicationContext());
             return trackListPage;
         }
     }

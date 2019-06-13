@@ -20,7 +20,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Service extends MediaBrowserServiceCompat implements StateCallback, MediaPlayer.OnCompletionListener {
+public class MediaPlaybackService extends MediaBrowserServiceCompat implements StateCallback, MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
     private NotificationBuilder notificationBuilder;
@@ -29,8 +29,6 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
     private TrackProvider trackProvider;
 
     private static boolean running = false;
-
-    private Binder mBinder = new LocalBinder();
 
     private List<StateCallback> listeners = new ArrayList<>();
 
@@ -80,11 +78,6 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
         }
     };
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
 
     @Nullable
     @Override
@@ -113,8 +106,8 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
     }
 
     class LocalBinder extends Binder {
-        Service getServerInstance() {
-            return Service.this;
+        MediaPlaybackService getServerInstance() {
+            return MediaPlaybackService.this;
         }
 
     }
@@ -127,14 +120,15 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
     public void onCreate() {
         super.onCreate();
 
-        notificationBuilder = new NotificationBuilder(this);
+        mediaSession = new MediaSessionCompat(this, MediaPlaybackService.class.getSimpleName());
+        setSessionToken(mediaSession.getSessionToken());
 
-        mediaSession = new MediaSessionCompat(this, "Tortoise");
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mediaSession.setActive(true);
 
         mediaSession.setCallback(callback);
 
+        notificationBuilder = new NotificationBuilder(this);
 
         playbackManager = new PlaybackManager(this, new PlaybackManager.PlayerStateCallback() {
             @Override
@@ -159,9 +153,15 @@ public class Service extends MediaBrowserServiceCompat implements StateCallback,
         trackProvider = new TrackProvider(this, new TrackProvider.OnUpdateCallback() {
             @Override
             public void onUpdate() {
-                playbackManager.setTrackList(trackProvider.getStorage());
+                TrackList trackList = trackProvider.getStorage();
+
+                playbackManager.setTrackList(trackList);
+                Intent updateIntent = new Intent(Constants.ACTION_UPDATE_TRACKLIST);
+                updateIntent.putExtra("tracklist_extra", trackList);
+                sendBroadcast(updateIntent);
             }
         });
+        trackProvider.search();
 
         addStateCallbackListener(this);
 

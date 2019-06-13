@@ -6,8 +6,6 @@ import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.google.gson.Gson;
-
 import java.io.IOException;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -24,8 +22,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     PlaybackManager(Context context, PlayerStateCallback playerStateCallback) {
         this.playerStateCallback = playerStateCallback;
-        this.trackList = new TrackList(context, "initial");
+        this.trackList = new TrackList("initial");
         this.storage = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
+        this.playerState = PlaybackStateCompat.STATE_NONE;
+        updatePlaybackState();
     }
 
     boolean isPlaying() {
@@ -101,18 +101,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             selectedTrack.setSelected(true);
 
             playerStateCallback.onTrackChanged(selectedTrack);
-            writeToStorage(storage, selectedTrack);
+            SharedStorageManager.writeToCache(storage, selectedTrack);
 
             play();
         }
-    }
-
-    private static void writeToStorage(SharedPreferences storage, Track track) {
-        Gson gson = new Gson();
-        String jsonTrack = gson.toJson(track);
-        SharedPreferences.Editor editor = storage.edit();
-        editor.putString("last_track", jsonTrack);
-        editor.apply();
     }
 
     void nextTrack() {

@@ -55,7 +55,7 @@ class Utils {
     }
 
     static TrackList search(CharSequence string, TrackList trackListToSearch) {
-        TrackList trackList = new TrackList(trackListToSearch.getContext(), "temp");
+        TrackList trackList = new TrackList("temp");
         for (Track track : trackListToSearch.getTracks()) {
 
             String formattedName = track.getName().toLowerCase();
@@ -70,12 +70,11 @@ class Utils {
     }
 
     static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
-        Context context = allTracksTrackList.getContext();
         Map<String, TrackList> playlistMap = new HashMap<>();
         for (Track track : allTracksTrackList.getTracks()) {
             TrackList trackList = playlistMap.get(track.getArtist());
             if (trackList == null) {
-                trackList = new TrackList(context, track.getArtist());
+                trackList = new TrackList(track.getArtist());
                 playlistMap.put(track.getArtist(), trackList);
             }
             if (!trackList.contains(track)) {
