@@ -1,7 +1,5 @@
 package ru.krivocraft.kbmp;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -11,7 +9,6 @@ import java.io.IOException;
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
     private MediaPlayer player;
-    private SharedPreferences storage;
 
     private int playerState;
 
@@ -20,10 +17,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private TrackList trackList;
     private Track cache;
 
-    PlaybackManager(Context context, PlayerStateCallback playerStateCallback) {
+    PlaybackManager(PlayerStateCallback playerStateCallback) {
         this.playerStateCallback = playerStateCallback;
         this.trackList = new TrackList("initial");
-        this.storage = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
     }
@@ -101,7 +97,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             selectedTrack.setSelected(true);
 
             playerStateCallback.onTrackChanged(selectedTrack);
-            SharedStorageManager.writeToCache(storage, selectedTrack);
 
             play();
         }

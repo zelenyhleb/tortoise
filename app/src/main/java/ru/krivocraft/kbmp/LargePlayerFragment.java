@@ -44,6 +44,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private boolean trackIsPlaying;
     private MediaControllerCompat.TransportControls transportControls;
     private SharedPreferences cache;
+    private MediaControllerCompat mediaController;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -56,21 +57,18 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     void initControls(Activity context) {
         this.cache = context.getSharedPreferences("cache", Context.MODE_PRIVATE);
-        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+        this.mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
-    }
-
-    void setInitialData() {
         getInitialMetadata();
-        this.trackProgress = trackProgress;
-        this.trackIsPlaying = trackIsPlaying;
     }
 
     private void getInitialMetadata() {
-        Track track = SharedStorageManager.readFromCache(cache);
-        this.trackArtist = track.getArtist();
-        this.trackTitle = track.getName();
-        this.trackDuration = Integer.parseInt(track.getDuration());
+        MediaMetadataCompat metadata = mediaController.getMetadata();
+        this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+        this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+        this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
+        this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
     private Timer compositionProgressTimer;

@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
@@ -130,7 +129,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
 
         notificationBuilder = new NotificationBuilder(this);
 
-        playbackManager = new PlaybackManager(this, new PlaybackManager.PlayerStateCallback() {
+        playbackManager = new PlaybackManager(new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);

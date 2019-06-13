@@ -92,16 +92,12 @@ public class MainActivity extends AppCompatActivity {
     private SmallPlayerFragment getSmallPlayerFragment() {
         SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
         smallPlayerFragment.init(MainActivity.this);
-
         return smallPlayerFragment;
     }
 
     private LargePlayerFragment getLargePlayerFragment() {
         LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
         largePlayerFragment.initControls(MainActivity.this);
-
-        largePlayerFragment.setInitialData();
-
         return largePlayerFragment;
     }
 
