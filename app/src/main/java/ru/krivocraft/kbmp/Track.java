@@ -3,6 +3,7 @@ package ru.krivocraft.kbmp;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 
 import java.io.File;
 import java.io.Serializable;
@@ -64,6 +65,7 @@ class Track implements Serializable {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art)
+                .putLong(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, identifier)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
                 .build();
     }

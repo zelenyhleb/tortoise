@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -63,18 +64,21 @@ public class MainActivity extends AppCompatActivity {
     private TrackListPage trackListFragment;
 
     @NonNull
-    private TrackListPage getTrackListFragment(TrackList trackList) {
+    private TrackListPage getTrackListFragment(final TrackList trackList) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 TracksAdapter adapter = (TracksAdapter) adapterView.getAdapter();
                 Track track = (Track) adapterView.getItemAtPosition(position);
                 TrackList newTrackList = adapter.getPlaylist();
-
-                if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                    mediaControllerCompat.getTransportControls().pause();
+                if (mediaControllerCompat.getMetadata().getLong(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == track.getIdentifier()) {
+                    if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                        mediaControllerCompat.getTransportControls().pause();
+                    } else {
+                        mediaControllerCompat.getTransportControls().play();
+                    }
                 } else {
-                    mediaControllerCompat.getTransportControls().play();
+                    mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(track));
                 }
 
                 showSmallPlayerFragment();
