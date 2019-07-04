@@ -49,6 +49,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                     e.printStackTrace();
                 }
 
+                if (cache != null) {
+                    cache.setSelected(false);
+                }
+                selectedTrack.setSelected(true);
+
                 cache = selectedTrack;
 
                 return;

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Binder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,20 +15,15 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class MediaPlaybackService extends MediaBrowserServiceCompat implements StateCallback, MediaPlayer.OnCompletionListener {
+public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
     private NotificationBuilder notificationBuilder;
 
     private PlaybackManager playbackManager;
     private TrackProvider trackProvider;
-
-    private static boolean running = false;
-
-    private List<StateCallback> listeners = new ArrayList<>();
 
     private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
         @Override
@@ -38,11 +32,11 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
                 switch (intent.getIntExtra("state", -1)) {
                     case Constants.HEADSET_STATE_PLUG_IN:
                         if (getCurrentTrack() != null) {
-                            play();
+                            mediaSession.getController().getTransportControls().play();
                         }
                         break;
                     case Constants.HEADSET_STATE_PLUG_OUT:
-                        pause();
+                        mediaSession.getController().getTransportControls().pause();
                         break;
                 }
 
@@ -50,30 +44,44 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
         }
     };
 
+    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent result = new Intent(Constants.ACTION_RESULT_POSITION);
+            result.putExtra(Constants.EXTRA_POSITION, getProgress());
+            sendBroadcast(result);
+        }
+    };
+
     private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
         @Override
         public void onPlay() {
-            play();
+            playbackManager.play();
         }
 
         @Override
         public void onPause() {
-            pause();
+            playbackManager.pause();
         }
 
         @Override
         public void onSkipToNext() {
-            skipToNext();
+            playbackManager.nextTrack();
         }
 
         @Override
         public void onSkipToPrevious() {
-            skipToPrevious();
+            playbackManager.previousTrack();
         }
 
         @Override
         public void onSeekTo(long pos) {
-            seekTo((int) pos);
+            playbackManager.seekTo((int) pos);
+        }
+
+        @Override
+        public void onSkipToQueueItem(long id) {
+            playbackManager.newTrack((int) id);
         }
     };
 
@@ -91,28 +99,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        skipToNext();
-    }
-
-    @Override
-    public void onMetadataChanged(MediaMetadataCompat metadata) {
-        updateNotification();
-    }
-
-    @Override
-    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-        updateNotification();
-    }
-
-    class LocalBinder extends Binder {
-        MediaPlaybackService getServerInstance() {
-            return MediaPlaybackService.this;
-        }
-
-    }
-
-    static boolean isRunning() {
-        return running;
+        playbackManager.nextTrack();
     }
 
     @Override
@@ -133,19 +120,13 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
-                mediaSession.setActive(true);
-                for (StateCallback listener : listeners) {
-                    listener.onPlaybackStateChanged(stateCompat);
-                }
+                updateNotification();
             }
 
             @Override
             public void onTrackChanged(Track track) {
                 mediaSession.setMetadata(track.getAsMediaMetadata());
-                mediaSession.setActive(true);
-                for (StateCallback listener : listeners) {
-                    listener.onMetadataChanged(track.getAsMediaMetadata());
-                }
+                updateNotification();
             }
         });
 
@@ -156,23 +137,24 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
 
                 playbackManager.setTrackList(trackList);
                 Intent updateIntent = new Intent(Constants.ACTION_UPDATE_TRACKLIST);
-                updateIntent.putExtra("tracklist_extra", trackList);
+                updateIntent.putExtra(Constants.EXTRA_TRACKLIST, trackList);
                 sendBroadcast(updateIntent);
             }
         });
         trackProvider.search();
 
-        addStateCallbackListener(this);
-
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         registerReceiver(headsetReceiver, headsetFilter);
+
+        IntentFilter positionFilter = new IntentFilter();
+        positionFilter.addAction(Constants.ACTION_REQUEST_POSITION);
+        registerReceiver(positionReceiver, positionFilter);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MediaButtonReceiver.handleIntent(mediaSession, intent);
-        running = true;
         return START_NOT_STICKY;
     }
 
@@ -181,32 +163,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
         unregisterReceiver(headsetReceiver);
         removeNotification();
 
-        running = false;
         super.onDestroy();
-    }
-
-    void play() {
-        playbackManager.play();
-    }
-
-    void pause() {
-        playbackManager.pause();
-    }
-
-    void seekTo(int progress) {
-        playbackManager.seekTo(progress);
-    }
-
-    void skipToNew(int trackIndex) {
-        playbackManager.newTrack(trackIndex);
-    }
-
-    void skipToNext() {
-        playbackManager.nextTrack();
-    }
-
-    void skipToPrevious() {
-        playbackManager.previousTrack();
     }
 
     private void updateNotification() {
@@ -221,36 +178,16 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements S
         return playbackManager.getTrackList().getSelectedTrack();
     }
 
-    boolean isPlaying() {
-        return playbackManager.isPlaying();
-    }
-
     int getProgress() {
         return playbackManager.getCurrentStreamPosition();
     }
 
-    TrackProvider getTrackProvider() {
-        return trackProvider;
+    private MediaMetadataCompat getMetadata() {
+        return mediaSession.getController().getMetadata();
     }
 
-    private void setTrackIndex(int index) {
-        playbackManager.getTrackList().setCursor(index);
-    }
-
-    TrackList getPlaylist() {
-        return playbackManager.getTrackList();
-    }
-
-    void setPlaylist(TrackList currentTrackList) {
-        playbackManager.setTrackList(currentTrackList);
-    }
-
-    void addStateCallbackListener(StateCallback listener) {
-        listeners.add(listener);
-    }
-
-    void removeStateCallbackListener(StateCallback listener) {
-        listeners.remove(listener);
+    private PlaybackStateCompat getPlaybackState() {
+        return mediaSession.getController().getPlaybackState();
     }
 
 }

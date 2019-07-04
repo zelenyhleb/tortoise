@@ -1,8 +1,11 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -12,11 +15,13 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,6 +35,7 @@ public class SmallPlayerFragment extends Fragment {
     private String trackTitle;
     private int trackDuration;
     private int trackProgress;
+    private Bitmap trackArt;
     private boolean trackIsPlaying;
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
@@ -61,9 +67,29 @@ public class SmallPlayerFragment extends Fragment {
 
         this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
         this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
         this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
         this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
+
+        requestPosition(context);
+    }
+
+    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackProgress = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+            refreshUI();
+        }
+    };
+
+    void requestPosition(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_RESULT_POSITION);
+        context.registerReceiver(positionReceiver, filter);
+
+        Intent intent = new Intent(Constants.ACTION_REQUEST_POSITION);
+        context.sendBroadcast(intent);
     }
 
     @Override
@@ -74,10 +100,10 @@ public class SmallPlayerFragment extends Fragment {
     }
 
     void refreshUI() {
+        final Context context = getContext();
         rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = getContext();
                 if (context != null)
                     context.sendBroadcast(new Intent(Constants.ACTION_SHOW_PLAYER));
             }
@@ -91,21 +117,14 @@ public class SmallPlayerFragment extends Fragment {
         viewName.setText(trackTitle);
         viewName.setSelected(true);
 
-        /*
-            GetBitmapTask task = new GetBitmapTask();
-            task.setListener(new OnPictureProcessedListener() {
-                @Override
-                public void onPictureProcessed(final Bitmap bitmap) {
-                    if (bitmap != null) {
-                        viewImage.setImageBitmap(bitmap);
-                    } else {
-                        viewImage.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_track_image_default));
-                    }
-                    viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadein));
-                }
-            });
-            task.execute(new File(currentTrack.getPath()));
-        */
+        if (context != null) {
+            if (trackArt != null) {
+                viewImage.setImageBitmap(trackArt);
+            } else {
+                viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
+            }
+            viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
+        }
 
         ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
         ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
@@ -166,4 +185,9 @@ public class SmallPlayerFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
+    }
 }

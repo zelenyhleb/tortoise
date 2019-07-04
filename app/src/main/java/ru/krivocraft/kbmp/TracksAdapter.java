@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -38,7 +39,12 @@ class TracksAdapter extends ArrayAdapter<Track> {
 
             if (!track.isSelected()) {
                 trackImage.setAlpha(1.0f);
-                trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+                Bitmap art = track.getArt();
+                if (art != null) {
+                    trackImage.setImageBitmap(art);
+                } else {
+                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+                }
                 trackState.setImageDrawable(null);
             } else {
                 trackImage.setAlpha(0.2f);

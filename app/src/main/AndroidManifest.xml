@@ -41,10 +41,6 @@
         </receiver>
 
         <activity android:name=".PlaylistCreationActivity"></activity>
-        <activity
-            android:name=".PlayerActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

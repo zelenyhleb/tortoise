@@ -2,8 +2,12 @@ package ru.krivocraft.kbmp;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,16 +21,18 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, StateCallback {
+public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -42,9 +48,8 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private int trackDuration;
     private int trackProgress;
     private boolean trackIsPlaying;
+    private Bitmap trackArt;
     private MediaControllerCompat.TransportControls transportControls;
-    private SharedPreferences cache;
-    private MediaControllerCompat mediaController;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -55,20 +60,63 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    void initControls(Activity context) {
-        this.cache = context.getSharedPreferences("cache", Context.MODE_PRIVATE);
-        this.mediaController = MediaControllerCompat.getMediaController(context);
-        this.transportControls = mediaController.getTransportControls();
-        getInitialMetadata();
-    }
+    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+            trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+            trackProgress = (int) playbackState.getPosition();
+            if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                startUI();
+            } else {
+                stopUI();
+            }
+        }
 
-    private void getInitialMetadata() {
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+            trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+            trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+            refreshUI();
+            resetBar();
+        }
+    };
+
+    void initControls(Activity context) {
+
+        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+        this.transportControls = mediaController.getTransportControls();
+        mediaController.registerCallback(callback);
+
         MediaMetadataCompat metadata = mediaController.getMetadata();
+
         this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
         this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
         this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
         this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
+
+
+        requestPosition(context);
+    }
+
+    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackProgress = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+            refreshUI();
+        }
+    };
+
+    void requestPosition(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_RESULT_POSITION);
+        context.registerReceiver(positionReceiver, filter);
+
+        Intent intent = new Intent(Constants.ACTION_REQUEST_POSITION);
+        context.sendBroadcast(intent);
     }
 
     private Timer compositionProgressTimer;
@@ -149,34 +197,27 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             }
         });
 
-        updateUI();
+        refreshUI();
 
         return rootView;
     }
 
-    private void updateUI() {
-//        Track currentTrack = serviceInstance.getCurrentTrack();
+    private void refreshUI() {
         int progress = Utils.getSeconds(trackProgress);
         int duration = Utils.getSeconds(trackDuration);
 
         compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
 
-//        final Animation fadeIn = AnimationUtils.loadAnimation(context, R.anim.fadein);
-//
-//        GetBitmapTask task = new GetBitmapTask();
-//        task.setListener(new OnPictureProcessedListener() {
-//            @Override
-//            public void onPictureProcessed(final Bitmap bitmap) {
-//                if (bitmap != null) {
-//                    trackImage.setImageBitmap(bitmap);
-//                } else {
-//                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-//                }
-//                trackImage.startAnimation(fadeIn);
-//            }
-//        });
-//        task.execute(new File(currentTrack.getPath()));
+        Context context = getContext();
+        if (context != null) {
+            if (trackArt != null) {
+                trackImage.setImageBitmap(trackArt);
+            } else {
+                trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+            }
+            trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
+        }
 
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
@@ -218,22 +259,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     }
 
     @Override
-    public void onMetadataChanged(MediaMetadataCompat metadata) {
-        trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-        updateUI();
-        resetBar();
+    public void onDestroy() {
+        super.onDestroy();
+        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
     }
 
-    @Override
-    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-        trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
-        trackProgress = (int) playbackState.getPosition();
-        if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            startUI();
-        } else {
-            stopUI();
-        }
-    }
 }

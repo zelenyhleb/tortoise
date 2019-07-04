@@ -68,17 +68,20 @@ public class MainActivity extends AppCompatActivity {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                TracksAdapter adapter = (TracksAdapter) adapterView.getAdapter();
                 Track track = (Track) adapterView.getItemAtPosition(position);
-                TrackList newTrackList = adapter.getPlaylist();
-                if (mediaControllerCompat.getMetadata().getLong(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == track.getIdentifier()) {
-                    if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                        mediaControllerCompat.getTransportControls().pause();
-                    } else {
-                        mediaControllerCompat.getTransportControls().play();
-                    }
-                } else {
+                MediaMetadataCompat metadata = mediaControllerCompat.getMetadata();
+                if (metadata == null) {
                     mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(track));
+                } else {
+                    if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).equals(String.valueOf(track.getIdentifier()))) {
+                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(track));
+                    } else {
+                        if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                            mediaControllerCompat.getTransportControls().pause();
+                        } else {
+                            mediaControllerCompat.getTransportControls().play();
+                        }
+                    }
                 }
 
                 showSmallPlayerFragment();
@@ -136,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onConnectionFailed() {
                         Log.e("TAG", "onConnectionFailed");
+                        Toast.makeText(MainActivity.this, "Something is wrong", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -169,9 +173,9 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                bindService();
+
             } else {
-                Toast.makeText(this, "App needs external storage permission to work", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "App requires external storage permission to work", Toast.LENGTH_LONG).show();
             }
         }
     }

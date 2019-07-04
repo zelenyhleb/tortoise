@@ -65,7 +65,7 @@ class Track implements Serializable {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, name)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art)
-                .putLong(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, identifier)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, String.valueOf(identifier))
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
                 .build();
     }
@@ -133,6 +133,10 @@ class Track implements Serializable {
 
     String getPath() {
         return path;
+    }
+
+    Bitmap getArt() {
+        return art;
     }
 
     String getDuration() {
