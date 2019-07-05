@@ -92,18 +92,6 @@ public class MainActivity extends AppCompatActivity {
         return trackListPage;
     }
 
-    private SmallPlayerFragment getSmallPlayerFragment() {
-        SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-        smallPlayerFragment.init(MainActivity.this);
-        return smallPlayerFragment;
-    }
-
-    private LargePlayerFragment getLargePlayerFragment() {
-        LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
-        largePlayerFragment.initControls(MainActivity.this);
-        return largePlayerFragment;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,13 +177,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSmallPlayerFragment() {
-        if ((largePlayerFragment == null || !largePlayerFragment.isVisible()) && smallPlayerFragment == null) {
-            if (mediaControllerCompat != null && mediaControllerCompat.getMetadata() != null) {
-                smallPlayerFragment = getSmallPlayerFragment();
-                showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, smallPlayerFragment);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_RESULT_DATA);
+        registerReceiver(positionReceiver, filter);
+
+        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
+        sendBroadcast(intent);
+    }
+
+    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mediaControllerCompat != null) {
+
+                MediaMetadataCompat metadata = ((Track) intent.getSerializableExtra(Constants.EXTRA_METADATA)).getAsMediaMetadata();
+                PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.EXTRA_PLAYBACK_STATE);
+                int position = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+
+                if (metadata != null && playbackState != null) {
+                    if (smallPlayerFragment != null) {
+                        smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
+                        smallPlayerFragment.invalidate();
+                    } else {
+                        if ((largePlayerFragment == null || !largePlayerFragment.isVisible())) {
+                            SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+                            smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
+                            MainActivity.this.smallPlayerFragment = smallPlayerFragment;
+                            showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, MainActivity.this.smallPlayerFragment);
+                        }
+                    }
+                }
             }
         }
-    }
+    };
 
     private void hideSmallPlayerFragment() {
         hideFragment(smallPlayerFragment);
@@ -203,7 +217,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLargePlayerFragment() {
-        largePlayerFragment = getLargePlayerFragment();
+        LargePlayerFragment largePlayerFragment1 = new LargePlayerFragment();
+        largePlayerFragment1.initControls(this);
+        largePlayerFragment = largePlayerFragment1;
         showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.list_container, largePlayerFragment);
     }
 

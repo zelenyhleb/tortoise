@@ -29,7 +29,7 @@ class PlaylistsAdapter extends ArrayAdapter<TrackList> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
         }
         if (trackList != null) {
-            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getName());
+            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getPlaylistTitle());
         }
 
         return convertView;

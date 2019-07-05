@@ -28,8 +28,8 @@ class Constants {
     final static int INDEX_FRAGMENT_PLAYER = 0;
     final static int INDEX_FRAGMENT_PLAYLIST = 1;
 
-    static final String ACTION_REQUEST_POSITION = "request_position";
-    static final String ACTION_RESULT_POSITION = "result_position";
+    static final String ACTION_REQUEST_DATA = "request_position";
+    static final String ACTION_RESULT_DATA = "result_position";
     static final String EXTRA_POSITION = "position";
     static final String EXTRA_METADATA = "metadata";
     static final String EXTRA_PLAYBACK_STATE = "playback_state";

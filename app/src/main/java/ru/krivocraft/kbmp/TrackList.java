@@ -2,37 +2,55 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class TrackList implements Serializable {
+class TrackList implements Parcelable {
 
     private List<Track> tracks = new ArrayList<>();
 
     private TracksAdapter tracksAdapter = null;
     private SelectableTracksAdapter selectableTracksAdapter = null;
 
-    private String name;
-    private boolean selected;
+    private String playlistTitle;
     private int cursor;
 
-
-    TrackList(String name) {
-        if (name.contains(Constants.PLAYLIST_PREFIX)) {
-            this.name = formatName(name);
+    TrackList(String playlistTitle) {
+        if (playlistTitle.contains(Constants.PLAYLIST_PREFIX)) {
+            this.playlistTitle = formatName(playlistTitle);
         } else {
-            this.name = name;
+            this.playlistTitle = playlistTitle;
         }
         cursor = -1;
     }
 
-    TrackList(List<Track> tracks, String name) {
-        this(name);
+    TrackList(List<Track> tracks, String playlistTitle) {
+        this(playlistTitle);
         this.tracks = tracks;
     }
+
+    protected TrackList(Parcel in) {
+        tracks = in.createTypedArrayList(Track.CREATOR);
+        playlistTitle = in.readString();
+        cursor = in.readInt();
+    }
+
+    public static final Creator<TrackList> CREATOR = new Creator<TrackList>() {
+        @Override
+        public TrackList createFromParcel(Parcel in) {
+            return new TrackList(in);
+        }
+
+        @Override
+        public TrackList[] newArray(int size) {
+            return new TrackList[size];
+        }
+    };
 
     private String formatName(String unformatted) {
         return unformatted.replaceAll(Constants.PLAYLIST_PREFIX, "").replace("_", " ");
@@ -61,8 +79,8 @@ class TrackList implements Serializable {
         this.tracks.addAll(tracks);
     }
 
-    String getName() {
-        return name;
+    String getPlaylistTitle() {
+        return playlistTitle;
     }
 
     void deselect() {
@@ -125,6 +143,18 @@ class TrackList implements Serializable {
 
     boolean contains(Track track) {
         return tracks.contains(track);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(tracks);
+        dest.writeString(playlistTitle);
+        dest.writeInt(cursor);
     }
 
     interface OnPlaylistCompilingCompleted {

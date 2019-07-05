@@ -1,10 +1,8 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,64 +39,45 @@ public class SmallPlayerFragment extends Fragment {
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             trackIsPlaying = state.getState() == PlaybackStateCompat.STATE_PLAYING;
             trackProgress = (int) state.getPosition();
-            refreshUI();
+            invalidate();
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
             trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
             trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-            refreshUI();
+            invalidate();
         }
     };
 
     public SmallPlayerFragment() {
     }
 
-    void init(Activity context) {
+    void init(Activity context, MediaMetadataCompat mediaMetadata, PlaybackStateCompat playbackState, int position) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
 
         mediaController.registerCallback(callback);
 
-        MediaMetadataCompat metadata = mediaController.getMetadata();
+        this.trackArtist = mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+        this.trackTitle = mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+        this.trackArt = mediaMetadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+        this.trackDuration = (int) mediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
 
-        this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
-        this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-        this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
-        this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
-
-        requestPosition(context);
-    }
-
-    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
-            refreshUI();
-        }
-    };
-
-    void requestPosition(Context context) {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_POSITION);
-        context.registerReceiver(positionReceiver, filter);
-
-        Intent intent = new Intent(Constants.ACTION_REQUEST_POSITION);
-        context.sendBroadcast(intent);
+        this.trackProgress = position;
+        this.trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_player_small, container, false);
-        refreshUI();
+        invalidate();
         return rootView;
     }
 
-    void refreshUI() {
+    void invalidate() {
         final Context context = getContext();
         rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,6 +166,5 @@ public class SmallPlayerFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
     }
 }

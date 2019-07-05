@@ -98,7 +98,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             Track selectedTrack = trackList.getSelectedTrack();
 
-            selectedTrack.setProgress(0);
             selectedTrack.setSelected(true);
 
             playerStateCallback.onTrackChanged(selectedTrack);

@@ -55,7 +55,7 @@ class TracksAdapter extends ArrayAdapter<Track> {
                 }
             }
 
-            ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getName());
+            ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getTitle());
             ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
         }
 

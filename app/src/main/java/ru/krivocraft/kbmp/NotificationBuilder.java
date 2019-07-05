@@ -56,6 +56,7 @@ class NotificationBuilder {
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())
                     .setSound(null)
                     .setStyle(mediaStyle)
+                    .setColorized(true)
                     .setContentIntent(contentIntent);
 
             if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {

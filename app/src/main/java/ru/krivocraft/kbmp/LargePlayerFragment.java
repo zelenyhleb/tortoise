@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -77,7 +76,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
             trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
             trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
             refreshUI();
             resetBar();
         }
@@ -93,7 +92,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
         this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
         this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
         this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
@@ -112,10 +111,10 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_POSITION);
+        filter.addAction(Constants.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.ACTION_REQUEST_POSITION);
+        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
     }
 

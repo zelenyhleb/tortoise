@@ -68,7 +68,7 @@ class TrackProvider {
 
         while (low <= high) {
             mid = (low + high) / 2;
-            foundId = storage.getTrack(mid).getIdentifier();
+            foundId = Integer.parseInt(storage.getTrack(mid).getIdentifier());
             if (foundId == id) {
                 return findTrackByIndex(foundId);
             } else if (mid > id) {

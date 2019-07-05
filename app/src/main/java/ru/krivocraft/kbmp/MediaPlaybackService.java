@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
@@ -47,8 +49,10 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent result = new Intent(Constants.ACTION_RESULT_POSITION);
+            Intent result = new Intent(Constants.ACTION_RESULT_DATA);
             result.putExtra(Constants.EXTRA_POSITION, getProgress());
+            result.putExtra(Constants.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
+            result.putExtra(Constants.EXTRA_METADATA, mediaSession.getController().getMetadata());
             sendBroadcast(result);
         }
     };
@@ -139,6 +143,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 Intent updateIntent = new Intent(Constants.ACTION_UPDATE_TRACKLIST);
                 updateIntent.putExtra(Constants.EXTRA_TRACKLIST, trackList);
                 sendBroadcast(updateIntent);
+
             }
         });
         trackProvider.search();
@@ -148,7 +153,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         registerReceiver(headsetReceiver, headsetFilter);
 
         IntentFilter positionFilter = new IntentFilter();
-        positionFilter.addAction(Constants.ACTION_REQUEST_POSITION);
+        positionFilter.addAction(Constants.ACTION_REQUEST_DATA);
         registerReceiver(positionReceiver, positionFilter);
     }
 

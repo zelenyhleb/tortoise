@@ -1,15 +1,14 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +39,9 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static Bitmap getTrackBitmap(File file) {
+    static Bitmap getTrackBitmap(String path) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(file.getPath());
+        retriever.setDataSource(path);
 
         byte[] artBytes = retriever.getEmbeddedPicture();
         Bitmap bm = null;
@@ -58,7 +57,7 @@ class Utils {
         TrackList trackList = new TrackList("temp");
         for (Track track : trackListToSearch.getTracks()) {
 
-            String formattedName = track.getName().toLowerCase();
+            String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
 
@@ -109,7 +108,7 @@ class Utils {
                 String songDuration = cursor.getString(4);
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    Track track = new Track(songDuration, artist, title, path, id);
+                    Track track = new Track(songDuration, artist, title, path, id, getTrackBitmap(path));
                     if (!existingTracks.contains(track)) {
                         tracks.add(track);
                     }
@@ -119,5 +118,22 @@ class Utils {
             cursor.close();
         }
         return tracks;
+    }
+
+    static Track loadData(String path) {
+        System.out.println("1:" + String.valueOf(System.currentTimeMillis()));
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(path);
+
+        byte[] embeddedPicture = retriever.getEmbeddedPicture();
+
+        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+        String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        Bitmap art = BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.length);
+
+        System.out.println("2: " + String.valueOf(System.currentTimeMillis()));
+
+        return new Track(duration, artist, title, path, 0, art);
     }
 }
