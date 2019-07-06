@@ -62,6 +62,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_SHUFFLE.equals(intent.getAction())){
                 playbackManager.shuffleTrackList();
+            } else if(Constants.ACTION_REQUEST_TRACK_LIST.equals(intent.getAction())){
+                updateTrackList(playbackManager.getTrackList());
             }
         }
     };
@@ -146,9 +148,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         playbackManager.setPlaylistUpdateCallback(new PlaybackManager.PlaylistUpdateCallback() {
             @Override
             public void onPlaylistUpdated(ArrayList<String> list) {
-                Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
-                intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, list);
-                sendBroadcast(intent);
+                updateTrackList(list);
             }
         });
 
@@ -176,7 +176,14 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.ACTION_SHUFFLE);
+        playlistFilter.addAction(Constants.ACTION_REQUEST_TRACK_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
+    }
+
+    private void updateTrackList(ArrayList<String> list) {
+        Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
+        intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, list);
+        sendBroadcast(intent);
     }
 
     @Override

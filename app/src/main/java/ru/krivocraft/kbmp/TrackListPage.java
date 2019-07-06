@@ -60,10 +60,14 @@ public class TrackListPage extends AbstractTrackViewFragment {
     void init(AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
         this.listener = listener;
         this.showControls = showControls;
-        this.adapter = new TracksAdapter(new ArrayList<String>(), context);
+        this.trackList = new ArrayList<>();
+        this.adapter = new TracksAdapter(trackList, context);
 
         IntentFilter filter = new IntentFilter(Constants.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(receiver, filter);
+
+        Intent intent = new Intent(Constants.ACTION_REQUEST_TRACK_LIST);
+        context.sendBroadcast(intent);
     }
 
     @Override
