@@ -6,6 +6,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -15,13 +16,13 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private int playerState;
 
     private PlayerStateCallback playerStateCallback;
+    private PlaylistUpdateCallback playlistUpdateCallback;
 
     private String cache;
-    private List<String> tracks;
+    private ArrayList<String> tracks;
     private int cursor = 0;
 
-    PlaybackManager(PlayerStateCallback playerStateCallback) {
-        this.playerStateCallback = playerStateCallback;
+    PlaybackManager() {
         this.tracks = new ArrayList<>();
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
@@ -85,7 +86,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             cursor = index;
 
-            playerStateCallback.onTrackChanged(tracks.get(cursor));
+            if (playerStateCallback != null) {
+                playerStateCallback.onTrackChanged(tracks.get(cursor));
+            }
 
             play();
         }
@@ -109,12 +112,36 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    void setTrackList(List<String> trackList) {
-        if (trackList != this.tracks)
+    void setTrackList(ArrayList<String> trackList) {
+        if (trackList != this.tracks) {
             this.tracks = trackList;
+            if (playlistUpdateCallback != null) {
+                playlistUpdateCallback.onPlaylistUpdated(tracks);
+            }
+        }
     }
 
-    List<String> getTrackList() {
+    void shuffleTrackList() {
+        if (tracks != null) {
+            Collections.shuffle(tracks);
+
+            cursor = tracks.indexOf(cache);
+
+            if (playlistUpdateCallback != null){
+                playlistUpdateCallback.onPlaylistUpdated(tracks);
+            }
+        }
+    }
+
+    void setPlayerStateCallback(PlayerStateCallback playerStateCallback) {
+        this.playerStateCallback = playerStateCallback;
+    }
+
+    void setPlaylistUpdateCallback(PlaylistUpdateCallback playlistUpdateCallback) {
+        this.playlistUpdateCallback = playlistUpdateCallback;
+    }
+
+    ArrayList<String> getTrackList() {
         return tracks;
     }
 
@@ -122,7 +149,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         return player != null ? player.getCurrentPosition() : 0;
     }
 
-    String getCurrentTrack(){
+    String getCurrentTrack() {
         return tracks.get(cursor);
     }
 
@@ -161,4 +188,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         void onTrackChanged(String track);
     }
+
+    interface PlaylistUpdateCallback {
+        void onPlaylistUpdated(ArrayList<String> list);
+    }
+
 }

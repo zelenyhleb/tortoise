@@ -45,9 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
-                MainActivity.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACKLIST);
-                showTrackListFragment();
+            if (Constants.ACTION_UPDATE_STORAGE.equals(intent.getAction())) {
+                MainActivity.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
             }
         }
     };
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private TrackListPage trackListFragment;
 
     @NonNull
-    private TrackListPage getTrackListFragment(final List<String> trackList) {
+    private TrackListPage getTrackListFragment() {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(trackList, onListItemClickListener, true);
+        trackListPage.init(onListItemClickListener, true, this);
         return trackListPage;
     }
 
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
         IntentFilter trackListUpdateFilter = new IntentFilter();
-        trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_TRACKLIST);
+        trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_STORAGE);
         registerReceiver(trackListUpdateReceiver, trackListUpdateFilter);
 
         IntentFilter showPlayerFilter = new IntentFilter();
@@ -138,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
                 },
                 null);
         mediaBrowser.connect();
+
+        showTrackListFragment();
+
     }
 
     @Override
@@ -230,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showTrackListFragment() {
-        trackListFragment = getTrackListFragment(trackList);
+        trackListFragment = getTrackListFragment();
         showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.list_container, trackListFragment);
     }
 

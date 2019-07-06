@@ -8,20 +8,20 @@ import java.util.ArrayList;
 
 class TrackProvider {
     private Context context;
-    private OnUpdateCallback callback;
+    private OnStorageUpdateCallback callback;
     private ArrayList<String> metaStorage;
 
-    TrackProvider(Context context, OnUpdateCallback callback) {
+    TrackProvider(Context context, OnStorageUpdateCallback callback) {
         this.context = context;
         this.callback = callback;
         this.metaStorage = new ArrayList<>();
     }
 
     void search() {
-        new GetFromDiskTask(context.getContentResolver(), metaStorage, new OnUpdateCallback() {
+        new GetFromDiskTask(context.getContentResolver(), metaStorage, new OnStorageUpdateCallback() {
             @Override
-            public void onUpdate() {
-                callback.onUpdate();
+            public void onStorageUpdate() {
+                callback.onStorageUpdate();
             }
         }).execute();
     }
@@ -29,9 +29,9 @@ class TrackProvider {
     private static class GetFromDiskTask extends AsyncTask<Void, Integer, ArrayList<String>> {
         private ContentResolver contentResolver;
         private ArrayList<String> metaStorage;
-        private OnUpdateCallback callback;
+        private OnStorageUpdateCallback callback;
 
-        GetFromDiskTask(ContentResolver contentResolver, ArrayList<String> storage, OnUpdateCallback callback) {
+        GetFromDiskTask(ContentResolver contentResolver, ArrayList<String> storage, OnStorageUpdateCallback callback) {
             this.contentResolver = contentResolver;
             this.metaStorage = storage;
             this.callback = callback;
@@ -46,7 +46,7 @@ class TrackProvider {
         protected void onPostExecute(ArrayList<String> tracks) {
             super.onPostExecute(tracks);
             metaStorage.addAll(tracks);
-            callback.onUpdate();
+            callback.onStorageUpdate();
         }
     }
 
@@ -54,7 +54,7 @@ class TrackProvider {
         return metaStorage;
     }
 
-    interface OnUpdateCallback {
-        void onUpdate();
+    interface OnStorageUpdateCallback {
+        void onStorageUpdate();
     }
 }

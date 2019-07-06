@@ -1,6 +1,9 @@
 package ru.krivocraft.kbmp;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
@@ -13,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackListPage extends AbstractTrackViewFragment {
@@ -27,6 +31,19 @@ public class TrackListPage extends AbstractTrackViewFragment {
         super();
     }
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            List<String> tracks = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
+            TrackListPage.this.trackList = tracks;
+            TrackListPage.this.adapter = new TracksAdapter(tracks, context);
+            if (listView != null) {
+                TrackListPage.this.listView.setAdapter(adapter);
+            }
+            invalidate();
+        }
+    };
+
     @Override
     void invalidate() {
         if (listView != null) {
@@ -37,21 +54,13 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    void init(List<String> trackList, AdapterView.OnItemClickListener listener, boolean showControls) {
+    void init(AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
         this.listener = listener;
         this.showControls = showControls;
-        this.trackList = trackList;
-    }
+        this.adapter = new TracksAdapter(new ArrayList<String>(), context);
 
-    void updateData(List<String> trackList, Context context) {
-        if (context != null) {
-            this.trackList = trackList;
-            this.adapter = new TracksAdapter(trackList, context);
-            if (listView != null) {
-                this.listView.setAdapter(adapter);
-            }
-            invalidate();
-        }
+        IntentFilter filter = new IntentFilter(Constants.ACTION_UPDATE_TRACK_LIST);
+        context.registerReceiver(receiver, filter);
     }
 
     @Override
@@ -64,8 +73,6 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
-
-        updateData(trackList, getContext());
 
         if (showControls) {
             searchFrame.addTextChangedListener(new TextWatcher() {
@@ -92,8 +99,11 @@ public class TrackListPage extends AbstractTrackViewFragment {
             buttonShuffle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    trackList.shuffle();
-//                    adapter.notifyDataSetChanged();
+                    Context context = getContext();
+                    if (context != null) {
+                        context.sendBroadcast(new Intent(Constants.ACTION_SHUFFLE));
+                    }
+                    adapter.notifyDataSetChanged();
                 }
             });
         } else {

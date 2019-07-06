@@ -16,6 +16,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
@@ -53,6 +54,15 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             result.putExtra(Constants.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
             result.putExtra(Constants.EXTRA_METADATA, mediaSession.getController().getMetadata());
             sendBroadcast(result);
+        }
+    };
+
+    private BroadcastReceiver playlistReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Constants.ACTION_SHUFFLE.equals(intent.getAction())){
+                playbackManager.shuffleTrackList();
+            }
         }
     };
 
@@ -119,7 +129,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         notificationBuilder = new NotificationBuilder(this);
 
-        playbackManager = new PlaybackManager(new PlaybackManager.PlayerStateCallback() {
+        playbackManager = new PlaybackManager();
+        playbackManager.setPlayerStateCallback(new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
@@ -132,16 +143,25 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 updateNotification();
             }
         });
-
-        trackProvider = new TrackProvider(this, new TrackProvider.OnUpdateCallback() {
+        playbackManager.setPlaylistUpdateCallback(new PlaybackManager.PlaylistUpdateCallback() {
             @Override
-            public void onUpdate() {
+            public void onPlaylistUpdated(ArrayList<String> list) {
+                Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
+                intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, list);
+                sendBroadcast(intent);
+            }
+        });
+
+        trackProvider = new TrackProvider(this, new TrackProvider.OnStorageUpdateCallback() {
+            @Override
+            public void onStorageUpdate() {
                 ArrayList<String> storage = trackProvider.getStorage();
 
-                playbackManager.setTrackList(storage);
-                Intent updateIntent = new Intent(Constants.ACTION_UPDATE_TRACKLIST);
-                updateIntent.putExtra(Constants.EXTRA_TRACKLIST, storage);
+                Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);
+                updateIntent.putExtra(Constants.EXTRA_TRACK_LIST, storage);
                 sendBroadcast(updateIntent);
+
+                playbackManager.setTrackList(storage);
             }
         });
         trackProvider.search();
@@ -153,6 +173,10 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         IntentFilter positionFilter = new IntentFilter();
         positionFilter.addAction(Constants.ACTION_REQUEST_DATA);
         registerReceiver(positionReceiver, positionFilter);
+
+        IntentFilter playlistFilter = new IntentFilter();
+        playlistFilter.addAction(Constants.ACTION_SHUFFLE);
+        registerReceiver(playlistReceiver, playlistFilter);
     }
 
     @Override

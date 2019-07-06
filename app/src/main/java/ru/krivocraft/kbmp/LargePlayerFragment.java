@@ -100,6 +100,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         mediaController.registerCallback(callback);
 
         this.metadata = mediaController.getMetadata();
+        this.playbackState = mediaController.getPlaybackState();
 
         requestPosition(context);
     }
