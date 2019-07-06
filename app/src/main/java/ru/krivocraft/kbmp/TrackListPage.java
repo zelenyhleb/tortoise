@@ -13,9 +13,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import java.util.List;
+
 public class TrackListPage extends AbstractTrackViewFragment {
 
-    private TrackList trackList;
+    private List<String> trackList;
     private AdapterView.OnItemClickListener listener;
     private TracksAdapter adapter;
     private ListView listView;
@@ -35,16 +37,16 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    void init(TrackList trackList, AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
+    void init(List<String> trackList, AdapterView.OnItemClickListener listener, boolean showControls) {
         this.listener = listener;
         this.showControls = showControls;
         this.trackList = trackList;
     }
 
-    void updateData(TrackList trackList, Context context) {
+    void updateData(List<String> trackList, Context context) {
         if (context != null) {
             this.trackList = trackList;
-            this.adapter = trackList.getTracksAdapter(context);
+            this.adapter = new TracksAdapter(trackList, context);
             if (listView != null) {
                 this.listView.setAdapter(adapter);
             }
@@ -75,11 +77,11 @@ public class TrackListPage extends AbstractTrackViewFragment {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     Context context = getContext();
                     if (context != null) {
-                        TrackList trackListSearched = Utils.search(s, trackList);
-                        listView.setAdapter(trackListSearched.getTracksAdapter(context));
-                        if (s.length() == 0) {
-                            listView.setAdapter(adapter);
-                        }
+//                        TrackList trackListSearched = Utils.search(s, trackList);
+//                        listView.setAdapter(trackListSearched.getTracksAdapter(context));
+//                        if (s.length() == 0) {
+//                            listView.setAdapter(adapter);
+//                        }
                     }
                 }
 
@@ -90,8 +92,8 @@ public class TrackListPage extends AbstractTrackViewFragment {
             buttonShuffle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    trackList.shuffle();
-                    adapter.notifyDataSetChanged();
+//                    trackList.shuffle();
+//                    adapter.notifyDataSetChanged();
                 }
             });
         } else {

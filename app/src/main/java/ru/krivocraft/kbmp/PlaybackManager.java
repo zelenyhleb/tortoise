@@ -5,6 +5,8 @@ import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
@@ -14,12 +16,13 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private PlayerStateCallback playerStateCallback;
 
-    private TrackList trackList;
-    private Track cache;
+    private String cache;
+    private List<String> tracks;
+    private int cursor = 0;
 
     PlaybackManager(PlayerStateCallback playerStateCallback) {
         this.playerStateCallback = playerStateCallback;
-        this.trackList = new TrackList("initial");
+        this.tracks = new ArrayList<>();
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
     }
@@ -29,8 +32,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void play() {
-        if (trackList.getCursor() >= 0) {
-            Track selectedTrack = trackList.getSelectedTrack();
+        if (cursor >= 0) {
+            String selectedTrack = tracks.get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedTrack));
 
             if (mediaChanged) {
@@ -43,16 +46,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 }
 
                 try {
-                    player.setDataSource(selectedTrack.getPath());
+                    player.setDataSource(selectedTrack);
                     player.prepareAsync();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                if (cache != null) {
-                    cache.setSelected(false);
-                }
-                selectedTrack.setSelected(true);
 
                 cache = selectedTrack;
 
@@ -60,8 +58,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
 
             player.start();
-
-            selectedTrack.setPlaying(true);
 
             playerState = PlaybackStateCompat.STATE_PLAYING;
             updatePlaybackState();
@@ -75,11 +71,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void pause() {
-        Track selectedTrack = trackList.getSelectedTrack();
-
         if (isPlaying()) {
             player.pause();
-            selectedTrack.setPlaying(false);
         }
 
         playerState = PlaybackStateCompat.STATE_PAUSED;
@@ -87,31 +80,23 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        if (index >= 0 && index < trackList.getSize()) {
+        if (index >= 0 && index < tracks.size()) {
             pause();
 
-            if (cache != null) {
-                cache.setSelected(false);
-            }
+            cursor = index;
 
-            trackList.setCursor(index);
-
-            Track selectedTrack = trackList.getSelectedTrack();
-
-            selectedTrack.setSelected(true);
-
-            playerStateCallback.onTrackChanged(selectedTrack);
+            playerStateCallback.onTrackChanged(tracks.get(cursor));
 
             play();
         }
     }
 
     void nextTrack() {
-        newTrack(trackList.getCursor() + 1);
+        newTrack(cursor + 1);
     }
 
     void previousTrack() {
-        newTrack(trackList.getCursor() - 1);
+        newTrack(cursor - 1);
     }
 
     void stop() {
@@ -124,17 +109,21 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    void setTrackList(TrackList trackList) {
-        if (trackList != this.trackList)
-            this.trackList = trackList;
+    void setTrackList(List<String> trackList) {
+        if (trackList != this.tracks)
+            this.tracks = trackList;
     }
 
-    TrackList getTrackList() {
-        return trackList;
+    List<String> getTrackList() {
+        return tracks;
     }
 
     int getCurrentStreamPosition() {
         return player != null ? player.getCurrentPosition() : 0;
+    }
+
+    String getCurrentTrack(){
+        return tracks.get(cursor);
     }
 
     private void updatePlaybackState() {
@@ -162,8 +151,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     public void onPrepared(MediaPlayer mp) {
         player.start();
 
-        cache.setPlaying(true);
-
         playerState = PlaybackStateCompat.STATE_PLAYING;
         updatePlaybackState();
     }
@@ -172,6 +159,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     interface PlayerStateCallback {
         void onPlaybackStateChanged(PlaybackStateCompat stateCompat);
 
-        void onTrackChanged(Track track);
+        void onTrackChanged(String track);
     }
 }

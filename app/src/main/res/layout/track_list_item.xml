@@ -4,15 +4,15 @@
                 android:layout_height="match_parent">
 
     <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_margin="4dp"
             android:background="@null"
             android:id="@+id/item_track_image"/>
 
     <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_margin="14dp"
             android:background="@null"
             android:id="@+id/item_track_state"/>

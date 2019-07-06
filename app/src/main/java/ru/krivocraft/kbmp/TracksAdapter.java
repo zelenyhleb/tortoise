@@ -12,14 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-class TracksAdapter extends ArrayAdapter<Track> {
+import java.util.List;
 
-    private TrackList trackList;
+class TracksAdapter extends ArrayAdapter<String> {
+
     private Context context;
 
-    TracksAdapter(TrackList trackList, Context context) {
-        super(context, R.layout.track_list_item, trackList.getTracks());
-        this.trackList = trackList;
+    TracksAdapter(List<String> trackList, Context context) {
+        super(context, R.layout.track_list_item, trackList);
         this.context = context;
     }
 
@@ -27,19 +27,20 @@ class TracksAdapter extends ArrayAdapter<Track> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Track track = getItem(position);
+        String path = getItem(position);
+        Track track = Utils.loadData(path, context.getContentResolver());
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item, null);
         }
-        if (track != null) {
+        if (path != null) {
 
             ImageView trackImage = convertView.findViewById(R.id.item_track_image);
             ImageView trackState = convertView.findViewById(R.id.item_track_state);
 
             if (!track.isSelected()) {
                 trackImage.setAlpha(1.0f);
-                Bitmap art = track.getArt();
+                Bitmap art = Utils.loadArt(path);
                 if (art != null) {
                     trackImage.setImageBitmap(art);
                 } else {
@@ -60,9 +61,5 @@ class TracksAdapter extends ArrayAdapter<Track> {
         }
 
         return convertView;
-    }
-
-    TrackList getPlaylist() {
-        return trackList;
     }
 }

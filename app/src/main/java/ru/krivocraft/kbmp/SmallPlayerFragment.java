@@ -28,26 +28,23 @@ public class SmallPlayerFragment extends Fragment {
     private View rootView;
     private MediaControllerCompat.TransportControls transportControls;
 
-    private String trackArtist;
-    private String trackTitle;
-    private int trackDuration;
+
+    private MediaMetadataCompat metadata;
+    private PlaybackStateCompat playbackState;
+
     private int trackProgress;
-    private Bitmap trackArt;
-    private boolean trackIsPlaying;
+
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            trackIsPlaying = state.getState() == PlaybackStateCompat.STATE_PLAYING;
+            playbackState = state;
             trackProgress = (int) state.getPosition();
             invalidate();
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-            trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
-            trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+            SmallPlayerFragment.this.metadata = metadata;
             invalidate();
         }
     };
@@ -61,13 +58,10 @@ public class SmallPlayerFragment extends Fragment {
 
         mediaController.registerCallback(callback);
 
-        this.trackArtist = mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        this.trackTitle = mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        this.trackArt = mediaMetadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
-        this.trackDuration = (int) mediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+        this.metadata = mediaMetadata;
+        this.playbackState = playbackState;
 
         this.trackProgress = position;
-        this.trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
     @Override
@@ -91,9 +85,11 @@ public class SmallPlayerFragment extends Fragment {
         final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
         final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
-        viewAuthor.setText(trackArtist);
-        viewName.setText(trackTitle);
+        viewAuthor.setText(getTrackArtist());
+        viewName.setText(getTrackTitle());
         viewName.setSelected(true);
+
+        Bitmap trackArt = Utils.loadArt(getTrackPath());
 
         if (context != null) {
             if (trackArt != null) {
@@ -121,11 +117,11 @@ public class SmallPlayerFragment extends Fragment {
         });
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-        bar.setMax(Utils.getSeconds(trackDuration));
+        bar.setMax(Utils.getSeconds(getTrackDuration()));
         bar.setProgress(Utils.getSeconds(trackProgress));
 
         ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-        if (trackIsPlaying) {
+        if (isTrackPlaying()) {
             playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
             playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -145,6 +141,26 @@ public class SmallPlayerFragment extends Fragment {
             });
             cancelCurrentTimer();
         }
+    }
+
+    public String getTrackTitle() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+    }
+
+    public String getTrackArtist() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+    }
+
+    public int getTrackDuration() {
+        return (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+    }
+
+    public String getTrackPath() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+    }
+
+    public boolean isTrackPlaying() {
+        return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
     private void startNewTimer(final ProgressBar bar) {

@@ -26,6 +26,8 @@ import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.List;
+
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private LargePlayerFragment largePlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
-    private TrackList trackList;
+    private List<String> trackList;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -44,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_UPDATE_TRACKLIST.equals(intent.getAction())) {
-                MainActivity.this.trackList = (TrackList) intent.getSerializableExtra("tracklist_extra");
-//                hideTrackListFragment();
+                MainActivity.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACKLIST);
                 showTrackListFragment();
             }
         }
@@ -64,17 +65,17 @@ public class MainActivity extends AppCompatActivity {
     private TrackListPage trackListFragment;
 
     @NonNull
-    private TrackListPage getTrackListFragment(final TrackList trackList) {
+    private TrackListPage getTrackListFragment(final List<String> trackList) {
         AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Track track = (Track) adapterView.getItemAtPosition(position);
+                String path = (String) adapterView.getItemAtPosition(position);
                 MediaMetadataCompat metadata = mediaControllerCompat.getMetadata();
                 if (metadata == null) {
-                    mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(track));
+                    mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
                 } else {
-                    if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).equals(String.valueOf(track.getIdentifier()))) {
-                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(track));
+                    if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
+                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
                     } else {
                         if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                             mediaControllerCompat.getTransportControls().pause();
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(trackList, onListItemClickListener, true, MainActivity.this.getApplicationContext());
+        trackListPage.init(trackList, onListItemClickListener, true);
         return trackListPage;
     }
 
@@ -190,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (mediaControllerCompat != null) {
 
-                MediaMetadataCompat metadata = ((Track) intent.getSerializableExtra(Constants.EXTRA_METADATA)).getAsMediaMetadata();
+                MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.EXTRA_METADATA);
                 PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.EXTRA_PLAYBACK_STATE);
                 int position = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
 

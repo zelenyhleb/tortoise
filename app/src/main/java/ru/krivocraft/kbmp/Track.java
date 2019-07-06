@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 class Track implements Parcelable {
@@ -18,22 +17,24 @@ class Track implements Parcelable {
     private MediaMetadataCompat metadata;
 
     //This constructor is used by search util - to describe new track entity from file on disk
-    Track(@NonNull String duration, String artist, String title, @NonNull String path, int identifier, Bitmap art) {
+    Track(@NonNull String duration, String artist, String title, @NonNull String path) {
 
-        String[] meta = title.split(" - ");
-        if (meta.length > 1) {
-            artist = meta[0];
-            title = meta[1];
-        } else {
-            if (artist.equals("<unknown>")) {
-                artist = Constants.UNKNOWN_ARTIST;
-            }
-            if (title.equals("<unknown>")) {
-                title = Constants.UNKNOWN_COMPOSITION;
+        if (title != null) {
+            String[] meta = title.split(" - ");
+            if (meta.length > 1) {
+                artist = meta[0];
+                title = meta[1];
+            } else {
+                if (artist.equals("<unknown>")) {
+                    artist = Constants.UNKNOWN_ARTIST;
+                }
+                if (title.equals("<unknown>")) {
+                    title = Constants.UNKNOWN_COMPOSITION;
+                }
             }
         }
 
-        buildMediaMetadata(duration, artist, title, path, identifier, art);
+        buildMediaMetadata(duration, artist, title, path);
 
     }
 
@@ -64,13 +65,11 @@ class Track implements Parcelable {
         return metadata;
     }
 
-    private void buildMediaMetadata(@NonNull String duration, String artist, String title, @NonNull String path, int identifier, Bitmap art) {
+    private void buildMediaMetadata(@NonNull String duration, String artist, String title, @NonNull String path) {
         metadata = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, art)
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, String.valueOf(identifier))
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
                 .build();
     }
@@ -84,7 +83,7 @@ class Track implements Parcelable {
     }
 
     String getIdentifier() {
-        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
     }
 
     boolean isPlaying() {

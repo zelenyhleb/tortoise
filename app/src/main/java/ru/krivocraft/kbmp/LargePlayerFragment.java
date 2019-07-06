@@ -42,12 +42,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private ImageView trackImage;
     private Handler mHandler;
 
-    private String trackArtist;
-    private String trackTitle;
-    private int trackDuration;
     private int trackProgress;
-    private boolean trackIsPlaying;
-    private Bitmap trackArt;
+
+    private MediaMetadataCompat metadata;
+    private PlaybackStateCompat playbackState;
+
     private MediaControllerCompat.TransportControls transportControls;
 
     public LargePlayerFragment() {
@@ -62,41 +61,45 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-            trackIsPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+            LargePlayerFragment.this.playbackState = playbackState;
             trackProgress = (int) playbackState.getPosition();
-            if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-                startUI();
-            } else {
-                stopUI();
-            }
+            refreshUI();
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-            trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-            trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-            trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+            LargePlayerFragment.this.metadata = metadata;
             refreshUI();
             resetBar();
         }
     };
 
-    void initControls(Activity context) {
+    public String getTrackPath() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+    }
 
+    public int getTrackDuration() {
+        return (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+    }
+
+    public String getTrackArtist() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+    }
+
+    public String getTrackTitle() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+    }
+
+    public boolean isTrackPlaying() {
+        return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+    }
+
+    void initControls(Activity context) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
 
-        MediaMetadataCompat metadata = mediaController.getMetadata();
-
-        this.trackArtist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-        this.trackTitle = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        this.trackArt = metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
-        this.trackDuration = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-        this.trackProgress = (int) mediaController.getPlaybackState().getBufferedPosition();
-        this.trackIsPlaying = mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
-
+        this.metadata = mediaController.getMetadata();
 
         requestPosition(context);
     }
@@ -203,12 +206,13 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     private void refreshUI() {
         int progress = Utils.getSeconds(trackProgress);
-        int duration = Utils.getSeconds(trackDuration);
+        int duration = Utils.getSeconds(getTrackDuration());
 
         compositionProgressTextView.setText(Utils.getFormattedTime(progress));
         compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
 
         Context context = getContext();
+        Bitmap trackArt = Utils.loadArt(getTrackPath());
         if (context != null) {
             if (trackArt != null) {
                 trackImage.setImageBitmap(trackArt);
@@ -221,11 +225,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
-        compositionNameTextView.setText(trackTitle);
+        compositionNameTextView.setText(getTrackTitle());
         compositionNameTextView.setSelected(true);
-        compositionAuthorTextView.setText(trackArtist);
+        compositionAuthorTextView.setText(getTrackArtist());
 
-        if (trackIsPlaying) {
+        if (isTrackPlaying()) {
             startUI();
         } else {
             stopUI();
@@ -234,7 +238,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (trackIsPlaying) {
+                if (isTrackPlaying()) {
                     transportControls.pause();
                 } else {
                     transportControls.play();

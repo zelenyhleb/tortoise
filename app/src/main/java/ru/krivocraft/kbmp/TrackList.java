@@ -106,13 +106,6 @@ class TrackList implements Parcelable {
         }
     }
 
-    TracksAdapter getTracksAdapter(Context context) {
-        if (tracksAdapter == null) {
-            this.tracksAdapter = new TracksAdapter(this, context);
-        }
-        return tracksAdapter;
-    }
-
     SelectableTracksAdapter getSelectableTracksAdapter(Context context) {
         if (selectableTracksAdapter == null) {
             this.selectableTracksAdapter = new SelectableTracksAdapter(this, context);

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
@@ -17,6 +15,7 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
@@ -128,8 +127,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             }
 
             @Override
-            public void onTrackChanged(Track track) {
-                mediaSession.setMetadata(track.getAsMediaMetadata());
+            public void onTrackChanged(String track) {
+                mediaSession.setMetadata(Utils.loadData(track, MediaPlaybackService.this.getContentResolver()).getAsMediaMetadata());
                 updateNotification();
             }
         });
@@ -137,13 +136,12 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         trackProvider = new TrackProvider(this, new TrackProvider.OnUpdateCallback() {
             @Override
             public void onUpdate() {
-                TrackList trackList = trackProvider.getStorage();
+                ArrayList<String> storage = trackProvider.getStorage();
 
-                playbackManager.setTrackList(trackList);
+                playbackManager.setTrackList(storage);
                 Intent updateIntent = new Intent(Constants.ACTION_UPDATE_TRACKLIST);
-                updateIntent.putExtra(Constants.EXTRA_TRACKLIST, trackList);
+                updateIntent.putExtra(Constants.EXTRA_TRACKLIST, storage);
                 sendBroadcast(updateIntent);
-
             }
         });
         trackProvider.search();
@@ -179,8 +177,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         notificationBuilder.removeNotification();
     }
 
-    Track getCurrentTrack() {
-        return playbackManager.getTrackList().getSelectedTrack();
+    String getCurrentTrack() {
+        return playbackManager.getCurrentTrack();
     }
 
     int getProgress() {

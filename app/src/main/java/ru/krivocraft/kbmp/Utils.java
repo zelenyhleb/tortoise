@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,57 +82,74 @@ class Utils {
         return new ArrayList<>(playlistMap.values());
     }
 
-    private static int id = 0;
-
-    static ArrayList<Track> search(ContentResolver contentResolver, TrackList existingTracks) {
+    static ArrayList<String> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION
         };
-        final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
-        ArrayList<Track> tracks = new ArrayList<>();
+        final String sortOrder = MediaStore.Audio.AudioColumns.DATA + " COLLATE LOCALIZED ASC";
+        ArrayList<String> storage = new ArrayList<>();
 
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                String title = cursor.getString(0);
-                String artist = cursor.getString(1);
-                String path = cursor.getString(2);
-                String songDuration = cursor.getString(4);
+                String path = cursor.getString(0);
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    Track track = new Track(songDuration, artist, title, path, id, getTrackBitmap(path));
-                    if (!existingTracks.contains(track)) {
-                        tracks.add(track);
-                    }
-                    id++;
+                    storage.add(path);
                 }
             }
             cursor.close();
         }
-        return tracks;
+        return storage;
     }
 
-    static Track loadData(String path) {
-        System.out.println("1:" + String.valueOf(System.currentTimeMillis()));
+    static Track loadData(String path, ContentResolver contentResolver) {
+
+        String selection = MediaStore.Audio.Media.DATA + " = ?";
+        String[] projection = {
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DURATION
+        };
+        String[] args = {
+                path
+        };
+
+        String artist = Constants.UNKNOWN_ARTIST;
+        String title = Constants.UNKNOWN_COMPOSITION;
+        String duration = "0";
+
+        Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, args, MediaStore.Audio.Media.TITLE);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            artist = cursor.getString(0);
+            title = cursor.getString(1);
+            duration = cursor.getString(2);
+            cursor.close();
+        }
+
+        return new Track(duration, artist, title, path);
+    }
+
+    static Bitmap loadArt(String path) {
+        Bitmap art = null;
+
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(path);
 
         byte[] embeddedPicture = retriever.getEmbeddedPicture();
 
-        String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        String artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        Bitmap art = BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.length);
+        if (embeddedPicture != null) {
+            art = BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.length);
+        }
 
-        System.out.println("2: " + String.valueOf(System.currentTimeMillis()));
-
-        return new Track(duration, artist, title, path, 0, art);
+        return art;
     }
+
 }
