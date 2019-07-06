@@ -220,6 +220,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
+            trackImage.setClipToOutline(true);
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
         }
 

@@ -6,37 +6,46 @@
 
     <ImageView
         android:id="@+id/item_track_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="8dp" />
+        android:layout_centerVertical="true"
+        android:layout_width="56dp"
+        android:background="@drawable/layout_bg"
+        android:layout_height="56dp"
+        android:layout_margin="4dp" />
 
     <ImageView
         android:id="@+id/item_track_state"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_centerVertical="true"
         android:layout_margin="14dp"
         android:background="@null" />
 
-    <TextView
-        android:id="@+id/composition_name_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_marginStart="8dp"
         android:layout_toEndOf="@id/item_track_image"
-        android:singleLine="true"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/composition_author_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/composition_name_text"
-        android:layout_margin="4dp"
-        android:layout_toEndOf="@id/item_track_image"
-        android:singleLine="true"
-        android:textColor="@color/white"
-        android:textSize="12sp" />
+        <TextView
+            android:id="@+id/composition_name_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/composition_author_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+    </LinearLayout>
 
 </RelativeLayout>

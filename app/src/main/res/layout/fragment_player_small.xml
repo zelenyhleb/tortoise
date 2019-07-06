@@ -1,85 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                tools:context=".SmallPlayerFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey900"
+    android:orientation="vertical"
+    tools:context=".SmallPlayerFragment">
 
     <ProgressBar
-            android:id="@+id/fragment_progressbar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:background="@null"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        android:id="@+id/fragment_progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_above="@id/text_container"
+        android:background="@null" />
 
     <ImageView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_margin="4dp"
-            android:layout_below="@id/fragment_progressbar"
-            android:id="@+id/fragment_track_image"/>
+        android:id="@+id/fragment_track_image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/layout_bg"
+        android:layout_centerVertical="true"
+        android:layout_margin="4dp" />
 
     <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@id/fragment_track_image"
+        android:layout_toStartOf="@id/fragment_button_previous"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_composition_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/text_container"
-            android:layout_toEndOf="@id/fragment_track_image"
-            android:layout_below="@id/fragment_progressbar"
-            android:layout_toStartOf="@id/fragment_button_previous"
-            android:orientation="vertical">
+            android:layout_margin="4dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="@string/song_name_test"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
 
         <TextView
-                android:layout_width="match_parent"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:layout_height="wrap_content"
-                android:text="@string/song_name_test"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:layout_margin="4dp"
-                android:id="@+id/fragment_composition_name"/>
-
-        <TextView
-                android:layout_width="match_parent"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:layout_height="wrap_content"
-                android:text="@string/song_author_test"
-                android:layout_margin="4dp"
-                android:id="@+id/fragment_composition_author"/>
+            android:id="@+id/fragment_composition_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="@string/song_author_test" />
 
     </LinearLayout>
 
     <ImageButton
-            android:id="@+id/fragment_button_previous"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_margin="16dp"
-            android:layout_toStartOf="@id/fragment_button_playpause"
-            android:src="@drawable/ic_previous"
-            android:background="@null"/>
+        android:id="@+id/fragment_button_previous"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="16dp"
+        android:layout_toStartOf="@id/fragment_button_playpause"
+        android:background="@null"
+        android:src="@drawable/ic_previous" />
 
     <ImageButton
-            android:id="@+id/fragment_button_playpause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@id/fragment_button_next"
-            android:src="@drawable/ic_play"
-            android:background="@null"/>
+        android:id="@+id/fragment_button_playpause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/fragment_button_next"
+        android:background="@null"
+        android:src="@drawable/ic_play" />
 
     <ImageButton
-            android:id="@+id/fragment_button_next"
-            android:layout_width="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_next"
-            android:layout_margin="16dp"
-            android:layout_alignParentEnd="true"
-            android:background="@null"/>
+        android:id="@+id/fragment_button_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="16dp"
+        android:background="@null"
+        android:src="@drawable/ic_next" />
 
 </RelativeLayout>
