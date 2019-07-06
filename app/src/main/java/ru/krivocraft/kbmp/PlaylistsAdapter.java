@@ -12,10 +12,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
-class PlaylistsAdapter extends ArrayAdapter<Playlist> {
+class PlaylistsAdapter extends ArrayAdapter<TrackList> {
 
-    PlaylistsAdapter(List<Playlist> playlists, @NonNull Context context) {
-        super(context, R.layout.playlists_grid_item, playlists);
+    PlaylistsAdapter(List<TrackList> trackLists, @NonNull Context context) {
+        super(context, R.layout.playlists_grid_item, trackLists);
     }
 
     @SuppressLint("InflateParams")
@@ -23,13 +23,13 @@ class PlaylistsAdapter extends ArrayAdapter<Playlist> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        Playlist playlist = getItem(position);
+        TrackList trackList = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
         }
-        if (playlist != null) {
-            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(playlist.getName());
+        if (trackList != null) {
+            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getPlaylistTitle());
         }
 
         return convertView;

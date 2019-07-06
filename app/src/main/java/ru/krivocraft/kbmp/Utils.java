@@ -1,6 +1,6 @@
 package ru.krivocraft.kbmp;
 
-import android.content.Context;
+import android.content.ContentResolver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,9 +8,10 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -37,68 +38,105 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static Bitmap getTrackBitmap(File file) {
+    static ArrayList<String> search(CharSequence string, ArrayList<String> trackListToSearch, ContentResolver contentResolver) {
+        ArrayList<String> trackList = new ArrayList<>();
+        for (String path : trackListToSearch) {
+            Track track = loadData(path, contentResolver);
 
-
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(file.getPath());
-
-        byte[] artBytes = retriever.getEmbeddedPicture();
-        Bitmap bm = null;
-
-        if (artBytes != null) {
-            bm = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
-        }
-
-        return bm;
-    }
-
-    static Playlist search(CharSequence string, Playlist playlistToSearch){
-        Playlist playlist = new Playlist(playlistToSearch.getContext(), "temp");
-        for (Track track : playlistToSearch.getTracks()) {
-
-            String formattedName = track.getName().toLowerCase();
+            String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
 
-            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)){
-                playlist.addComposition(track);
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
+                trackList.add(path);
             }
         }
-        return playlist;
+        return trackList;
     }
 
-    private static int id = 0;
+    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
+        Map<String, TrackList> playlistMap = new HashMap<>();
+        for (Track track : allTracksTrackList.getTracks()) {
+            TrackList trackList = playlistMap.get(track.getArtist());
+            if (trackList == null) {
+                trackList = new TrackList(track.getArtist());
+                playlistMap.put(track.getArtist(), trackList);
+            }
+            if (!trackList.contains(track)) {
+                trackList.addTrack(track);
+            }
+        }
+        return new ArrayList<>(playlistMap.values());
+    }
 
-    static void search(Context context, Track.OnTracksFoundListener listener) {
+    static ArrayList<String> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION
         };
-        final String sortOrder = MediaStore.Audio.AudioColumns.TITLE + " COLLATE LOCALIZED ASC";
-        List<Track> tracks = new ArrayList<>();
+        final String sortOrder = MediaStore.Audio.AudioColumns.DATA + " COLLATE LOCALIZED ASC";
+        ArrayList<String> storage = new ArrayList<>();
 
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = context.getContentResolver().query(uri, projection, selection, null, sortOrder);
+        Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                String title = cursor.getString(0);
-                String artist = cursor.getString(1);
-                String path = cursor.getString(2);
-                String songDuration = cursor.getString(4);
+                String path = cursor.getString(0);
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    tracks.add(new Track(songDuration, artist, title, path, id));
-                    id++;
+                    storage.add(path);
                 }
             }
-            listener.onTrackSearchingCompleted(tracks);
             cursor.close();
         }
+        return storage;
     }
+
+    static Track loadData(String path, ContentResolver contentResolver) {
+
+        String selection = MediaStore.Audio.Media.DATA + " = ?";
+        String[] projection = {
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DURATION
+        };
+        String[] args = {
+                path
+        };
+
+        String artist = Constants.UNKNOWN_ARTIST;
+        String title = Constants.UNKNOWN_COMPOSITION;
+        String duration = "0";
+
+        Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, args, MediaStore.Audio.Media.TITLE);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            artist = cursor.getString(0);
+            title = cursor.getString(1);
+            duration = cursor.getString(2);
+            cursor.close();
+        }
+
+        return new Track(duration, artist, title, path);
+    }
+
+    static Bitmap loadArt(String path) {
+        Bitmap art = null;
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(path);
+
+        byte[] embeddedPicture = retriever.getEmbeddedPicture();
+
+        if (embeddedPicture != null) {
+            art = BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.length);
+        }
+
+        return art;
+    }
+
 }

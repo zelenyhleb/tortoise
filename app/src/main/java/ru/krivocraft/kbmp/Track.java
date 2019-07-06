@@ -1,55 +1,77 @@
 package ru.krivocraft.kbmp;
 
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.List;
+import java.util.Objects;
 
-class Track implements Serializable {
+class Track implements Parcelable {
 
-    private String duration;
-
-    private String artist;
-    private String name;
-    private String path;
-
-    private int progress;
     private boolean playing = false;
     private boolean selected = false;
     private boolean checked = false;
 
-    private int identifier;
+    private MediaMetadataCompat metadata;
 
+    //This constructor is used by search util - to describe new track entity from file on disk
+    Track(@NonNull String duration, String artist, String title, @NonNull String path) {
 
-
-    enum TrackState {
-        NEW_TRACK,
-        PLAY_PAUSE_TRACK;
-    }
-    Track(@NonNull String duration, String artist, String name, @NonNull String path, int identifier) {
-
-        this.duration = duration;
-        this.artist = artist;
-        this.name = name;
-        this.path = path;
-        this.identifier = identifier;
-
-        String[] meta = name.split(" - ");
-        if (meta.length > 1) {
-            this.artist = meta[0];
-            this.name = meta[1];
-        } else {
-            if (artist.equals("<unknown>")) {
-                this.artist = Constants.UNKNOWN_ARTIST;
-            }
-            if (name.equals("<unknown>")) {
-                this.name = Constants.UNKNOWN_COMPOSITION;
+        if (title != null) {
+            String[] meta = title.split(" - ");
+            if (meta.length > 1) {
+                artist = meta[0];
+                title = meta[1];
+            } else {
+                if (artist.equals("<unknown>")) {
+                    artist = Constants.UNKNOWN_ARTIST;
+                }
+                if (title.equals("<unknown>")) {
+                    title = Constants.UNKNOWN_COMPOSITION;
+                }
             }
         }
 
+        buildMediaMetadata(duration, artist, title, path);
+
+    }
+
+    Track(MediaMetadataCompat metadata) {
+        this.metadata = metadata;
+    }
+
+    protected Track(Parcel in) {
+        playing = in.readByte() != 0;
+        selected = in.readByte() != 0;
+        checked = in.readByte() != 0;
+        metadata = in.readParcelable(MediaMetadataCompat.class.getClassLoader());
+    }
+
+    public static final Creator<Track> CREATOR = new Creator<Track>() {
+        @Override
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
+
+        @Override
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
+
+    MediaMetadataCompat getAsMediaMetadata() {
+        return metadata;
+    }
+
+    private void buildMediaMetadata(@NonNull String duration, String artist, String title, @NonNull String path) {
+        metadata = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, Long.parseLong(duration))
+                .build();
     }
 
     boolean isSelected() {
@@ -60,8 +82,8 @@ class Track implements Serializable {
         this.selected = selected;
     }
 
-    int getIdentifier() {
-        return identifier;
+    String getIdentifier() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
     }
 
     boolean isPlaying() {
@@ -80,77 +102,52 @@ class Track implements Serializable {
         this.checked = checked;
     }
 
-    int getProgress() {
-        return progress;
-    }
-
-    void setProgress(int progress) {
-        this.progress = progress;
-    }
-
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Track)) {
-            return false;
-        }
-        Track track = (Track) obj;
-        return track.path.equals(path);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Track track = (Track) o;
+        return Objects.equals(getIdentifier(), track.getIdentifier()) &&
+                Objects.equals(getArtist(), track.getArtist()) &&
+                Objects.equals(getTitle(), track.getTitle()) &&
+                Objects.equals(getPath(), track.getPath());
     }
 
     @Override
     public int hashCode() {
-        return identifier * 17;
+        return Objects.hash(getArtist(), getTitle(), getPath(), getIdentifier());
     }
 
     String getArtist() {
-        return artist;
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
     }
 
-    String getName() {
-        return name;
+    String getTitle() {
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
     }
 
     String getPath() {
-        return path;
+        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
     }
 
-    String getDuration() {
-        return duration;
+    Bitmap getArt() {
+        return metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
     }
 
-    static class GetBitmapTask extends AsyncTask<File, Void, Bitmap> {
-
-        private OnPictureProcessedListener listener;
-
-        @Override
-        protected Bitmap doInBackground(File... files) {
-            return Utils.getTrackBitmap(files[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (listener != null) {
-                listener.onPictureProcessed(bitmap);
-            }
-        }
-
-        void setListener(OnPictureProcessedListener listener) {
-            this.listener = listener;
-        }
+    long getDuration() {
+        return metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
     }
 
-    interface OnPictureProcessedListener {
-        void onPictureProcessed(Bitmap bitmap);
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    interface OnTracksFoundListener {
-        void onTrackSearchingCompleted(List<Track> tracks);
-    }
-
-    interface OnTrackStateChangedListener {
-        void onTrackStateChanged(TrackState state);
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeByte((byte) (playing ? 1 : 0));
+        dest.writeByte((byte) (selected ? 1 : 0));
+        dest.writeByte((byte) (checked ? 1 : 0));
+        dest.writeParcelable(metadata, flags);
     }
 }
