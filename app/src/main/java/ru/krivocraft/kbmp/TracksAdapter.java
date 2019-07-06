@@ -46,6 +46,7 @@ class TracksAdapter extends ArrayAdapter<String> {
                 } else {
                     trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
                 }
+                trackImage.setClipToOutline(true);
                 trackState.setImageDrawable(null);
             } else {
                 trackImage.setAlpha(0.2f);

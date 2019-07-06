@@ -97,6 +97,7 @@ public class SmallPlayerFragment extends Fragment {
             } else {
                 viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
             }
+            viewImage.setClipToOutline(true);
             viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
         }
 

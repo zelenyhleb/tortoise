@@ -23,11 +23,12 @@
                     android:layout_margin="4dp"
                     android:layout_above="@id/composition_name">
         <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="270dp"
+                android:layout_height="270dp"
                 android:layout_margin="32dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:background="@drawable/layout_bg"
                 android:id="@+id/track_image"/>
     </RelativeLayout>
     <SeekBar
