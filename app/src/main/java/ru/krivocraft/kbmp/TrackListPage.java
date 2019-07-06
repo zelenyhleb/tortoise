@@ -17,11 +17,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TrackListPage extends AbstractTrackViewFragment {
 
-    private List<String> trackList;
+    private ArrayList<String> trackList;
     private AdapterView.OnItemClickListener listener;
     private TracksAdapter adapter;
     private ListView listView;
@@ -34,15 +33,19 @@ public class TrackListPage extends AbstractTrackViewFragment {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            List<String> tracks = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
-            TrackListPage.this.trackList = tracks;
-            TrackListPage.this.adapter = new TracksAdapter(tracks, context);
-            if (listView != null) {
-                TrackListPage.this.listView.setAdapter(adapter);
-            }
-            invalidate();
+            updateData(context, intent);
         }
     };
+
+    private void updateData(Context context, Intent intent) {
+        ArrayList<String> tracks = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
+        TrackListPage.this.trackList = tracks;
+        TrackListPage.this.adapter = new TracksAdapter(tracks, context);
+        if (listView != null) {
+            TrackListPage.this.listView.setAdapter(adapter);
+        }
+        invalidate();
+    }
 
     @Override
     void invalidate() {
@@ -84,11 +87,11 @@ public class TrackListPage extends AbstractTrackViewFragment {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     Context context = getContext();
                     if (context != null) {
-//                        TrackList trackListSearched = Utils.search(s, trackList);
-//                        listView.setAdapter(trackListSearched.getTracksAdapter(context));
-//                        if (s.length() == 0) {
-//                            listView.setAdapter(adapter);
-//                        }
+                        ArrayList<String> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
+                        listView.setAdapter(new TracksAdapter(trackListSearched, context));
+                        if (s.length() == 0) {
+                            listView.setAdapter(adapter);
+                        }
                     }
                 }
 

@@ -40,12 +40,12 @@ class TracksAdapter extends ArrayAdapter<String> {
 
             if (!track.isSelected()) {
                 trackImage.setAlpha(1.0f);
-//                Bitmap art = Utils.loadArt(path);
-//                if (art != null) {
-//                    trackImage.setImageBitmap(art);
-//                } else {
+                Bitmap art = Utils.loadArt(path);
+                if (art != null) {
+                    trackImage.setImageBitmap(art);
+                } else {
                     trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-//                }
+                }
                 trackState.setImageDrawable(null);
             } else {
                 trackImage.setAlpha(0.2f);

@@ -38,30 +38,17 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static Bitmap getTrackBitmap(String path) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
-
-        byte[] artBytes = retriever.getEmbeddedPicture();
-        Bitmap bm = null;
-
-        if (artBytes != null) {
-            bm = BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
-        }
-
-        return bm;
-    }
-
-    static TrackList search(CharSequence string, TrackList trackListToSearch) {
-        TrackList trackList = new TrackList("temp");
-        for (Track track : trackListToSearch.getTracks()) {
+    static ArrayList<String> search(CharSequence string, ArrayList<String> trackListToSearch, ContentResolver contentResolver) {
+        ArrayList<String> trackList = new ArrayList<>();
+        for (String path : trackListToSearch) {
+            Track track = loadData(path, contentResolver);
 
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
 
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.addTrack(track);
+                trackList.add(path);
             }
         }
         return trackList;
