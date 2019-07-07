@@ -40,7 +40,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".PlaylistCreationActivity"></activity>
+        <activity android:name=".PlaylistCreationActivity" />
     </application>
 
 </manifest>

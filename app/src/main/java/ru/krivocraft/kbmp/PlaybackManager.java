@@ -7,7 +7,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
