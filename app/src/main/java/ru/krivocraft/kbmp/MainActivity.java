@@ -13,12 +13,14 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -92,6 +94,12 @@ public class MainActivity extends AppCompatActivity {
         return trackListPage;
     }
 
+    private SettingsPage getSettingsPage(){
+        SettingsPage settingsPage = new SettingsPage();
+        settingsPage.setContext(this);
+        return settingsPage;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
 
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+
+        ViewPager pager = findViewById(R.id.pager);
+        pager.setAdapter(new PagerAdapter());
+        pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLIST);
 
         IntentFilter trackListUpdateFilter = new IntentFilter();
         trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_STORAGE);
@@ -138,8 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 null);
         mediaBrowser.connect();
 
-        showTrackListFragment();
-
     }
 
     @Override
@@ -147,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
         if (largePlayerFragment != null) {
             hideLargePlayerFragment();
             showSmallPlayerFragment();
-            showTrackListFragment();
         } else {
             super.onBackPressed();
         }
@@ -223,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         LargePlayerFragment largePlayerFragment1 = new LargePlayerFragment();
         largePlayerFragment1.initControls(this);
         largePlayerFragment = largePlayerFragment1;
-        showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.list_container, largePlayerFragment);
+        showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.container, largePlayerFragment);
     }
 
     private void hideLargePlayerFragment() {
@@ -231,21 +240,16 @@ public class MainActivity extends AppCompatActivity {
         largePlayerFragment = null;
     }
 
-    private void showTrackListFragment() {
-        trackListFragment = getTrackListFragment();
-        showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.list_container, trackListFragment);
-    }
-
     private void hideTrackListFragment() {
         hideFragment(trackListFragment);
         trackListFragment = null;
     }
 
-    private void showFragment(int animation1, int animation2, int container, Fragment fragment) {
+    private void showFragment(int animationIn, int animationOut, int container, Fragment fragment) {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setCustomAnimations(animation1, animation2)
+                    .setCustomAnimations(animationIn, animationOut)
                     .add(container, fragment)
                     .commit();
         }
@@ -257,6 +261,26 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .remove(fragment)
                     .commit();
+        }
+    }
+
+    private class PagerAdapter extends FragmentPagerAdapter {
+        public PagerAdapter() {
+            super(MainActivity.this.getSupportFragmentManager());
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            if (i==Constants.INDEX_FRAGMENT_SETTINGS){
+                return getSettingsPage();
+            } else {
+                return getTrackListFragment();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
         }
     }
 
