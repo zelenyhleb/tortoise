@@ -57,6 +57,10 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
+    ArrayList<String> getTrackList() {
+        return trackList;
+    }
+
     void init(AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
         this.listener = listener;
         this.showControls = showControls;

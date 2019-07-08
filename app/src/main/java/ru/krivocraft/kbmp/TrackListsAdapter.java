@@ -10,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
-class PlaylistsAdapter extends ArrayAdapter<TrackList> {
+class TrackListsAdapter extends ArrayAdapter<ArrayList<String>> {
 
-    PlaylistsAdapter(List<TrackList> trackLists, @NonNull Context context) {
+    TrackListsAdapter(ArrayList<ArrayList<String>> trackLists, @NonNull Context context) {
         super(context, R.layout.playlists_grid_item, trackLists);
     }
 
@@ -23,13 +25,14 @@ class PlaylistsAdapter extends ArrayAdapter<TrackList> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        TrackList trackList = getItem(position);
+        ArrayList<String> trackList = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
         }
         if (trackList != null) {
-            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getPlaylistTitle());
+            //TODO: class for track list with name
+            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(Constants.UNKNOWN_ARTIST);
         }
 
         return convertView;
