@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
     private List<String> trackList;
+    private boolean useAlternativeTheme;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
@@ -103,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        useAlternativeTheme = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("useAlternativeTheme", false);
+
         setContentView(R.layout.activity_tortoise);
 
         RelativeLayout layout = findViewById(R.id.main_layout);
@@ -163,6 +168,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public Resources.Theme getTheme() {
+        Resources.Theme theme = super.getTheme();
+        if(useAlternativeTheme){
+            theme.applyStyle(R.style.LightTheme, true);
+        }
+        // you could also use a switch if you have many themes that could apply
+        return theme;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mediaBrowser.disconnect();
@@ -215,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                             SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
                             smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
                             MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                            showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, MainActivity.this.smallPlayerFragment);
+                            showFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment);
                         }
                     }
                 }
@@ -229,10 +244,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLargePlayerFragment() {
-        LargePlayerFragment largePlayerFragment1 = new LargePlayerFragment();
-        largePlayerFragment1.initControls(this);
-        largePlayerFragment = largePlayerFragment1;
-        showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.container, largePlayerFragment);
+        LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
+        largePlayerFragment.initControls(this);
+        this.largePlayerFragment = largePlayerFragment;
+        showFragment(R.anim.slideup, this.largePlayerFragment);
     }
 
     private void hideLargePlayerFragment() {
@@ -245,12 +260,12 @@ public class MainActivity extends AppCompatActivity {
         trackListFragment = null;
     }
 
-    private void showFragment(int animationIn, int animationOut, int container, Fragment fragment) {
+    private void showFragment(int animationIn, Fragment fragment) {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setCustomAnimations(animationIn, animationOut)
-                    .add(container, fragment)
+                    .setCustomAnimations(animationIn, R.anim.fadeoutshort)
+                    .add(R.id.container, fragment)
                     .commit();
         }
     }

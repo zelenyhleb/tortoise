@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/DarkTheme">
+        <activity android:name=".PlayerActivity"></activity>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"

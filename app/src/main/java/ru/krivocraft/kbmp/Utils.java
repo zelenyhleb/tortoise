@@ -54,20 +54,20 @@ class Utils {
         return trackList;
     }
 
-    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
-        Map<String, TrackList> playlistMap = new HashMap<>();
-        for (Track track : allTracksTrackList.getTracks()) {
-            TrackList trackList = playlistMap.get(track.getArtist());
-            if (trackList == null) {
-                trackList = new TrackList(track.getArtist());
-                playlistMap.put(track.getArtist(), trackList);
-            }
-            if (!trackList.contains(track)) {
-                trackList.addTrack(track);
-            }
-        }
-        return new ArrayList<>(playlistMap.values());
-    }
+//    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
+//        Map<String, TrackList> playlistMap = new HashMap<>();
+//        for (Track track : allTracksTrackList.getTracks()) {
+//            TrackList trackList = playlistMap.get(track.getArtist());
+//            if (trackList == null) {
+//                trackList = new TrackList(track.getArtist());
+//                playlistMap.put(track.getArtist(), trackList);
+//            }
+//            if (!trackList.contains(track)) {
+//                trackList.addTrack(track);
+//            }
+//        }
+//        return new ArrayList<>(playlistMap.values());
+//    }
 
     static ArrayList<String> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
