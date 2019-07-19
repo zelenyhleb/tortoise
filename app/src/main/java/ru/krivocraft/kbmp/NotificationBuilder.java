@@ -22,6 +22,7 @@ class NotificationBuilder {
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
     private NotificationCompat.Action previousAction;
+    private NotificationCompat.Action stopAction;
 
 
     NotificationBuilder(MediaPlaybackService context) {
@@ -38,6 +39,9 @@ class NotificationBuilder {
 
         previousAction = new NotificationCompat.Action(R.drawable.ic_previous, "previous",
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
+
+        stopAction = new NotificationCompat.Action(R.drawable.ic_close, "stop",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_STOP));
     }
 
     void updateNotification(MediaSessionCompat mediaSession) {
@@ -54,6 +58,7 @@ class NotificationBuilder {
             String CHANNEL_ID = "channel_01";
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .addAction(stopAction)
                     .addAction(previousAction)
                     .setContentTitle(mediaSession.getController().getMetadata().getDescription().getTitle())
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())

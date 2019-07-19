@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
-
     private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         return trackListPage;
     }
 
-    private SettingsPage getSettingsPage(){
+    private SettingsPage getSettingsPage() {
         SettingsPage settingsPage = new SettingsPage();
         settingsPage.setContext(this);
         return settingsPage;
@@ -170,10 +169,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public Resources.Theme getTheme() {
         Resources.Theme theme = super.getTheme();
-        if(useAlternativeTheme){
+        if (useAlternativeTheme) {
             theme.applyStyle(R.style.LightTheme, true);
         }
-        // you could also use a switch if you have many themes that could apply
         return theme;
     }
 
@@ -286,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int i) {
-            if (i==Constants.INDEX_FRAGMENT_SETTINGS){
+            if (i == Constants.INDEX_FRAGMENT_SETTINGS) {
                 return getSettingsPage();
             } else {
                 return getTrackListFragment();

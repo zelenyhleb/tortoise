@@ -97,6 +97,12 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         public void onSkipToQueueItem(long id) {
             playbackManager.newTrack((int) id);
         }
+
+        @Override
+        public void onStop() {
+            notificationBuilder.removeNotification();
+            stopSelf();
+        }
     };
 
 
@@ -123,7 +129,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         mediaSession = new MediaSessionCompat(this, MediaPlaybackService.class.getSimpleName());
         setSessionToken(mediaSession.getSessionToken());
 
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
         mediaSession.setActive(true);
 
         mediaSession.setCallback(callback);
