@@ -43,7 +43,6 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="@string/song_name_test"
-            android:textColor="@color/white"
             android:textStyle="bold" />
 
         <TextView
