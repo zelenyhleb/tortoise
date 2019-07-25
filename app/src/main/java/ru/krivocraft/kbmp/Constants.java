@@ -9,9 +9,11 @@ class Constants {
     static final String ACTION_REQUEST_DATA = "request_position";
     static final String ACTION_RESULT_DATA = "result_position";
     static final String ACTION_SHUFFLE = "shuffle";
+    static final String ACTION_PLAY_FROM_LIST= "play_from_list";
 
     static final String EXTRA_POSITION = "position";
     static final String EXTRA_METADATA = "metadata";
+    static final String EXTRA_PATH = "path";
     static final String EXTRA_PLAYBACK_STATE = "playback_state";
     static final String EXTRA_TRACK_LIST = "tracklist_extra";
 

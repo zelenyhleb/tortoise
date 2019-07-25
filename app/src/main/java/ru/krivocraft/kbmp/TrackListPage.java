@@ -15,16 +15,18 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrackListPage extends AbstractTrackViewFragment {
 
     private ArrayList<String> trackList;
-    private AdapterView.OnItemClickListener listener;
     private TracksAdapter adapter;
     private ListView listView;
     private boolean showControls;
+    private ProgressBar progressBar;
 
     public TrackListPage() {
         super();
@@ -37,14 +39,23 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     };
 
-    private void updateData(Context context, Intent intent) {
-        ArrayList<String> tracks = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
-        TrackListPage.this.trackList = tracks;
-        TrackListPage.this.adapter = new TracksAdapter(tracks, context);
-        if (listView != null) {
-            TrackListPage.this.listView.setAdapter(adapter);
-        }
-        invalidate();
+    private void updateData(final Context context, Intent intent) {
+        TrackListPage.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
+
+        LoadDataTask loadDataTask = new LoadDataTask();
+        loadDataTask.setContentResolver(context.getContentResolver());
+        loadDataTask.setCallback(new LoadDataTask.DataLoaderCallback() {
+            @Override
+            public void onDataLoaded(List<Track> track) {
+                TrackListPage.this.adapter = new TracksAdapter(track, context);
+                if (listView != null) {
+                    TrackListPage.this.listView.setAdapter(adapter);
+                }
+                progressBar.setVisibility(View.INVISIBLE);
+                invalidate();
+            }
+        });
+        loadDataTask.execute(trackList.toArray(new String[0]));
     }
 
     @Override
@@ -61,11 +72,10 @@ public class TrackListPage extends AbstractTrackViewFragment {
         return trackList;
     }
 
-    void init(AdapterView.OnItemClickListener listener, boolean showControls, Context context) {
-        this.listener = listener;
+    void init(boolean showControls, Context context) {
         this.showControls = showControls;
         this.trackList = new ArrayList<>();
-        this.adapter = new TracksAdapter(trackList, context);
+        this.adapter = new TracksAdapter(new ArrayList<Track>(), context);
 
         IntentFilter filter = new IntentFilter(Constants.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(receiver, filter);
@@ -78,9 +88,21 @@ public class TrackListPage extends AbstractTrackViewFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
+        progressBar = rootView.findViewById(R.id.track_list_progress_bar);
+
         listView = rootView.findViewById(R.id.fragment_track_list);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(listener);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent serviceIntent = new Intent(Constants.ACTION_PLAY_FROM_LIST);
+                serviceIntent.putExtra(Constants.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
+                view.getContext().sendBroadcast(serviceIntent);
+
+                Intent interfaceIntent = new Intent(Constants.ACTION_SHOW_PLAYER);
+                view.getContext().sendBroadcast(interfaceIntent);
+            }
+        });
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
@@ -93,14 +115,14 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    Context context = getContext();
-                    if (context != null) {
-                        ArrayList<String> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
-                        listView.setAdapter(new TracksAdapter(trackListSearched, context));
-                        if (s.length() == 0) {
-                            listView.setAdapter(adapter);
-                        }
-                    }
+//                    Context context = getContext();
+//                    if (context != null) {
+//                        ArrayList<String> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
+//                        listView.setAdapter(new TracksAdapter(trackListSearched, context));
+//                        if (s.length() == 0) {
+//                            listView.setAdapter(adapter);
+//                        }
+//                    }
                 }
 
                 @Override
