@@ -13,12 +13,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-class TracksAdapter extends ArrayAdapter<String> {
+class TracksAdapter extends ArrayAdapter<Track> {
 
     private Context context;
 
-    TracksAdapter(List<String> trackList, Context context) {
+    TracksAdapter(List<Track> trackList, Context context) {
         super(context, R.layout.track_list_item, trackList);
         this.context = context;
     }
@@ -27,25 +28,34 @@ class TracksAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String path = getItem(position);
-        Track track = Utils.loadData(path, context.getContentResolver());
+        Track track = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item, null);
         }
-        if (path != null) {
+        if ((track != null ? track.getPath() : null) != null) {
 
-            ImageView trackImage = convertView.findViewById(R.id.item_track_image);
-            ImageView trackState = convertView.findViewById(R.id.item_track_state);
+            final ImageView trackImage = convertView.findViewById(R.id.item_track_image);
+            final ImageView trackState = convertView.findViewById(R.id.item_track_state);
 
             if (!track.isSelected()) {
+
+                LoadArtTask loadArtTask = new LoadArtTask();
+                loadArtTask.execute(track.getPath());
+                loadArtTask.setCallback(new LoadArtTask.BitmapDecoderCallback() {
+                    @Override
+                    public void onBitmapDecoded(Bitmap art) {
+                        if (art != null) {
+                            trackImage.setImageBitmap(art);
+                        } else {
+                            trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+                        }
+                    }
+                });
+
+                trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+
                 trackImage.setAlpha(1.0f);
-                Bitmap art = Utils.loadArt(path);
-                if (art != null) {
-                    trackImage.setImageBitmap(art);
-                } else {
-                    trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-                }
                 trackImage.setClipToOutline(true);
                 trackState.setImageDrawable(null);
             } else {

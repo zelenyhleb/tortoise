@@ -115,29 +115,8 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         private TrackListPage getTrackListPage() {
-            final TrackListPage trackListPage = new TrackListPage();
-            AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                    String path = (String) adapterView.getItemAtPosition(position);
-                    ArrayList<String> trackList = trackListPage.getTrackList();
-                    MediaMetadataCompat metadata = mediaControllerCompat.getMetadata();
-                    if (metadata == null) {
-                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                    } else {
-                        if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
-                            mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                        } else {
-                            if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                                mediaControllerCompat.getTransportControls().pause();
-                            } else {
-                                mediaControllerCompat.getTransportControls().play();
-                            }
-                        }
-                    }
-                }
-            };
-            trackListPage.init(onListItemClickListener, false, PlayerActivity.this);
+            TrackListPage trackListPage = new TrackListPage();
+            trackListPage.init(false, PlayerActivity.this);
             return trackListPage;
         }
     }

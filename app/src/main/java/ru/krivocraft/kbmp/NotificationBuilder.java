@@ -46,12 +46,12 @@ class NotificationBuilder {
 
     void updateNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
             android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
             mediaStyle.setShowCancelButton(true);
-            mediaStyle.setShowActionsInCompactView(1);
+            mediaStyle.setShowActionsInCompactView(2);
 
 
             NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);

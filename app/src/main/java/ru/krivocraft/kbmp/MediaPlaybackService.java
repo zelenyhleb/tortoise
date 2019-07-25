@@ -12,15 +12,18 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
+    private MediaControllerCompat mediaController;
     private NotificationBuilder notificationBuilder;
 
     private PlaybackManager playbackManager;
@@ -59,10 +62,16 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver playlistReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_SHUFFLE.equals(intent.getAction())){
-                playbackManager.shuffleTrackList();
-            } else if(Constants.ACTION_REQUEST_TRACK_LIST.equals(intent.getAction())){
-                updateTrackList(playbackManager.getTrackList());
+            switch (Objects.requireNonNull(intent.getAction())) {
+                case Constants.ACTION_SHUFFLE:
+                    playbackManager.shuffleTrackList();
+                    break;
+                case Constants.ACTION_REQUEST_TRACK_LIST:
+                    updateTrackList(playbackManager.getTrackList());
+                    break;
+                case Constants.ACTION_PLAY_FROM_LIST:
+                    playFromList(intent.getStringExtra(Constants.EXTRA_PATH));
+                    break;
             }
         }
     };
@@ -131,8 +140,9 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
         mediaSession.setActive(true);
-
         mediaSession.setCallback(callback);
+
+        mediaController = mediaSession.getController();
 
         notificationBuilder = new NotificationBuilder(this);
 
@@ -182,6 +192,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.ACTION_SHUFFLE);
         playlistFilter.addAction(Constants.ACTION_REQUEST_TRACK_LIST);
+        playlistFilter.addAction(Constants.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
 
@@ -189,6 +200,23 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
         intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, list);
         sendBroadcast(intent);
+    }
+
+    private void playFromList(String path){
+        MediaMetadataCompat metadata = mediaController.getMetadata();
+        if (metadata == null) {
+            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
+        } else {
+            if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
+                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
+            } else {
+                if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    mediaController.getTransportControls().pause();
+                } else {
+                    mediaController.getTransportControls().play();
+                }
+            }
+        }
     }
 
     @Override

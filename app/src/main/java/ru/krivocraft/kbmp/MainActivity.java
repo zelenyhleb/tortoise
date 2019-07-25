@@ -24,8 +24,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -58,9 +56,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
-                hideSmallPlayerFragment();
-                hideTrackListFragment();
-                showLargePlayerFragment();
+                showSmallPlayerFragment();
             }
         }
     };
@@ -68,30 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private TrackListPage getTrackListFragment() {
-        AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                String path = (String) adapterView.getItemAtPosition(position);
-                MediaMetadataCompat metadata = mediaControllerCompat.getMetadata();
-                if (metadata == null) {
-                    mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                } else {
-                    if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
-                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                    } else {
-                        if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                            mediaControllerCompat.getTransportControls().pause();
-                        } else {
-                            mediaControllerCompat.getTransportControls().play();
-                        }
-                    }
-                }
-
-                showSmallPlayerFragment();
-            }
-        };
         TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(onListItemClickListener, true, this);
+        trackListPage.init(true, this);
         return trackListPage;
     }
 
