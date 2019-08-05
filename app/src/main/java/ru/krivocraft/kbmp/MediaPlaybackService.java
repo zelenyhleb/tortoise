@@ -27,7 +27,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private NotificationBuilder notificationBuilder;
 
     private PlaybackManager playbackManager;
-    private TrackProvider trackProvider;
+    private TrackStorageManager trackStorageManager;
 
     private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
         @Override
@@ -167,10 +167,10 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             }
         });
 
-        trackProvider = new TrackProvider(this, new TrackProvider.OnStorageUpdateCallback() {
+        trackStorageManager = new TrackStorageManager(getContentResolver(), new StorageManager.OnStorageUpdateCallback() {
             @Override
             public void onStorageUpdate() {
-                ArrayList<String> storage = trackProvider.getStorage();
+                ArrayList<String> storage = trackStorageManager.getStorage();
 
                 Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);
                 updateIntent.putExtra(Constants.EXTRA_TRACK_LIST, storage);
@@ -179,7 +179,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 playbackManager.setTrackList(storage);
             }
         });
-        trackProvider.search();
+        trackStorageManager.search();
 
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);

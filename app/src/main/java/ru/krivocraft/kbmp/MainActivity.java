@@ -60,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-    private TrackListPage trackListFragment;
+    private TracksFragment trackListFragment;
 
     @NonNull
-    private TrackListPage getTrackListFragment() {
-        TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(true, this);
-        return trackListPage;
+    private TracksFragment getTrackListFragment() {
+        TracksFragment tracksFragment = new TracksFragment();
+        tracksFragment.init(true, this, null);
+        return tracksFragment;
     }
 
     private SettingsPage getSettingsPage() {
