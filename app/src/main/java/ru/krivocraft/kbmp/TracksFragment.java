@@ -11,7 +11,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -20,15 +19,15 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackListPage extends AbstractTrackViewFragment {
+public class TracksFragment extends AbstractTrackViewFragment {
 
-    private ArrayList<String> trackList;
-    private TracksAdapter adapter;
+    private List<String> trackList;
+    private TrackAdapter adapter;
     private ListView listView;
     private boolean showControls;
     private ProgressBar progressBar;
 
-    public TrackListPage() {
+    public TracksFragment() {
         super();
     }
 
@@ -40,20 +39,17 @@ public class TrackListPage extends AbstractTrackViewFragment {
     };
 
     private void updateData(final Context context, Intent intent) {
-        TrackListPage.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
+        TracksFragment.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
 
         LoadDataTask loadDataTask = new LoadDataTask();
         loadDataTask.setContentResolver(context.getContentResolver());
-        loadDataTask.setCallback(new LoadDataTask.DataLoaderCallback() {
-            @Override
-            public void onDataLoaded(List<Track> track) {
-                TrackListPage.this.adapter = new TracksAdapter(track, context);
-                if (listView != null) {
-                    TrackListPage.this.listView.setAdapter(adapter);
-                }
-                progressBar.setVisibility(View.INVISIBLE);
-                invalidate();
+        loadDataTask.setCallback(track -> {
+            TracksFragment.this.adapter = new TrackAdapter(track, context);
+            if (listView != null) {
+                TracksFragment.this.listView.setAdapter(adapter);
             }
+            progressBar.setVisibility(View.INVISIBLE);
+            invalidate();
         });
         loadDataTask.execute(trackList.toArray(new String[0]));
     }
@@ -68,14 +64,20 @@ public class TrackListPage extends AbstractTrackViewFragment {
         }
     }
 
-    ArrayList<String> getTrackList() {
+    List<String> getTrackList() {
         return trackList;
     }
 
-    void init(boolean showControls, Context context) {
+    void init(boolean showControls, Context context, TrackList trackList) {
         this.showControls = showControls;
-        this.trackList = new ArrayList<>();
-        this.adapter = new TracksAdapter(new ArrayList<Track>(), context);
+
+        if (trackList == null) {
+            this.trackList = new ArrayList<>();
+            this.adapter = new TrackAdapter(new ArrayList<>(), context);
+        } else {
+            this.trackList = trackList.getPaths();
+            this.adapter = new TrackAdapter(trackList.getTracks(), context);
+        }
 
         IntentFilter filter = new IntentFilter(Constants.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(receiver, filter);
@@ -92,16 +94,13 @@ public class TrackListPage extends AbstractTrackViewFragment {
 
         listView = rootView.findViewById(R.id.fragment_track_list);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent serviceIntent = new Intent(Constants.ACTION_PLAY_FROM_LIST);
-                serviceIntent.putExtra(Constants.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
-                view.getContext().sendBroadcast(serviceIntent);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Intent serviceIntent = new Intent(Constants.ACTION_PLAY_FROM_LIST);
+            serviceIntent.putExtra(Constants.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
+            view.getContext().sendBroadcast(serviceIntent);
 
-                Intent interfaceIntent = new Intent(Constants.ACTION_SHOW_PLAYER);
-                view.getContext().sendBroadcast(interfaceIntent);
-            }
+            Intent interfaceIntent = new Intent(Constants.ACTION_SHOW_PLAYER);
+            view.getContext().sendBroadcast(interfaceIntent);
         });
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
@@ -118,7 +117,7 @@ public class TrackListPage extends AbstractTrackViewFragment {
 //                    Context context = getContext();
 //                    if (context != null) {
 //                        ArrayList<String> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
-//                        listView.setAdapter(new TracksAdapter(trackListSearched, context));
+//                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
 //                        if (s.length() == 0) {
 //                            listView.setAdapter(adapter);
 //                        }

@@ -1,27 +1,25 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-class TrackProvider {
-    private Context context;
-    private OnStorageUpdateCallback callback;
+class TrackStorageManager extends StorageManager {
+    private ContentResolver contentResolver;
     private ArrayList<String> metaStorage;
 
-    TrackProvider(Context context, OnStorageUpdateCallback callback) {
-        this.context = context;
-        this.callback = callback;
+    TrackStorageManager(ContentResolver contentResolver, OnStorageUpdateCallback callback) {
+        super(callback);
+        this.contentResolver = contentResolver;
         this.metaStorage = new ArrayList<>();
     }
 
     void search() {
-        new GetFromDiskTask(context.getContentResolver(), metaStorage, new OnStorageUpdateCallback() {
+        new GetFromDiskTask(contentResolver, metaStorage, new StorageManager.OnStorageUpdateCallback() {
             @Override
             public void onStorageUpdate() {
-                callback.onStorageUpdate();
+                notifyListener();
             }
         }).execute();
     }
@@ -54,7 +52,4 @@ class TrackProvider {
         return metaStorage;
     }
 
-    interface OnStorageUpdateCallback {
-        void onStorageUpdate();
-    }
 }

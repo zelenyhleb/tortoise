@@ -7,24 +7,17 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
 
 public class PlayerActivity extends AppCompatActivity {
 
     private ViewPager pager;
     private MediaBrowserCompat mediaBrowser;
-    private MediaControllerCompat mediaControllerCompat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +37,6 @@ public class PlayerActivity extends AppCompatActivity {
                             MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
                             MediaControllerCompat controller = new MediaControllerCompat(PlayerActivity.this, token);
                             MediaControllerCompat.setMediaController(PlayerActivity.this, controller);
-                            PlayerActivity.this.mediaControllerCompat = controller;
                             initPager();
                         } catch (RemoteException e) {
                             e.printStackTrace();
@@ -114,10 +106,10 @@ public class PlayerActivity extends AppCompatActivity {
             return largePlayerFragment;
         }
 
-        private TrackListPage getTrackListPage() {
-            TrackListPage trackListPage = new TrackListPage();
-            trackListPage.init(false, PlayerActivity.this);
-            return trackListPage;
+        private TracksFragment getTrackListPage() {
+            TracksFragment tracksFragment = new TracksFragment();
+            tracksFragment.init(false, PlayerActivity.this, null);
+            return tracksFragment;
         }
     }
 }
