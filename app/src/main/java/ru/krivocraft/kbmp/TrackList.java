@@ -1,5 +1,7 @@
 package ru.krivocraft.kbmp;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,8 +16,13 @@ class TrackList {
 
     TrackList(String displayName, List<Track> tracks) {
         this.displayName = displayName;
-        this.identifier = displayName.toLowerCase().replace(" ", "_");
+        this.identifier = createIdentifier(displayName);
         this.tracks = tracks;
+    }
+
+    @NonNull
+    static String createIdentifier(String displayName) {
+        return displayName.toLowerCase().replace(" ", "_");
     }
 
     String getIdentifier() {

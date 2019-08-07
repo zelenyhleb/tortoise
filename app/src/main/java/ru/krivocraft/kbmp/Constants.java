@@ -15,13 +15,7 @@ class Constants {
     static final String EXTRA_METADATA = "metadata";
     static final String EXTRA_PATH = "path";
     static final String EXTRA_PLAYBACK_STATE = "playback_state";
-    static final String EXTRA_TRACK_LIST = "tracklist_extra";
-
-    static final String PLAYLIST_PREFIX = "playlist_";
-
-    static final String PLAYLIST_INDEX = "playlist_index";
-    static final String PLAYLISTS = "playlists";
-    static final String PLAYLIST_COMPOSITION_REFERENCE = "composition_reference";
+    static final String EXTRA_TRACK_LIST = "track_list_extra";
 
     static final String UNKNOWN_ARTIST = "Unknown Artist";
     static final String UNKNOWN_COMPOSITION = "Unknown Track";
@@ -32,13 +26,13 @@ class Constants {
     static final int HEADSET_STATE_PLUG_OUT = 0;
     static final int HEADSET_STATE_PLUG_IN = 1;
 
-    final static int INDEX_FRAGMENT_SETTINGS = 0;
-    final static int INDEX_FRAGMENT_PLAYLISTGRID = 1;
-    final static int INDEX_FRAGMENT_TRACKLIST = 2;
-
     final static int INDEX_FRAGMENT_PLAYER = 0;
     final static int INDEX_FRAGMENT_PLAYLIST = 1;
 
     static final String STORAGE_DISPLAY_NAME = "All tracks";
-    static final String PREFERENCES_NAME = "trackLists";
+
+    static final String TRACK_LISTS_NAME = "trackLists";
+    static final String SETTINGS_NAME = "settings";
+
+    static final String KEY_THEME = "useAlternativeTheme";
 }

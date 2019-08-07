@@ -7,12 +7,17 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,27 +66,101 @@ public class ExplorerFragment extends Fragment {
             gridView.setOnItemClickListener((parent, view, position, id) -> {
                 listener.onItemClick((TrackList) parent.getItemAtPosition(position));
             });
+            gridView.setOnItemLongClickListener((parent, view, position, id) -> {
+                TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
+                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_DISPLAY_NAME)) {
+                    showDeletionDialog(context, parent, position);
+                }
+                return true;
+            });
             IntentFilter filter = new IntentFilter();
             filter.addAction(Constants.ACTION_UPDATE_STORAGE);
             context.registerReceiver(storageUpdateReceiver, filter);
+
+            FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
+            addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
         }
         return rootView;
+    }
+
+    private void showDeletionDialog(Context context, AdapterView<?> parent, int position) {
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Are you sure?")
+                .setMessage("Do you really want to delete this Track List?")
+                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList((TrackList) parent.getItemAtPosition(position)))
+                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
+    }
+
+    private void showCreationDialog(@NonNull LayoutInflater inflater, Context context) {
+        View view = inflater.inflate(R.layout.dialog_add_track_list, null);
+        ListView listView = view.findViewById(R.id.tracks_selecting_list);
+        EditText trackListNameField = view.findViewById(R.id.track_list_name);
+
+        List<Track> selectedTracks = new ArrayList<>();
+
+        SelectableTracksAdapter adapter = new SelectableTracksAdapter(Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks(), context);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            Track item = (Track) parent.getItemAtPosition(position);
+            if (selectedTracks.contains(item)) {
+                selectedTracks.remove(item);
+                item.setChecked(false);
+            } else {
+                selectedTracks.add(item);
+                item.setChecked(true);
+            }
+            adapter.notifyDataSetInvalidated();
+        });
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Select tracks")
+                .setPositiveButton("APPLY", (dialogOnApply, which) -> {
+                    String displayName = trackListNameField.getText().toString();
+                    if (selectedTracks.size() > 0 && !displayName.equals("")) {
+                        writeTrackList(new TrackList(displayName, selectedTracks));
+                    } else {
+                        if (selectedTracks.size() == 0) {
+                            Toast.makeText(context, "Select at least one track", Toast.LENGTH_LONG).show();
+                        }
+                        if (displayName.equals("")) {
+                            Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                })
+                .setNegativeButton("CANCEL", (dialogOnCancel, which) -> dialogOnCancel.dismiss())
+                .setView(view)
+                .create();
+
+        dialog.show();
     }
 
     private void writeTrackList(TrackList trackList) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
+            adapter.notifyDataSetChanged();
         }
 
+    }
+
+    private void removeTrackList(TrackList trackList) {
+        Context context = getContext();
+        if (context != null) {
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+            editor.remove(trackList.getIdentifier());
+            editor.apply();
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private TrackList readTrackList(String identifier) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
             return TrackList.fromJson(sharedPreferences.getString(identifier, null));
         }
         return null;
@@ -91,7 +170,7 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         List<TrackList> tracks = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.PREFERENCES_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 tracks.add(TrackList.fromJson((String) entry.getValue()));
