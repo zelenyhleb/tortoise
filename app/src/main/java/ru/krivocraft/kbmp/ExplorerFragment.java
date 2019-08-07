@@ -84,10 +84,13 @@ public class ExplorerFragment extends Fragment {
     }
 
     private void showDeletionDialog(Context context, AdapterView<?> parent, int position) {
+        TrackList item = (TrackList) parent.getItemAtPosition(position);
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Are you sure?")
-                .setMessage("Do you really want to delete this Track List?")
-                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList((TrackList) parent.getItemAtPosition(position)))
+                .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
+                .setPositiveButton("DELETE", (dialog12, which) -> {
+                    removeTrackList(item);
+                })
                 .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
@@ -142,7 +145,7 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
-            adapter.notifyDataSetChanged();
+            invalidate();
         }
 
     }
@@ -153,7 +156,7 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
-            adapter.notifyDataSetChanged();
+            invalidate();
         }
     }
 
@@ -177,6 +180,12 @@ public class ExplorerFragment extends Fragment {
             }
         }
         return tracks;
+    }
+
+    private void invalidate(){
+        adapter.clear();
+        adapter.addAll(readTrackLists());
+        adapter.notifyDataSetChanged();
     }
 
     void setListener(OnItemClickListener listener) {
