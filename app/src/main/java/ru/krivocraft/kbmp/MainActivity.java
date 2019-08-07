@@ -14,20 +14,16 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -35,22 +31,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     private SmallPlayerFragment smallPlayerFragment;
-    private LargePlayerFragment largePlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
-    private List<String> trackList;
     private boolean useAlternativeTheme;
 
-    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
+    private int viewState = 0;
+    private static final int STATE_EXPLORER = 1;
+    private static final int STATE_TRACK_LIST = 2;
 
-    private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_UPDATE_STORAGE.equals(intent.getAction())) {
-                MainActivity.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
-            }
-        }
-    };
+    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
@@ -60,19 +49,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-    private TracksFragment trackListFragment;
+    private TrackListFragment trackListFragment;
+    private ExplorerFragment explorerFragment;
 
     @NonNull
-    private TracksFragment getTrackListFragment() {
-        TracksFragment tracksFragment = new TracksFragment();
-        tracksFragment.init(true, this, null);
-        return tracksFragment;
+    private TrackListFragment getTrackListFragment(TrackList trackList) {
+        trackListFragment = TrackListFragment.newInstance(trackList, true, this);
+        return trackListFragment;
     }
 
-    private SettingsPage getSettingsPage() {
-        SettingsPage settingsPage = new SettingsPage();
-        settingsPage.setContext(this);
-        return settingsPage;
+    private ExplorerFragment getExplorerFragment() {
+        explorerFragment = ExplorerFragment.newInstance(trackList -> {
+            hideFragment(explorerFragment);
+            showFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
+            viewState = STATE_TRACK_LIST;
+        });
+        return explorerFragment;
     }
 
     @Override
@@ -86,13 +78,7 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
-        ViewPager pager = findViewById(R.id.pager);
-        pager.setAdapter(new PagerAdapter());
-        pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYLIST);
-
-        IntentFilter trackListUpdateFilter = new IntentFilter();
-        trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_STORAGE);
-        registerReceiver(trackListUpdateReceiver, trackListUpdateFilter);
+        showExplorerFragment();
 
         IntentFilter showPlayerFilter = new IntentFilter();
         showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
@@ -130,11 +116,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void showExplorerFragment() {
+        showFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
+        viewState = STATE_EXPLORER;
+    }
+
     @Override
     public void onBackPressed() {
-        if (largePlayerFragment != null) {
-            hideLargePlayerFragment();
-            showSmallPlayerFragment();
+        if (viewState == STATE_TRACK_LIST) {
+            removeTrackListFragment();
+            showExplorerFragment();
         } else {
             super.onBackPressed();
         }
@@ -153,15 +144,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mediaBrowser.disconnect();
-        unregisterReceiver(trackListUpdateReceiver);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "App requires external storage permission to work", Toast.LENGTH_LONG).show();
             }
         }
@@ -170,9 +158,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        requestStoragePermission();
+    }
+
+    private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
+    }
+
+    private void removeTrackListFragment() {
+        hideFragment(trackListFragment);
+        trackListFragment = null;
     }
 
     private void showSmallPlayerFragment() {
@@ -198,12 +195,10 @@ public class MainActivity extends AppCompatActivity {
                         smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
                         smallPlayerFragment.invalidate();
                     } else {
-                        if ((largePlayerFragment == null || !largePlayerFragment.isVisible())) {
-                            SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                            smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
-                            MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                            showFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment);
-                        }
+                        SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+                        smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
+                        MainActivity.this.smallPlayerFragment = smallPlayerFragment;
+                        showFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment, R.id.player_container);
                     }
                 }
             }
@@ -215,30 +210,14 @@ public class MainActivity extends AppCompatActivity {
         smallPlayerFragment = null;
     }
 
-    private void showLargePlayerFragment() {
-        LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
-        largePlayerFragment.initControls(this);
-        this.largePlayerFragment = largePlayerFragment;
-        showFragment(R.anim.slideup, this.largePlayerFragment);
-    }
 
-    private void hideLargePlayerFragment() {
-        hideFragment(largePlayerFragment);
-        largePlayerFragment = null;
-    }
-
-    private void hideTrackListFragment() {
-        hideFragment(trackListFragment);
-        trackListFragment = null;
-    }
-
-    private void showFragment(int animationIn, Fragment fragment) {
+    private void showFragment(int animationIn, Fragment fragment, int container) {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(animationIn, R.anim.fadeoutshort)
-                    .add(R.id.container, fragment)
-                    .commit();
+                    .add(container, fragment)
+                    .commitNowAllowingStateLoss();
         }
     }
 
@@ -247,27 +226,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
-                    .commit();
-        }
-    }
-
-    private class PagerAdapter extends FragmentPagerAdapter {
-        public PagerAdapter() {
-            super(MainActivity.this.getSupportFragmentManager());
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            if (i == Constants.INDEX_FRAGMENT_SETTINGS) {
-                return getSettingsPage();
-            } else {
-                return getTrackListFragment();
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
+                    .commitNowAllowingStateLoss();
         }
     }
 

@@ -106,10 +106,10 @@ public class PlayerActivity extends AppCompatActivity {
             return largePlayerFragment;
         }
 
-        private TracksFragment getTrackListPage() {
-            TracksFragment tracksFragment = new TracksFragment();
-            tracksFragment.init(false, PlayerActivity.this, null);
-            return tracksFragment;
+        private TrackListFragment getTrackListPage() {
+            TrackListFragment trackListFragment = new TrackListFragment();
+            trackListFragment.init(false, PlayerActivity.this, null);
+            return trackListFragment;
         }
     }
 }

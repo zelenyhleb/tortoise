@@ -1,5 +1,7 @@
 package ru.krivocraft.kbmp;
 
+import com.google.gson.Gson;
+
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -10,9 +12,9 @@ class TrackList {
     private String displayName;
     private List<Track> tracks;
 
-    TrackList(String identifier, String displayName, List<Track> tracks) {
-        this.identifier = identifier;
+    TrackList(String displayName, List<Track> tracks) {
         this.displayName = displayName;
+        this.identifier = displayName.toLowerCase().replace(" ", "_");
         this.tracks = tracks;
     }
 
@@ -24,11 +26,36 @@ class TrackList {
         return tracks;
     }
 
-    List<String> getPaths(){
+    List<String> getPaths() {
         return new ArrayList<>(CollectionUtils.collect(tracks, Track::getPath));
     }
 
     String getDisplayName() {
         return displayName;
     }
+
+    String toJson() {
+        return new Gson().toJson(this);
+    }
+
+    void addTrack(Track track) {
+        tracks.add(track);
+    }
+
+    void addTrack(int index, Track track) {
+        tracks.add(index, track);
+    }
+
+    void removeTrack(int index) {
+        tracks.remove(index);
+    }
+
+    void removeTrack(Track track){
+        tracks.remove(track);
+    }
+
+    static TrackList fromJson(String json) {
+        return new Gson().fromJson(json, TrackList.class);
+    }
+
 }

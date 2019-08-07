@@ -1,55 +1,40 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
-import android.os.AsyncTask;
+import android.content.SharedPreferences;
 
 import java.util.ArrayList;
+import java.util.List;
 
-class TrackStorageManager extends StorageManager {
+class TrackStorageManager {
+
     private ContentResolver contentResolver;
-    private ArrayList<String> metaStorage;
+    private OnStorageUpdateCallback callback;
+    private SharedPreferences storage;
+    private TrackList metaStorage;
 
-    TrackStorageManager(ContentResolver contentResolver, OnStorageUpdateCallback callback) {
-        super(callback);
+    TrackStorageManager(ContentResolver contentResolver, SharedPreferences sharedPreferences, OnStorageUpdateCallback callback) {
+        this.callback = callback;
+        this.storage = sharedPreferences;
         this.contentResolver = contentResolver;
-        this.metaStorage = new ArrayList<>();
+        metaStorage = new TrackList(Constants.STORAGE_DISPLAY_NAME, new ArrayList<>());
     }
 
     void search() {
-        new GetFromDiskTask(contentResolver, metaStorage, new StorageManager.OnStorageUpdateCallback() {
-            @Override
-            public void onStorageUpdate() {
-                notifyListener();
-            }
-        }).execute();
+        new GetFromDiskTask(contentResolver, metaStorage, this::notifyListener).execute();
     }
 
-    private static class GetFromDiskTask extends AsyncTask<Void, Integer, ArrayList<String>> {
-        private ContentResolver contentResolver;
-        private ArrayList<String> metaStorage;
-        private OnStorageUpdateCallback callback;
-
-        GetFromDiskTask(ContentResolver contentResolver, ArrayList<String> storage, OnStorageUpdateCallback callback) {
-            this.contentResolver = contentResolver;
-            this.metaStorage = storage;
-            this.callback = callback;
-        }
-
-        @Override
-        protected ArrayList<String> doInBackground(Void... voids) {
-            return Utils.search(contentResolver);
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> tracks) {
-            super.onPostExecute(tracks);
-            metaStorage.addAll(tracks);
-            callback.onStorageUpdate();
-        }
+    private void notifyListener() {
+        SharedPreferences.Editor editor = storage.edit();
+        editor.putString(metaStorage.getIdentifier(), metaStorage.toJson());
+        editor.apply();
+        callback.onStorageUpdate();
     }
 
-    ArrayList<String> getStorage() {
-        return metaStorage;
+    List<String> getStorage() {
+        return metaStorage.getPaths();
     }
 
 }
+
+
