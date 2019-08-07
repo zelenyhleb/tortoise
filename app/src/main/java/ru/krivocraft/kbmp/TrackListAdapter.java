@@ -11,10 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-class TracksAdapter extends ArrayAdapter<TrackList> {
+class TrackListAdapter extends ArrayAdapter<TrackList> {
 
-    TracksAdapter(ArrayList<TrackList> trackLists, @NonNull Context context) {
+    TrackListAdapter(List<TrackList> trackLists, @NonNull Context context) {
         super(context, R.layout.playlists_grid_item, trackLists);
     }
 

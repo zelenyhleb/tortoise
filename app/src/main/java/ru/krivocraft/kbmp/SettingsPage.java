@@ -12,17 +12,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 public class SettingsPage extends Fragment {
 
-    private Context context;
 //    private SQLiteProcessor processor;
 
     public SettingsPage() {
-
     }
 
-    void setContext(Context context){
-        this.context = context;
+    static SettingsPage newInstance() {
+        return new SettingsPage();
     }
 
     @Nullable
@@ -32,20 +32,17 @@ public class SettingsPage extends Fragment {
 
         Button button = rootView.findViewById(R.id.button_clear_db);
         button.setText("SWAP THEME");
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        button.setOnClickListener(v -> {
 
-                SharedPreferences settings = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = settings.edit();
-                if(settings.getBoolean("useAlternativeTheme", false)){
-                    editor.putBoolean("useAlternativeTheme", false);
-                } else {
-                    editor.putBoolean("useAlternativeTheme", true);
-                }
-                editor.apply();
-                Toast.makeText(context, "You can see changes after next launch", Toast.LENGTH_SHORT).show();
+            SharedPreferences settings = Objects.requireNonNull(getContext()).getSharedPreferences("settings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            if (settings.getBoolean("useAlternativeTheme", false)) {
+                editor.putBoolean("useAlternativeTheme", false);
+            } else {
+                editor.putBoolean("useAlternativeTheme", true);
             }
+            editor.apply();
+            Toast.makeText(getContext(), "You can see changes after next launch", Toast.LENGTH_SHORT).show();
         });
 
         return rootView;

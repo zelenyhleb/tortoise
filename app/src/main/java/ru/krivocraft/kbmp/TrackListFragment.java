@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TracksFragment extends AbstractTrackViewFragment {
+public class TrackListFragment extends Fragment {
 
     private List<String> trackList;
     private TrackAdapter adapter;
@@ -27,8 +28,13 @@ public class TracksFragment extends AbstractTrackViewFragment {
     private boolean showControls;
     private ProgressBar progressBar;
 
-    public TracksFragment() {
-        super();
+    public TrackListFragment() {
+    }
+
+    static TrackListFragment newInstance(TrackList trackList, boolean showControls, Context context) {
+        TrackListFragment trackListFragment = new TrackListFragment();
+        trackListFragment.init(showControls, context, trackList);
+        return trackListFragment;
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -39,22 +45,22 @@ public class TracksFragment extends AbstractTrackViewFragment {
     };
 
     private void updateData(final Context context, Intent intent) {
-        TracksFragment.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
+        TrackListFragment.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
 
         LoadDataTask loadDataTask = new LoadDataTask();
         loadDataTask.setContentResolver(context.getContentResolver());
         loadDataTask.setCallback(track -> {
-            TracksFragment.this.adapter = new TrackAdapter(track, context);
+            TrackListFragment.this.adapter = new TrackAdapter(track, context);
             if (listView != null) {
-                TracksFragment.this.listView.setAdapter(adapter);
+                TrackListFragment.this.listView.setAdapter(adapter);
             }
             progressBar.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
             invalidate();
         });
         loadDataTask.execute(trackList.toArray(new String[0]));
     }
 
-    @Override
     void invalidate() {
         if (listView != null) {
             listView.invalidateViews();
@@ -103,6 +109,9 @@ public class TracksFragment extends AbstractTrackViewFragment {
             view.getContext().sendBroadcast(interfaceIntent);
         });
 
+        listView.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
 
@@ -128,15 +137,12 @@ public class TracksFragment extends AbstractTrackViewFragment {
                 public void afterTextChanged(Editable s) {
                 }
             });
-            buttonShuffle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = getContext();
-                    if (context != null) {
-                        context.sendBroadcast(new Intent(Constants.ACTION_SHUFFLE));
-                    }
-                    adapter.notifyDataSetChanged();
+            buttonShuffle.setOnClickListener(v -> {
+                Context context = getContext();
+                if (context != null) {
+                    context.sendBroadcast(new Intent(Constants.ACTION_SHUFFLE));
                 }
+                adapter.notifyDataSetChanged();
             });
         } else {
             searchFrame.setVisibility(View.INVISIBLE);

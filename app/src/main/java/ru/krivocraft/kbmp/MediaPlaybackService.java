@@ -17,6 +17,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -160,24 +161,16 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 updateNotification();
             }
         });
-        playbackManager.setPlaylistUpdateCallback(new PlaybackManager.PlaylistUpdateCallback() {
-            @Override
-            public void onPlaylistUpdated(ArrayList<String> list) {
-                updateTrackList(list);
-            }
-        });
+        playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
-        trackStorageManager = new TrackStorageManager(getContentResolver(), new StorageManager.OnStorageUpdateCallback() {
-            @Override
-            public void onStorageUpdate() {
-                ArrayList<String> storage = trackStorageManager.getStorage();
+        trackStorageManager = new TrackStorageManager(getContentResolver(), getSharedPreferences(Constants.PREFERENCES_NAME, MODE_PRIVATE), () -> {
+            List<String> storage = trackStorageManager.getStorage();
 
-                Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);
-                updateIntent.putExtra(Constants.EXTRA_TRACK_LIST, storage);
-                sendBroadcast(updateIntent);
+            Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);
+            updateIntent.putExtra(Constants.EXTRA_TRACK_LIST, (ArrayList) storage);
+            sendBroadcast(updateIntent);
 
-                playbackManager.setTrackList(storage);
-            }
+            playbackManager.setTrackList(storage);
         });
         trackStorageManager.search();
 
@@ -196,13 +189,13 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         registerReceiver(playlistReceiver, playlistFilter);
     }
 
-    private void updateTrackList(ArrayList<String> list) {
+    private void updateTrackList(List<String> list) {
         Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
-        intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, list);
+        intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, (ArrayList<String>) list);
         sendBroadcast(intent);
     }
 
-    private void playFromList(String path){
+    private void playFromList(String path) {
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));

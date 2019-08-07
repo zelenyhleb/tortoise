@@ -39,4 +39,6 @@ class Constants {
     final static int INDEX_FRAGMENT_PLAYER = 0;
     final static int INDEX_FRAGMENT_PLAYLIST = 1;
 
+    static final String STORAGE_DISPLAY_NAME = "All tracks";
+    static final String PREFERENCES_NAME = "trackLists";
 }

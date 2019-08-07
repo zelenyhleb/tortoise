@@ -1,17 +1,12 @@
 package ru.krivocraft.kbmp;
 
-import android.os.Bundle;
-import android.support.v4.media.MediaMetadataCompat;
-
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,7 +36,7 @@ public class TrackListUnitTest {
         trackList.add(Mockito.mock(Track.class, (Answer) invocation -> path2));
         trackList.add(Mockito.mock(Track.class, (Answer) invocation -> path3));
 
-        return new TrackList("id", "test list", trackList);
+        return new TrackList("test list", trackList);
     }
 
     @Test
