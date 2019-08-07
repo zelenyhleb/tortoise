@@ -17,6 +17,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,7 +71,12 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     updateTrackList(playbackManager.getTrackList());
                     break;
                 case Constants.ACTION_PLAY_FROM_LIST:
-                    playFromList(intent.getStringExtra(Constants.EXTRA_PATH));
+                    List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.EXTRA_TRACK_LIST));
+                    String path = intent.getStringExtra(Constants.EXTRA_PATH);
+                    if (!trackList.equals(playbackManager.getTrackList())) {
+                        playbackManager.setTrackList(trackList);
+                    }
+                    playFromList(path);
                     break;
             }
         }
@@ -190,7 +196,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
     private void updateTrackList(List<String> list) {
         Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
-        intent.putStringArrayListExtra(Constants.EXTRA_TRACK_LIST, (ArrayList<String>) list);
+        intent.putExtra(Constants.EXTRA_TRACK_LIST, list.toArray(new String[0]));
         sendBroadcast(intent);
     }
 
