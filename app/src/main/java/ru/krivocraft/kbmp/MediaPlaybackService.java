@@ -17,7 +17,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -163,7 +162,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         });
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
-        trackStorageManager = new TrackStorageManager(getContentResolver(), getSharedPreferences(Constants.PREFERENCES_NAME, MODE_PRIVATE), () -> {
+        trackStorageManager = new TrackStorageManager(getContentResolver(), getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE), () -> {
             List<String> storage = trackStorageManager.getStorage();
 
             Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);

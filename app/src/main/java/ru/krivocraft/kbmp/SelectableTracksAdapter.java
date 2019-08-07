@@ -12,10 +12,11 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-class SelectableTracksAdapter extends ArrayAdapter<String> {
+class SelectableTracksAdapter extends ArrayAdapter<Track> {
 
-    SelectableTracksAdapter(ArrayList<String> trackList, Context context) {
+    SelectableTracksAdapter(List<Track> trackList, Context context) {
         super(context, R.layout.track_list_item_selectable, trackList);
     }
 
@@ -24,17 +25,20 @@ class SelectableTracksAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        String path = getItem(position);
-        Track track = Utils.loadData(path, getContext().getContentResolver());
+        Track track = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item_selectable, null);
         }
 
-        ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getTitle());
-        ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
-        ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isChecked());
+        if (track != null) {
+            ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getTitle());
+            ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
+            ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isChecked());
+        }
 
         return convertView;
     }
+
+
 }

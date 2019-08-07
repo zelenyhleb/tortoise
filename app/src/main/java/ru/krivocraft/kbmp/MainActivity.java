@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,9 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private SmallPlayerFragment smallPlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
+
     private boolean useAlternativeTheme;
 
     private int viewState = 0;
@@ -59,11 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ExplorerFragment getExplorerFragment() {
-        explorerFragment = ExplorerFragment.newInstance(trackList -> {
-            hideFragment(explorerFragment);
-            showFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
-            viewState = STATE_TRACK_LIST;
-        });
+        explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
         return explorerFragment;
     }
 
@@ -116,15 +117,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void showExplorerFragment() {
+        removeTrackListFragment();
         showFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
         viewState = STATE_EXPLORER;
+    }
+
+    private void showTrackListFragment(TrackList trackList) {
+        removeExplorerFragment();
+        showFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
+        viewState = STATE_TRACK_LIST;
     }
 
     @Override
     public void onBackPressed() {
         if (viewState == STATE_TRACK_LIST) {
-            removeTrackListFragment();
             showExplorerFragment();
         } else {
             super.onBackPressed();
@@ -165,6 +187,11 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
+    }
+
+    private void removeExplorerFragment() {
+        hideFragment(explorerFragment);
+        explorerFragment = null;
     }
 
     private void removeTrackListFragment() {
