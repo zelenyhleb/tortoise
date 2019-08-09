@@ -132,21 +132,8 @@ public class ExplorerFragment extends Fragment {
                 .setTitle("Select tracks")
                 .setPositiveButton("APPLY", (dialogOnApply, which) -> {
                     String displayName = editText.getText().toString();
-                    if (selectedTracks.size() > 0 && !displayName.equals("")) {
+                    if (acceptTrackList(selectedTracks.size(), displayName, context)) {
                         writeTrackList(new TrackList(displayName, selectedTracks));
-                    } else {
-                        if (selectedTracks.size() == 0) {
-                            Toast.makeText(context, "Select at least one track", Toast.LENGTH_LONG).show();
-                        }
-                        if (displayName.length() <= 0) {
-                            Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
-                        }
-                        if (getTrackListIdentifiers().contains(displayName)) {
-                            Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
-                        }
-                        if (displayName.length() > 20) {
-                            Toast.makeText(context, "Length must not exceed 20 characters", Toast.LENGTH_LONG).show();
-                        }
                     }
                 })
                 .setNegativeButton("CANCEL", (dialogOnCancel, which) -> dialogOnCancel.dismiss())
@@ -156,6 +143,26 @@ public class ExplorerFragment extends Fragment {
         dialog.show();
 
         loadDataTask.execute(Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks().toArray(new String[0]));
+    }
+
+    private boolean acceptTrackList(int arrayLength, String displayName, Context context) {
+        if (displayName.length() <= 0) {
+            Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (getTrackListIdentifiers().contains(displayName)) {
+            Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (displayName.length() > 20) {
+            Toast.makeText(context, "Length must not exceed 20 characters", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (arrayLength <= 0) {
+            Toast.makeText(context, "You can't create empty track list", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
     private void writeTrackList(TrackList trackList) {
