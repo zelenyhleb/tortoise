@@ -48,10 +48,12 @@ public class TrackListFragment extends Fragment {
         return trackList;
     }
 
-    void init(boolean showControls, Context context, @NonNull TrackList trackList) {
-        this.showControls = showControls;
-        this.trackList = trackList;
-        this.adapter = new TrackAdapter(trackList.getTracks(), context);
+    void init(boolean showControls, Context context, TrackList trackList) {
+        if (trackList != null) {
+            this.showControls = showControls;
+            this.trackList = trackList;
+            this.adapter = new TrackAdapter(trackList.getTracks(), context);
+        }
     }
 
 
@@ -97,7 +99,7 @@ public class TrackListFragment extends Fragment {
                 }
             });
             buttonShuffle.setOnClickListener(v -> {
-//                Collections.shuffle(trackList);
+                Collections.shuffle(trackList.getTracks());
                 adapter.notifyDataSetChanged();
             });
         } else {
