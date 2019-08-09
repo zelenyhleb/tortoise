@@ -14,12 +14,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class PlayerActivity extends AppCompatActivity {
 
     private final static int INDEX_FRAGMENT_PLAYER = 0;
     private final static int INDEX_FRAGMENT_PLAYLIST = 1;
     private ViewPager pager;
     private MediaBrowserCompat mediaBrowser;
+    private TrackList trackList = new TrackList("null", new ArrayList<>());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,15 +106,11 @@ public class PlayerActivity extends AppCompatActivity {
 
         @NonNull
         private LargePlayerFragment getPlayerPage() {
-            LargePlayerFragment largePlayerFragment = new LargePlayerFragment();
-            largePlayerFragment.initControls(PlayerActivity.this);
-            return largePlayerFragment;
+            return LargePlayerFragment.newInstance(PlayerActivity.this);
         }
 
         private TrackListFragment getTrackListPage() {
-            TrackListFragment trackListFragment = new TrackListFragment();
-            trackListFragment.init(false, PlayerActivity.this, null);
-            return trackListFragment;
+            return TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
         }
     }
 }

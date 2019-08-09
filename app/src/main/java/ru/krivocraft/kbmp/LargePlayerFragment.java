@@ -60,6 +60,12 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
+    static LargePlayerFragment newInstance(Activity activity){
+        LargePlayerFragment fragment = new LargePlayerFragment();
+        fragment.initControls(activity);
+        return fragment;
+    }
+
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
@@ -96,7 +102,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    void initControls(Activity context) {
+    private void initControls(Activity context) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
@@ -107,7 +113,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         requestPosition(context);
     }
 
-    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
