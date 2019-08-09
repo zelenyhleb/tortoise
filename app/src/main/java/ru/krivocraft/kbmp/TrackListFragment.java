@@ -83,19 +83,17 @@ public class TrackListFragment extends Fragment {
             this.trackList = new ArrayList<>();
             this.adapter = new TrackAdapter(new ArrayList<>(), context);
             startedWithList = false;
-            requestStorage(context);
         } else {
             this.trackList = trackList.getPaths();
             this.adapter = new TrackAdapter(trackList.getTracks(), context);
             startedWithList = true;
         }
+        registerUpdateReceiver(context);
     }
 
-    private void requestStorage(Context context) {
+    private void registerUpdateReceiver(Context context) {
         IntentFilter filter = new IntentFilter(Constants.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(receiver, filter);
-        Intent intent = new Intent(Constants.ACTION_REQUEST_TRACK_LIST);
-        context.sendBroadcast(intent);
     }
 
     @Override
@@ -133,14 +131,14 @@ public class TrackListFragment extends Fragment {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                    Context context = getContext();
-//                    if (context != null) {
-//                        ArrayList<String> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
-//                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
-//                        if (s.length() == 0) {
-//                            listView.setAdapter(adapter);
-//                        }
-//                    }
+                    Context context = getContext();
+                    if (context != null) {
+                        List<Track> trackListSearched = Utils.search(s, trackList, context.getContentResolver());
+                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
+                        if (s.length() == 0) {
+                            listView.setAdapter(adapter);
+                        }
+                    }
                 }
 
                 @Override

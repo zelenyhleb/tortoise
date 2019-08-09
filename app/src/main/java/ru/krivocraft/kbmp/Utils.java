@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -35,8 +36,8 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static ArrayList<String> search(CharSequence string, ArrayList<String> trackListToSearch, ContentResolver contentResolver) {
-        ArrayList<String> trackList = new ArrayList<>();
+    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver) {
+        ArrayList<Track> trackList = new ArrayList<>();
         for (String path : trackListToSearch) {
             Track track = loadData(path, contentResolver);
 
@@ -45,7 +46,7 @@ class Utils {
             String formattedSearchStr = string.toString().toLowerCase();
 
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.add(path);
+                trackList.add(track);
             }
         }
         return trackList;
