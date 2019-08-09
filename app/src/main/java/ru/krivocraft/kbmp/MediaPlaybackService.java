@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private PlaybackManager playbackManager;
     private TrackStorageManager trackStorageManager;
 
+    public static boolean running = false;
+
     private static final int HEADSET_STATE_PLUG_IN = 1;
     private static final int HEADSET_STATE_PLUG_OUT = 0;
 
@@ -54,7 +57,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         }
     };
 
-    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
@@ -80,7 +83,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 case Constants.Actions.ACTION_STOP:
                     playbackManager.stop();
                     sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
-                    removeNotification();
+                    hideNotification();
+                    stopSelf();
                     break;
             }
         }
@@ -155,13 +159,13 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
-                updateNotification();
+                showNotification();
             }
 
             @Override
             public void onTrackChanged(String track) {
                 mediaSession.setMetadata(Utils.loadData(track, MediaPlaybackService.this.getContentResolver()).getAsMediaMetadata());
-                updateNotification();
+                showNotification();
             }
         });
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
@@ -183,7 +187,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         IntentFilter positionFilter = new IntentFilter();
         positionFilter.addAction(Constants.Actions.ACTION_REQUEST_DATA);
-        registerReceiver(positionReceiver, positionFilter);
+        registerReceiver(requestDataReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.Actions.ACTION_STOP);
@@ -217,22 +221,28 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MediaButtonReceiver.handleIntent(mediaSession, intent);
-        return START_STICKY;
+        running = true;
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         unregisterReceiver(headsetReceiver);
-        removeNotification();
+        unregisterReceiver(playlistReceiver);
+        unregisterReceiver(requestDataReceiver);
+        running = false;
         super.onDestroy();
     }
 
-    private void updateNotification() {
-        notificationBuilder.updateNotification(mediaSession);
+    private void showNotification() {
+        Notification notification = notificationBuilder.getNotification(mediaSession);
+        if (notification != null) {
+            startForeground(NotificationBuilder.NOTIFY_ID, notification);
+        }
     }
 
-    private void removeNotification() {
-        notificationBuilder.removeNotification();
+    private void hideNotification() {
+        stopForeground(true);
     }
 
     String getCurrentTrack() {

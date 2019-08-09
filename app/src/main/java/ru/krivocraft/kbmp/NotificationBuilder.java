@@ -19,7 +19,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 class NotificationBuilder {
 
-    private static final int NOTIFY_ID = 124;
+    static final int NOTIFY_ID = 124;
     private MediaPlaybackService context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
@@ -47,7 +47,7 @@ class NotificationBuilder {
                 PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
     }
 
-    void updateNotification(MediaSessionCompat mediaSession) {
+    Notification getNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -69,6 +69,7 @@ class NotificationBuilder {
                     .setSound(null)
                     .setStyle(mediaStyle)
                     .setColorized(true)
+                    .setOngoing(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             Bitmap image = Utils.loadArt(mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
@@ -80,9 +81,9 @@ class NotificationBuilder {
             }
 
             if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play).setOngoing(true);
+                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
             } else {
-                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause).setOngoing(false);
+                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
             }
 
             notificationBuilder.addAction(nextAction);
@@ -96,19 +97,9 @@ class NotificationBuilder {
                 }
             }
 
-            Notification notification = notificationBuilder.build();
-            showNotification(notification);
+            return notificationBuilder.build();
         }
-    }
-
-    void showNotification(Notification notification) {
-        context.startForeground(NOTIFY_ID, notification);
-    }
-
-    void removeNotification() {
-        if (context != null) {
-            context.stopForeground(true);
-        }
+        return null;
     }
 
 }

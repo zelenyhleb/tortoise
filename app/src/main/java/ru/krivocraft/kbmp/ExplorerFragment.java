@@ -184,7 +184,16 @@ public class ExplorerFragment extends Fragment {
         return tracks;
     }
 
-    private void invalidate(){
+    @Override
+    public void onDestroy() {
+        Context context = getContext();
+        if (context != null) {
+            context.unregisterReceiver(storageUpdateReceiver);
+        }
+        super.onDestroy();
+    }
+
+    private void invalidate() {
         adapter.clear();
         adapter.addAll(readTrackLists());
         adapter.notifyDataSetChanged();

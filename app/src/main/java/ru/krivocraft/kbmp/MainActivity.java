@@ -81,6 +81,10 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
+        if (!MediaPlaybackService.running) {
+            startService(new Intent(this, MediaPlaybackService.class));
+        }
+
         showExplorerFragment();
 
         IntentFilter showPlayerFilter = new IntentFilter();
@@ -99,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                             MediaControllerCompat controller = new MediaControllerCompat(MainActivity.this, token);
                             MediaControllerCompat.setMediaController(MainActivity.this, controller);
                             MainActivity.this.mediaControllerCompat = controller;
+                            showSmallPlayerFragment();
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
@@ -169,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mediaBrowser.disconnect();
+        unregisterReceiver(showPlayerReceiver);
+        unregisterReceiver(positionReceiver);
     }
 
     @Override
@@ -215,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mediaControllerCompat != null) {
-
                 MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.Extras.EXTRA_METADATA);
                 PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.Extras.EXTRA_PLAYBACK_STATE);
                 int position = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
