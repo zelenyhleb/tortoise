@@ -13,15 +13,19 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 class NotificationBuilder {
 
+    static final int NOTIFY_ID = 124;
     private MediaPlaybackService context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
     private NotificationCompat.Action previousAction;
+    private NotificationCompat.Action stopAction;
 
 
     NotificationBuilder(MediaPlaybackService context) {
@@ -38,28 +42,34 @@ class NotificationBuilder {
 
         previousAction = new NotificationCompat.Action(R.drawable.ic_previous, "previous",
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
+
+        stopAction = new NotificationCompat.Action(R.drawable.ic_close, "stop",
+                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
     }
 
-    void updateNotification(MediaSessionCompat mediaSession) {
+    Notification getNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setAction(Constants.ACTION_SHOW_PLAYER), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
             android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
             mediaStyle.setShowCancelButton(true);
-            mediaStyle.setShowActionsInCompactView(1);
+            mediaStyle.setShowActionsInCompactView(2);
 
 
             NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
             String CHANNEL_ID = "channel_01";
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .addAction(stopAction)
                     .addAction(previousAction)
                     .setContentTitle(mediaSession.getController().getMetadata().getDescription().getTitle())
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())
+                    .setContentIntent(contentIntent)
                     .setSound(null)
                     .setStyle(mediaStyle)
                     .setColorized(true)
+                    .setOngoing(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             Bitmap image = Utils.loadArt(mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
@@ -71,9 +81,9 @@ class NotificationBuilder {
             }
 
             if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play).setOngoing(true);
+                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
             } else {
-                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause).setOngoing(false);
+                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
             }
 
             notificationBuilder.addAction(nextAction);
@@ -87,19 +97,9 @@ class NotificationBuilder {
                 }
             }
 
-            Notification notification = notificationBuilder.build();
-            showNotification(notification);
+            return notificationBuilder.build();
         }
-    }
-
-    void showNotification(Notification notification) {
-        context.startForeground(Constants.NOTIFY_ID, notification);
-    }
-
-    void removeNotification() {
-        if (context != null) {
-            context.stopForeground(true);
-        }
+        return null;
     }
 
 }

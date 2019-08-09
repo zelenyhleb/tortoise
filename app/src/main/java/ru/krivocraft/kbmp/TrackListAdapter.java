@@ -12,9 +12,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-class PlaylistsAdapter extends ArrayAdapter<TrackList> {
+class TrackListAdapter extends ArrayAdapter<TrackList> {
 
-    PlaylistsAdapter(List<TrackList> trackLists, @NonNull Context context) {
+    TrackListAdapter(List<TrackList> trackLists, @NonNull Context context) {
         super(context, R.layout.playlists_grid_item, trackLists);
     }
 
@@ -22,16 +22,13 @@ class PlaylistsAdapter extends ArrayAdapter<TrackList> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
         TrackList trackList = getItem(position);
-
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
         }
         if (trackList != null) {
-            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getPlaylistTitle());
+            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getDisplayName());
         }
-
         return convertView;
     }
 }

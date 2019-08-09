@@ -11,10 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.util.List;
+
 class SelectableTracksAdapter extends ArrayAdapter<Track> {
 
-    SelectableTracksAdapter(TrackList trackList, Context context) {
-        super(context, R.layout.track_list_item_selectable, trackList.getTracks());
+    SelectableTracksAdapter(List<Track> trackList, Context context) {
+        super(context, R.layout.track_list_item_selectable, trackList);
     }
 
     @SuppressLint("InflateParams")
@@ -27,6 +29,7 @@ class SelectableTracksAdapter extends ArrayAdapter<Track> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.track_list_item_selectable, null);
         }
+
         if (track != null) {
             ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getTitle());
             ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
@@ -35,4 +38,6 @@ class SelectableTracksAdapter extends ArrayAdapter<Track> {
 
         return convertView;
     }
+
+
 }

@@ -8,16 +8,14 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:id="@+id/list_container"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/container"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:orientation="vertical" />
+        android:layout_above="@id/player_container"
+        android:orientation="vertical"/>
 
     <LinearLayout
-        android:id="@+id/container"
+        android:id="@+id/player_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

@@ -19,7 +19,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private PlaylistUpdateCallback playlistUpdateCallback;
 
     private String cache;
-    private ArrayList<String> tracks;
+    private List<String> tracks;
     private int cursor = 0;
 
     PlaybackManager() {
@@ -112,7 +112,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    void setTrackList(ArrayList<String> trackList) {
+    void setTrackList(List<String> trackList) {
         if (trackList != this.tracks) {
             this.tracks = trackList;
             if (playlistUpdateCallback != null) {
@@ -141,7 +141,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playlistUpdateCallback = playlistUpdateCallback;
     }
 
-    ArrayList<String> getTrackList() {
+    List<String> getTrackList() {
         return tracks;
     }
 
@@ -190,7 +190,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     interface PlaylistUpdateCallback {
-        void onPlaylistUpdated(ArrayList<String> list);
+        void onPlaylistUpdated(List<String> list);
     }
 
 }

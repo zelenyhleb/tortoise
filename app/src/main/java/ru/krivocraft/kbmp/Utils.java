@@ -9,9 +9,9 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import ru.krivocraft.kbmp.constants.Constants;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -38,8 +38,8 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static ArrayList<String> search(CharSequence string, ArrayList<String> trackListToSearch, ContentResolver contentResolver) {
-        ArrayList<String> trackList = new ArrayList<>();
+    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver) {
+        ArrayList<Track> trackList = new ArrayList<>();
         for (String path : trackListToSearch) {
             Track track = loadData(path, contentResolver);
 
@@ -48,26 +48,26 @@ class Utils {
             String formattedSearchStr = string.toString().toLowerCase();
 
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.add(path);
+                trackList.add(track);
             }
         }
         return trackList;
     }
 
-    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
-        Map<String, TrackList> playlistMap = new HashMap<>();
-        for (Track track : allTracksTrackList.getTracks()) {
-            TrackList trackList = playlistMap.get(track.getArtist());
-            if (trackList == null) {
-                trackList = new TrackList(track.getArtist());
-                playlistMap.put(track.getArtist(), trackList);
-            }
-            if (!trackList.contains(track)) {
-                trackList.addTrack(track);
-            }
-        }
-        return new ArrayList<>(playlistMap.values());
-    }
+//    static List<TrackList> compilePlaylistsByAuthor(TrackList allTracksTrackList) {
+//        Map<String, TrackList> playlistMap = new HashMap<>();
+//        for (Track track : allTracksTrackList.getTracks()) {
+//            TrackList trackList = playlistMap.get(track.getArtist());
+//            if (trackList == null) {
+//                trackList = new TrackList(track.getArtist());
+//                playlistMap.put(track.getArtist(), trackList);
+//            }
+//            if (!trackList.contains(track)) {
+//                trackList.addTrack(track);
+//            }
+//        }
+//        return new ArrayList<>(playlistMap.values());
+//    }
 
     static ArrayList<String> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";

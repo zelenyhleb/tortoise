@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -21,12 +22,12 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import java.util.List;
+import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -34,78 +35,61 @@ public class MainActivity extends AppCompatActivity {
 
 
     private SmallPlayerFragment smallPlayerFragment;
-    private LargePlayerFragment largePlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
-    private List<String> trackList;
+
+    private boolean useAlternativeTheme;
+
+    private int viewState = 0;
+    private static final int STATE_EXPLORER = 1;
+    private static final int STATE_TRACK_LIST = 2;
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
-
-
-    private BroadcastReceiver trackListUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_UPDATE_STORAGE.equals(intent.getAction())) {
-                MainActivity.this.trackList = intent.getStringArrayListExtra(Constants.EXTRA_TRACK_LIST);
-            }
-        }
-    };
 
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
+            if (Constants.Actions.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
+                showSmallPlayerFragment();
+            } else if (Constants.Actions.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
                 hideSmallPlayerFragment();
-                hideTrackListFragment();
-                showLargePlayerFragment();
             }
         }
     };
-    private TrackListPage trackListFragment;
+    private TrackListFragment trackListFragment;
+    private ExplorerFragment explorerFragment;
 
     @NonNull
-    private TrackListPage getTrackListFragment() {
-        AdapterView.OnItemClickListener onListItemClickListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                String path = (String) adapterView.getItemAtPosition(position);
-                MediaMetadataCompat metadata = mediaControllerCompat.getMetadata();
-                if (metadata == null) {
-                    mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                } else {
-                    if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
-                        mediaControllerCompat.getTransportControls().skipToQueueItem(trackList.indexOf(path));
-                    } else {
-                        if (mediaControllerCompat.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
-                            mediaControllerCompat.getTransportControls().pause();
-                        } else {
-                            mediaControllerCompat.getTransportControls().play();
-                        }
-                    }
-                }
+    private TrackListFragment getTrackListFragment(TrackList trackList) {
+        trackListFragment = TrackListFragment.newInstance(trackList, true, this);
+        return trackListFragment;
+    }
 
-                showSmallPlayerFragment();
-            }
-        };
-        TrackListPage trackListPage = new TrackListPage();
-        trackListPage.init(onListItemClickListener, true, this);
-        return trackListPage;
+    private ExplorerFragment getExplorerFragment() {
+        explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
+        return explorerFragment;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        useAlternativeTheme = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("useAlternativeTheme", false);
+
         setContentView(R.layout.activity_tortoise);
 
         RelativeLayout layout = findViewById(R.id.main_layout);
         layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
-        IntentFilter trackListUpdateFilter = new IntentFilter();
-        trackListUpdateFilter.addAction(Constants.ACTION_UPDATE_STORAGE);
-        registerReceiver(trackListUpdateReceiver, trackListUpdateFilter);
+        if (!MediaPlaybackService.running) {
+            startService(new Intent(this, MediaPlaybackService.class));
+        }
+
+        showExplorerFragment();
 
         IntentFilter showPlayerFilter = new IntentFilter();
-        showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(Constants.Actions.ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(Constants.Actions.ACTION_HIDE_PLAYER);
         registerReceiver(showPlayerReceiver, showPlayerFilter);
 
         mediaBrowser = new MediaBrowserCompat(
@@ -119,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                             MediaControllerCompat controller = new MediaControllerCompat(MainActivity.this, token);
                             MediaControllerCompat.setMediaController(MainActivity.this, controller);
                             MainActivity.this.mediaControllerCompat = controller;
+                            showSmallPlayerFragment();
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
@@ -138,34 +123,65 @@ public class MainActivity extends AppCompatActivity {
                 null);
         mediaBrowser.connect();
 
-        showTrackListFragment();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showExplorerFragment() {
+        removeTrackListFragment();
+        showFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
+        viewState = STATE_EXPLORER;
+    }
+
+    private void showTrackListFragment(TrackList trackList) {
+        removeExplorerFragment();
+        showFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
+        viewState = STATE_TRACK_LIST;
     }
 
     @Override
     public void onBackPressed() {
-        if (largePlayerFragment != null) {
-            hideLargePlayerFragment();
-            showSmallPlayerFragment();
-            showTrackListFragment();
+        if (viewState == STATE_TRACK_LIST) {
+            showExplorerFragment();
         } else {
             super.onBackPressed();
         }
     }
 
     @Override
+    public Resources.Theme getTheme() {
+        Resources.Theme theme = super.getTheme();
+        if (useAlternativeTheme) {
+            theme.applyStyle(R.style.LightTheme, true);
+        }
+        return theme;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mediaBrowser.disconnect();
-        unregisterReceiver(trackListUpdateReceiver);
+        unregisterReceiver(showPlayerReceiver);
+        unregisterReceiver(positionReceiver);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            } else {
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "App requires external storage permission to work", Toast.LENGTH_LONG).show();
             }
         }
@@ -174,17 +190,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        requestStoragePermission();
+    }
+
+    private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
     }
 
+    private void removeExplorerFragment() {
+        hideFragment(explorerFragment);
+        explorerFragment = null;
+    }
+
+    private void removeTrackListFragment() {
+        hideFragment(trackListFragment);
+        trackListFragment = null;
+    }
+
     private void showSmallPlayerFragment() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_DATA);
+        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         sendBroadcast(intent);
     }
 
@@ -192,22 +222,19 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mediaControllerCompat != null) {
-
-                MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.EXTRA_METADATA);
-                PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.EXTRA_PLAYBACK_STATE);
-                int position = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+                MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.Extras.EXTRA_METADATA);
+                PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.Extras.EXTRA_PLAYBACK_STATE);
+                int position = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
 
                 if (metadata != null && playbackState != null) {
                     if (smallPlayerFragment != null) {
                         smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
                         smallPlayerFragment.invalidate();
                     } else {
-                        if ((largePlayerFragment == null || !largePlayerFragment.isVisible())) {
-                            SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                            smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
-                            MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                            showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.container, MainActivity.this.smallPlayerFragment);
-                        }
+                        SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+                        smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
+                        MainActivity.this.smallPlayerFragment = smallPlayerFragment;
+                        showFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment, R.id.player_container);
                     }
                 }
             }
@@ -219,35 +246,14 @@ public class MainActivity extends AppCompatActivity {
         smallPlayerFragment = null;
     }
 
-    private void showLargePlayerFragment() {
-        LargePlayerFragment largePlayerFragment1 = new LargePlayerFragment();
-        largePlayerFragment1.initControls(this);
-        largePlayerFragment = largePlayerFragment1;
-        showFragment(R.anim.slideup, R.anim.fadeoutshort, R.id.list_container, largePlayerFragment);
-    }
 
-    private void hideLargePlayerFragment() {
-        hideFragment(largePlayerFragment);
-        largePlayerFragment = null;
-    }
-
-    private void showTrackListFragment() {
-        trackListFragment = getTrackListFragment();
-        showFragment(R.anim.fadeinshort, R.anim.fadeoutshort, R.id.list_container, trackListFragment);
-    }
-
-    private void hideTrackListFragment() {
-        hideFragment(trackListFragment);
-        trackListFragment = null;
-    }
-
-    private void showFragment(int animation1, int animation2, int container, Fragment fragment) {
+    private void showFragment(int animationIn, Fragment fragment, int container) {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setCustomAnimations(animation1, animation2)
+                    .setCustomAnimations(animationIn, R.anim.fadeoutshort)
                     .add(container, fragment)
-                    .commit();
+                    .commitNowAllowingStateLoss();
         }
     }
 
@@ -256,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
-                    .commit();
+                    .commitNowAllowingStateLoss();
         }
     }
 

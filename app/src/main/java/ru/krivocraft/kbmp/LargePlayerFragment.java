@@ -31,6 +31,8 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playPauseButton;
@@ -56,6 +58,12 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                 updateBar();
             }
         };
+    }
+
+    static LargePlayerFragment newInstance(Activity activity){
+        LargePlayerFragment fragment = new LargePlayerFragment();
+        fragment.initControls(activity);
+        return fragment;
     }
 
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
@@ -94,7 +102,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    void initControls(Activity context) {
+    private void initControls(Activity context) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
@@ -105,20 +113,20 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         requestPosition(context);
     }
 
-    BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+            trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
             refreshUI();
         }
     };
 
     void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_DATA);
+        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
     }
 
@@ -220,6 +228,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
+            trackImage.setClipToOutline(true);
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
         }
 
