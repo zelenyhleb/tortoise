@@ -21,7 +21,8 @@
         android:id="@+id/add_track_list_button"
         android:layout_margin="32dp"
         android:layout_gravity="bottom|end"
-        android:src="@drawable/ic_close"
+        android:src="@drawable/ic_add"
+        android:tint="@color/white"
         />
 
 </FrameLayout>
