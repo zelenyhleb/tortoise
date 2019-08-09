@@ -73,12 +73,9 @@ public class SmallPlayerFragment extends Fragment {
 
     void invalidate() {
         final Context context = getContext();
-        rootView.findViewById(R.id.text_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (context != null)
-                    context.startActivity(new Intent(context, PlayerActivity.class));
-            }
+        rootView.findViewById(R.id.text_container).setOnClickListener(v -> {
+            if (context != null)
+                context.startActivity(new Intent(context, PlayerActivity.class));
         });
 
         final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
@@ -104,18 +101,8 @@ public class SmallPlayerFragment extends Fragment {
         ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
         ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
 
-        previousCompositionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToPrevious();
-            }
-        });
-        nextCompositionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToNext();
-            }
-        });
+        previousCompositionButton.setOnClickListener(v -> transportControls.skipToPrevious());
+        nextCompositionButton.setOnClickListener(v -> transportControls.skipToNext());
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         bar.setMax(Utils.getSeconds(getTrackDuration()));
@@ -124,22 +111,12 @@ public class SmallPlayerFragment extends Fragment {
         ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
         if (isTrackPlaying()) {
             playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
-            playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    transportControls.pause();
-                }
-            });
+            playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());
             cancelCurrentTimer();
             startNewTimer(bar);
         } else {
             playPauseCompositionButton.setImageResource(R.drawable.ic_play);
-            playPauseCompositionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    transportControls.play();
-                }
-            });
+            playPauseCompositionButton.setOnClickListener(v -> transportControls.play());
             cancelCurrentTimer();
         }
     }

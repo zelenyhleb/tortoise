@@ -36,13 +36,10 @@ public class TrackListFragment extends Fragment {
     }
 
     void init(boolean showControls, Context context, TrackList trackList) {
-        if (trackList != null) {
-            this.showControls = showControls;
-            this.trackList = trackList;
-            this.adapter = new TrackAdapter(trackList.getTracks(), context);
-        }
+        this.showControls = showControls;
+        this.trackList = trackList;
+        this.adapter = new TrackAdapter(trackList.getTracks(), context);
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
