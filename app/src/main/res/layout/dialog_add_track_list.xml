@@ -4,17 +4,26 @@
     android:layout_height="match_parent">
 
     <EditText
+        android:id="@+id/track_list_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:elevation="4dp"
-        android:hint="@string/track_list_name"
-        android:id="@+id/track_list_name"/>
+        android:visibility="invisible"
+        android:hint="@string/track_list_name" />
     <ListView
         android:id="@+id/tracks_selecting_list"
         android:layout_below="@id/track_list_name"
         android:layout_margin="4dp"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <ProgressBar
+        android:id="@+id/creation_dialog_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

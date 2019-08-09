@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
     <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/search_edit_text"
-            android:layout_marginStart="8dp"
-            android:layout_toStartOf="@id/shuffle"
-    />
+        android:id="@+id/search_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_toStartOf="@id/shuffle"
+        android:visibility="invisible" />
 
     <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/shuffle"
-            android:src="@drawable/ic_shuffle"
-            android:tint="@color/white"
-            android:background="@null"
-            android:layout_above="@id/fragment_track_list"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="12dp"/>
+        android:id="@+id/shuffle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/fragment_track_list"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="12dp"
+        android:background="@null"
+        android:visibility="invisible"
+        android:src="@drawable/ic_shuffle"
+        android:tint="@color/white" />
 
     <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/search_edit_text"
-            android:id="@+id/fragment_track_list"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+        android:id="@+id/fragment_track_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_edit_text"
+        android:visibility="invisible"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
+
+    <ProgressBar
+        android:id="@+id/track_list_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
 
 </RelativeLayout>

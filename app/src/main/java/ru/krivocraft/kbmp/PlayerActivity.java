@@ -110,7 +110,7 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         private TrackListFragment getTrackListPage() {
-            return TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
+            return TrackListFragment.newInstance(trackList, false);
         }
     }
 }
