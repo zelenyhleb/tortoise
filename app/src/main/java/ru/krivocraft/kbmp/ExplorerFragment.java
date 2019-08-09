@@ -150,7 +150,7 @@ public class ExplorerFragment extends Fragment {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (getTrackListIdentifiers().contains(displayName)) {
+        if (getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
             Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
             return false;
         }
