@@ -64,9 +64,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (Objects.requireNonNull(intent.getAction())) {
-                case Constants.ACTION_SHUFFLE:
-                    playbackManager.shuffleTrackList();
-                    break;
                 case Constants.ACTION_PLAY_FROM_LIST:
                     List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.EXTRA_TRACK_LIST));
                     String path = intent.getStringExtra(Constants.EXTRA_PATH);
@@ -74,6 +71,11 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                         playbackManager.setTrackList(trackList);
                     }
                     playFromList(path);
+                    break;
+                case Constants.ACTION_STOP:
+                    playbackManager.stop();
+                    sendBroadcast(new Intent(Constants.ACTION_HIDE_PLAYER));
+                    removeNotification();
                     break;
             }
         }
@@ -108,12 +110,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         @Override
         public void onSkipToQueueItem(long id) {
             playbackManager.newTrack((int) id);
-        }
-
-        @Override
-        public void onStop() {
-            notificationBuilder.removeNotification();
-            stopSelf();
         }
     };
 
@@ -185,7 +181,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         registerReceiver(positionReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(Constants.ACTION_SHUFFLE);
+        playlistFilter.addAction(Constants.ACTION_STOP);
         playlistFilter.addAction(Constants.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
@@ -216,14 +212,13 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MediaButtonReceiver.handleIntent(mediaSession, intent);
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         unregisterReceiver(headsetReceiver);
         removeNotification();
-
         super.onDestroy();
     }
 

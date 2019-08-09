@@ -3,12 +3,14 @@ package ru.krivocraft.kbmp;
 class Constants {
 
     static final String ACTION_SHOW_PLAYER= "action_show_player";
+    static final String ACTION_HIDE_PLAYER= "action_hide_player";
     static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
     static final String ACTION_REQUEST_TRACK_LIST= "action_request_track_list";
     static final String ACTION_UPDATE_STORAGE = "action_update_storage";
     static final String ACTION_REQUEST_DATA = "request_position";
     static final String ACTION_RESULT_DATA = "result_position";
     static final String ACTION_SHUFFLE = "shuffle";
+    static final String ACTION_STOP = "stop";
     static final String ACTION_PLAY_FROM_LIST= "play_from_list";
 
     static final String EXTRA_POSITION = "position";

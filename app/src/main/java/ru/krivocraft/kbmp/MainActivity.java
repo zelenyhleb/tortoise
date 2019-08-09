@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (Constants.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
                 showSmallPlayerFragment();
+            } else if (Constants.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
+                hideSmallPlayerFragment();
             }
         }
     };
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter showPlayerFilter = new IntentFilter();
         showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(Constants.ACTION_HIDE_PLAYER);
         registerReceiver(showPlayerReceiver, showPlayerFilter);
 
         mediaBrowser = new MediaBrowserCompat(
