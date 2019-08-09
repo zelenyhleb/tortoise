@@ -67,9 +67,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                 case Constants.ACTION_SHUFFLE:
                     playbackManager.shuffleTrackList();
                     break;
-                case Constants.ACTION_REQUEST_TRACK_LIST:
-                    updateTrackList(playbackManager.getTrackList());
-                    break;
                 case Constants.ACTION_PLAY_FROM_LIST:
                     List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.EXTRA_TRACK_LIST));
                     String path = intent.getStringExtra(Constants.EXTRA_PATH);
@@ -189,7 +186,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.ACTION_SHUFFLE);
-        playlistFilter.addAction(Constants.ACTION_REQUEST_TRACK_LIST);
         playlistFilter.addAction(Constants.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
