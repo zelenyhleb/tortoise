@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="grey700">#616161</color>
+    <color name="grey800">#3F3F40</color>
     <color name="grey900">#212121</color>
     <color name="green700">#388e3c</color>
     <color name="green900">#1b5e20</color>

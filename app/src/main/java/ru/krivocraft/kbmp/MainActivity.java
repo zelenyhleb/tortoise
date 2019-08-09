@@ -74,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestStoragePermission();
+    }
+
+    private void init() {
         useAlternativeTheme = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("useAlternativeTheme", false);
 
         setContentView(R.layout.activity_tortoise);
@@ -122,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
                 },
                 null);
         mediaBrowser.connect();
-
     }
 
     @Override
@@ -173,16 +176,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaBrowser.disconnect();
-        unregisterReceiver(showPlayerReceiver);
-        unregisterReceiver(positionReceiver);
+        if (mediaBrowser != null) {
+            mediaBrowser.disconnect();
+
+            unregisterReceiver(showPlayerReceiver);
+            unregisterReceiver(positionReceiver);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                init();
+            } else {
                 Toast.makeText(this, "App requires external storage permission to work", Toast.LENGTH_LONG).show();
+                finishAffinity();
             }
         }
     }
@@ -190,12 +199,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        requestStoragePermission();
     }
 
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
+        } else {
+            init();
         }
     }
 
