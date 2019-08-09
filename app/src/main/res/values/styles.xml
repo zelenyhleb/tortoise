@@ -4,7 +4,6 @@
         <item name="colorPrimary">@color/grey900</item>
         <item name="colorPrimaryDark">@color/grey900</item>
         <item name="colorAccent">@color/green700</item>
-        <item name="windowActionBar">true</item>
     </style>
 
     <style name="LightTheme" parent="Theme.AppCompat">
