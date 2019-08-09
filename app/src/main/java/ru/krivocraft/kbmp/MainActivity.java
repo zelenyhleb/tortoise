@@ -12,7 +12,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -25,9 +24,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
+            if (Constants.Actions.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
                 showSmallPlayerFragment();
-            } else if (Constants.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
+            } else if (Constants.Actions.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
                 hideSmallPlayerFragment();
             }
         }
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
         showExplorerFragment();
 
         IntentFilter showPlayerFilter = new IntentFilter();
-        showPlayerFilter.addAction(Constants.ACTION_SHOW_PLAYER);
-        showPlayerFilter.addAction(Constants.ACTION_HIDE_PLAYER);
+        showPlayerFilter.addAction(Constants.Actions.ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(Constants.Actions.ACTION_HIDE_PLAYER);
         registerReceiver(showPlayerReceiver, showPlayerFilter);
 
         mediaBrowser = new MediaBrowserCompat(
@@ -204,10 +204,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSmallPlayerFragment() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_DATA);
+        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         sendBroadcast(intent);
     }
 
@@ -216,9 +216,9 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (mediaControllerCompat != null) {
 
-                MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.EXTRA_METADATA);
-                PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.EXTRA_PLAYBACK_STATE);
-                int position = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+                MediaMetadataCompat metadata = intent.getParcelableExtra(Constants.Extras.EXTRA_METADATA);
+                PlaybackStateCompat playbackState = intent.getParcelableExtra(Constants.Extras.EXTRA_PLAYBACK_STATE);
+                int position = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
 
                 if (metadata != null && playbackState != null) {
                     if (smallPlayerFragment != null) {

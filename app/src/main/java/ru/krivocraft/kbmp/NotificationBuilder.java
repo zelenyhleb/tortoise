@@ -13,10 +13,13 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 class NotificationBuilder {
 
+    private static final int NOTIFY_ID = 124;
     private MediaPlaybackService context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
@@ -41,7 +44,7 @@ class NotificationBuilder {
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
         stopAction = new NotificationCompat.Action(R.drawable.ic_close, "stop",
-                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.ACTION_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
+                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
     }
 
     void updateNotification(MediaSessionCompat mediaSession) {
@@ -99,7 +102,7 @@ class NotificationBuilder {
     }
 
     void showNotification(Notification notification) {
-        context.startForeground(Constants.NOTIFY_ID, notification);
+        context.startForeground(NOTIFY_ID, notification);
     }
 
     void removeNotification() {

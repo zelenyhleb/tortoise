@@ -11,6 +11,8 @@ import android.provider.MediaStore;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 class Utils {
     static String getFormattedTime(int time) {
 

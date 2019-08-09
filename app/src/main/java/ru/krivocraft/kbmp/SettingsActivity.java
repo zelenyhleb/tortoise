@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override

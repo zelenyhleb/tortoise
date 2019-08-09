@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
 
     private MediaSessionCompat mediaSession;
@@ -30,17 +32,20 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private PlaybackManager playbackManager;
     private TrackStorageManager trackStorageManager;
 
+    private static final int HEADSET_STATE_PLUG_IN = 1;
+    private static final int HEADSET_STATE_PLUG_OUT = 0;
+
     private BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction())) {
                 switch (intent.getIntExtra("state", -1)) {
-                    case Constants.HEADSET_STATE_PLUG_IN:
+                    case HEADSET_STATE_PLUG_IN:
                         if (getCurrentTrack() != null) {
                             mediaSession.getController().getTransportControls().play();
                         }
                         break;
-                    case Constants.HEADSET_STATE_PLUG_OUT:
+                    case HEADSET_STATE_PLUG_OUT:
                         mediaSession.getController().getTransportControls().pause();
                         break;
                 }
@@ -52,10 +57,10 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent result = new Intent(Constants.ACTION_RESULT_DATA);
-            result.putExtra(Constants.EXTRA_POSITION, getProgress());
-            result.putExtra(Constants.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
-            result.putExtra(Constants.EXTRA_METADATA, mediaSession.getController().getMetadata());
+            Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
+            result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
+            result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
+            result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
             sendBroadcast(result);
         }
     };
@@ -64,17 +69,17 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (Objects.requireNonNull(intent.getAction())) {
-                case Constants.ACTION_PLAY_FROM_LIST:
-                    List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.EXTRA_TRACK_LIST));
-                    String path = intent.getStringExtra(Constants.EXTRA_PATH);
+                case Constants.Actions.ACTION_PLAY_FROM_LIST:
+                    List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                    String path = intent.getStringExtra(Constants.Extras.EXTRA_PATH);
                     if (!trackList.equals(playbackManager.getTrackList())) {
                         playbackManager.setTrackList(trackList);
                     }
                     playFromList(path);
                     break;
-                case Constants.ACTION_STOP:
+                case Constants.Actions.ACTION_STOP:
                     playbackManager.stop();
-                    sendBroadcast(new Intent(Constants.ACTION_HIDE_PLAYER));
+                    sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
                     removeNotification();
                     break;
             }
@@ -164,8 +169,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         trackStorageManager = new TrackStorageManager(getContentResolver(), getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE), () -> {
             List<String> storage = trackStorageManager.getStorage();
 
-            Intent updateIntent = new Intent(Constants.ACTION_UPDATE_STORAGE);
-            updateIntent.putExtra(Constants.EXTRA_TRACK_LIST, (ArrayList) storage);
+            Intent updateIntent = new Intent(Constants.Actions.ACTION_UPDATE_STORAGE);
+            updateIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, (ArrayList) storage);
             sendBroadcast(updateIntent);
 
             playbackManager.setTrackList(storage);
@@ -177,18 +182,18 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         registerReceiver(headsetReceiver, headsetFilter);
 
         IntentFilter positionFilter = new IntentFilter();
-        positionFilter.addAction(Constants.ACTION_REQUEST_DATA);
+        positionFilter.addAction(Constants.Actions.ACTION_REQUEST_DATA);
         registerReceiver(positionReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(Constants.ACTION_STOP);
-        playlistFilter.addAction(Constants.ACTION_PLAY_FROM_LIST);
+        playlistFilter.addAction(Constants.Actions.ACTION_STOP);
+        playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
 
     private void updateTrackList(List<String> list) {
-        Intent intent = new Intent(Constants.ACTION_UPDATE_TRACK_LIST);
-        intent.putExtra(Constants.EXTRA_TRACK_LIST, list.toArray(new String[0]));
+        Intent intent = new Intent(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
+        intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, list.toArray(new String[0]));
         sendBroadcast(intent);
     }
 

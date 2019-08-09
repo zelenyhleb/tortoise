@@ -13,11 +13,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends Fragment {
 
@@ -33,19 +33,6 @@ public class TrackListFragment extends Fragment {
         TrackListFragment trackListFragment = new TrackListFragment();
         trackListFragment.init(showControls, context, trackList);
         return trackListFragment;
-    }
-
-    void invalidate() {
-        if (listView != null) {
-            listView.invalidateViews();
-        }
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    TrackList getTrackList() {
-        return trackList;
     }
 
     void init(boolean showControls, Context context, TrackList trackList) {
@@ -64,12 +51,12 @@ public class TrackListFragment extends Fragment {
         listView = rootView.findViewById(R.id.fragment_track_list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            Intent serviceIntent = new Intent(Constants.ACTION_PLAY_FROM_LIST);
-            serviceIntent.putExtra(Constants.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
-            serviceIntent.putExtra(Constants.EXTRA_TRACK_LIST, trackList.getPaths().toArray(new String[0]));
+            Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
+            serviceIntent.putExtra(Constants.Extras.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
+            serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.getPaths().toArray(new String[0]));
             view.getContext().sendBroadcast(serviceIntent);
 
-            Intent interfaceIntent = new Intent(Constants.ACTION_SHOW_PLAYER);
+            Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
             view.getContext().sendBroadcast(interfaceIntent);
         });
 

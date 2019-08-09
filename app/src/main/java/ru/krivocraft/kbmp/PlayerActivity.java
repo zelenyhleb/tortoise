@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    private final static int INDEX_FRAGMENT_PLAYER = 0;
+    private final static int INDEX_FRAGMENT_PLAYLIST = 1;
     private ViewPager pager;
     private MediaBrowserCompat mediaBrowser;
 
@@ -71,8 +73,8 @@ public class PlayerActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() == Constants.INDEX_FRAGMENT_PLAYLIST) {
-            pager.setCurrentItem(Constants.INDEX_FRAGMENT_PLAYER);
+        if (pager.getCurrentItem() == INDEX_FRAGMENT_PLAYLIST) {
+            pager.setCurrentItem(INDEX_FRAGMENT_PLAYER);
         } else {
             super.onBackPressed();
         }
@@ -91,9 +93,9 @@ public class PlayerActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int i) {
-            if (i == Constants.INDEX_FRAGMENT_PLAYER) {
+            if (i == INDEX_FRAGMENT_PLAYER) {
                 return getPlayerPage();
-            } else if (i == Constants.INDEX_FRAGMENT_PLAYLIST) {
+            } else if (i == INDEX_FRAGMENT_PLAYLIST) {
                 return getTrackListPage();
             }
             return null;

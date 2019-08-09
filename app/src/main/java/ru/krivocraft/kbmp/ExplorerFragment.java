@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 public class ExplorerFragment extends Fragment {
 
     private TrackListAdapter adapter;
@@ -74,7 +76,7 @@ public class ExplorerFragment extends Fragment {
                 return true;
             });
             IntentFilter filter = new IntentFilter();
-            filter.addAction(Constants.ACTION_UPDATE_STORAGE);
+            filter.addAction(Constants.Actions.ACTION_UPDATE_STORAGE);
             context.registerReceiver(storageUpdateReceiver, filter);
 
             FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);

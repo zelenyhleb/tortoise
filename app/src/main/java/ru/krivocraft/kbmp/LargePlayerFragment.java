@@ -31,6 +31,8 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.krivocraft.kbmp.constants.Constants;
+
 public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playPauseButton;
@@ -108,17 +110,17 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
+            trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
             refreshUI();
         }
     };
 
     void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RESULT_DATA);
+        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
     }
 

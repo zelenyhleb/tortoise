@@ -42,7 +42,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".PlaylistCreationActivity" />
     </application>
 
 </manifest>
