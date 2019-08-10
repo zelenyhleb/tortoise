@@ -60,11 +60,17 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
-            result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
-            result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
-            result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
-            sendBroadcast(result);
+            if (Constants.Actions.ACTION_REQUEST_DATA.equals(intent.getAction())){
+                Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
+                result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
+                result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
+                result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
+                sendBroadcast(result);
+            } else {
+                Intent result = new Intent(Constants.Actions.ACTION_RESULT_TRACK_LIST);
+                result.putExtra(Constants.Extras.EXTRA_TRACK_LIST, playbackManager.getTrackList().toArray(new String[0]));
+                sendBroadcast(result);
+            }
         }
     };
 
@@ -187,6 +193,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         IntentFilter positionFilter = new IntentFilter();
         positionFilter.addAction(Constants.Actions.ACTION_REQUEST_DATA);
+        positionFilter.addAction(Constants.Actions.ACTION_REQUEST_TRACK_LIST);
         registerReceiver(requestDataReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();

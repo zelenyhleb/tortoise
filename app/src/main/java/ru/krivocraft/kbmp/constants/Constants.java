@@ -25,6 +25,7 @@ public class Constants {
         public static final String ACTION_SHUFFLE = "shuffle";
         public static final String ACTION_STOP = "stop";
         public static final String ACTION_PLAY_FROM_LIST= "play_from_list";
+        public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
     }
 
     public static class Extras {

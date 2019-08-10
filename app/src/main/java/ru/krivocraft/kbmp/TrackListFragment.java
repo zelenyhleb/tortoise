@@ -25,24 +25,24 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends Fragment {
 
-    private TrackList trackList;
     private TrackAdapter adapter;
     private boolean showControls;
 
+    private List<String> paths;
     private List<Track> tracks;
 
     public TrackListFragment() {
     }
 
-    static TrackListFragment newInstance(TrackList trackList, boolean showControls) {
+    static TrackListFragment newInstance(List<String> paths, boolean showControls) {
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(showControls, trackList);
+        trackListFragment.init(showControls, paths);
         return trackListFragment;
     }
 
-    void init(boolean showControls, TrackList trackList) {
+    private void init(boolean showControls, List<String> paths) {
         this.showControls = showControls;
-        this.trackList = trackList;
+        this.paths = paths;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class TrackListFragment extends Fragment {
 
         final Context context = getContext();
         if (context != null) {
-            String[] paths = trackList.getTracks().toArray(new String[0]);
+            String[] paths = this.paths.toArray(new String[0]);
 
             LoadDataTask task = new LoadDataTask();
             task.setContentResolver(context.getContentResolver());
@@ -73,42 +73,38 @@ public class TrackListFragment extends Fragment {
                     Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
                     view.getContext().sendBroadcast(interfaceIntent);
                 });
+
                 progressBar.setVisibility(View.GONE);
-                searchFrame.setVisibility(View.VISIBLE);
-                buttonShuffle.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.VISIBLE);
+
+                if (showControls) {
+                    searchFrame.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.paths, context.getContentResolver());
+                            listView.setAdapter(new TrackAdapter(trackListSearched, context));
+                            if (s.length() == 0) {
+                                listView.setAdapter(adapter);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                        }
+                    });
+                    buttonShuffle.setOnClickListener(v -> {
+                        Collections.shuffle(this.tracks);
+                        adapter.notifyDataSetChanged();
+                    });
+                    searchFrame.setVisibility(View.VISIBLE);
+                    buttonShuffle.setVisibility(View.VISIBLE);
+                }
             });
             task.execute(paths);
-        }
-
-        if (showControls) {
-            searchFrame.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (context != null) {
-                        List<Track> trackListSearched = Utils.search(s, trackList.getTracks(), context.getContentResolver());
-                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
-                        if (s.length() == 0) {
-                            listView.setAdapter(adapter);
-                        }
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-            buttonShuffle.setOnClickListener(v -> {
-                Collections.shuffle(this.tracks);
-                adapter.notifyDataSetChanged();
-            });
-        } else {
-            searchFrame.setVisibility(View.INVISIBLE);
-            buttonShuffle.setVisibility(View.INVISIBLE);
         }
 
 
