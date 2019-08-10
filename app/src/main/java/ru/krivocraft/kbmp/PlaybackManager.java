@@ -6,7 +6,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -17,12 +16,14 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private PlayerStateCallback playerStateCallback;
     private PlaylistUpdateCallback playlistUpdateCallback;
+    private OnCompletionListener onCompletionListener;
 
     private String cache;
     private List<String> tracks;
     private int cursor = 0;
 
-    PlaybackManager() {
+    PlaybackManager(OnCompletionListener listener) {
+        this.onCompletionListener = listener;
         this.tracks = new ArrayList<>();
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
@@ -95,6 +96,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
+    int getCursor() {
+        return cursor;
+    }
+
     void nextTrack() {
         newTrack(cursor + 1);
     }
@@ -116,18 +121,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     void setTrackList(List<String> trackList) {
         if (trackList != this.tracks) {
             this.tracks = trackList;
-            if (playlistUpdateCallback != null) {
-                playlistUpdateCallback.onPlaylistUpdated(tracks);
-            }
-        }
-    }
-
-    void shuffleTrackList() {
-        if (tracks != null) {
-            Collections.shuffle(tracks);
-
-            cursor = tracks.indexOf(cache);
-
             if (playlistUpdateCallback != null) {
                 playlistUpdateCallback.onPlaylistUpdated(tracks);
             }
@@ -172,7 +165,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        nextTrack();
+        onCompletionListener.onCompleted();
     }
 
     @Override
@@ -192,6 +185,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     interface PlaylistUpdateCallback {
         void onPlaylistUpdated(List<String> list);
+    }
+
+    interface OnCompletionListener {
+        void onCompleted();
     }
 
 }

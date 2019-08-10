@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -60,7 +62,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    static LargePlayerFragment newInstance(Activity activity){
+    static LargePlayerFragment newInstance(Activity activity) {
         LargePlayerFragment fragment = new LargePlayerFragment();
         fragment.initControls(activity);
         return fragment;
@@ -193,24 +195,45 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         ImageButton previousTrack = rootView.findViewById(R.id.previous);
         ImageButton nextTrack = rootView.findViewById(R.id.next);
+        ImageButton shuffle = rootView.findViewById(R.id.player_shuffle);
+        ImageButton loop = rootView.findViewById(R.id.player_loop);
 
-        previousTrack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToPrevious();
-            }
-        });
-
-        nextTrack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToNext();
-            }
-        });
+        previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
+        nextTrack.setOnClickListener(v -> transportControls.skipToNext());
+        shuffle.setOnClickListener(v -> shuffle(shuffle));
+        loop.setOnClickListener(v -> loop(loop));
 
         refreshUI();
 
         return rootView;
+    }
+
+    private void shuffle(ImageView button) {
+
+    }
+
+    private void loop(ImageView button) {
+        Context context = getContext();
+        if (context != null) {
+            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopState) {
+                case Constants.NOT_LOOP:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
+                    break;
+                case Constants.LOOP_TRACK:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
+                    break;
+            }
+            editor.apply();
+        }
     }
 
     private void refreshUI() {
@@ -245,14 +268,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             stopUI();
         }
 
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isTrackPlaying()) {
-                    transportControls.pause();
-                } else {
-                    transportControls.play();
-                }
+        playPauseButton.setOnClickListener(v -> {
+            if (isTrackPlaying()) {
+                transportControls.pause();
+            } else {
+                transportControls.play();
             }
         });
 

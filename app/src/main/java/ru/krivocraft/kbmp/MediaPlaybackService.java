@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -60,7 +61,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.Actions.ACTION_REQUEST_DATA.equals(intent.getAction())){
+            if (Constants.Actions.ACTION_REQUEST_DATA.equals(intent.getAction())) {
                 Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
                 result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
                 result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
@@ -86,7 +87,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     }
                     playFromList(path);
                     break;
-                case Constants.Actions.ACTION_STOP:
+                case Constants.Actions.ACTION_REQUEST_STOP:
                     playbackManager.stop();
                     sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
                     hideNotification();
@@ -160,7 +161,27 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         notificationBuilder = new NotificationBuilder(this);
 
-        playbackManager = new PlaybackManager();
+        playbackManager = new PlaybackManager(() -> {
+            SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+            int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopType) {
+                case Constants.LOOP_TRACK:
+                    playbackManager.newTrack(playbackManager.getCursor());
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    if (playbackManager.getCursor() + 1 < playbackManager.getTrackList().size()) {
+                        playbackManager.nextTrack();
+                    } else {
+                        playbackManager.newTrack(0);
+                    }
+                    break;
+                case Constants.NOT_LOOP:
+                    if (playbackManager.getCursor() < playbackManager.getTrackList().size()) {
+                        playbackManager.nextTrack();
+                    }
+                    break;
+            }
+        });
         playbackManager.setPlayerStateCallback(new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
@@ -197,7 +218,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         registerReceiver(requestDataReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(Constants.Actions.ACTION_STOP);
+        playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
