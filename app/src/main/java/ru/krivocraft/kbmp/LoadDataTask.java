@@ -35,6 +35,6 @@ public class LoadDataTask extends AsyncTask<String, Void, List<Track>> {
     }
 
     interface DataLoaderCallback {
-        void onDataLoaded(List<Track> track);
+        void onDataLoaded(List<Track> tracks);
     }
 }

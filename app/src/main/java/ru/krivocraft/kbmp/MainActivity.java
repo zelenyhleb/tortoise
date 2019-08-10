@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        trackListFragment = TrackListFragment.newInstance(trackList, true, this);
+        trackListFragment = TrackListFragment.newInstance(trackList, true);
         return trackListFragment;
     }
 

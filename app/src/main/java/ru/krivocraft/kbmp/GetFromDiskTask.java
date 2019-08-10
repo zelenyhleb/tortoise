@@ -26,7 +26,7 @@ class GetFromDiskTask extends AsyncTask<Void, Integer, List<String>> {
     protected void onPostExecute(List<String> paths) {
         super.onPostExecute(paths);
         for (String path : paths) {
-            metaStorage.addTrack(Utils.loadData(path, contentResolver));
+            metaStorage.addTrack(path);
         }
         callback.onStorageUpdate();
     }

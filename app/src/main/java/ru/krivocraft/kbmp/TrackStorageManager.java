@@ -34,7 +34,7 @@ class TrackStorageManager {
     }
 
     List<String> getStorage() {
-        return metaStorage.getPaths();
+        return metaStorage.getTracks();
     }
 
 }

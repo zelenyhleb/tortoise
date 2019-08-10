@@ -58,10 +58,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 return;
             }
 
-            player.start();
-
-            playerState = PlaybackStateCompat.STATE_PLAYING;
-            updatePlaybackState();
+            if (player != null) {
+                player.start();
+                playerState = PlaybackStateCompat.STATE_PLAYING;
+                updatePlaybackState();
+            }
         }
     }
 
@@ -127,7 +128,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             cursor = tracks.indexOf(cache);
 
-            if (playlistUpdateCallback != null){
+            if (playlistUpdateCallback != null) {
                 playlistUpdateCallback.onPlaylistUpdated(tracks);
             }
         }

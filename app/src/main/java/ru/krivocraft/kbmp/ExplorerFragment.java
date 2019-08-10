@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -101,37 +102,38 @@ public class ExplorerFragment extends Fragment {
     private void showCreationDialog(@NonNull LayoutInflater inflater, Context context) {
         View view = inflater.inflate(R.layout.dialog_add_track_list, null);
         ListView listView = view.findViewById(R.id.tracks_selecting_list);
-        EditText trackListNameField = view.findViewById(R.id.track_list_name);
+        EditText editText = view.findViewById(R.id.track_list_name);
+        ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
 
-        List<Track> selectedTracks = new ArrayList<>();
+        List<String> selectedTracks = new ArrayList<>();
 
-        SelectableTracksAdapter adapter = new SelectableTracksAdapter(Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks(), context);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view1, position, id) -> {
-            Track item = (Track) parent.getItemAtPosition(position);
-            if (selectedTracks.contains(item)) {
-                selectedTracks.remove(item);
-                item.setChecked(false);
-            } else {
-                selectedTracks.add(item);
-                item.setChecked(true);
-            }
-            adapter.notifyDataSetInvalidated();
+        LoadDataTask loadDataTask = new LoadDataTask();
+        loadDataTask.setContentResolver(context.getContentResolver());
+        loadDataTask.setCallback(tracks -> {
+            SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener((parent, view1, position, id) -> {
+                Track item = (Track) parent.getItemAtPosition(position);
+                if (selectedTracks.contains(item.getPath())) {
+                    selectedTracks.remove(item.getPath());
+                    item.setChecked(false);
+                } else {
+                    selectedTracks.add(item.getPath());
+                    item.setChecked(true);
+                }
+                adapter.notifyDataSetInvalidated();
+            });
+            progressBar.setVisibility(View.INVISIBLE);
+            listView.setVisibility(View.VISIBLE);
+            editText.setVisibility(View.VISIBLE);
         });
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Select tracks")
                 .setPositiveButton("APPLY", (dialogOnApply, which) -> {
-                    String displayName = trackListNameField.getText().toString();
-                    if (selectedTracks.size() > 0 && !displayName.equals("")) {
+                    String displayName = editText.getText().toString();
+                    if (acceptTrackList(selectedTracks.size(), displayName, context)) {
                         writeTrackList(new TrackList(displayName, selectedTracks));
-                    } else {
-                        if (selectedTracks.size() == 0) {
-                            Toast.makeText(context, "Select at least one track", Toast.LENGTH_LONG).show();
-                        }
-                        if (displayName.equals("")) {
-                            Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
-                        }
                     }
                 })
                 .setNegativeButton("CANCEL", (dialogOnCancel, which) -> dialogOnCancel.dismiss())
@@ -139,6 +141,28 @@ public class ExplorerFragment extends Fragment {
                 .create();
 
         dialog.show();
+
+        loadDataTask.execute(Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks().toArray(new String[0]));
+    }
+
+    private boolean acceptTrackList(int arrayLength, String displayName, Context context) {
+        if (displayName.length() <= 0) {
+            Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
+            Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (displayName.length() > 20) {
+            Toast.makeText(context, "Length must not exceed 20 characters", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (arrayLength <= 0) {
+            Toast.makeText(context, "You can't create empty track list", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
     private void writeTrackList(TrackList trackList) {
@@ -169,6 +193,19 @@ public class ExplorerFragment extends Fragment {
             return TrackList.fromJson(sharedPreferences.getString(identifier, null));
         }
         return null;
+    }
+
+    private List<String> getTrackListIdentifiers() {
+        Context context = getContext();
+        List<String> identifiers = new ArrayList<>();
+        if (context != null) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
+            Map<String, ?> trackLists = sharedPreferences.getAll();
+            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
+                identifiers.add(entry.getKey());
+            }
+        }
+        return identifiers;
     }
 
     private List<TrackList> readTrackLists() {

@@ -4,19 +4,14 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 class TrackList {
-    private String identifier;
     private String displayName;
-    private List<Track> tracks;
+    private List<String> tracks;
 
-    TrackList(String displayName, List<Track> tracks) {
+    TrackList(String displayName, List<String> tracks) {
         this.displayName = displayName;
-        this.identifier = createIdentifier(displayName);
         this.tracks = tracks;
     }
 
@@ -26,15 +21,11 @@ class TrackList {
     }
 
     String getIdentifier() {
-        return identifier;
+        return createIdentifier(displayName);
     }
 
-    List<Track> getTracks() {
+    List<String> getTracks() {
         return tracks;
-    }
-
-    List<String> getPaths() {
-        return new ArrayList<>(CollectionUtils.collect(tracks, Track::getPath));
     }
 
     String getDisplayName() {
@@ -45,20 +36,8 @@ class TrackList {
         return new Gson().toJson(this);
     }
 
-    void addTrack(Track track) {
+    void addTrack(String track) {
         tracks.add(track);
-    }
-
-    void addTrack(int index, Track track) {
-        tracks.add(index, track);
-    }
-
-    void removeTrack(int index) {
-        tracks.remove(index);
-    }
-
-    void removeTrack(Track track){
-        tracks.remove(track);
     }
 
     static TrackList fromJson(String json) {

@@ -9,15 +9,16 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/composition_name"
         android:id="@+id/image_layout"
+        android:layout_margin="16dp"
         android:layout_alignParentTop="true">
 
         <ImageView
             android:id="@+id/track_image"
-            android:layout_width="270dp"
-            android:layout_height="270dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_margin="32dp"
@@ -28,7 +29,7 @@
         android:id="@+id/composition_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/composition_author"
+        android:layout_above="@id/controls_layout"
         android:layout_marginTop="64dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
@@ -38,7 +39,7 @@
         android:id="@+id/composition_author"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/composition_name"
+        android:layout_above="@id/composition_progress_bar"
         android:layout_centerHorizontal="true"
         android:layout_margin="8dp"
         android:layout_marginStart="16dp"
@@ -55,7 +56,7 @@
         android:id="@+id/composition_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/image_layout"
+        android:layout_above="@id/composition_author"
         android:layout_centerHorizontal="true"
         android:layout_margin="8dp"
         android:ellipsize="marquee"
@@ -70,11 +71,12 @@
     <LinearLayout
         android:id="@+id/controls_layout"
         android:orientation="horizontal"
-        android:layout_below="@id/composition_progress_bar"
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
