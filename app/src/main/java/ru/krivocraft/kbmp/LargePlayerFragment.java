@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,6 +46,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private Handler mHandler;
 
     private int trackProgress;
+    private TrackList trackList;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
@@ -62,9 +62,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    static LargePlayerFragment newInstance(Activity activity) {
+    static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
-        fragment.initControls(activity);
+        fragment.initControls(activity, trackList);
         return fragment;
     }
 
@@ -104,13 +104,15 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    private void initControls(Activity context) {
+    private void initControls(Activity context, TrackList trackList) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
 
         this.metadata = mediaController.getMetadata();
         this.playbackState = mediaController.getPlaybackState();
+
+        this.trackList = trackList;
 
         requestPosition(context);
     }
@@ -198,6 +200,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         ImageButton shuffle = rootView.findViewById(R.id.player_shuffle);
         ImageButton loop = rootView.findViewById(R.id.player_loop);
 
+        drawLoopButton(loop);
+        drawShuffleButton(shuffle);
+
         previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
         nextTrack.setOnClickListener(v -> transportControls.skipToNext());
         shuffle.setOnClickListener(v -> shuffle(shuffle));
@@ -208,8 +213,46 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return rootView;
     }
 
-    private void shuffle(ImageView button) {
+    private void drawLoopButton(ImageButton loop) {
+        Context context = getContext();
+        if (context != null) {
+            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopState) {
+                case Constants.NOT_LOOP:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
+                    break;
+                case Constants.LOOP_TRACK:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
+                    break;
+            }
+        }
+    }
 
+    private void drawShuffleButton(ImageButton shuffle) {
+        Context context = getContext();
+        if (context != null) {
+            if (trackList.isShuffled()) {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_shuffled));
+            } else {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_unshuffled));
+            }
+        }
+    }
+
+    private void shuffle(ImageButton shuffle) {
+        Context context = getContext();
+        if (context != null) {
+            context.sendBroadcast(new Intent(Constants.Actions.ACTION_SHUFFLE));
+            if (trackList.isShuffled()) {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_unshuffled));
+            } else {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_shuffled));
+            }
+        }
     }
 
     private void loop(ImageView button) {

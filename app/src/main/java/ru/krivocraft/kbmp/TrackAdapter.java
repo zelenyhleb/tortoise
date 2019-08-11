@@ -41,14 +41,11 @@ class TrackAdapter extends ArrayAdapter<Track> {
 
                 LoadArtTask loadArtTask = new LoadArtTask();
                 loadArtTask.execute(track.getPath());
-                loadArtTask.setCallback(new LoadArtTask.BitmapDecoderCallback() {
-                    @Override
-                    public void onBitmapDecoded(Bitmap art) {
-                        if (art != null) {
-                            trackImage.setImageBitmap(art);
-                        } else {
-                            trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
-                        }
+                loadArtTask.setCallback(art -> {
+                    if (art != null) {
+                        trackImage.setImageBitmap(art);
+                    } else {
+                        trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
                     }
                 });
 

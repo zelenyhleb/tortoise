@@ -18,10 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class PlayerActivity extends AppCompatActivity {
@@ -31,7 +27,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ViewPager pager;
     private MediaBrowserCompat mediaBrowser;
 
-    private List<String> paths = new ArrayList<>();
+    private TrackList trackList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +80,7 @@ public class PlayerActivity extends AppCompatActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            PlayerActivity.this.paths = Arrays.asList(intent.getStringArrayExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
             initPager();
         }
     };
@@ -92,6 +88,7 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mediaBrowser.disconnect();
         unregisterReceiver(receiver);
     }
 
@@ -127,11 +124,11 @@ public class PlayerActivity extends AppCompatActivity {
 
         @NonNull
         private LargePlayerFragment getPlayerPage() {
-            return LargePlayerFragment.newInstance(PlayerActivity.this);
+            return LargePlayerFragment.newInstance(PlayerActivity.this, trackList);
         }
 
         private TrackListFragment getTrackListPage() {
-            return TrackListFragment.newInstance(paths, false);
+            return TrackListFragment.newInstance(trackList, false);
         }
     }
 }

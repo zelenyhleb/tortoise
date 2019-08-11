@@ -33,8 +33,8 @@ class TrackStorageManager {
         callback.onStorageUpdate();
     }
 
-    List<String> getStorage() {
-        return metaStorage.getTracks();
+    TrackList getStorage() {
+        return metaStorage;
     }
 
 }

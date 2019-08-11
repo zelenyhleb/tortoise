@@ -5,7 +5,6 @@ import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -19,23 +18,24 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private OnCompletionListener onCompletionListener;
 
     private String cache;
-    private List<String> tracks;
+
+    private TrackList trackList;
+
     private int cursor = 0;
 
     PlaybackManager(OnCompletionListener listener) {
         this.onCompletionListener = listener;
-        this.tracks = new ArrayList<>();
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
     }
 
-    boolean isPlaying() {
+    private boolean isPlaying() {
         return player != null && player.isPlaying();
     }
 
     void play() {
         if (cursor >= 0) {
-            String selectedTrack = tracks.get(cursor);
+            String selectedTrack = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedTrack));
 
             if (mediaChanged) {
@@ -83,17 +83,22 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        if (index >= 0 && index < tracks.size()) {
+        if (index >= 0 && index < getTracks().size()) {
             pause();
 
             cursor = index;
 
             if (playerStateCallback != null) {
-                playerStateCallback.onTrackChanged(tracks.get(cursor));
+                playerStateCallback.onTrackChanged(getTracks().get(cursor));
             }
 
             play();
         }
+    }
+
+    void shuffle() {
+        cursor = trackList.shuffle(getCurrentTrack());
+        playlistUpdateCallback.onPlaylistUpdated(trackList);
     }
 
     int getCursor() {
@@ -118,13 +123,17 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    void setTrackList(List<String> trackList) {
-        if (trackList != this.tracks) {
-            this.tracks = trackList;
+    void setTrackList(TrackList trackList) {
+        if (trackList != this.trackList) {
+            this.trackList = trackList;
             if (playlistUpdateCallback != null) {
-                playlistUpdateCallback.onPlaylistUpdated(tracks);
+                playlistUpdateCallback.onPlaylistUpdated(trackList);
             }
         }
+    }
+
+    private List<String> getTracks() {
+        return getTrackList().getTracks();
     }
 
     void setPlayerStateCallback(PlayerStateCallback playerStateCallback) {
@@ -135,8 +144,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playlistUpdateCallback = playlistUpdateCallback;
     }
 
-    List<String> getTrackList() {
-        return tracks;
+    TrackList getTrackList() {
+        return trackList;
     }
 
     int getCurrentStreamPosition() {
@@ -144,7 +153,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     String getCurrentTrack() {
-        return tracks.get(cursor);
+        return getTracks().get(cursor);
     }
 
     private void updatePlaybackState() {
@@ -184,7 +193,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     interface PlaylistUpdateCallback {
-        void onPlaylistUpdated(List<String> list);
+        void onPlaylistUpdated(TrackList list);
     }
 
     interface OnCompletionListener {

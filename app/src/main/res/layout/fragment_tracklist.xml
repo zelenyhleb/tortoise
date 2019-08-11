@@ -22,7 +22,7 @@
         android:layout_margin="12dp"
         android:background="@null"
         android:visibility="invisible"
-        android:src="@drawable/ic_shuffle"
+        android:src="@drawable/ic_shuffled"
         android:tint="@color/white" />
 
     <ListView

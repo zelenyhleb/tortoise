@@ -4,11 +4,17 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class TrackList {
     private String displayName;
     private List<String> tracks;
+    private boolean shuffled = false;
+
+    private String[] shuffleCache;
 
     TrackList(String displayName, List<String> tracks) {
         this.displayName = displayName;
@@ -18,6 +24,38 @@ class TrackList {
     @NonNull
     static String createIdentifier(String displayName) {
         return displayName.toLowerCase().replace(" ", "_");
+    }
+
+    int shuffle(String currentTrack) {
+        if (!isShuffled()){
+            shuffleCache = new String[tracks.size()];
+            shuffleCache = tracks.toArray(new String[0]);
+
+            tracks.remove(currentTrack);
+
+            Collections.shuffle(tracks);
+
+            List<String> shuffled = new ArrayList<>();
+            shuffled.add(currentTrack);
+            shuffled.addAll(tracks);
+            tracks = shuffled;
+            setShuffled(true);
+            return 0;
+        } else {
+            tracks = Arrays.asList(shuffleCache);
+            shuffleCache = null;
+            setShuffled(false);
+            return indexOf(currentTrack);
+        }
+
+    }
+
+    int indexOf(String item) {
+        return tracks.indexOf(item);
+    }
+
+    int size() {
+        return tracks.size();
     }
 
     String getIdentifier() {
@@ -44,4 +82,11 @@ class TrackList {
         return new Gson().fromJson(json, TrackList.class);
     }
 
+    boolean isShuffled() {
+        return shuffled;
+    }
+
+    private void setShuffled(boolean shuffled) {
+        this.shuffled = shuffled;
+    }
 }

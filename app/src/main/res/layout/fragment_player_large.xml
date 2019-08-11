@@ -92,7 +92,7 @@
 
         <ImageButton
             android:background="@null"
-            android:src="@drawable/ic_shuffle"
+            android:src="@drawable/ic_shuffled"
             android:tint="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

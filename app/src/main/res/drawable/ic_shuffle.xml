@@ -1,4 +1,0 @@
-<vector android:height="24dp" android:viewportHeight="512"
-    android:viewportWidth="512" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#000" android:name="Прямоугольник 4" android:pathData="m430.5 84.4v12.6h-49.5v1.1l-1.1 -1.1l-123.9 123.7l-123.8 -123.8l-1.2 1.2v-1.1h-100v49.9h80.6l109 109l-109.2 109h-80.4v50h100v-1.1l1.1 1.1l123.9 -123.7l123.8 123.8l1.2 -1.2v1.2h49.5v12.6l74 -37.1l-74 -37.1v11.6h-30.1l-109 -109l109.2 -109h29.9v11.6l74 -37.1l-74 -37.1z"/>
-</vector>
