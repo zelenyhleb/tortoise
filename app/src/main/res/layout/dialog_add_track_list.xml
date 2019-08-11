@@ -7,6 +7,7 @@
         android:id="@+id/track_list_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
         android:layout_margin="4dp"
         android:visibility="invisible"
         android:hint="@string/track_list_name" />

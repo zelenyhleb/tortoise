@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -74,7 +75,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        removeOldStorage();
+
         requestStoragePermission();
+    }
+
+    private void removeOldStorage() {
+        SharedPreferences preferences = getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
+        String identifier = "all_tracks";
+        if (preferences.getString(identifier, null) != null) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.remove(identifier);
+            editor.apply();
+        }
     }
 
     private void init() {

@@ -83,7 +83,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     if (!trackList.equals(playbackManager.getTrackList())) {
                         playbackManager.setTrackList(trackList, true);
                     }
-                    playFromList(path);
+                    playFromList(path, trackList);
                     break;
                 case Constants.Actions.ACTION_REQUEST_STOP:
                     playbackManager.stop();
@@ -236,19 +236,20 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         sendBroadcast(intent);
     }
 
-    private void playFromList(String path) {
+    private void playFromList(String path, TrackList trackList) {
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
         } else {
-            if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
-                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
-            } else {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
+                playbackManager.setCursor(playbackManager.getTrackList().indexOf(path));
+            } else {
+                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
             }
         }
     }
@@ -277,7 +278,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         }
     }
 
-    private void clearShuffleState(){
+    private void clearShuffleState() {
         SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(Constants.SHUFFLE_STATE, Constants.STATE_UNSHUFFLED);
