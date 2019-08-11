@@ -34,7 +34,10 @@ public class TrackListFragment extends Fragment {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            if (trackList != null) {
+                TrackListFragment.this.trackList = trackList;
+            }
             processPaths(context);
         }
     };

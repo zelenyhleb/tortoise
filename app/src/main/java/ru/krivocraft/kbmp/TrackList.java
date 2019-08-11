@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +13,7 @@ class TrackList {
     private List<String> tracks;
     private boolean shuffled = false;
 
-    private String[] shuffleCache;
+    private List<String> shuffleCache;
 
     TrackList(String displayName, List<String> tracks) {
         this.displayName = displayName;
@@ -28,9 +27,7 @@ class TrackList {
 
     int shuffle(String currentTrack) {
         if (!isShuffled()){
-            shuffleCache = new String[tracks.size()];
-            shuffleCache = tracks.toArray(new String[0]);
-
+            shuffleCache = new ArrayList<>(tracks);
             tracks.remove(currentTrack);
 
             Collections.shuffle(tracks);
@@ -42,7 +39,7 @@ class TrackList {
             setShuffled(true);
             return 0;
         } else {
-            tracks = Arrays.asList(shuffleCache);
+            tracks = new ArrayList<>(shuffleCache);
             shuffleCache = null;
             setShuffled(false);
             return indexOf(currentTrack);

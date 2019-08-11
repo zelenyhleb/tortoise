@@ -52,6 +52,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private PlaybackStateCompat playbackState;
 
     private MediaControllerCompat.TransportControls transportControls;
+    private ImageButton shuffle;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -81,6 +82,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             LargePlayerFragment.this.metadata = metadata;
             refreshUI();
             resetBar();
+        }
+    };
+
+    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            drawShuffleButton();
         }
     };
 
@@ -114,6 +123,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         this.trackList = trackList;
 
+        registerTrackListReceiver(context);
         requestPosition(context);
     }
 
@@ -132,6 +142,12 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
+    }
+
+    void registerTrackListReceiver(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
+        context.registerReceiver(trackListReceiver, filter);
     }
 
     private Timer compositionProgressTimer;
@@ -197,11 +213,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         ImageButton previousTrack = rootView.findViewById(R.id.previous);
         ImageButton nextTrack = rootView.findViewById(R.id.next);
-        ImageButton shuffle = rootView.findViewById(R.id.player_shuffle);
         ImageButton loop = rootView.findViewById(R.id.player_loop);
+        shuffle = rootView.findViewById(R.id.player_shuffle);
 
         drawLoopButton(loop);
-        drawShuffleButton(shuffle);
+        drawShuffleButton();
 
         previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
         nextTrack.setOnClickListener(v -> transportControls.skipToNext());
@@ -232,7 +248,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         }
     }
 
-    private void drawShuffleButton(ImageButton shuffle) {
+    private void drawShuffleButton() {
         Context context = getContext();
         if (context != null) {
             if (trackList.isShuffled()) {
@@ -338,6 +354,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     public void onDestroy() {
         super.onDestroy();
         Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
+        Objects.requireNonNull(getContext()).unregisterReceiver(trackListReceiver);
     }
 
 }
