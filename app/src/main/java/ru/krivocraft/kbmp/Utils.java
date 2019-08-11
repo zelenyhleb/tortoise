@@ -1,6 +1,8 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -65,7 +67,7 @@ class Utils {
         final String sortOrder = MediaStore.Audio.AudioColumns.DATA + " COLLATE LOCALIZED ASC";
         ArrayList<String> storage = new ArrayList<>();
 
-        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -122,6 +124,11 @@ class Utils {
         }
 
         return art;
+    }
+
+    static boolean getOption(Context context, String key){
+        SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+        return preferences.getBoolean(key, false);
     }
 
 }

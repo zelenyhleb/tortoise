@@ -27,11 +27,17 @@ class Track implements Parcelable {
                 artist = meta[0];
                 title = meta[1];
             } else {
-                if (artist.equals("<unknown>")) {
-                    artist = Constants.UNKNOWN_ARTIST;
-                }
-                if (title.equals("<unknown>")) {
-                    title = Constants.UNKNOWN_COMPOSITION;
+                meta = title.split(" — ");
+                if (meta.length > 1) {
+                    artist = meta[0];
+                    title = meta[1];
+                } else {
+                    if (artist.equals("<unknown>")) {
+                        artist = Constants.UNKNOWN_ARTIST;
+                    }
+                    if (title.equals("<unknown>")) {
+                        title = Constants.UNKNOWN_COMPOSITION;
+                    }
                 }
             }
         }

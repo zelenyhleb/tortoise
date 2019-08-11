@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ListView;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -13,6 +14,8 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        ListView listView = findViewById(R.id.settings_list);
+        listView.setAdapter(new SettingsAdapter(this));
     }
 
     private void switchTheme() {
