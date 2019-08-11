@@ -18,9 +18,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,7 +81,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
                     String path = intent.getStringExtra(Constants.Extras.EXTRA_PATH);
                     if (!trackList.equals(playbackManager.getTrackList())) {
-                        playbackManager.setTrackList(trackList);
+                        playbackManager.setTrackList(trackList, true);
                     }
                     playFromList(path);
                     break;
@@ -96,6 +93,12 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     break;
                 case Constants.Actions.ACTION_SHUFFLE:
                     playbackManager.shuffle();
+                    break;
+                case Constants.Actions.ACTION_EDIT_TRACK_LIST:
+                    TrackList in = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                    String track = playbackManager.getCurrentTrack();
+                    playbackManager.setTrackList(in, false);
+                    playbackManager.setCursor(in.indexOf(track));
                     break;
             }
         }
@@ -222,6 +225,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
         playlistFilter.addAction(Constants.Actions.ACTION_SHUFFLE);
+        playlistFilter.addAction(Constants.Actions.ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }

@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,17 +10,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> {
+public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private List<Track> tracks;
     private TrackList trackList;
+    private Context context;
 
-    TracksAdapter(List<Track> tracks, TrackList trackList) {
+    TracksAdapter(List<Track> tracks, TrackList trackList, Context context) {
         this.tracks = tracks;
         this.trackList = trackList;
+        this.context = context;
     }
 
     @NonNull
@@ -41,6 +45,28 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     @Override
     public int getItemCount() {
         return tracks.size();
+    }
+
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(tracks, i, i + 1);
+                Collections.swap(trackList.getTracks(), i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(tracks, i, i - 1);
+                Collections.swap(trackList.getTracks(), i, i - 1);
+            }
+        }
+        sendUpdate();
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    private void sendUpdate() {
+        context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

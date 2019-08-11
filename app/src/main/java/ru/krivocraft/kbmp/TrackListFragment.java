@@ -9,15 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -85,7 +84,7 @@ public class TrackListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver());
-                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList));
+                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }
@@ -121,11 +120,17 @@ public class TrackListFragment extends Fragment {
         task.setDataLoaderCallback(tracks -> {
             this.tracks = tracks;
             this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            this.tracksAdapter = new TracksAdapter(tracks, trackList);
+            this.tracksAdapter = new TracksAdapter(tracks, trackList, context);
             this.recyclerView.setAdapter(tracksAdapter);
 
             progressBar.setVisibility(View.GONE);
             progressText.setVisibility(View.GONE);
+
+            if (!showControls) {
+                ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                touchHelper.attachToRecyclerView(recyclerView);
+            }
         });
         task.execute(trackList.getTracks().toArray(new String[0]));
     }
