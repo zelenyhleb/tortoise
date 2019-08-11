@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,12 +49,32 @@ public class ExplorerFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (adapter != null) {
-                adapter.clear();
-                adapter.addAll(readTrackLists());
-                adapter.notifyDataSetChanged();
+                invalidate();
             }
         }
     };
+
+    private List<TrackList> compileByAuthors() {
+        Context context = getContext();
+        Map<String, TrackList> playlistMap = new HashMap<>();
+        if (context != null && Utils.getOption(context, Constants.KEY_AUTO_SORT)) {
+            TrackList source = readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME));
+            if (source != null) {
+                for (String track : source.getTracks()) {
+                    String artist = Utils.loadData(track, context.getContentResolver()).getArtist();
+                    TrackList trackList = playlistMap.get(artist);
+                    if (trackList == null) {
+                        trackList = new TrackList(artist, new ArrayList<>());
+                        playlistMap.put(artist, trackList);
+                    }
+                    if (!trackList.getTracks().contains(track)) {
+                        trackList.addTrack(track);
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(playlistMap.values());
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +88,7 @@ public class ExplorerFragment extends Fragment {
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
             adapter = new TrackListAdapter(readTrackLists(), context);
+            invalidate();
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener((parent, view, position, id) -> {
                 listener.onItemClick((TrackList) parent.getItemAtPosition(position));
@@ -243,9 +265,10 @@ public class ExplorerFragment extends Fragment {
         super.onDestroy();
     }
 
-    private void invalidate() {
+    void invalidate() {
         adapter.clear();
         adapter.addAll(readTrackLists());
+        adapter.addAll(compileByAuthors());
         adapter.notifyDataSetChanged();
     }
 

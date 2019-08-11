@@ -5,18 +5,19 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
-    <TextView
-        android:layout_margin="8dp"
+    <ListView
+        android:id="@+id/settings_list"
+        android:layout_above="@id/settings_version"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Tortoise player settings. No options available yet, but in future you will be able to customize this app as you wish."/>
+        android:layout_height="match_parent" />
 
     <TextView
+        android:id="@+id/settings_version"
         android:layout_margin="8dp"
         android:layout_alignParentBottom="true"
         android:textAlignment="viewEnd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tortoise v0.2.3-alpha"/>
+        android:text="Tortoise v0.2.4-alpha"/>
 
 </RelativeLayout>
