@@ -7,10 +7,17 @@
         android:id="@+id/track_list_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
         android:layout_margin="4dp"
-        android:elevation="4dp"
         android:visibility="invisible"
         android:hint="@string/track_list_name" />
+    <TextView
+        android:text="@string/obtaining_tracks_data"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/obtaining_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/creation_dialog_progress"/>
     <ListView
         android:id="@+id/tracks_selecting_list"
         android:layout_below="@id/track_list_name"
@@ -24,6 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:indeterminate="false"
         android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

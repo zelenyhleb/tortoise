@@ -22,7 +22,7 @@ class TrackList {
 
     @NonNull
     static String createIdentifier(String displayName) {
-        return displayName.toLowerCase().replace(" ", "_");
+        return displayName.toLowerCase().replace(" ", "");
     }
 
     int shuffle(String currentTrack) {

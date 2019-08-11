@@ -14,10 +14,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -104,12 +106,17 @@ public class ExplorerFragment extends Fragment {
         ListView listView = view.findViewById(R.id.tracks_selecting_list);
         EditText editText = view.findViewById(R.id.track_list_name);
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
+        TextView textView = view.findViewById(R.id.obtaining_text);
+
+        List<String> allTracks = Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks();
+        progressBar.setMax(allTracks.size());
 
         List<String> selectedTracks = new ArrayList<>();
 
         LoadDataTask loadDataTask = new LoadDataTask();
         loadDataTask.setContentResolver(context.getContentResolver());
-        loadDataTask.setCallback(tracks -> {
+        loadDataTask.setProgressCallback(progressBar::setProgress);
+        loadDataTask.setDataLoaderCallback(tracks -> {
             SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener((parent, view1, position, id) -> {
@@ -124,25 +131,31 @@ public class ExplorerFragment extends Fragment {
                 adapter.notifyDataSetInvalidated();
             });
             progressBar.setVisibility(View.INVISIBLE);
+            textView.setVisibility(View.INVISIBLE);
             listView.setVisibility(View.VISIBLE);
             editText.setVisibility(View.VISIBLE);
         });
 
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Select tracks")
-                .setPositiveButton("APPLY", (dialogOnApply, which) -> {
-                    String displayName = editText.getText().toString();
-                    if (acceptTrackList(selectedTracks.size(), displayName, context)) {
-                        writeTrackList(new TrackList(displayName, selectedTracks));
-                    }
-                })
+                .setPositiveButton("APPLY", null)
                 .setNegativeButton("CANCEL", (dialogOnCancel, which) -> dialogOnCancel.dismiss())
                 .setView(view)
                 .create();
+        alertDialog.setOnShowListener(dialog -> {
+            Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(v -> {
+                String displayName = editText.getText().toString();
+                if (acceptTrackList(selectedTracks.size(), displayName, context)) {
+                    writeTrackList(new TrackList(displayName, selectedTracks));
+                    dialog.dismiss();
+                }
+            });
+        });
 
-        dialog.show();
+        alertDialog.show();
 
-        loadDataTask.execute(Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks().toArray(new String[0]));
+        loadDataTask.execute(allTracks.toArray(new String[0]));
     }
 
     private boolean acceptTrackList(int arrayLength, String displayName, Context context) {

@@ -18,9 +18,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,9 +81,9 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
                     String path = intent.getStringExtra(Constants.Extras.EXTRA_PATH);
                     if (!trackList.equals(playbackManager.getTrackList())) {
-                        playbackManager.setTrackList(trackList);
+                        playbackManager.setTrackList(trackList, true);
                     }
-                    playFromList(path);
+                    playFromList(path, trackList);
                     break;
                 case Constants.Actions.ACTION_REQUEST_STOP:
                     playbackManager.stop();
@@ -96,6 +93,12 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     break;
                 case Constants.Actions.ACTION_SHUFFLE:
                     playbackManager.shuffle();
+                    break;
+                case Constants.Actions.ACTION_EDIT_TRACK_LIST:
+                    TrackList in = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                    String track = playbackManager.getCurrentTrack();
+                    playbackManager.setTrackList(in, false);
+                    playbackManager.setCursor(in.indexOf(track));
                     break;
             }
         }
@@ -222,6 +225,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
         playlistFilter.addAction(Constants.Actions.ACTION_SHUFFLE);
+        playlistFilter.addAction(Constants.Actions.ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
@@ -232,19 +236,20 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         sendBroadcast(intent);
     }
 
-    private void playFromList(String path) {
+    private void playFromList(String path, TrackList trackList) {
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
         } else {
-            if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path)) {
-                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
-            } else {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
+                playbackManager.setCursor(playbackManager.getTrackList().indexOf(path));
+            } else {
+                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
             }
         }
     }
@@ -273,7 +278,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         }
     }
 
-    private void clearShuffleState(){
+    private void clearShuffleState() {
         SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(Constants.SHUFFLE_STATE, Constants.STATE_UNSHUFFLED);

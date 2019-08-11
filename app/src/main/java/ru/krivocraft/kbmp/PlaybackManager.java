@@ -123,13 +123,17 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    void setTrackList(TrackList trackList) {
+    void setTrackList(TrackList trackList, boolean sendUpdate) {
         if (trackList != this.trackList) {
             this.trackList = trackList;
-            if (playlistUpdateCallback != null) {
+            if (sendUpdate && playlistUpdateCallback != null) {
                 playlistUpdateCallback.onPlaylistUpdated(trackList);
             }
         }
+    }
+
+    void setCursor(int cursor) {
+        this.cursor = cursor;
     }
 
     private List<String> getTracks() {

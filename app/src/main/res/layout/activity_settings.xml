@@ -17,6 +17,6 @@
         android:textAlignment="viewEnd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tortoise v0.2.2-alpha"/>
+        android:text="Tortoise v0.2.3-alpha"/>
 
 </RelativeLayout>

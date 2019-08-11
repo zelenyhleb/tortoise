@@ -6,13 +6,18 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadDataTask extends AsyncTask<String, Void, List<Track>> {
+public class LoadDataTask extends AsyncTask<String, Integer, List<Track>> {
 
-    private DataLoaderCallback callback;
+    private DataLoaderCallback dataLoaderCallback;
+    private ProgressCallback progressCallback;
     private ContentResolver contentResolver;
 
-    void setCallback(DataLoaderCallback callback) {
-        this.callback = callback;
+    void setDataLoaderCallback(DataLoaderCallback dataLoaderCallback) {
+        this.dataLoaderCallback = dataLoaderCallback;
+    }
+
+    void setProgressCallback(ProgressCallback progressCallback) {
+        this.progressCallback = progressCallback;
     }
 
     void setContentResolver(ContentResolver contentResolver) {
@@ -23,18 +28,34 @@ public class LoadDataTask extends AsyncTask<String, Void, List<Track>> {
     protected List<Track> doInBackground(String... strings) {
         List<Track> tracks = new ArrayList<>();
         for (String path : strings) {
-            tracks.add(Utils.loadData(path, contentResolver));
+            Track track = Utils.loadData(path, contentResolver);
+            tracks.add(track);
+            publishProgress(tracks.indexOf(track));
         }
         return tracks;
     }
 
     @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        if (progressCallback != null) {
+            progressCallback.onProgressUpdated(values[0]);
+        }
+    }
+
+    @Override
     protected void onPostExecute(List<Track> tracks) {
         super.onPostExecute(tracks);
-        callback.onDataLoaded(tracks);
+        if (dataLoaderCallback != null) {
+            dataLoaderCallback.onDataLoaded(tracks);
+        }
     }
 
     interface DataLoaderCallback {
         void onDataLoaded(List<Track> tracks);
+    }
+
+    interface ProgressCallback {
+        void onProgressUpdated(int progress);
     }
 }

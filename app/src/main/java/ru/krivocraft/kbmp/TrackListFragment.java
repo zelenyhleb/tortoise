@@ -7,16 +7,18 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +27,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends Fragment {
 
-    private TrackAdapter adapter;
+    private TracksAdapter tracksAdapter;
     private boolean showControls;
 
     private TrackList trackList;
@@ -41,8 +43,9 @@ public class TrackListFragment extends Fragment {
             processPaths(context);
         }
     };
-    private ListView listView;
+    private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private TextView progressText;
 
     public TrackListFragment() {
     }
@@ -64,8 +67,9 @@ public class TrackListFragment extends Fragment {
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
-        listView = rootView.findViewById(R.id.fragment_track_list);
+        recyclerView = rootView.findViewById(R.id.fragment_track_recycler_view);
         progressBar = rootView.findViewById(R.id.track_list_progress);
+        progressText = rootView.findViewById(R.id.obtaining_text_track_list);
 
         final Context context = getContext();
         if (context != null) {
@@ -80,9 +84,9 @@ public class TrackListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver());
-                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
+                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context));
                         if (s.length() == 0) {
-                            listView.setAdapter(adapter);
+                            recyclerView.setAdapter(tracksAdapter);
                         }
                     }
 
@@ -92,7 +96,7 @@ public class TrackListFragment extends Fragment {
                 });
                 buttonShuffle.setOnClickListener(v -> {
                     Collections.shuffle(this.tracks);
-                    adapter.notifyDataSetChanged();
+                    tracksAdapter.notifyDataSetChanged();
                 });
                 searchFrame.setVisibility(View.VISIBLE);
                 buttonShuffle.setVisibility(View.VISIBLE);
@@ -108,16 +112,25 @@ public class TrackListFragment extends Fragment {
     }
 
     private void processPaths(Context context) {
+        progressBar.setMax(trackList.size());
+
         LoadDataTask task = new LoadDataTask();
         task.setContentResolver(context.getContentResolver());
-        task.setCallback(tracks -> {
+        task.setProgressCallback(progress -> progressBar.setProgress(progress));
+        task.setDataLoaderCallback(tracks -> {
             this.tracks = tracks;
-            this.adapter = new TrackAdapter(this.tracks, context);
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener((parent, view, position, id) -> onItemClick(trackList, parent, view, position));
+            this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            this.tracksAdapter = new TracksAdapter(tracks, trackList, context);
+            this.recyclerView.setAdapter(tracksAdapter);
 
             progressBar.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
+            progressText.setVisibility(View.GONE);
+
+            if (!showControls) {
+                ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                touchHelper.attachToRecyclerView(recyclerView);
+            }
         });
         task.execute(trackList.getTracks().toArray(new String[0]));
     }
@@ -125,15 +138,5 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    private void onItemClick(TrackList trackList, AdapterView<?> parent, View view, int position) {
-        Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
-        serviceIntent.putExtra(Constants.Extras.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
-        serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson());
-        view.getContext().sendBroadcast(serviceIntent);
-
-        Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
-        view.getContext().sendBroadcast(interfaceIntent);
     }
 }
