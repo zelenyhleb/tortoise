@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -26,7 +28,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends Fragment {
 
-    private TrackAdapter adapter;
+    private TracksAdapter tracksAdapter;
     private boolean showControls;
 
     private TrackList trackList;
@@ -42,7 +44,7 @@ public class TrackListFragment extends Fragment {
             processPaths(context);
         }
     };
-    private ListView listView;
+    private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
 
@@ -66,7 +68,7 @@ public class TrackListFragment extends Fragment {
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
-        listView = rootView.findViewById(R.id.fragment_track_list);
+        recyclerView = rootView.findViewById(R.id.fragment_track_recycler_view);
         progressBar = rootView.findViewById(R.id.track_list_progress);
         progressText = rootView.findViewById(R.id.obtaining_text_track_list);
 
@@ -83,9 +85,9 @@ public class TrackListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver());
-                        listView.setAdapter(new TrackAdapter(trackListSearched, context));
+                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList));
                         if (s.length() == 0) {
-                            listView.setAdapter(adapter);
+                            recyclerView.setAdapter(tracksAdapter);
                         }
                     }
 
@@ -95,7 +97,7 @@ public class TrackListFragment extends Fragment {
                 });
                 buttonShuffle.setOnClickListener(v -> {
                     Collections.shuffle(this.tracks);
-                    adapter.notifyDataSetChanged();
+                    tracksAdapter.notifyDataSetChanged();
                 });
                 searchFrame.setVisibility(View.VISIBLE);
                 buttonShuffle.setVisibility(View.VISIBLE);
@@ -118,13 +120,12 @@ public class TrackListFragment extends Fragment {
         task.setProgressCallback(progress -> progressBar.setProgress(progress));
         task.setDataLoaderCallback(tracks -> {
             this.tracks = tracks;
-            this.adapter = new TrackAdapter(this.tracks, context);
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener((parent, view, position, id) -> onItemClick(trackList, parent, view, position));
+            this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            this.tracksAdapter = new TracksAdapter(tracks, trackList);
+            this.recyclerView.setAdapter(tracksAdapter);
 
             progressBar.setVisibility(View.GONE);
             progressText.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
         });
         task.execute(trackList.getTracks().toArray(new String[0]));
     }
@@ -132,15 +133,5 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    private void onItemClick(TrackList trackList, AdapterView<?> parent, View view, int position) {
-        Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
-        serviceIntent.putExtra(Constants.Extras.EXTRA_PATH, ((Track) parent.getItemAtPosition(position)).getPath());
-        serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson());
-        view.getContext().sendBroadcast(serviceIntent);
-
-        Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
-        view.getContext().sendBroadcast(interfaceIntent);
     }
 }
