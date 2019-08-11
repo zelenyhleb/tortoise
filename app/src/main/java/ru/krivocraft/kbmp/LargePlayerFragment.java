@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,11 +46,13 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private Handler mHandler;
 
     private int trackProgress;
+    private TrackList trackList;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
 
     private MediaControllerCompat.TransportControls transportControls;
+    private ImageButton shuffle;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -60,9 +63,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         };
     }
 
-    static LargePlayerFragment newInstance(Activity activity){
+    static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
-        fragment.initControls(activity);
+        fragment.initControls(activity, trackList);
         return fragment;
     }
 
@@ -79,6 +82,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             LargePlayerFragment.this.metadata = metadata;
             refreshUI();
             resetBar();
+        }
+    };
+
+    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            drawShuffleButton();
         }
     };
 
@@ -102,7 +113,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    private void initControls(Activity context) {
+    private void initControls(Activity context, TrackList trackList) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
@@ -110,6 +121,9 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         this.metadata = mediaController.getMetadata();
         this.playbackState = mediaController.getPlaybackState();
 
+        this.trackList = trackList;
+
+        registerTrackListReceiver(context);
         requestPosition(context);
     }
 
@@ -128,6 +142,12 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
+    }
+
+    void registerTrackListReceiver(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
+        context.registerReceiver(trackListReceiver, filter);
     }
 
     private Timer compositionProgressTimer;
@@ -193,24 +213,86 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
         ImageButton previousTrack = rootView.findViewById(R.id.previous);
         ImageButton nextTrack = rootView.findViewById(R.id.next);
+        ImageButton loop = rootView.findViewById(R.id.player_loop);
+        shuffle = rootView.findViewById(R.id.player_shuffle);
 
-        previousTrack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToPrevious();
-            }
-        });
+        drawLoopButton(loop);
+        drawShuffleButton();
 
-        nextTrack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                transportControls.skipToNext();
-            }
-        });
+        previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
+        nextTrack.setOnClickListener(v -> transportControls.skipToNext());
+        shuffle.setOnClickListener(v -> shuffle(shuffle));
+        loop.setOnClickListener(v -> loop(loop));
 
         refreshUI();
 
         return rootView;
+    }
+
+    private void drawLoopButton(ImageButton loop) {
+        Context context = getContext();
+        if (context != null) {
+            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopState) {
+                case Constants.NOT_LOOP:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
+                    break;
+                case Constants.LOOP_TRACK:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
+                    break;
+            }
+        }
+    }
+
+    private void drawShuffleButton() {
+        Context context = getContext();
+        if (context != null) {
+            if (trackList.isShuffled()) {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_shuffled));
+            } else {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_unshuffled));
+            }
+        }
+    }
+
+    private void shuffle(ImageButton shuffle) {
+        Context context = getContext();
+        if (context != null) {
+            context.sendBroadcast(new Intent(Constants.Actions.ACTION_SHUFFLE));
+            if (trackList.isShuffled()) {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_unshuffled));
+            } else {
+                shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_shuffled));
+            }
+        }
+    }
+
+    private void loop(ImageView button) {
+        Context context = getContext();
+        if (context != null) {
+            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopState) {
+                case Constants.NOT_LOOP:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
+                    break;
+                case Constants.LOOP_TRACK:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    editor.putInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+                    button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
+                    break;
+            }
+            editor.apply();
+        }
     }
 
     private void refreshUI() {
@@ -245,14 +327,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             stopUI();
         }
 
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isTrackPlaying()) {
-                    transportControls.pause();
-                } else {
-                    transportControls.play();
-                }
+        playPauseButton.setOnClickListener(v -> {
+            if (isTrackPlaying()) {
+                transportControls.pause();
+            } else {
+                transportControls.play();
             }
         });
 
@@ -275,6 +354,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     public void onDestroy() {
         super.onDestroy();
         Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
+        Objects.requireNonNull(getContext()).unregisterReceiver(trackListReceiver);
     }
 
 }

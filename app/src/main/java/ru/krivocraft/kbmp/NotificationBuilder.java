@@ -44,7 +44,7 @@ class NotificationBuilder {
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
         stopAction = new NotificationCompat.Action(R.drawable.ic_close, "stop",
-                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
+                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_REQUEST_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
     }
 
     Notification getNotification(MediaSessionCompat mediaSession) {

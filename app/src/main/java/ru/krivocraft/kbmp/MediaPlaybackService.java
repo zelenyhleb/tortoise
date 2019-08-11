@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,11 +62,17 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     private BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
-            result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
-            result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
-            result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
-            sendBroadcast(result);
+            if (Constants.Actions.ACTION_REQUEST_DATA.equals(intent.getAction())) {
+                Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
+                result.putExtra(Constants.Extras.EXTRA_POSITION, getProgress());
+                result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
+                result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
+                sendBroadcast(result);
+            } else {
+                Intent result = new Intent(Constants.Actions.ACTION_RESULT_TRACK_LIST);
+                result.putExtra(Constants.Extras.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
+                sendBroadcast(result);
+            }
         }
     };
 
@@ -73,18 +81,21 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         public void onReceive(Context context, Intent intent) {
             switch (Objects.requireNonNull(intent.getAction())) {
                 case Constants.Actions.ACTION_PLAY_FROM_LIST:
-                    List<String> trackList = Arrays.asList(intent.getStringArrayExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                    TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
                     String path = intent.getStringExtra(Constants.Extras.EXTRA_PATH);
                     if (!trackList.equals(playbackManager.getTrackList())) {
                         playbackManager.setTrackList(trackList);
                     }
                     playFromList(path);
                     break;
-                case Constants.Actions.ACTION_STOP:
+                case Constants.Actions.ACTION_REQUEST_STOP:
                     playbackManager.stop();
                     sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
                     hideNotification();
                     stopSelf();
+                    break;
+                case Constants.Actions.ACTION_SHUFFLE:
+                    playbackManager.shuffle();
                     break;
             }
         }
@@ -154,7 +165,27 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         notificationBuilder = new NotificationBuilder(this);
 
-        playbackManager = new PlaybackManager();
+        playbackManager = new PlaybackManager(() -> {
+            SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+            int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            switch (loopType) {
+                case Constants.LOOP_TRACK:
+                    playbackManager.newTrack(playbackManager.getCursor());
+                    break;
+                case Constants.LOOP_TRACK_LIST:
+                    if (playbackManager.getCursor() + 1 < playbackManager.getTrackList().size()) {
+                        playbackManager.nextTrack();
+                    } else {
+                        playbackManager.newTrack(0);
+                    }
+                    break;
+                case Constants.NOT_LOOP:
+                    if (playbackManager.getCursor() < playbackManager.getTrackList().size()) {
+                        playbackManager.nextTrack();
+                    }
+                    break;
+            }
+        });
         playbackManager.setPlayerStateCallback(new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
@@ -171,13 +202,11 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
         trackStorageManager = new TrackStorageManager(getContentResolver(), getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE), () -> {
-            List<String> storage = trackStorageManager.getStorage();
+            TrackList storage = trackStorageManager.getStorage();
 
             Intent updateIntent = new Intent(Constants.Actions.ACTION_UPDATE_STORAGE);
-            updateIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, (ArrayList) storage);
+            updateIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, storage.toJson());
             sendBroadcast(updateIntent);
-
-            playbackManager.setTrackList(storage);
         });
         trackStorageManager.search();
 
@@ -187,17 +216,19 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
         IntentFilter positionFilter = new IntentFilter();
         positionFilter.addAction(Constants.Actions.ACTION_REQUEST_DATA);
+        positionFilter.addAction(Constants.Actions.ACTION_REQUEST_TRACK_LIST);
         registerReceiver(requestDataReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(Constants.Actions.ACTION_STOP);
+        playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
+        playlistFilter.addAction(Constants.Actions.ACTION_SHUFFLE);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
     }
 
-    private void updateTrackList(List<String> list) {
+    private void updateTrackList(TrackList list) {
         Intent intent = new Intent(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
-        intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, list.toArray(new String[0]));
+        intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, list.toJson());
         sendBroadcast(intent);
     }
 
@@ -227,6 +258,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
     @Override
     public void onDestroy() {
+        clearShuffleState();
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(playlistReceiver);
         unregisterReceiver(requestDataReceiver);
@@ -239,6 +271,13 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         if (notification != null) {
             startForeground(NotificationBuilder.NOTIFY_ID, notification);
         }
+    }
+
+    private void clearShuffleState(){
+        SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(Constants.SHUFFLE_STATE, Constants.STATE_UNSHUFFLED);
+        editor.apply();
     }
 
     private void hideNotification() {

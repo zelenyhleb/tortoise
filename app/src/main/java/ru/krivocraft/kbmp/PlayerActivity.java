@@ -1,6 +1,10 @@
 package ru.krivocraft.kbmp;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
@@ -14,7 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -22,13 +26,17 @@ public class PlayerActivity extends AppCompatActivity {
     private final static int INDEX_FRAGMENT_PLAYLIST = 1;
     private ViewPager pager;
     private MediaBrowserCompat mediaBrowser;
-    private TrackList trackList = new TrackList("null", new ArrayList<>());
+
+    private TrackList trackList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         initMediaBrowser();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);
+        registerReceiver(receiver, filter);
     }
 
     private void initMediaBrowser() {
@@ -42,7 +50,7 @@ public class PlayerActivity extends AppCompatActivity {
                             MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
                             MediaControllerCompat controller = new MediaControllerCompat(PlayerActivity.this, token);
                             MediaControllerCompat.setMediaController(PlayerActivity.this, controller);
-                            initPager();
+                            sendBroadcast(new Intent(Constants.Actions.ACTION_REQUEST_TRACK_LIST));
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
@@ -69,9 +77,19 @@ public class PlayerActivity extends AppCompatActivity {
         pager.invalidate();
     }
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            initPager();
+        }
+    };
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mediaBrowser.disconnect();
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -91,7 +109,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
 
         @Override
@@ -106,7 +124,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         @NonNull
         private LargePlayerFragment getPlayerPage() {
-            return LargePlayerFragment.newInstance(PlayerActivity.this);
+            return LargePlayerFragment.newInstance(PlayerActivity.this, trackList);
         }
 
         private TrackListFragment getTrackListPage() {
