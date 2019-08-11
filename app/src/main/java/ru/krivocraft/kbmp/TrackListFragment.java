@@ -124,10 +124,6 @@ public class TrackListFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Context context = getContext();
-        if (context != null) {
-            context.unregisterReceiver(receiver);
-        }
         super.onDestroy();
     }
 
