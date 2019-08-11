@@ -17,11 +17,11 @@
 
         <ImageView
             android:id="@+id/track_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_margin="32dp"
+            android:layout_margin="16dp"
             android:background="@drawable/layout_bg" />
     </RelativeLayout>
 
@@ -29,7 +29,7 @@
         android:id="@+id/composition_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/controls_layout"
+        android:layout_above="@id/time_layout"
         android:layout_marginTop="64dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
@@ -75,8 +75,69 @@
         android:gravity="center"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_weight="1"
+            android:background="@null"
+            android:src="@drawable/ic_shuffled"
+            android:tint="@color/white"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/player_shuffle"/>
+
+        <ImageButton
+            android:layout_weight="1"
+            android:id="@+id/previous"
+            android:scaleType="fitCenter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@null"
+            android:src="@drawable/ic_previous"
+            tools:ignore="RtlHardcoded" />
+        <ImageButton
+            android:layout_weight="1"
+            android:id="@+id/play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:layout_margin="16dp"
+            android:background="@null"
+            android:src="@drawable/ic_play" />
+
+        <ImageButton
+            android:layout_weight="1"
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:layout_margin="16dp"
+            android:background="@null"
+            android:src="@drawable/ic_next"
+            tools:ignore="RtlHardcoded" />
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/player_loop"
+            android:background="@null"
+            android:layout_margin="16dp"
+            android:tint="@color/white"
+            android:src="@drawable/ic_loop_not"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time_layout"
+        android:layout_above="@id/controls_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -90,51 +151,6 @@
             android:text="@string/zerotime"
             tools:ignore="RtlHardcoded" />
 
-        <ImageButton
-            android:background="@null"
-            android:src="@drawable/ic_shuffled"
-            android:tint="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/player_shuffle"/>
-
-        <ImageButton
-            android:id="@+id/previous"
-            android:scaleType="fitCenter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@null"
-            android:src="@drawable/ic_previous"
-            tools:ignore="RtlHardcoded" />
-        <ImageButton
-            android:id="@+id/play_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
-            android:layout_margin="16dp"
-            android:background="@null"
-            android:src="@drawable/ic_play" />
-
-        <ImageButton
-            android:id="@+id/next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
-            android:layout_margin="16dp"
-            android:background="@null"
-            android:src="@drawable/ic_next"
-            tools:ignore="RtlHardcoded" />
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/player_loop"
-            android:background="@null"
-            android:tint="@color/white"
-            android:src="@drawable/ic_loop_not"/>
-
         <TextView
             android:id="@+id/composition_duration"
             android:layout_width="48dp"
@@ -145,7 +161,6 @@
             android:text="@string/zerotime"
             android:textAlignment="viewEnd"
             tools:ignore="RtlHardcoded" />
-
 
     </LinearLayout>
 

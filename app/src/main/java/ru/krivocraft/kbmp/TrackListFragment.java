@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,7 @@ public class TrackListFragment extends Fragment {
     };
     private ListView listView;
     private ProgressBar progressBar;
+    private TextView progressText;
 
     public TrackListFragment() {
     }
@@ -66,6 +68,7 @@ public class TrackListFragment extends Fragment {
         ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
         listView = rootView.findViewById(R.id.fragment_track_list);
         progressBar = rootView.findViewById(R.id.track_list_progress);
+        progressText = rootView.findViewById(R.id.obtaining_text_track_list);
 
         final Context context = getContext();
         if (context != null) {
@@ -108,15 +111,19 @@ public class TrackListFragment extends Fragment {
     }
 
     private void processPaths(Context context) {
+        progressBar.setMax(trackList.size());
+
         LoadDataTask task = new LoadDataTask();
         task.setContentResolver(context.getContentResolver());
-        task.setCallback(tracks -> {
+        task.setProgressCallback(progress -> progressBar.setProgress(progress));
+        task.setDataLoaderCallback(tracks -> {
             this.tracks = tracks;
             this.adapter = new TrackAdapter(this.tracks, context);
             listView.setAdapter(adapter);
             listView.setOnItemClickListener((parent, view, position, id) -> onItemClick(trackList, parent, view, position));
 
             progressBar.setVisibility(View.GONE);
+            progressText.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
         });
         task.execute(trackList.getTracks().toArray(new String[0]));

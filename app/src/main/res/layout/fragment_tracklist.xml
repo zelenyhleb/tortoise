@@ -34,10 +34,19 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp" />
 
+    <TextView
+        android:text="@string/obtaining_tracks_data"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/obtaining_text_track_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_list_progress"/>
+
     <ProgressBar
         android:id="@+id/track_list_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:indeterminate="false"
         android:layout_centerInParent="true" />
 
 </RelativeLayout>
