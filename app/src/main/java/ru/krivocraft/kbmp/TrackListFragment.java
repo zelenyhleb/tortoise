@@ -95,8 +95,7 @@ public class TrackListFragment extends Fragment {
                     }
                 });
                 buttonShuffle.setOnClickListener(v -> {
-                    Collections.shuffle(this.tracks);
-                    tracksAdapter.notifyDataSetChanged();
+                    tracksAdapter.shuffle();
                 });
                 searchFrame.setVisibility(View.VISIBLE);
                 buttonShuffle.setVisibility(View.VISIBLE);

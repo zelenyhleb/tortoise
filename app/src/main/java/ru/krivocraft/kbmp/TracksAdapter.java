@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -63,6 +64,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         sendUpdate();
         notifyItemMoved(fromPosition, toPosition);
         return true;
+    }
+
+    void shuffle() {
+        long seed = System.nanoTime();
+        Collections.shuffle(tracks, new Random(seed));
+        Collections.shuffle(trackList.getTracks(), new Random(seed));
+        notifyDataSetChanged();
     }
 
     private void sendUpdate() {
