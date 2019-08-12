@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,26 +53,16 @@ public class ExplorerFragment extends Fragment {
         }
     };
 
-    private List<TrackList> compileByAuthors() {
+    private void compileByAuthors() {
         Context context = getContext();
-        Map<String, TrackList> playlistMap = new HashMap<>();
-        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
-            TrackList source = readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME));
-            if (source != null) {
-                for (String track : source.getTracks()) {
-                    String artist = Utils.loadData(track, context.getContentResolver(), getPreference(context, Constants.KEY_RECOGNIZE_NAMES)).getArtist();
-                    TrackList trackList = playlistMap.get(artist);
-                    if (trackList == null) {
-                        trackList = new TrackList(artist, new ArrayList<>());
-                        playlistMap.put(artist, trackList);
-                    }
-                    if (!trackList.getTracks().contains(track)) {
-                        trackList.addTrack(track);
-                    }
-                }
-            }
+        if (context != null) {
+            CompileTrackListsTask task = new CompileTrackListsTask();
+            task.setContentResolver(context.getContentResolver());
+            task.setPreferences(context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
+            task.setRecognizeNames(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
+            task.setListener(trackLists -> adapter.notifyDataSetChanged());
+            task.execute(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME)));
         }
-        return new ArrayList<>(playlistMap.values());
     }
 
     private boolean getPreference(Context context, String keyRecognizeNames) {
@@ -273,8 +262,12 @@ public class ExplorerFragment extends Fragment {
     void invalidate() {
         adapter.clear();
         adapter.addAll(readTrackLists());
-        adapter.addAll(compileByAuthors());
         adapter.notifyDataSetChanged();
+
+        Context context = getContext();
+        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
+            compileByAuthors();
+        }
     }
 
     void setListener(OnItemClickListener listener) {
