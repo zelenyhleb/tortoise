@@ -1,7 +1,10 @@
 package ru.krivocraft.kbmp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -40,10 +43,10 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver) {
+    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver, boolean recognize) {
         ArrayList<Track> trackList = new ArrayList<>();
         for (String path : trackListToSearch) {
-            Track track = loadData(path, contentResolver);
+            Track track = loadData(path, contentResolver, recognize);
 
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
@@ -83,8 +86,7 @@ class Utils {
         return storage;
     }
 
-    static Track loadData(String path, ContentResolver contentResolver) {
-
+    static Track loadData(String path, ContentResolver contentResolver, boolean recognize) {
         String selection = MediaStore.Audio.Media.DATA + " = ?";
         String[] projection = {
                 MediaStore.Audio.Media.ARTIST,
@@ -94,7 +96,6 @@ class Utils {
         String[] args = {
                 path
         };
-
         String artist = Constants.UNKNOWN_ARTIST;
         String title = Constants.UNKNOWN_COMPOSITION;
         String duration = "0";
@@ -106,6 +107,20 @@ class Utils {
             title = cursor.getString(1);
             duration = cursor.getString(2);
             cursor.close();
+        }
+
+        if (recognize) {
+            String[] meta = title.split(" - ");
+            if (meta.length > 1) {
+                artist = meta[0];
+                title = meta[1];
+            } else {
+                meta = title.split(" — ");
+                if (meta.length > 1) {
+                    artist = meta[0];
+                    title = meta[1];
+                }
+            }
         }
 
         return new Track(duration, artist, title, path);
@@ -126,9 +141,30 @@ class Utils {
         return art;
     }
 
-    static boolean getOption(Context context, String key){
-        SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+    static boolean getOption(SharedPreferences preferences, String key) {
         return preferences.getBoolean(key, false);
     }
 
+    static void putOption(SharedPreferences preferences, String key, boolean value) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    static void clearCache(SharedPreferences preferences) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    static void restart(Context context) {
+        Intent mStartActivity = new Intent(context, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        if (mgr != null) {
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
+        }
+        System.exit(0);
+    }
 }

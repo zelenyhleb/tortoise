@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,26 +53,20 @@ public class ExplorerFragment extends Fragment {
         }
     };
 
-    private List<TrackList> compileByAuthors() {
+    private void compileByAuthors() {
         Context context = getContext();
-        Map<String, TrackList> playlistMap = new HashMap<>();
-        if (context != null && Utils.getOption(context, Constants.KEY_AUTO_SORT)) {
-            TrackList source = readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME));
-            if (source != null) {
-                for (String track : source.getTracks()) {
-                    String artist = Utils.loadData(track, context.getContentResolver()).getArtist();
-                    TrackList trackList = playlistMap.get(artist);
-                    if (trackList == null) {
-                        trackList = new TrackList(artist, new ArrayList<>());
-                        playlistMap.put(artist, trackList);
-                    }
-                    if (!trackList.getTracks().contains(track)) {
-                        trackList.addTrack(track);
-                    }
-                }
-            }
+        if (context != null) {
+            CompileTrackListsTask task = new CompileTrackListsTask();
+            task.setContentResolver(context.getContentResolver());
+            task.setPreferences(context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
+            task.setRecognizeNames(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
+            task.setListener(trackLists -> redrawList());
+            task.execute(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME)));
         }
-        return new ArrayList<>(playlistMap.values());
+    }
+
+    private boolean getPreference(Context context, String keyRecognizeNames) {
+        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), keyRecognizeNames);
     }
 
     @Override
@@ -137,6 +130,7 @@ public class ExplorerFragment extends Fragment {
 
         LoadDataTask loadDataTask = new LoadDataTask();
         loadDataTask.setContentResolver(context.getContentResolver());
+        loadDataTask.setRecognize(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
         loadDataTask.setProgressCallback(progressBar::setProgress);
         loadDataTask.setDataLoaderCallback(tracks -> {
             SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);
@@ -169,7 +163,7 @@ public class ExplorerFragment extends Fragment {
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
                 if (acceptTrackList(selectedTracks.size(), displayName, context)) {
-                    writeTrackList(new TrackList(displayName, selectedTracks));
+                    writeTrackList(new TrackList(displayName, selectedTracks, true));
                     dialog.dismiss();
                 }
             });
@@ -245,15 +239,22 @@ public class ExplorerFragment extends Fragment {
 
     private List<TrackList> readTrackLists() {
         Context context = getContext();
-        List<TrackList> tracks = new ArrayList<>();
+        List<TrackList> allTrackLists = new ArrayList<>();
         if (context != null) {
             SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                tracks.add(TrackList.fromJson((String) entry.getValue()));
+                TrackList trackList = TrackList.fromJson((String) entry.getValue());
+                if (!trackList.isCustom()) {
+                    if (getPreference(context, Constants.KEY_AUTO_SORT)) {
+                        allTrackLists.add(trackList);
+                    }
+                } else {
+                    allTrackLists.add(trackList);
+                }
             }
         }
-        return tracks;
+        return allTrackLists;
     }
 
     @Override
@@ -266,9 +267,17 @@ public class ExplorerFragment extends Fragment {
     }
 
     void invalidate() {
+        redrawList();
+
+        Context context = getContext();
+        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
+            compileByAuthors();
+        }
+    }
+
+    private void redrawList() {
         adapter.clear();
         adapter.addAll(readTrackLists());
-        adapter.addAll(compileByAuthors());
         adapter.notifyDataSetChanged();
     }
 

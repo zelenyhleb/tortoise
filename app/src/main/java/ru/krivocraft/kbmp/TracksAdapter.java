@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -19,18 +20,20 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private List<Track> tracks;
     private TrackList trackList;
     private Context context;
+    private final boolean editingAllowed;
 
-    TracksAdapter(List<Track> tracks, TrackList trackList, Context context) {
+    TracksAdapter(List<Track> tracks, TrackList trackList, Context context, boolean editingAllowed) {
         this.tracks = tracks;
         this.trackList = trackList;
         this.context = context;
+        this.editingAllowed = editingAllowed;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View root = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.track_list_item, viewGroup, false);
-        return new ViewHolder(root);
+        return new ViewHolder(root, editingAllowed);
     }
 
     @Override
@@ -65,6 +68,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         return true;
     }
 
+    void shuffle() {
+        long seed = System.nanoTime();
+        Collections.shuffle(tracks, new Random(seed));
+        Collections.shuffle(trackList.getTracks(), new Random(seed));
+        notifyDataSetChanged();
+    }
+
     private void sendUpdate() {
         context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
     }
@@ -76,12 +86,15 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         Track track;
         TrackList trackList;
 
-        ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView, boolean editingAllowed) {
             super(itemView);
             title = itemView.findViewById(R.id.composition_name_text);
             artist = itemView.findViewById(R.id.composition_author_text);
             art = itemView.findViewById(R.id.item_track_image);
             itemView.setOnClickListener(new OnClickListener());
+            if (editingAllowed) {
+                itemView.setOnLongClickListener(new OnLongClickListener());
+            }
         }
 
         void loadArt() {
@@ -108,6 +121,15 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
                 Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
                 v.getContext().sendBroadcast(interfaceIntent);
+            }
+        }
+
+        private class OnLongClickListener implements View.OnLongClickListener {
+
+            @Override
+            public boolean onLongClick(View v) {
+                v.getContext().startActivity(new Intent(v.getContext(), MetadataEditorActivity.class).putExtra(Constants.Extras.EXTRA_PATH, track.getPath()));
+                return true;
             }
         }
     }

@@ -11,9 +11,14 @@ public class LoadDataTask extends AsyncTask<String, Integer, List<Track>> {
     private DataLoaderCallback dataLoaderCallback;
     private ProgressCallback progressCallback;
     private ContentResolver contentResolver;
+    private boolean recognize;
 
     void setDataLoaderCallback(DataLoaderCallback dataLoaderCallback) {
         this.dataLoaderCallback = dataLoaderCallback;
+    }
+
+    void setRecognize(boolean recognize) {
+        this.recognize = recognize;
     }
 
     void setProgressCallback(ProgressCallback progressCallback) {
@@ -28,7 +33,7 @@ public class LoadDataTask extends AsyncTask<String, Integer, List<Track>> {
     protected List<Track> doInBackground(String... strings) {
         List<Track> tracks = new ArrayList<>();
         for (String path : strings) {
-            Track track = Utils.loadData(path, contentResolver);
+            Track track = Utils.loadData(path, contentResolver, recognize);
             tracks.add(track);
             publishProgress(tracks.indexOf(track));
         }

@@ -1,8 +1,6 @@
 package ru.krivocraft.kbmp;
 
 import android.graphics.Bitmap;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 
@@ -10,7 +8,7 @@ import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-class Track implements Parcelable {
+class Track {
 
     private boolean playing = false;
     private boolean selected = false;
@@ -22,23 +20,11 @@ class Track implements Parcelable {
     Track(@NonNull String duration, String artist, String title, @NonNull String path) {
 
         if (title != null) {
-            String[] meta = title.split(" - ");
-            if (meta.length > 1) {
-                artist = meta[0];
-                title = meta[1];
-            } else {
-                meta = title.split(" — ");
-                if (meta.length > 1) {
-                    artist = meta[0];
-                    title = meta[1];
-                } else {
-                    if (artist.equals("<unknown>")) {
-                        artist = Constants.UNKNOWN_ARTIST;
-                    }
-                    if (title.equals("<unknown>")) {
-                        title = Constants.UNKNOWN_COMPOSITION;
-                    }
-                }
+            if (artist.equals("<unknown>")) {
+                artist = Constants.UNKNOWN_ARTIST;
+            }
+            if (title.equals("<unknown>")) {
+                title = Constants.UNKNOWN_COMPOSITION;
             }
         }
 
@@ -49,25 +35,6 @@ class Track implements Parcelable {
     Track(MediaMetadataCompat metadata) {
         this.metadata = metadata;
     }
-
-    protected Track(Parcel in) {
-        playing = in.readByte() != 0;
-        selected = in.readByte() != 0;
-        checked = in.readByte() != 0;
-        metadata = in.readParcelable(MediaMetadataCompat.class.getClassLoader());
-    }
-
-    public static final Creator<Track> CREATOR = new Creator<Track>() {
-        @Override
-        public Track createFromParcel(Parcel in) {
-            return new Track(in);
-        }
-
-        @Override
-        public Track[] newArray(int size) {
-            return new Track[size];
-        }
-    };
 
     MediaMetadataCompat getAsMediaMetadata() {
         return metadata;
@@ -144,18 +111,5 @@ class Track implements Parcelable {
 
     long getDuration() {
         return metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (playing ? 1 : 0));
-        dest.writeByte((byte) (selected ? 1 : 0));
-        dest.writeByte((byte) (checked ? 1 : 0));
-        dest.writeParcelable(metadata, flags);
     }
 }

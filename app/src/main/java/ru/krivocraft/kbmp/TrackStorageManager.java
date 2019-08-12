@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -19,7 +18,7 @@ class TrackStorageManager {
         this.callback = callback;
         this.storage = sharedPreferences;
         this.contentResolver = contentResolver;
-        metaStorage = new TrackList(Constants.STORAGE_DISPLAY_NAME, new ArrayList<>());
+        metaStorage = new TrackList(Constants.STORAGE_DISPLAY_NAME, new ArrayList<>(), true);
     }
 
     void search() {

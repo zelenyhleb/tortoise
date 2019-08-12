@@ -198,7 +198,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
 
             @Override
             public void onTrackChanged(String track) {
-                mediaSession.setMetadata(Utils.loadData(track, MediaPlaybackService.this.getContentResolver()).getAsMediaMetadata());
+                mediaSession.setMetadata(Utils.loadData(track, MediaPlaybackService.this.getContentResolver(), getPreference()).getAsMediaMetadata());
                 showNotification();
             }
         });
@@ -228,6 +228,10 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         playlistFilter.addAction(Constants.Actions.ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);
+    }
+
+    private boolean getPreference() {
+        return Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
     }
 
     private void updateTrackList(TrackList list) {

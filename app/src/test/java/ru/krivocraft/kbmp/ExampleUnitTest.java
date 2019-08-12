@@ -2,6 +2,11 @@ package ru.krivocraft.kbmp;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -12,6 +17,14 @@ import static org.junit.Assert.assertEquals;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        List<Integer> quests = Arrays.asList(1, 2, 3, 4, 5);
+        List<Integer> answers = Arrays.asList(10, 20, 30, 40, 50);
+
+        long seed = System.nanoTime();
+        Collections.shuffle(quests, new Random(seed));
+        Collections.shuffle(answers, new Random(seed));
+
+        System.out.println(quests);
+        System.out.println(answers);
     }
 }
