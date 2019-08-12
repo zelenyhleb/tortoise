@@ -57,16 +57,14 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             CompileTrackListsTask task = new CompileTrackListsTask();
-            task.setContentResolver(context.getContentResolver());
             task.setPreferences(context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
-            task.setRecognizeNames(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
             task.setListener(trackLists -> redrawList());
             task.execute(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME)));
         }
     }
 
-    private boolean getPreference(Context context, String keyRecognizeNames) {
-        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), keyRecognizeNames);
+    private boolean getPreference(Context context) {
+        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
     }
 
     @Override
@@ -83,9 +81,7 @@ public class ExplorerFragment extends Fragment {
             adapter = new TrackListAdapter(readTrackLists(), context);
             invalidate();
             gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener((parent, view, position, id) -> {
-                listener.onItemClick((TrackList) parent.getItemAtPosition(position));
-            });
+            gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
                 if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_DISPLAY_NAME)) {
@@ -108,9 +104,7 @@ public class ExplorerFragment extends Fragment {
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Are you sure?")
                 .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> {
-                    removeTrackList(item);
-                })
+                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList(item))
                 .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
@@ -123,34 +117,28 @@ public class ExplorerFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
         TextView textView = view.findViewById(R.id.obtaining_text);
 
-        List<String> allTracks = Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks();
+        List<Track> allTracks = Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks();
         progressBar.setMax(allTracks.size());
 
-        List<String> selectedTracks = new ArrayList<>();
+        List<Track> selectedTracks = new ArrayList<>();
 
-        LoadDataTask loadDataTask = new LoadDataTask();
-        loadDataTask.setContentResolver(context.getContentResolver());
-        loadDataTask.setRecognize(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
-        loadDataTask.setProgressCallback(progressBar::setProgress);
-        loadDataTask.setDataLoaderCallback(tracks -> {
-            SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener((parent, view1, position, id) -> {
-                Track item = (Track) parent.getItemAtPosition(position);
-                if (selectedTracks.contains(item.getPath())) {
-                    selectedTracks.remove(item.getPath());
-                    item.setChecked(false);
-                } else {
-                    selectedTracks.add(item.getPath());
-                    item.setChecked(true);
-                }
-                adapter.notifyDataSetInvalidated();
-            });
-            progressBar.setVisibility(View.INVISIBLE);
-            textView.setVisibility(View.INVISIBLE);
-            listView.setVisibility(View.VISIBLE);
-            editText.setVisibility(View.VISIBLE);
+        SelectableTracksAdapter adapter = new SelectableTracksAdapter(allTracks, context);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            Track item = (Track) parent.getItemAtPosition(position);
+            if (selectedTracks.contains(item)) {
+                selectedTracks.remove(item);
+                item.setChecked(false);
+            } else {
+                selectedTracks.add(item);
+                item.setChecked(true);
+            }
+            adapter.notifyDataSetInvalidated();
         });
+        progressBar.setVisibility(View.INVISIBLE);
+        textView.setVisibility(View.INVISIBLE);
+        listView.setVisibility(View.VISIBLE);
+        editText.setVisibility(View.VISIBLE);
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Select tracks")
@@ -171,7 +159,6 @@ public class ExplorerFragment extends Fragment {
 
         alertDialog.show();
 
-        loadDataTask.execute(allTracks.toArray(new String[0]));
     }
 
     private boolean acceptTrackList(int arrayLength, String displayName, Context context) {
@@ -246,7 +233,7 @@ public class ExplorerFragment extends Fragment {
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());
                 if (!trackList.isCustom()) {
-                    if (getPreference(context, Constants.KEY_AUTO_SORT)) {
+                    if (getPreference(context)) {
                         allTrackLists.add(trackList);
                     }
                 } else {
@@ -270,7 +257,7 @@ public class ExplorerFragment extends Fragment {
         redrawList();
 
         Context context = getContext();
-        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
+        if (context != null && getPreference(context)) {
             compileByAuthors();
         }
     }

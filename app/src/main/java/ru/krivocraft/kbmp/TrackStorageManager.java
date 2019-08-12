@@ -13,16 +13,19 @@ class TrackStorageManager {
     private OnStorageUpdateCallback callback;
     private SharedPreferences storage;
     private TrackList metaStorage;
+    private boolean recognize;
 
-    TrackStorageManager(ContentResolver contentResolver, SharedPreferences sharedPreferences, OnStorageUpdateCallback callback) {
+    TrackStorageManager(ContentResolver contentResolver, SharedPreferences sharedPreferences, OnStorageUpdateCallback callback, boolean recognize) {
         this.callback = callback;
         this.storage = sharedPreferences;
         this.contentResolver = contentResolver;
+        this.recognize = recognize;
+
         metaStorage = new TrackList(Constants.STORAGE_DISPLAY_NAME, new ArrayList<>(), true);
     }
 
     void search() {
-        new GetFromDiskTask(contentResolver, metaStorage, this::notifyListener).execute();
+        new GetFromDiskTask(contentResolver, recognize, metaStorage, this::notifyListener).execute();
     }
 
     private void notifyListener() {

@@ -43,10 +43,9 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver, boolean recognize) {
-        ArrayList<Track> trackList = new ArrayList<>();
-        for (String path : trackListToSearch) {
-            Track track = loadData(path, contentResolver, recognize);
+    static List<Track> search(CharSequence string, List<Track> trackListToSearch) {
+        List<Track> trackList = new ArrayList<>();
+        for (Track track : trackListToSearch) {
 
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
@@ -59,7 +58,7 @@ class Utils {
         return trackList;
     }
 
-    static ArrayList<String> search(ContentResolver contentResolver) {
+    static List<Track> search(ContentResolver contentResolver, boolean recognize) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.DATA,
@@ -68,17 +67,36 @@ class Utils {
                 MediaStore.Audio.Media.DURATION
         };
         final String sortOrder = MediaStore.Audio.AudioColumns.DATA + " COLLATE LOCALIZED ASC";
-        ArrayList<String> storage = new ArrayList<>();
+        List<Track> storage = new ArrayList<>();
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
+
                 String path = cursor.getString(0);
+                String artist = cursor.getString(1);
+                String title = cursor.getString(2);
+                long duration = cursor.getLong(3);
+
+                if (recognize) {
+                    String[] meta = title.split(" - ");
+                    if (meta.length > 1) {
+                        artist = meta[0];
+                        title = meta[1];
+                    } else {
+                        meta = title.split(" — ");
+                        if (meta.length > 1) {
+                            artist = meta[0];
+                            title = meta[1];
+                        }
+                    }
+                }
+
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3")) {
-                    storage.add(path);
+                    storage.add(new Track(duration, artist, title, path));
                 }
             }
             cursor.close();
@@ -98,14 +116,14 @@ class Utils {
         };
         String artist = Constants.UNKNOWN_ARTIST;
         String title = Constants.UNKNOWN_COMPOSITION;
-        String duration = "0";
+        long duration = 0;
 
         Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, args, MediaStore.Audio.Media.TITLE);
         if (cursor != null) {
             cursor.moveToFirst();
             artist = cursor.getString(0);
             title = cursor.getString(1);
-            duration = cursor.getString(2);
+            duration = cursor.getLong(2);
             cursor.close();
         }
 
@@ -141,8 +159,8 @@ class Utils {
         return art;
     }
 
-    static boolean getOption(SharedPreferences preferences, String key) {
-        return preferences.getBoolean(key, false);
+    static boolean getOption(SharedPreferences preferences, String key, boolean defValue) {
+        return preferences.getBoolean(key, defValue);
     }
 
     static void putOption(SharedPreferences preferences, String key, boolean value) {

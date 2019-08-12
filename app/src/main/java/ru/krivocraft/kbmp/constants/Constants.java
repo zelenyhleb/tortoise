@@ -44,7 +44,7 @@ public class Constants {
     public static class Extras {
         public static final String EXTRA_POSITION = "position";
         public static final String EXTRA_METADATA = "metadata";
-        public static final String EXTRA_PATH = "path";
+        public static final String EXTRA_TRACK = "path";
         public static final String EXTRA_PLAYBACK_STATE = "playback_state";
         public static final String EXTRA_TRACK_LIST = "track_list_extra";
     }

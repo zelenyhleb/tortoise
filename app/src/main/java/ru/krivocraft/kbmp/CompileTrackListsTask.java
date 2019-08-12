@@ -1,6 +1,5 @@
 package ru.krivocraft.kbmp;
 
-import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
@@ -13,17 +12,15 @@ import java.util.Map;
 public class CompileTrackListsTask extends AsyncTask<TrackList, Integer, List<TrackList>> {
 
     private OnTrackListsCompiledListener listener;
-    private ContentResolver contentResolver;
     private SharedPreferences preferences;
-    private boolean recognizeNames;
 
     @Override
     protected List<TrackList> doInBackground(TrackList... trackLists) {
         Map<String, TrackList> playlistMap = new HashMap<>();
         TrackList source = trackLists[0];
         if (source != null) {
-            for (String track : source.getTracks()) {
-                String artist = Utils.loadData(track, contentResolver, recognizeNames).getArtist();
+            for (Track track : source.getTracks()) {
+                String artist = track.getArtist();
                 TrackList trackList = playlistMap.get(artist);
                 if (trackList == null) {
                     trackList = new TrackList(artist, new ArrayList<>(), false);
@@ -46,14 +43,6 @@ public class CompileTrackListsTask extends AsyncTask<TrackList, Integer, List<Tr
 
     void setListener(OnTrackListsCompiledListener listener) {
         this.listener = listener;
-    }
-
-    void setContentResolver(ContentResolver contentResolver) {
-        this.contentResolver = contentResolver;
-    }
-
-    void setRecognizeNames(boolean recognizeNames) {
-        this.recognizeNames = recognizeNames;
     }
 
     void setPreferences(SharedPreferences preferences) {

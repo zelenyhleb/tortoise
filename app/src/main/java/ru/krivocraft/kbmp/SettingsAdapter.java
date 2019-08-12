@@ -38,7 +38,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT);
+                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
                 s.setChecked(autoSort);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (autoSort) {
@@ -52,7 +52,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
+                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
                 s.setChecked(recognize);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (recognize) {

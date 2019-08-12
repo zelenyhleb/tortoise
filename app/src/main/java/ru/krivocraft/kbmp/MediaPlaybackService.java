@@ -79,11 +79,11 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             switch (Objects.requireNonNull(intent.getAction())) {
                 case Constants.Actions.ACTION_PLAY_FROM_LIST:
                     TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-                    String path = intent.getStringExtra(Constants.Extras.EXTRA_PATH);
+                    Track item = Track.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK));
                     if (!trackList.equals(playbackManager.getTrackList())) {
                         playbackManager.setTrackList(trackList, true);
                     }
-                    playFromList(path, trackList);
+                    playFromList(item, trackList);
                     break;
                 case Constants.Actions.ACTION_REQUEST_STOP:
                     playbackManager.stop();
@@ -96,7 +96,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
                     break;
                 case Constants.Actions.ACTION_EDIT_TRACK_LIST:
                     TrackList in = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-                    String track = playbackManager.getCurrentTrack();
+                    Track track = playbackManager.getCurrentTrack();
                     playbackManager.setTrackList(in, false);
                     playbackManager.setCursor(in.indexOf(track));
                     break;
@@ -197,8 +197,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             }
 
             @Override
-            public void onTrackChanged(String track) {
-                mediaSession.setMetadata(Utils.loadData(track, MediaPlaybackService.this.getContentResolver(), getPreference()).getAsMediaMetadata());
+            public void onTrackChanged(Track track) {
+                mediaSession.setMetadata(track.getAsMediaMetadata());
                 showNotification();
             }
         });
@@ -210,7 +210,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
             Intent updateIntent = new Intent(Constants.Actions.ACTION_UPDATE_STORAGE);
             updateIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, storage.toJson());
             sendBroadcast(updateIntent);
-        });
+        }, Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true));
         trackStorageManager.search();
 
         IntentFilter headsetFilter = new IntentFilter();
@@ -231,7 +231,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     }
 
     private boolean getPreference() {
-        return Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
+        return Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, false);
     }
 
     private void updateTrackList(TrackList list) {
@@ -240,20 +240,20 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         sendBroadcast(intent);
     }
 
-    private void playFromList(String path, TrackList trackList) {
+    private void playFromList(Track track, TrackList trackList) {
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
-            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
+            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(path) && trackList.equals(playbackManager.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(track.getPath()) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
-                playbackManager.setCursor(playbackManager.getTrackList().indexOf(path));
+                playbackManager.setCursor(playbackManager.getTrackList().indexOf(track));
             } else {
-                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(path));
+                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
             }
         }
     }
@@ -293,7 +293,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         stopForeground(true);
     }
 
-    String getCurrentTrack() {
+    Track getCurrentTrack() {
         return playbackManager.getCurrentTrack();
     }
 

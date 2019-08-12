@@ -10,13 +10,14 @@ import java.util.List;
 
 class TrackList {
     private String displayName;
-    private List<String> tracks;
     private boolean shuffled = false;
     private final boolean custom;
 
-    private List<String> shuffleCache;
+    private List<Track> tracks;
 
-    TrackList(String displayName, List<String> tracks, boolean custom) {
+    private List<Track> shuffleCache;
+
+    TrackList(String displayName, List<Track> tracks, boolean custom) {
         this.displayName = displayName;
         this.tracks = tracks;
         this.custom = custom;
@@ -27,14 +28,14 @@ class TrackList {
         return displayName.toLowerCase().replace(" ", "");
     }
 
-    int shuffle(String currentTrack) {
-        if (!isShuffled()){
+    int shuffle(Track currentTrack) {
+        if (!isShuffled()) {
             shuffleCache = new ArrayList<>(tracks);
             tracks.remove(currentTrack);
 
             Collections.shuffle(tracks);
 
-            List<String> shuffled = new ArrayList<>();
+            List<Track> shuffled = new ArrayList<>();
             shuffled.add(currentTrack);
             shuffled.addAll(tracks);
             tracks = shuffled;
@@ -49,7 +50,7 @@ class TrackList {
 
     }
 
-    int indexOf(String item) {
+    int indexOf(Track item) {
         return tracks.indexOf(item);
     }
 
@@ -57,11 +58,15 @@ class TrackList {
         return tracks.size();
     }
 
+    Track get(int index) {
+        return tracks.get(index);
+    }
+
     String getIdentifier() {
         return createIdentifier(displayName);
     }
 
-    List<String> getTracks() {
+    List<Track> getTracks() {
         return tracks;
     }
 
@@ -73,7 +78,7 @@ class TrackList {
         return new Gson().toJson(this);
     }
 
-    void addTrack(String track) {
+    void addTrack(Track track) {
         tracks.add(track);
     }
 

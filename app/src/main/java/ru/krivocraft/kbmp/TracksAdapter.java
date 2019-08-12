@@ -11,19 +11,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
-    private List<Track> tracks;
     private TrackList trackList;
     private Context context;
     private final boolean editingAllowed;
 
-    TracksAdapter(List<Track> tracks, TrackList trackList, Context context, boolean editingAllowed) {
-        this.tracks = tracks;
+    TracksAdapter(TrackList trackList, Context context, boolean editingAllowed) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
@@ -38,28 +35,26 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        viewHolder.title.setText(tracks.get(i).getTitle());
-        viewHolder.artist.setText(tracks.get(i).getArtist());
-        viewHolder.track = tracks.get(i);
+        viewHolder.title.setText(trackList.get(i).getTitle());
+        viewHolder.artist.setText(trackList.get(i).getArtist());
+        viewHolder.track = trackList.get(i);
         viewHolder.trackList = trackList;
         viewHolder.loadArt();
     }
 
     @Override
     public int getItemCount() {
-        return tracks.size();
+        return trackList.size();
     }
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(tracks, i, i + 1);
                 Collections.swap(trackList.getTracks(), i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(tracks, i, i - 1);
                 Collections.swap(trackList.getTracks(), i, i - 1);
             }
         }
@@ -70,7 +65,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     void shuffle() {
         long seed = System.nanoTime();
-        Collections.shuffle(tracks, new Random(seed));
         Collections.shuffle(trackList.getTracks(), new Random(seed));
         notifyDataSetChanged();
     }
@@ -115,7 +109,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
-                serviceIntent.putExtra(Constants.Extras.EXTRA_PATH, track.getPath());
+                serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK, track.toJson());
                 serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson());
                 v.getContext().sendBroadcast(serviceIntent);
 
@@ -128,7 +122,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
             @Override
             public boolean onLongClick(View v) {
-                v.getContext().startActivity(new Intent(v.getContext(), MetadataEditorActivity.class).putExtra(Constants.Extras.EXTRA_PATH, track.getPath()));
+                v.getContext().startActivity(new Intent(v.getContext(), MetadataEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, track.toJson()));
                 return true;
             }
         }
