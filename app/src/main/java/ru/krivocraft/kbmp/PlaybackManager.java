@@ -137,7 +137,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     private List<String> getTracks() {
-        return getTrackList().getTracks();
+        if (getTrackList() != null)
+            return getTrackList().getTracks();
+        else
+            return null;
     }
 
     void setPlayerStateCallback(PlayerStateCallback playerStateCallback) {
@@ -157,7 +160,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     String getCurrentTrack() {
-        return getTracks().get(cursor);
+        if (getTracks() != null)
+            return getTracks().get(cursor);
+        else
+            return null;
     }
 
     private void updatePlaybackState() {

@@ -54,7 +54,7 @@ class NotificationBuilder {
             android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
             mediaStyle.setShowCancelButton(true);
-            mediaStyle.setShowActionsInCompactView(2);
+            mediaStyle.setShowActionsInCompactView(1, 2, 3);
 
 
             NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
