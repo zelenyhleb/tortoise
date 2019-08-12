@@ -1,7 +1,6 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -40,10 +39,10 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver) {
+    static List<Track> search(CharSequence string, List<String> trackListToSearch, ContentResolver contentResolver, boolean recognize) {
         ArrayList<Track> trackList = new ArrayList<>();
         for (String path : trackListToSearch) {
-            Track track = loadData(path, contentResolver);
+            Track track = loadData(path, contentResolver, recognize);
 
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
@@ -83,7 +82,7 @@ class Utils {
         return storage;
     }
 
-    static Track loadData(String path, ContentResolver contentResolver) {
+    static Track loadData(String path, ContentResolver contentResolver, boolean recognize) {
 
         String selection = MediaStore.Audio.Media.DATA + " = ?";
         String[] projection = {
@@ -108,6 +107,20 @@ class Utils {
             cursor.close();
         }
 
+        if (recognize) {
+            String[] meta = title.split(" - ");
+            if (meta.length > 1) {
+                artist = meta[0];
+                title = meta[1];
+            } else {
+                meta = title.split(" — ");
+                if (meta.length > 1) {
+                    artist = meta[0];
+                    title = meta[1];
+                }
+            }
+        }
+
         return new Track(duration, artist, title, path);
     }
 
@@ -126,9 +139,14 @@ class Utils {
         return art;
     }
 
-    static boolean getOption(Context context, String key){
-        SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+    static boolean getOption(SharedPreferences preferences, String key){
         return preferences.getBoolean(key, false);
+    }
+
+    static void putOption(SharedPreferences preferences, String key, boolean value){
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
     }
 
 }

@@ -22,23 +22,11 @@ class Track implements Parcelable {
     Track(@NonNull String duration, String artist, String title, @NonNull String path) {
 
         if (title != null) {
-            String[] meta = title.split(" - ");
-            if (meta.length > 1) {
-                artist = meta[0];
-                title = meta[1];
-            } else {
-                meta = title.split(" — ");
-                if (meta.length > 1) {
-                    artist = meta[0];
-                    title = meta[1];
-                } else {
-                    if (artist.equals("<unknown>")) {
-                        artist = Constants.UNKNOWN_ARTIST;
-                    }
-                    if (title.equals("<unknown>")) {
-                        title = Constants.UNKNOWN_COMPOSITION;
-                    }
-                }
+            if (artist.equals("<unknown>")) {
+                artist = Constants.UNKNOWN_ARTIST;
+            }
+            if (title.equals("<unknown>")) {
+                title = Constants.UNKNOWN_COMPOSITION;
             }
         }
 

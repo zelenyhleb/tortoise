@@ -20,7 +20,6 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.Collections;
 import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
@@ -31,7 +30,6 @@ public class TrackListFragment extends Fragment {
     private boolean showControls;
 
     private TrackList trackList;
-    private List<Track> tracks;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -83,7 +81,7 @@ public class TrackListFragment extends Fragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver());
+                        List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver(), getPreference(context));
                         recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
@@ -94,9 +92,7 @@ public class TrackListFragment extends Fragment {
                     public void afterTextChanged(Editable s) {
                     }
                 });
-                buttonShuffle.setOnClickListener(v -> {
-                    tracksAdapter.shuffle();
-                });
+                buttonShuffle.setOnClickListener(v -> tracksAdapter.shuffle());
                 searchFrame.setVisibility(View.VISIBLE);
                 buttonShuffle.setVisibility(View.VISIBLE);
             } else {
@@ -110,14 +106,18 @@ public class TrackListFragment extends Fragment {
         return rootView;
     }
 
+    private boolean getPreference(Context context) {
+        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
+    }
+
     private void processPaths(Context context) {
         progressBar.setMax(trackList.size());
 
         LoadDataTask task = new LoadDataTask();
         task.setContentResolver(context.getContentResolver());
+        task.setRecognize(getPreference(context));
         task.setProgressCallback(progress -> progressBar.setProgress(progress));
         task.setDataLoaderCallback(tracks -> {
-            this.tracks = tracks;
             this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
             this.tracksAdapter = new TracksAdapter(tracks, trackList, context);
             this.recyclerView.setAdapter(tracksAdapter);

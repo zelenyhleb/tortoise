@@ -57,11 +57,11 @@ public class ExplorerFragment extends Fragment {
     private List<TrackList> compileByAuthors() {
         Context context = getContext();
         Map<String, TrackList> playlistMap = new HashMap<>();
-        if (context != null && Utils.getOption(context, Constants.KEY_AUTO_SORT)) {
+        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
             TrackList source = readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME));
             if (source != null) {
                 for (String track : source.getTracks()) {
-                    String artist = Utils.loadData(track, context.getContentResolver()).getArtist();
+                    String artist = Utils.loadData(track, context.getContentResolver(), getPreference(context, Constants.KEY_RECOGNIZE_NAMES)).getArtist();
                     TrackList trackList = playlistMap.get(artist);
                     if (trackList == null) {
                         trackList = new TrackList(artist, new ArrayList<>());
@@ -74,6 +74,10 @@ public class ExplorerFragment extends Fragment {
             }
         }
         return new ArrayList<>(playlistMap.values());
+    }
+
+    private boolean getPreference(Context context, String keyRecognizeNames) {
+        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), keyRecognizeNames);
     }
 
     @Override
@@ -137,6 +141,7 @@ public class ExplorerFragment extends Fragment {
 
         LoadDataTask loadDataTask = new LoadDataTask();
         loadDataTask.setContentResolver(context.getContentResolver());
+        loadDataTask.setRecognize(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
         loadDataTask.setProgressCallback(progressBar::setProgress);
         loadDataTask.setDataLoaderCallback(tracks -> {
             SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);

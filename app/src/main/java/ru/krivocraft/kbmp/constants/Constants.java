@@ -14,7 +14,7 @@ public class Constants {
 
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_AUTO_SORT = "autoSort";
-
+    public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
 
     public static final String SHUFFLE_STATE = "shuffle_state";
     public static final int STATE_SHUFFLED = 120;
