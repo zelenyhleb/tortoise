@@ -83,7 +83,6 @@ class Utils {
     }
 
     static Track loadData(String path, ContentResolver contentResolver, boolean recognize) {
-
         String selection = MediaStore.Audio.Media.DATA + " = ?";
         String[] projection = {
                 MediaStore.Audio.Media.ARTIST,
@@ -93,7 +92,6 @@ class Utils {
         String[] args = {
                 path
         };
-
         String artist = Constants.UNKNOWN_ARTIST;
         String title = Constants.UNKNOWN_COMPOSITION;
         String duration = "0";

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -82,7 +83,7 @@ public class TrackListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver(), getPreference(context));
-                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context));
+                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context, showControls));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }
@@ -119,7 +120,7 @@ public class TrackListFragment extends Fragment {
         task.setProgressCallback(progress -> progressBar.setProgress(progress));
         task.setDataLoaderCallback(tracks -> {
             this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            this.tracksAdapter = new TracksAdapter(tracks, trackList, context);
+            this.tracksAdapter = new TracksAdapter(tracks, trackList, context, showControls);
             this.recyclerView.setAdapter(tracksAdapter);
 
             progressBar.setVisibility(View.GONE);
