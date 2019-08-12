@@ -26,7 +26,7 @@ public class CompileTrackListsTask extends AsyncTask<TrackList, Integer, List<Tr
                 String artist = Utils.loadData(track, contentResolver, recognizeNames).getArtist();
                 TrackList trackList = playlistMap.get(artist);
                 if (trackList == null) {
-                    trackList = new TrackList(artist, new ArrayList<>());
+                    trackList = new TrackList(artist, new ArrayList<>(), false);
                     playlistMap.put(artist, trackList);
                 }
                 if (!trackList.getTracks().contains(track)) {

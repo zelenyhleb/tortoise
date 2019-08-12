@@ -1,6 +1,10 @@
 package ru.krivocraft.kbmp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -137,14 +141,30 @@ class Utils {
         return art;
     }
 
-    static boolean getOption(SharedPreferences preferences, String key){
+    static boolean getOption(SharedPreferences preferences, String key) {
         return preferences.getBoolean(key, false);
     }
 
-    static void putOption(SharedPreferences preferences, String key, boolean value){
+    static void putOption(SharedPreferences preferences, String key, boolean value) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean(key, value);
         editor.apply();
     }
 
+    static void clearCache(SharedPreferences preferences) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    static void restart(Context context) {
+        Intent mStartActivity = new Intent(context, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        if (mgr != null) {
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
+        }
+        System.exit(0);
+    }
 }

@@ -12,12 +12,14 @@ class TrackList {
     private String displayName;
     private List<String> tracks;
     private boolean shuffled = false;
+    private final boolean custom;
 
     private List<String> shuffleCache;
 
-    TrackList(String displayName, List<String> tracks) {
+    TrackList(String displayName, List<String> tracks, boolean custom) {
         this.displayName = displayName;
         this.tracks = tracks;
+        this.custom = custom;
     }
 
     @NonNull
@@ -85,5 +87,9 @@ class TrackList {
 
     private void setShuffled(boolean shuffled) {
         this.shuffled = shuffled;
+    }
+
+    boolean isCustom() {
+        return custom;
     }
 }
