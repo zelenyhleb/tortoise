@@ -2,10 +2,13 @@ package ru.krivocraft.kbmp;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +19,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 class TrackStorageManager {
 
+    private final Context context;
     private ContentResolver contentResolver;
     private SharedPreferences storage;
     private SharedPreferences trackLists;
@@ -28,31 +32,63 @@ class TrackStorageManager {
         this.contentResolver = context.getContentResolver();
         this.recognize = Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
 
+        this.context = context;
         metaStorage = new ArrayList<>();
     }
 
     static List<Track> getTrackStorage(Context context) {
-        return fromJson(context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE)
-                .getString(Constants.TRACKS_NAME, toJson(new ArrayList<>())));
+        List<Track> tracks = new ArrayList<>();
+        int i = 0;
+        TrackReference reference;
+        String json;
+        while (true) {
+            reference = new TrackReference(i);
+            json = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE).getString(reference.toString(), null);
+            if (json != null) {
+                tracks.add(Track.fromJson(json));
+                i++;
+            } else {
+                break;
+            }
+        }
+        return tracks;
     }
 
     static Track getTrack(Context context, TrackReference reference) {
         SharedPreferences preferences = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
-        return Track.fromJson(preferences.getString(reference.toString(), new Track(0, "", "", "").toJson()));
+        String json = preferences.getString(reference.toString(), new Track(0, "", "", "").toJson());
+        return Track.fromJson(json);
     }
 
     void search() {
         new GetFromDiskTask(contentResolver, recognize, metaStorage, this::notifyListener).execute();
     }
 
+    static void updateTrack(Context context, TrackReference reference, Track track) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE).edit();
+        editor.putString(reference.toString(), track.toJson());
+        editor.apply();
+    }
+
+    static TrackReference getReference(Context context, String path) {
+        return new TrackReference(new ArrayList<>(CollectionUtils.collect(getTrackStorage(context), Track::getPath)).indexOf(path));
+    }
+
     private void notifyListener() {
         List<TrackReference> allTracks = new ArrayList<>();
+
+        List<Track> existingTracks = getTrackStorage(context);
 
         SharedPreferences.Editor tracksEditor = storage.edit();
         for (int i = 0; i < metaStorage.size(); i++) {
             TrackReference reference = new TrackReference(i);
+            Track track = metaStorage.get(i);
+
+            if (!existingTracks.contains(track)) {
+                tracksEditor.putString(reference.toString(), track.toJson());
+            }
+
             allTracks.add(reference);
-            tracksEditor.putString(reference.toString(), metaStorage.get(i).toJson());
         }
         tracksEditor.apply();
 
@@ -61,15 +97,8 @@ class TrackStorageManager {
         trackListsEditor.putString(trackList.getIdentifier(), trackList.toJson());
         trackListsEditor.apply();
 
-    }
+        context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
 
-    private static String toJson(List<Track> metaStorage) {
-        return new Gson().toJson(metaStorage);
-    }
-
-    static List<Track> fromJson(String json) {
-        return new Gson().fromJson(json, new TypeToken<List<Track>>() {
-        }.getType());
     }
 
 }

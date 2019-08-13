@@ -20,6 +20,8 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.List;
+
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends Fragment {
@@ -79,7 +81,7 @@ public class TrackListFragment extends Fragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                        List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTrackReferences());
+//                        List<TrackReference> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTrackReferences());
 //                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, false), context, showControls));
 //                        if (s.length() == 0) {
 //                            recyclerView.setAdapter(tracksAdapter);

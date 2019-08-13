@@ -1,6 +1,9 @@
 package ru.krivocraft.kbmp;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -50,6 +53,13 @@ public class ExplorerFragment extends Fragment {
         }
     }
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            invalidate();
+        }
+    };
+
     private boolean getPreference(Context context) {
         return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
     }
@@ -66,7 +76,10 @@ public class ExplorerFragment extends Fragment {
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
             adapter = new TrackListAdapter(readTrackLists(), context);
+
+            context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
             invalidate();
+
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -234,6 +247,10 @@ public class ExplorerFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Context context = getContext();
+        if (context != null) {
+            context.unregisterReceiver(receiver);
+        }
     }
 
     void invalidate() {

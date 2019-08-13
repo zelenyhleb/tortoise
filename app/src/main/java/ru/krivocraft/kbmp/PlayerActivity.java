@@ -34,6 +34,11 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
+        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
+            setTheme(R.style.LightTheme);
+        }
+
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);

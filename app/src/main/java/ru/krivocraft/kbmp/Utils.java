@@ -43,18 +43,18 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static List<Track> search(CharSequence string, List<Track> trackListToSearch) {
-        List<Track> trackList = new ArrayList<>();
-        for (Track track : trackListToSearch) {
-
-            String formattedName = track.getTitle().toLowerCase();
-            String formattedArtist = track.getArtist().toLowerCase();
-            String formattedSearchStr = string.toString().toLowerCase();
-
-            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.add(track);
-            }
-        }
+    static List<TrackReference> search(CharSequence string, List<TrackReference> trackListToSearch) {
+        List<TrackReference> trackList = new ArrayList<>();
+//        for (Track track : trackListToSearch) {
+//
+//            String formattedName = track.getTitle().toLowerCase();
+//            String formattedArtist = track.getArtist().toLowerCase();
+//            String formattedSearchStr = string.toString().toLowerCase();
+//
+//            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
+//                trackList.add(track);
+//            }
+//        }
         return trackList;
     }
 
