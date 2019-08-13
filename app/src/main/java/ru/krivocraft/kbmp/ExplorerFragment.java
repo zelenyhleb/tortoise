@@ -1,9 +1,6 @@
 package ru.krivocraft.kbmp;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,7 +22,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -43,15 +39,6 @@ public class ExplorerFragment extends Fragment {
         explorerFragment.setListener(listener);
         return explorerFragment;
     }
-
-    private BroadcastReceiver storageUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (adapter != null) {
-                invalidate();
-            }
-        }
-    };
 
     private void compileByAuthors() {
         Context context = getContext();
@@ -89,9 +76,7 @@ public class ExplorerFragment extends Fragment {
                 }
                 return true;
             });
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Constants.Actions.ACTION_UPDATE_STORAGE);
-            context.registerReceiver(storageUpdateReceiver, filter);
+
 
             FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
             addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
@@ -117,20 +102,21 @@ public class ExplorerFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
         TextView textView = view.findViewById(R.id.obtaining_text);
 
-        List<Track> allTracks = Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks();
+        List<Track> allTracks = TrackStorageManager.getTrackStorage(context);
         progressBar.setMax(allTracks.size());
 
-        List<Track> selectedTracks = new ArrayList<>();
+        List<TrackReference> selectedTracks = new ArrayList<>();
 
         SelectableTracksAdapter adapter = new SelectableTracksAdapter(allTracks, context);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             Track item = (Track) parent.getItemAtPosition(position);
-            if (selectedTracks.contains(item)) {
-                selectedTracks.remove(item);
+            TrackReference reference = new TrackReference(position);
+            if (selectedTracks.contains(reference)) {
+                selectedTracks.remove(reference);
                 item.setChecked(false);
             } else {
-                selectedTracks.add(item);
+                selectedTracks.add(reference);
                 item.setChecked(true);
             }
             adapter.notifyDataSetInvalidated();
@@ -232,6 +218,7 @@ public class ExplorerFragment extends Fragment {
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());
+                System.out.println((String) entry.getValue());
                 if (!trackList.isCustom()) {
                     if (getPreference(context)) {
                         allTrackLists.add(trackList);
@@ -246,10 +233,6 @@ public class ExplorerFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Context context = getContext();
-        if (context != null) {
-            context.unregisterReceiver(storageUpdateReceiver);
-        }
         super.onDestroy();
     }
 

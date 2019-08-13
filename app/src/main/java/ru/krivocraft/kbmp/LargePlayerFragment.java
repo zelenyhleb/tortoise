@@ -47,12 +47,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     private int trackProgress;
     private TrackList trackList;
+//    private Track track;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
 
     private MediaControllerCompat.TransportControls transportControls;
     private ImageButton shuffle;
+    private ImageButton buttonLike;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -65,7 +67,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
-        fragment.initControls(activity, trackList);
+        fragment.init(activity, trackList);
         return fragment;
     }
 
@@ -80,6 +82,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             LargePlayerFragment.this.metadata = metadata;
+//            LargePlayerFragment.this.track = trackList.get(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI), getContext().getSharedPreferences(Constants.TRACKS_NAME, Context.MODE_PRIVATE));
             refreshUI();
             resetBar();
         }
@@ -113,7 +116,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    private void initControls(Activity context, TrackList trackList) {
+    private void init(Activity context, TrackList trackList) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
@@ -207,6 +210,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         compositionDurationTextView = rootView.findViewById(R.id.composition_duration);
         compositionProgressBar = rootView.findViewById(R.id.composition_progress_bar);
         trackImage = rootView.findViewById(R.id.track_image);
+        buttonLike = rootView.findViewById(R.id.button_like);
 
         RelativeLayout playerLayout = rootView.findViewById(R.id.layout_player);
         playerLayout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
@@ -227,6 +231,18 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         refreshUI();
 
         return rootView;
+    }
+
+    private void drawLikeButton(Context context, ImageButton buttonLike) {
+        if (context != null) {
+//            if (track != null) {
+//                if (track.isLiked()) {
+//                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
+//                } else {
+//                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
+//                }
+//            }
+        }
     }
 
     private void drawLoopButton(ImageButton loop) {
@@ -314,6 +330,12 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
         }
 
+        buttonLike.setOnClickListener(v -> {
+            swapLikeState();
+            drawLikeButton(context, buttonLike);
+        });
+        drawLikeButton(context, buttonLike);
+
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
 
@@ -336,6 +358,14 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         });
 
         compositionProgressBar.setMax(duration);
+    }
+
+    private void swapLikeState() {
+//        if (track.isLiked()) {
+//            track.setLiked(false);
+//        } else {
+//            track.setLiked(true);
+//        }
     }
 
 

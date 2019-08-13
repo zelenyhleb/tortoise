@@ -28,6 +28,7 @@ public class PlayerActivity extends AppCompatActivity {
     private MediaBrowserCompat mediaBrowser;
 
     private TrackList trackList;
+    private int track;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            PlayerActivity.this.track = intent.getIntExtra(Constants.Extras.EXTRA_CURSOR, 0);
             initPager();
         }
     };

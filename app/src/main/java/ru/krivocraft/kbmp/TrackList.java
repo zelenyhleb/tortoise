@@ -13,13 +13,13 @@ class TrackList {
     private boolean shuffled = false;
     private final boolean custom;
 
-    private List<Track> tracks;
+    private List<TrackReference> tracksReferences;
 
-    private List<Track> shuffleCache;
+    private List<TrackReference> shuffleCache;
 
-    TrackList(String displayName, List<Track> tracks, boolean custom) {
+    TrackList(String displayName, List<TrackReference> tracksReferences, boolean custom) {
         this.displayName = displayName;
-        this.tracks = tracks;
+        this.tracksReferences = tracksReferences;
         this.custom = custom;
     }
 
@@ -28,21 +28,21 @@ class TrackList {
         return displayName.toLowerCase().replace(" ", "");
     }
 
-    int shuffle(Track currentTrack) {
+    int shuffle(TrackReference currentTrack) {
         if (!isShuffled()) {
-            shuffleCache = new ArrayList<>(tracks);
-            tracks.remove(currentTrack);
+            shuffleCache = new ArrayList<>(tracksReferences);
+            tracksReferences.remove(currentTrack);
 
-            Collections.shuffle(tracks);
+            Collections.shuffle(tracksReferences);
 
-            List<Track> shuffled = new ArrayList<>();
+            List<TrackReference> shuffled = new ArrayList<>();
             shuffled.add(currentTrack);
-            shuffled.addAll(tracks);
-            tracks = shuffled;
+            shuffled.addAll(tracksReferences);
+            tracksReferences = shuffled;
             setShuffled(true);
             return 0;
         } else {
-            tracks = new ArrayList<>(shuffleCache);
+            tracksReferences = new ArrayList<>(shuffleCache);
             shuffleCache = null;
             setShuffled(false);
             return indexOf(currentTrack);
@@ -50,24 +50,24 @@ class TrackList {
 
     }
 
-    int indexOf(Track item) {
-        return tracks.indexOf(item);
+    int indexOf(TrackReference item) {
+        return tracksReferences.indexOf(item);
     }
 
     int size() {
-        return tracks.size();
+        return tracksReferences.size();
     }
 
-    Track get(int index) {
-        return tracks.get(index);
+    TrackReference get(int index) {
+        return tracksReferences.get(index);
     }
 
     String getIdentifier() {
         return createIdentifier(displayName);
     }
 
-    List<Track> getTracks() {
-        return tracks;
+    List<TrackReference> getTrackReferences() {
+        return tracksReferences;
     }
 
     String getDisplayName() {
@@ -78,8 +78,8 @@ class TrackList {
         return new Gson().toJson(this);
     }
 
-    void addTrack(Track track) {
-        tracks.add(track);
+    void addTrack(TrackReference track) {
+        tracksReferences.add(track);
     }
 
     static TrackList fromJson(String json) {

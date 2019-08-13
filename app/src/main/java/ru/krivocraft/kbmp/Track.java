@@ -91,6 +91,10 @@ class Track {
         return new Gson().fromJson(json, Track.class);
     }
 
+    static String createIdentifier(Track track) {
+        return track.getPath();
+    }
+
     String getArtist() {
         return artist;
     }
@@ -103,4 +107,11 @@ class Track {
         return path;
     }
 
+    boolean isLiked() {
+        return liked;
+    }
+
+    void setLiked(boolean liked) {
+        this.liked = liked;
+    }
 }

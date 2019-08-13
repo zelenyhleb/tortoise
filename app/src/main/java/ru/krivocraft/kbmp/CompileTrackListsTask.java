@@ -16,23 +16,25 @@ public class CompileTrackListsTask extends AsyncTask<TrackList, Integer, List<Tr
 
     @Override
     protected List<TrackList> doInBackground(TrackList... trackLists) {
-        Map<String, TrackList> playlistMap = new HashMap<>();
-        TrackList source = trackLists[0];
-        if (source != null) {
-            for (Track track : source.getTracks()) {
-                String artist = track.getArtist();
-                TrackList trackList = playlistMap.get(artist);
-                if (trackList == null) {
-                    trackList = new TrackList(artist, new ArrayList<>(), false);
-                    playlistMap.put(artist, trackList);
-                }
-                if (!trackList.getTracks().contains(track)) {
-                    trackList.addTrack(track);
-                }
-            }
-        }
-        writeTrackLists(playlistMap.values());
-        return new ArrayList<>(playlistMap.values());
+//        Map<String, TrackList> playlistMap = new HashMap<>();
+//        TrackList source = trackLists[0];
+//        if (source != null) {
+//            for (Track track : source.getTrackReferences()) {
+//                String artist = track.getArtist();
+//                TrackList trackList = playlistMap.get(artist);
+//                if (trackList == null) {
+//                    trackList = new TrackList(artist, new ArrayList<>(), false);
+//                    playlistMap.put(artist, trackList);
+//                }
+//                if (!trackList.getTrackReferences().contains(track)) {
+//                    trackList.addTrack(track);
+//                }
+//            }
+//        }
+//        writeTrackLists(playlistMap.values());
+        return new ArrayList<>(
+//                playlistMap.values()
+        );
     }
 
     @Override

@@ -8,11 +8,11 @@ import java.util.List;
 class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
     private ContentResolver contentResolver;
-    private TrackList metaStorage;
+    private List<Track> metaStorage;
     private OnStorageUpdateCallback callback;
     private boolean recognize;
 
-    GetFromDiskTask(ContentResolver contentResolver, boolean recognize, TrackList storage, OnStorageUpdateCallback callback) {
+    GetFromDiskTask(ContentResolver contentResolver, boolean recognize, List<Track> storage, OnStorageUpdateCallback callback) {
         this.contentResolver = contentResolver;
         this.recognize = recognize;
         this.metaStorage = storage;
@@ -27,9 +27,7 @@ class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
     @Override
     protected void onPostExecute(List<Track> tracks) {
         super.onPostExecute(tracks);
-        for (Track track : tracks) {
-            metaStorage.addTrack(track);
-        }
+        metaStorage.addAll(tracks);
         callback.onStorageUpdate();
     }
 }

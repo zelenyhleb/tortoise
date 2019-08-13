@@ -35,9 +35,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        viewHolder.title.setText(trackList.get(i).getTitle());
-        viewHolder.artist.setText(trackList.get(i).getArtist());
-        viewHolder.track = trackList.get(i);
+        Track track = TrackStorageManager.getTrack(context, trackList.get(i));
+        viewHolder.title.setText(track.getTitle());
+        viewHolder.artist.setText(track.getArtist());
+        viewHolder.reference = trackList.get(i);
+        viewHolder.track = track;
         viewHolder.trackList = trackList;
         viewHolder.loadArt();
     }
@@ -51,11 +53,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(trackList.getTracks(), i, i + 1);
+                Collections.swap(trackList.getTrackReferences(), i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(trackList.getTracks(), i, i - 1);
+                Collections.swap(trackList.getTrackReferences(), i, i - 1);
             }
         }
         sendUpdate();
@@ -65,7 +67,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     void shuffle() {
         long seed = System.nanoTime();
-        Collections.shuffle(trackList.getTracks(), new Random(seed));
+        Collections.shuffle(trackList.getTrackReferences(), new Random(seed));
         notifyDataSetChanged();
     }
 
@@ -78,6 +80,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         TextView artist;
         ImageView art;
         Track track;
+        TrackReference reference;
         TrackList trackList;
 
         ViewHolder(@NonNull View itemView, boolean editingAllowed) {
@@ -109,7 +112,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
-                serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK, track.toJson());
+                serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson());
                 serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson());
                 v.getContext().sendBroadcast(serviceIntent);
 
