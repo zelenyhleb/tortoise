@@ -1,65 +1,47 @@
 package ru.krivocraft.kbmp;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CompileTrackListsTask extends AsyncTask<TrackList, Integer, List<TrackList>> {
+public class CompileTrackListsTask extends AsyncTask<List<Track>, Integer, Map<String, List<Track>>> {
 
     private OnTrackListsCompiledListener listener;
-    private SharedPreferences preferences;
-
-    @Override
-    protected List<TrackList> doInBackground(TrackList... trackLists) {
-//        Map<String, TrackList> playlistMap = new HashMap<>();
-//        TrackList source = trackLists[0];
-//        if (source != null) {
-//            for (Track track : source.getTrackReferences()) {
-//                String artist = track.getArtist();
-//                TrackList trackList = playlistMap.get(artist);
-//                if (trackList == null) {
-//                    trackList = new TrackList(artist, new ArrayList<>(), false);
-//                    playlistMap.put(artist, trackList);
-//                }
-//                if (!trackList.getTrackReferences().contains(track)) {
-//                    trackList.addTrack(track);
-//                }
-//            }
-//        }
-//        writeTrackLists(playlistMap.values());
-        return new ArrayList<>(
-//                playlistMap.values()
-        );
-    }
-
-    @Override
-    protected void onPostExecute(List<TrackList> trackLists) {
-        super.onPostExecute(trackLists);
-        listener.onTrackListsCompiled(trackLists);
-    }
 
     void setListener(OnTrackListsCompiledListener listener) {
         this.listener = listener;
     }
 
-    void setPreferences(SharedPreferences preferences) {
-        this.preferences = preferences;
+    @Override
+    protected Map<String, List<Track>> doInBackground(List<Track>... lists) {
+        Map<String, List<Track>> playlistMap = new HashMap<>();
+        List<Track> source = lists[0];
+        if (source != null) {
+            for (Track track : source) {
+                String artist = track.getArtist();
+                List<Track> trackList = playlistMap.get(artist);
+                if (trackList == null) {
+                    trackList = new ArrayList<>();
+                    playlistMap.put(artist, trackList);
+                }
+                if (!trackList.contains(track)) {
+                    trackList.add(track);
+                }
+            }
+        }
+        return playlistMap;
     }
 
-    private void writeTrackLists(Collection<TrackList> trackLists) {
-        SharedPreferences.Editor editor = preferences.edit();
-        for (TrackList trackList : trackLists) {
-            editor.putString(trackList.getIdentifier(), trackList.toJson());
-        }
-        editor.apply();
+    @Override
+    protected void onPostExecute(Map<String, List<Track>> stringListMap) {
+        super.onPostExecute(stringListMap);
+        listener.onTrackListsCompiled(stringListMap);
     }
 
     interface OnTrackListsCompiledListener {
-        void onTrackListsCompiled(List<TrackList> trackLists);
+        void onTrackListsCompiled(Map<String, List<Track>> trackLists);
     }
 }

@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,12 +45,19 @@ public class ExplorerFragment extends Fragment {
     }
 
     private void compileByAuthors() {
-        Context context = getContext();
+        Activity context = getActivity();
         if (context != null) {
             CompileTrackListsTask task = new CompileTrackListsTask();
-            task.setPreferences(context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
-            task.setListener(trackLists -> redrawList());
-            task.execute(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME)));
+            task.setListener(trackLists -> new Thread(() -> {
+                SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), TrackStorageManager.getReferences(context, entry.getValue()), false);
+                    editor.putString(trackList.getIdentifier(), trackList.toJson());
+                }
+                editor.apply();
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(TrackStorageManager.getTrackStorage(context));
         }
     }
 

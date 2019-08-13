@@ -62,16 +62,6 @@ class TrackStorageManager {
         return tracks;
     }
 
-    static Track getTrack(Context context, TrackReference reference) {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
-        String json = preferences.getString(reference.toString(), new Track(0, "", "", "").toJson());
-        return Track.fromJson(json);
-    }
-
-    void search() {
-        new GetFromDiskTask(contentResolver, recognize, metaStorage, this::notifyListener).execute();
-    }
-
     static void updateTrack(Context context, TrackReference reference, Track track) {
         SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE).edit();
         editor.putString(reference.toString(), track.toJson());
@@ -80,6 +70,28 @@ class TrackStorageManager {
 
     static TrackReference getReference(Context context, String path) {
         return new TrackReference(new ArrayList<>(CollectionUtils.collect(getTrackStorage(context), Track::getPath)).indexOf(path));
+    }
+
+    private static TrackReference getReference(Context context, Track track) {
+        return getReference(context, track.getPath());
+    }
+
+    static List<TrackReference> getReferences(Context context, List<Track> tracks){
+        List<TrackReference> references = new ArrayList<>();
+        for (Track track : tracks) {
+            references.add(getReference(context, track));
+        }
+        return references;
+    }
+
+    static Track getTrack(Context context, TrackReference reference) {
+        SharedPreferences preferences = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
+        String json = preferences.getString(reference.toString(), new Track(0, "", "", "").toJson());
+        return Track.fromJson(json);
+    }
+
+    void search() {
+        new GetFromDiskTask(contentResolver, recognize, metaStorage, this::notifyListener).execute();
     }
 
     private void notifyListener() {
