@@ -81,11 +81,11 @@ public class TrackListFragment extends Fragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                        List<TrackReference> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTrackReferences());
-//                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, false), context, showControls));
-//                        if (s.length() == 0) {
-//                            recyclerView.setAdapter(tracksAdapter);
-//                        }
+                        List<TrackReference> trackListSearched = Utils.search(context, s, TrackListFragment.this.trackList.getTrackReferences());
+                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, false), context, showControls));
+                        if (s.length() == 0) {
+                            recyclerView.setAdapter(tracksAdapter);
+                        }
                     }
 
                     @Override

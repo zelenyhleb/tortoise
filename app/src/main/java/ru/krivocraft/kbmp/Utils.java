@@ -43,18 +43,19 @@ class Utils {
         return (int) Math.ceil(v / 1000.0);
     }
 
-    static List<TrackReference> search(CharSequence string, List<TrackReference> trackListToSearch) {
+    static List<TrackReference> search(Context context, CharSequence string, List<TrackReference> input) {
         List<TrackReference> trackList = new ArrayList<>();
-//        for (Track track : trackListToSearch) {
-//
-//            String formattedName = track.getTitle().toLowerCase();
-//            String formattedArtist = track.getArtist().toLowerCase();
-//            String formattedSearchStr = string.toString().toLowerCase();
-//
-//            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-//                trackList.add(track);
-//            }
-//        }
+        List<Track> searched = TrackStorageManager.getTracks(context, input);
+        for (Track track : searched) {
+
+            String formattedName = track.getTitle().toLowerCase();
+            String formattedArtist = track.getArtist().toLowerCase();
+            String formattedSearchStr = string.toString().toLowerCase();
+
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
+                trackList.add(input.get(searched.indexOf(track)));
+            }
+        }
         return trackList;
     }
 
@@ -178,8 +179,8 @@ class Utils {
     static void restart(Context context) {
         Intent mStartActivity = new Intent(context, MainActivity.class);
         int mPendingIntentId = 123456;
-        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId,    mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (mgr != null) {
             mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
         }

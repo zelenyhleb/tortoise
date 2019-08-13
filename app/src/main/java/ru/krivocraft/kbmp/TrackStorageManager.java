@@ -54,6 +54,14 @@ class TrackStorageManager {
         return tracks;
     }
 
+    static List<Track> getTracks(Context context, List<TrackReference> references) {
+        List<Track> tracks = new ArrayList<>();
+        for (TrackReference reference : references) {
+            tracks.add(getTrack(context, reference));
+        }
+        return tracks;
+    }
+
     static Track getTrack(Context context, TrackReference reference) {
         SharedPreferences preferences = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
         String json = preferences.getString(reference.toString(), new Track(0, "", "", "").toJson());
