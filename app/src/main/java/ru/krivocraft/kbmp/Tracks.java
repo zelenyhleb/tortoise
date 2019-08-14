@@ -21,7 +21,7 @@ class Tracks {
         String json;
         while (true) {
             reference = new TrackReference(i);
-            json = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE).getString(reference.toString(), null);
+            json = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE).getString(reference.toString(), null);
             if (json != null) {
                 tracks.add(Track.fromJson(json));
                 i++;
@@ -47,7 +47,7 @@ class Tracks {
     }
 
     static void updateTrack(Context context, TrackReference reference, Track track) {
-        SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE).edit();
         editor.putString(reference.toString(), track.toJson());
         editor.apply();
     }
@@ -75,7 +75,7 @@ class Tracks {
     }
 
     static Track getTrack(Context context, TrackReference reference) {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
         String json = preferences.getString(reference.toString(), new Track(0, "", "", "").toJson());
         return Track.fromJson(json);
     }

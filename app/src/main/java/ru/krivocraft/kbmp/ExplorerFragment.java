@@ -81,7 +81,7 @@ public class ExplorerFragment extends Fragment {
     };
 
     private boolean getPreference(Context context) {
-        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
+        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ExplorerFragment extends Fragment {
             gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_DISPLAY_NAME)) {
+                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
                     showDeletionDialog(context, parent, position);
                 }
                 return true;
@@ -203,7 +203,7 @@ public class ExplorerFragment extends Fragment {
     private void writeTrackList(TrackList trackList) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
         }
@@ -213,7 +213,7 @@ public class ExplorerFragment extends Fragment {
     private void removeTrackList(TrackList trackList) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
         }
@@ -223,7 +223,7 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         List<String> identifiers = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 identifiers.add(entry.getKey());
@@ -236,7 +236,7 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         List<TrackList> allTrackLists = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());

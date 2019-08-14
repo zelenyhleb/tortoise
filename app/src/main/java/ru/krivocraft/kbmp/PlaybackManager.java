@@ -225,7 +225,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
         int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
         switch (loopType) {
             case Constants.LOOP_TRACK:

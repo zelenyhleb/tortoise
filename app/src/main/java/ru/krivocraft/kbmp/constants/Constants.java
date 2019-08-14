@@ -7,11 +7,14 @@ public class Constants {
 
     public static final int ONE_SECOND = 1000;
 
-    public static final String STORAGE_DISPLAY_NAME = "All tracks";
+    public static final String STORAGE_TRACKS_DISPLAY_NAME = "All tracks";
 
-    public static final String TRACK_LISTS_NAME = "trackLists";
-    public static final String TRACKS_NAME = "tracks";
-    public static final String SETTINGS_NAME = "settings";
+    public static final String STORAGE_TRACK_LISTS = "trackLists";
+    public static final String STORAGE_TRACKS = "tracks";
+    public static final String STORAGE_SETTINGS = "settings";
+    public static final String STORAGE_TAGS = "tags";
+
+    public static final String KEY_TAGS = "allTags";
 
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_AUTO_SORT = "autoSort";

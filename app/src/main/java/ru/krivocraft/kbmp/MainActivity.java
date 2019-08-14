@@ -21,7 +21,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -80,14 +79,14 @@ public class MainActivity extends BaseActivity {
     }
 
     private void removeOldCache() {
-        SharedPreferences preferences = getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
         String identifier = "all_tracks";
         if (preferences.getString(identifier, null) != null) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.remove(identifier);
             editor.apply();
         }
-        SharedPreferences settings = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
         if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
             Utils.clearCache(preferences);
             Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);

@@ -254,7 +254,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     }
 
     private void clearShuffleState() {
-        SharedPreferences preferences = getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(Constants.SHUFFLE_STATE, Constants.STATE_UNSHUFFLED);
         editor.apply();

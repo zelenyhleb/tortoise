@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,13 +34,13 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 textView.setText("Light theme (Beta)");
                 Switch s = convertView.findViewById(R.id.settings_switch);
-                boolean useAlternativeTheme = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
+                boolean useAlternativeTheme = Utils.getOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
                 s.setChecked(useAlternativeTheme);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (useAlternativeTheme) {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
                     } else {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, true);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, true);
                     }
 //                    Utils.restart(getContext());
                 });
@@ -49,13 +48,13 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
+                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
                 s.setChecked(autoSort);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (autoSort) {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
                     } else {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, true);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, true);
                     }
                 });
                 textView.setText("Sort by artist");
@@ -63,13 +62,13 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
+                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
                 s.setChecked(recognize);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (recognize) {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, false);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, false);
                     } else {
-                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
+                        Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
                     }
                 });
                 textView.setText("Try to parse track names for tracks with no metadata");
@@ -80,7 +79,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 b.setText("CLEAR");
                 textView.setText("Clear track lists cache");
                 b.setOnClickListener(v -> {
-                    Utils.clearCache(getContext().getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
+                    Utils.clearCache(getContext().getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE));
                     Toast.makeText(getContext(), "Cache cleared", Toast.LENGTH_LONG).show();
 //                    Utils.restart(getContext());
                 });

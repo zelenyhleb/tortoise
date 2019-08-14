@@ -22,10 +22,10 @@ class TracksProvider {
     private boolean recognize;
 
     TracksProvider(Context context) {
-        this.storage = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
-        this.trackLists = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
+        this.storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
+        this.trackLists = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();
-        this.recognize = Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
+        this.recognize = Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
 
         this.context = context;
         metaStorage = new ArrayList<>();
@@ -53,7 +53,7 @@ class TracksProvider {
         }
         tracksEditor.apply();
 
-        TrackList trackList = new TrackList(Constants.STORAGE_DISPLAY_NAME, allTracks, true);
+        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, true);
         SharedPreferences.Editor trackListsEditor = trackLists.edit();
         trackListsEditor.putString(trackList.getIdentifier(), trackList.toJson());
         trackListsEditor.apply();
