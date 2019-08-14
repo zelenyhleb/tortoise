@@ -41,6 +41,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         viewHolder.reference = trackList.get(i);
         viewHolder.track = track;
         viewHolder.trackList = trackList;
+        viewHolder.drawState(context);
         viewHolder.loadArt();
     }
 
@@ -79,6 +80,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         TextView title;
         TextView artist;
         ImageView art;
+        ImageView state;
         Track track;
         TrackReference reference;
         TrackList trackList;
@@ -88,9 +90,22 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             title = itemView.findViewById(R.id.composition_name_text);
             artist = itemView.findViewById(R.id.composition_author_text);
             art = itemView.findViewById(R.id.item_track_image);
+            state = itemView.findViewById(R.id.item_track_state);
             itemView.setOnClickListener(new OnClickListener());
             if (editingAllowed) {
                 itemView.setOnLongClickListener(new OnLongClickListener());
+            }
+        }
+
+        private void drawState(Context context) {
+            if (track.isSelected()) {
+                if (track.isPlaying()){
+                    state.setImageDrawable(context.getDrawable(R.drawable.ic_play));
+                } else {
+                    state.setImageDrawable(context.getDrawable(R.drawable.ic_pause));
+                }
+            } else {
+                state.setImageDrawable(null);
             }
         }
 

@@ -44,9 +44,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (cursor >= 0) {
             TrackReference selectedReference = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
+            Track selectedTrack = Tracks.getTrack(context, selectedReference);
 
             if (mediaChanged) {
-                Track selectedTrack = Tracks.getTrack(context, selectedReference);
 
                 if (player == null) {
                     player = new MediaPlayer();
@@ -69,6 +69,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             if (player != null) {
                 player.start();
+
+                selectedTrack.setSelected(true);
+                selectedTrack.setPlaying(true);
+                Tracks.updateTrack(context, selectedReference, selectedTrack);
+
                 playerState = PlaybackStateCompat.STATE_PLAYING;
                 updatePlaybackState();
             }
@@ -86,6 +91,13 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             player.pause();
         }
 
+        if (trackList != null) {
+            TrackReference selectedReference = trackList.get(cursor);
+            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            selectedTrack.setPlaying(false);
+            Tracks.updateTrack(context, selectedReference, selectedTrack);
+        }
+
         playerState = PlaybackStateCompat.STATE_PAUSED;
         updatePlaybackState();
     }
@@ -93,6 +105,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     void newTrack(int index) {
         if (index >= 0 && index < getTracks().size()) {
             pause();
+
+            TrackReference selectedReference = trackList.get(cursor);
+            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            selectedTrack.setSelected(false);
+            Tracks.updateTrack(context, selectedReference, selectedTrack);
 
             cursor = index;
 
@@ -123,6 +140,12 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     void stop() {
         if (player != null) {
+
+            TrackReference selectedReference = trackList.get(cursor);
+            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            selectedTrack.setSelected(false);
+            Tracks.updateTrack(context, selectedReference, selectedTrack);
+
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
             updatePlaybackState();
