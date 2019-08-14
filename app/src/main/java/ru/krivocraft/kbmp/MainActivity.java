@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
             editor.remove(identifier);
             editor.apply();
         }
+        SharedPreferences settings = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+        if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
+            Utils.clearCache(preferences);
+            Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
+        }
     }
 
     private void init() {
@@ -214,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (explorerFragment!=null) {
+        if (explorerFragment != null) {
             explorerFragment.invalidate();
         }
     }

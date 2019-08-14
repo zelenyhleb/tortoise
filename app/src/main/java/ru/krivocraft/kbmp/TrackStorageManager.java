@@ -72,7 +72,7 @@ class TrackStorageManager {
         return new TrackReference(new ArrayList<>(CollectionUtils.collect(getTrackStorage(context), Track::getPath)).indexOf(path));
     }
 
-    private static TrackReference getReference(Context context, Track track) {
+    static TrackReference getReference(Context context, Track track) {
         return getReference(context, track.getPath());
     }
 

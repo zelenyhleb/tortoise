@@ -17,6 +17,7 @@ public class Constants {
     public static final String KEY_AUTO_SORT = "autoSort";
     public static final String KEY_CLEAR_CACHE = "clearCache";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
+    public static final String KEY_OLD_TRACK_LISTS_EXIST = "oldExist";
 
     public static final String SHUFFLE_STATE = "shuffle_state";
     public static final int STATE_SHUFFLED = 120;

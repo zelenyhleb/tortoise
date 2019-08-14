@@ -49,15 +49,27 @@ public class ExplorerFragment extends Fragment {
         if (context != null) {
             CompileTrackListsTask task = new CompileTrackListsTask();
             task.setListener(trackLists -> new Thread(() -> {
-                SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
                     TrackList trackList = new TrackList(entry.getKey(), TrackStorageManager.getReferences(context, entry.getValue()), false);
-                    editor.putString(trackList.getIdentifier(), trackList.toJson());
+                    writeTrackList(trackList);
                 }
-                editor.apply();
                 context.runOnUiThread(this::redrawList);
             }).start());
             task.execute(TrackStorageManager.getTrackStorage(context));
+        }
+    }
+
+    private void compileFavorites() {
+        Context context = getContext();
+        if (context != null) {
+            List<Track> tracks = TrackStorageManager.getTrackStorage(context);
+            List<TrackReference> favorites = new ArrayList<>();
+            for (Track track : tracks) {
+                if (track.isLiked()) {
+                    favorites.add(TrackStorageManager.getReference(context, track));
+                }
+            }
+            writeTrackList(new TrackList("Favorites", favorites, true));
         }
     }
 
@@ -194,7 +206,6 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
-            invalidate();
         }
 
     }
@@ -205,17 +216,7 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
-            invalidate();
         }
-    }
-
-    private TrackList readTrackList(String identifier) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
-            return TrackList.fromJson(sharedPreferences.getString(identifier, null));
-        }
-        return null;
     }
 
     private List<String> getTrackListIdentifiers() {
@@ -262,12 +263,15 @@ public class ExplorerFragment extends Fragment {
     }
 
     void invalidate() {
-        redrawList();
-
         Context context = getContext();
-        if (context != null && getPreference(context)) {
-            compileByAuthors();
+        if (context != null){
+            compileFavorites();
+            if (getPreference(context)) {
+                compileByAuthors();
+            }
         }
+
+        redrawList();
     }
 
     private void redrawList() {
