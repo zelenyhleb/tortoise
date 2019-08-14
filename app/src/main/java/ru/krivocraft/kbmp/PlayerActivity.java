@@ -28,11 +28,17 @@ public class PlayerActivity extends AppCompatActivity {
     private MediaBrowserCompat mediaBrowser;
 
     private TrackList trackList;
+    private int track;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
+        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
+            setTheme(R.style.LightTheme);
+        }
+
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);
@@ -81,6 +87,7 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            PlayerActivity.this.track = intent.getIntExtra(Constants.Extras.EXTRA_CURSOR, 0);
             initPager();
         }
     };

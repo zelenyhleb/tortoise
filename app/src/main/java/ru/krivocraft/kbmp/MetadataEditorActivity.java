@@ -9,16 +9,6 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v1Tag;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.ID3v24Tag;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
-
-import java.io.IOException;
-
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class MetadataEditorActivity extends AppCompatActivity {
@@ -27,8 +17,7 @@ public class MetadataEditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_metadata_editor);
-        String path = getIntent().getStringExtra(Constants.Extras.EXTRA_PATH);
-        Track track = Utils.loadData(path, getContentResolver(), Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES));
+        Track track = Track.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK));
 
         EditText title = findViewById(R.id.metadata_editor_title_edit);
         EditText artist = findViewById(R.id.metadata_editor_artist_edit);
@@ -47,7 +36,7 @@ public class MetadataEditorActivity extends AppCompatActivity {
             contentValues.put(MediaStore.Audio.Media.ARTIST, artist.getText().toString());
             contentValues.put(MediaStore.Audio.Media.TITLE, title.getText().toString());
             String[] args = {
-                    path
+                    track.getPath()
             };
             getContentResolver().update(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues, selection, args);
             finish();

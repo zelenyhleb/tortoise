@@ -74,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
+            setTheme(R.style.LightTheme);
+        }
         removeOldStorage();
 
         requestStoragePermission();
@@ -87,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.remove(identifier);
             editor.apply();
+        }
+        SharedPreferences settings = getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE);
+        if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
+            Utils.clearCache(preferences);
+            Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
         }
     }
 
@@ -212,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (explorerFragment!=null) {
+        if (explorerFragment != null) {
             explorerFragment.invalidate();
         }
     }

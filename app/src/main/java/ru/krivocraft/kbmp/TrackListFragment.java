@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -82,8 +81,8 @@ public class TrackListFragment extends Fragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        List<Track> trackListSearched = Utils.search(s, TrackListFragment.this.trackList.getTracks(), context.getContentResolver(), getPreference(context));
-                        recyclerView.setAdapter(new TracksAdapter(trackListSearched, trackList, context, showControls));
+                        List<TrackReference> trackListSearched = Utils.search(context, s, TrackListFragment.this.trackList.getTrackReferences());
+                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, false), context, showControls));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }
@@ -107,32 +106,19 @@ public class TrackListFragment extends Fragment {
         return rootView;
     }
 
-    private boolean getPreference(Context context) {
-        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
-    }
-
     private void processPaths(Context context) {
-        progressBar.setMax(trackList.size());
+        this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls);
+        this.recyclerView.setAdapter(tracksAdapter);
 
-        LoadDataTask task = new LoadDataTask();
-        task.setContentResolver(context.getContentResolver());
-        task.setRecognize(getPreference(context));
-        task.setProgressCallback(progress -> progressBar.setProgress(progress));
-        task.setDataLoaderCallback(tracks -> {
-            this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            this.tracksAdapter = new TracksAdapter(tracks, trackList, context, showControls);
-            this.recyclerView.setAdapter(tracksAdapter);
+        progressBar.setVisibility(View.GONE);
+        progressText.setVisibility(View.GONE);
 
-            progressBar.setVisibility(View.GONE);
-            progressText.setVisibility(View.GONE);
-
-            if (!showControls) {
-                ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                touchHelper.attachToRecyclerView(recyclerView);
-            }
-        });
-        task.execute(trackList.getTracks().toArray(new String[0]));
+        if (!showControls) {
+            ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+            touchHelper.attachToRecyclerView(recyclerView);
+        }
     }
 
     @Override

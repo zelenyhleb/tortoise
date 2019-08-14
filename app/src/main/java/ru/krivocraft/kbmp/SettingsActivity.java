@@ -14,6 +14,11 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
+            setTheme(R.style.LightTheme);
+        }
+
         ListView listView = findViewById(R.id.settings_list);
         listView.setAdapter(new SettingsAdapter(this));
     }

@@ -10,12 +10,14 @@ public class Constants {
     public static final String STORAGE_DISPLAY_NAME = "All tracks";
 
     public static final String TRACK_LISTS_NAME = "trackLists";
+    public static final String TRACKS_NAME = "tracks";
     public static final String SETTINGS_NAME = "settings";
 
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_AUTO_SORT = "autoSort";
     public static final String KEY_CLEAR_CACHE = "clearCache";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
+    public static final String KEY_OLD_TRACK_LISTS_EXIST = "oldExist";
 
     public static final String SHUFFLE_STATE = "shuffle_state";
     public static final int STATE_SHUFFLED = 120;
@@ -44,7 +46,8 @@ public class Constants {
     public static class Extras {
         public static final String EXTRA_POSITION = "position";
         public static final String EXTRA_METADATA = "metadata";
-        public static final String EXTRA_PATH = "path";
+        public static final String EXTRA_TRACK = "path";
+        public static final String EXTRA_CURSOR = "cursor";
         public static final String EXTRA_PLAYBACK_STATE = "playback_state";
         public static final String EXTRA_TRACK_LIST = "track_list_extra";
     }

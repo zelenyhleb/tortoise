@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,9 +16,11 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +50,15 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     private int trackProgress;
     private TrackList trackList;
+    private TrackReference reference;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
 
     private MediaControllerCompat.TransportControls transportControls;
     private ImageButton shuffle;
+    private ImageButton buttonLike;
+    private ImageButton loop;
 
     public LargePlayerFragment() {
         mHandler = new Handler(Looper.getMainLooper()) {
@@ -65,7 +71,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
-        fragment.initControls(activity, trackList);
+        fragment.init(activity, trackList);
         return fragment;
     }
 
@@ -80,6 +86,10 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             LargePlayerFragment.this.metadata = metadata;
+            Context context = getContext();
+            if (context != null) {
+                LargePlayerFragment.this.reference = TrackStorageManager.getReference(context, metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
+            }
             refreshUI();
             resetBar();
         }
@@ -113,12 +123,16 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    private void initControls(Activity context, TrackList trackList) {
+    private void init(Activity context, TrackList trackList) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
 
         this.metadata = mediaController.getMetadata();
+
+        String path = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+        this.reference = TrackStorageManager.getReference(context, path);
+
         this.playbackState = mediaController.getPlaybackState();
 
         this.trackList = trackList;
@@ -207,17 +221,15 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         compositionDurationTextView = rootView.findViewById(R.id.composition_duration);
         compositionProgressBar = rootView.findViewById(R.id.composition_progress_bar);
         trackImage = rootView.findViewById(R.id.track_image);
+        buttonLike = rootView.findViewById(R.id.button_like);
 
         RelativeLayout playerLayout = rootView.findViewById(R.id.layout_player);
         playerLayout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
         ImageButton previousTrack = rootView.findViewById(R.id.previous);
         ImageButton nextTrack = rootView.findViewById(R.id.next);
-        ImageButton loop = rootView.findViewById(R.id.player_loop);
+        loop = rootView.findViewById(R.id.player_loop);
         shuffle = rootView.findViewById(R.id.player_shuffle);
-
-        drawLoopButton(loop);
-        drawShuffleButton();
 
         previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
         nextTrack.setOnClickListener(v -> transportControls.skipToNext());
@@ -227,6 +239,18 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         refreshUI();
 
         return rootView;
+    }
+
+    private void drawLikeButton(Context context, ImageButton buttonLike, Track track) {
+        if (context != null) {
+            if (track != null) {
+                if (track.isLiked()) {
+                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
+                } else {
+                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
+                }
+            }
+        }
     }
 
     private void drawLoopButton(ImageButton loop) {
@@ -312,7 +336,18 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             }
             trackImage.setClipToOutline(true);
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
+
+            Track track = TrackStorageManager.getTrack(context, reference);
+
+            buttonLike.setOnClickListener(v -> {
+                swapLikeState(context, track);
+                drawLikeButton(context, buttonLike, track);
+            });
+            drawLikeButton(context, buttonLike, track);
         }
+
+        drawLoopButton(loop);
+        drawShuffleButton();
 
         compositionProgressBar.setProgress(progress);
         compositionProgressBar.setOnSeekBarChangeListener(this);
@@ -336,6 +371,15 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         });
 
         compositionProgressBar.setMax(duration);
+    }
+
+    private void swapLikeState(Context context, Track track) {
+        if (track.isLiked()) {
+            track.setLiked(false);
+        } else {
+            track.setLiked(true);
+        }
+        TrackStorageManager.updateTrack(context, reference, track);
     }
 
 

@@ -10,15 +10,16 @@ import java.util.List;
 
 class TrackList {
     private String displayName;
-    private List<String> tracks;
     private boolean shuffled = false;
     private final boolean custom;
 
-    private List<String> shuffleCache;
+    private List<TrackReference> tracksReferences;
 
-    TrackList(String displayName, List<String> tracks, boolean custom) {
+    private List<TrackReference> shuffleCache;
+
+    TrackList(String displayName, List<TrackReference> tracksReferences, boolean custom) {
         this.displayName = displayName;
-        this.tracks = tracks;
+        this.tracksReferences = tracksReferences;
         this.custom = custom;
     }
 
@@ -27,21 +28,21 @@ class TrackList {
         return displayName.toLowerCase().replace(" ", "");
     }
 
-    int shuffle(String currentTrack) {
-        if (!isShuffled()){
-            shuffleCache = new ArrayList<>(tracks);
-            tracks.remove(currentTrack);
+    int shuffle(TrackReference currentTrack) {
+        if (!isShuffled()) {
+            shuffleCache = new ArrayList<>(tracksReferences);
+            tracksReferences.remove(currentTrack);
 
-            Collections.shuffle(tracks);
+            Collections.shuffle(tracksReferences);
 
-            List<String> shuffled = new ArrayList<>();
+            List<TrackReference> shuffled = new ArrayList<>();
             shuffled.add(currentTrack);
-            shuffled.addAll(tracks);
-            tracks = shuffled;
+            shuffled.addAll(tracksReferences);
+            tracksReferences = shuffled;
             setShuffled(true);
             return 0;
         } else {
-            tracks = new ArrayList<>(shuffleCache);
+            tracksReferences = new ArrayList<>(shuffleCache);
             shuffleCache = null;
             setShuffled(false);
             return indexOf(currentTrack);
@@ -49,20 +50,24 @@ class TrackList {
 
     }
 
-    int indexOf(String item) {
-        return tracks.indexOf(item);
+    int indexOf(TrackReference item) {
+        return tracksReferences.indexOf(item);
     }
 
     int size() {
-        return tracks.size();
+        return tracksReferences.size();
+    }
+
+    TrackReference get(int index) {
+        return tracksReferences.get(index);
     }
 
     String getIdentifier() {
         return createIdentifier(displayName);
     }
 
-    List<String> getTracks() {
-        return tracks;
+    List<TrackReference> getTrackReferences() {
+        return tracksReferences;
     }
 
     String getDisplayName() {
@@ -73,8 +78,8 @@ class TrackList {
         return new Gson().toJson(this);
     }
 
-    void addTrack(String track) {
-        tracks.add(track);
+    void addTrack(TrackReference track) {
+        tracksReferences.add(track);
     }
 
     static TrackList fromJson(String json) {

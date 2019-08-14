@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,13 +33,23 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             if (position == 0) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 TextView textView = convertView.findViewById(R.id.settings_text);
+                textView.setText("Light theme (Beta)");
                 Switch s = convertView.findViewById(R.id.settings_switch);
-                s.setChecked(true);
+                boolean useAlternativeTheme = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
+                s.setChecked(useAlternativeTheme);
+                s.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (useAlternativeTheme) {
+                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false);
+                    } else {
+                        Utils.putOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, true);
+                    }
+//                    Utils.restart(getContext());
+                });
             } else if (position == 1) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT);
+                boolean autoSort = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
                 s.setChecked(autoSort);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (autoSort) {
@@ -52,7 +63,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES);
+                boolean recognize = Utils.getOption(getContext().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
                 s.setChecked(recognize);
                 s.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     if (recognize) {
@@ -71,7 +82,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 b.setOnClickListener(v -> {
                     Utils.clearCache(getContext().getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
                     Toast.makeText(getContext(), "Cache cleared", Toast.LENGTH_LONG).show();
-                    Utils.restart(getContext());
+//                    Utils.restart(getContext());
                 });
             }
         }

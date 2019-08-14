@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -44,29 +44,44 @@ public class ExplorerFragment extends Fragment {
         return explorerFragment;
     }
 
-    private BroadcastReceiver storageUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (adapter != null) {
-                invalidate();
-            }
-        }
-    };
-
     private void compileByAuthors() {
-        Context context = getContext();
+        Activity context = getActivity();
         if (context != null) {
             CompileTrackListsTask task = new CompileTrackListsTask();
-            task.setContentResolver(context.getContentResolver());
-            task.setPreferences(context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE));
-            task.setRecognizeNames(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
-            task.setListener(trackLists -> redrawList());
-            task.execute(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME)));
+            task.setListener(trackLists -> new Thread(() -> {
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), TrackStorageManager.getReferences(context, entry.getValue()), false);
+                    writeTrackList(trackList);
+                }
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(TrackStorageManager.getTrackStorage(context));
         }
     }
 
-    private boolean getPreference(Context context, String keyRecognizeNames) {
-        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), keyRecognizeNames);
+    private void compileFavorites() {
+        Context context = getContext();
+        if (context != null) {
+            List<Track> tracks = TrackStorageManager.getTrackStorage(context);
+            List<TrackReference> favorites = new ArrayList<>();
+            for (Track track : tracks) {
+                if (track.isLiked()) {
+                    favorites.add(TrackStorageManager.getReference(context, track));
+                }
+            }
+            writeTrackList(new TrackList("Favorites", favorites, true));
+        }
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            invalidate();
+        }
+    };
+
+    private boolean getPreference(Context context) {
+        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
     }
 
     @Override
@@ -81,11 +96,12 @@ public class ExplorerFragment extends Fragment {
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
             adapter = new TrackListAdapter(readTrackLists(), context);
+
+            context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
             invalidate();
+
             gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener((parent, view, position, id) -> {
-                listener.onItemClick((TrackList) parent.getItemAtPosition(position));
-            });
+            gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
                 if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_DISPLAY_NAME)) {
@@ -93,9 +109,7 @@ public class ExplorerFragment extends Fragment {
                 }
                 return true;
             });
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(Constants.Actions.ACTION_UPDATE_STORAGE);
-            context.registerReceiver(storageUpdateReceiver, filter);
+
 
             FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
             addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
@@ -108,9 +122,7 @@ public class ExplorerFragment extends Fragment {
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Are you sure?")
                 .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> {
-                    removeTrackList(item);
-                })
+                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList(item))
                 .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
@@ -123,34 +135,29 @@ public class ExplorerFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
         TextView textView = view.findViewById(R.id.obtaining_text);
 
-        List<String> allTracks = Objects.requireNonNull(readTrackList(TrackList.createIdentifier(Constants.STORAGE_DISPLAY_NAME))).getTracks();
+        List<Track> allTracks = TrackStorageManager.getTrackStorage(context);
         progressBar.setMax(allTracks.size());
 
-        List<String> selectedTracks = new ArrayList<>();
+        List<TrackReference> selectedTracks = new ArrayList<>();
 
-        LoadDataTask loadDataTask = new LoadDataTask();
-        loadDataTask.setContentResolver(context.getContentResolver());
-        loadDataTask.setRecognize(getPreference(context, Constants.KEY_RECOGNIZE_NAMES));
-        loadDataTask.setProgressCallback(progressBar::setProgress);
-        loadDataTask.setDataLoaderCallback(tracks -> {
-            SelectableTracksAdapter adapter = new SelectableTracksAdapter(tracks, context);
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener((parent, view1, position, id) -> {
-                Track item = (Track) parent.getItemAtPosition(position);
-                if (selectedTracks.contains(item.getPath())) {
-                    selectedTracks.remove(item.getPath());
-                    item.setChecked(false);
-                } else {
-                    selectedTracks.add(item.getPath());
-                    item.setChecked(true);
-                }
-                adapter.notifyDataSetInvalidated();
-            });
-            progressBar.setVisibility(View.INVISIBLE);
-            textView.setVisibility(View.INVISIBLE);
-            listView.setVisibility(View.VISIBLE);
-            editText.setVisibility(View.VISIBLE);
+        SelectableTracksAdapter adapter = new SelectableTracksAdapter(allTracks, context);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            Track item = (Track) parent.getItemAtPosition(position);
+            TrackReference reference = new TrackReference(position);
+            if (selectedTracks.contains(reference)) {
+                selectedTracks.remove(reference);
+                item.setChecked(false);
+            } else {
+                selectedTracks.add(reference);
+                item.setChecked(true);
+            }
+            adapter.notifyDataSetInvalidated();
         });
+        progressBar.setVisibility(View.INVISIBLE);
+        textView.setVisibility(View.INVISIBLE);
+        listView.setVisibility(View.VISIBLE);
+        editText.setVisibility(View.VISIBLE);
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle("Select tracks")
@@ -171,7 +178,6 @@ public class ExplorerFragment extends Fragment {
 
         alertDialog.show();
 
-        loadDataTask.execute(allTracks.toArray(new String[0]));
     }
 
     private boolean acceptTrackList(int arrayLength, String displayName, Context context) {
@@ -200,7 +206,6 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
-            invalidate();
         }
 
     }
@@ -211,17 +216,7 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
-            invalidate();
         }
-    }
-
-    private TrackList readTrackList(String identifier) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
-            return TrackList.fromJson(sharedPreferences.getString(identifier, null));
-        }
-        return null;
     }
 
     private List<String> getTrackListIdentifiers() {
@@ -245,8 +240,9 @@ public class ExplorerFragment extends Fragment {
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());
+                System.out.println((String) entry.getValue());
                 if (!trackList.isCustom()) {
-                    if (getPreference(context, Constants.KEY_AUTO_SORT)) {
+                    if (getPreference(context)) {
                         allTrackLists.add(trackList);
                     }
                 } else {
@@ -259,20 +255,23 @@ public class ExplorerFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Context context = getContext();
         if (context != null) {
-            context.unregisterReceiver(storageUpdateReceiver);
+            context.unregisterReceiver(receiver);
         }
-        super.onDestroy();
     }
 
     void invalidate() {
-        redrawList();
-
         Context context = getContext();
-        if (context != null && getPreference(context, Constants.KEY_AUTO_SORT)) {
-            compileByAuthors();
+        if (context != null){
+            compileFavorites();
+            if (getPreference(context)) {
+                compileByAuthors();
+            }
         }
+
+        redrawList();
     }
 
     private void redrawList() {

@@ -4,13 +4,16 @@
         <item name="colorPrimary">@color/grey900</item>
         <item name="colorPrimaryDark">@color/grey900</item>
         <item name="colorAccent">@color/green700</item>
+        <item name="android:colorBackground">@color/grey900</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="LightTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/green700</item>
         <item name="colorPrimaryDark">@color/green900</item>
         <item name="colorAccent">@color/green700</item>
-        <item name="windowActionBar">true</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>
