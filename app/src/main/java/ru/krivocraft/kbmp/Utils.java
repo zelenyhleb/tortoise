@@ -45,7 +45,7 @@ class Utils {
 
     static List<TrackReference> search(Context context, CharSequence string, List<TrackReference> input) {
         List<TrackReference> trackList = new ArrayList<>();
-        List<Track> searched = TrackStorageManager.getTracks(context, input);
+        List<Track> searched = Tracks.getTracks(context, input);
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();

@@ -215,7 +215,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(TrackStorageManager.getTrack(this, track).getPath()) && trackList.equals(playbackManager.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(Tracks.getTrack(this, track).getPath()) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {

@@ -88,7 +88,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             LargePlayerFragment.this.metadata = metadata;
             Context context = getContext();
             if (context != null) {
-                LargePlayerFragment.this.reference = TrackStorageManager.getReference(context, metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
+                LargePlayerFragment.this.reference = Tracks.getReference(context, metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
             }
             refreshUI();
             resetBar();
@@ -131,7 +131,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         this.metadata = mediaController.getMetadata();
 
         String path = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-        this.reference = TrackStorageManager.getReference(context, path);
+        this.reference = Tracks.getReference(context, path);
 
         this.playbackState = mediaController.getPlaybackState();
 
@@ -337,7 +337,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             trackImage.setClipToOutline(true);
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
 
-            Track track = TrackStorageManager.getTrack(context, reference);
+            Track track = Tracks.getTrack(context, reference);
 
             buttonLike.setOnClickListener(v -> {
                 swapLikeState(context, track);
@@ -379,7 +379,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         } else {
             track.setLiked(true);
         }
-        TrackStorageManager.updateTrack(context, reference, track);
+        Tracks.updateTrack(context, reference, track);
     }
 
 

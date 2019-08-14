@@ -46,7 +46,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
 
             if (mediaChanged) {
-                Track selectedTrack = TrackStorageManager.getTrack(context, selectedReference);
+                Track selectedTrack = Tracks.getTrack(context, selectedReference);
 
                 if (player == null) {
                     player = new MediaPlayer();
@@ -97,7 +97,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             cursor = index;
 
             if (playerStateCallback != null) {
-                playerStateCallback.onTrackChanged(TrackStorageManager.getTrack(context, getTracks().get(cursor)));
+                playerStateCallback.onTrackChanged(Tracks.getTrack(context, getTracks().get(cursor)));
             }
 
             play();

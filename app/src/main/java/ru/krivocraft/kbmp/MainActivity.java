@@ -77,12 +77,12 @@ public class MainActivity extends AppCompatActivity {
         if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
             setTheme(R.style.LightTheme);
         }
-        removeOldStorage();
+        removeOldCache();
 
         requestStoragePermission();
     }
 
-    private void removeOldStorage() {
+    private void removeOldCache() {
         SharedPreferences preferences = getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
         String identifier = "all_tracks";
         if (preferences.getString(identifier, null) != null) {

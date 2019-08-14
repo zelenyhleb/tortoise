@@ -35,7 +35,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        Track track = TrackStorageManager.getTrack(context, trackList.get(i));
+        Track track = Tracks.getTrack(context, trackList.get(i));
         viewHolder.title.setText(track.getTitle());
         viewHolder.artist.setText(track.getArtist());
         viewHolder.reference = trackList.get(i);
