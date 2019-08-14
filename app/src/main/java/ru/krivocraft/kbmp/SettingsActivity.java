@@ -8,16 +8,12 @@ import android.widget.ListView;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
-            setTheme(R.style.LightTheme);
-        }
 
         ListView listView = findViewById(R.id.settings_list);
         listView.setAdapter(new SettingsAdapter(this));

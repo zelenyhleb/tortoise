@@ -12,7 +12,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.MODE_PRIVATE;
 
-class TrackStorageManager {
+class TracksProvider {
 
     private final Context context;
     private ContentResolver contentResolver;
@@ -21,7 +21,7 @@ class TrackStorageManager {
     private List<Track> metaStorage;
     private boolean recognize;
 
-    TrackStorageManager(Context context) {
+    TracksProvider(Context context) {
         this.storage = context.getSharedPreferences(Constants.TRACKS_NAME, MODE_PRIVATE);
         this.trackLists = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();

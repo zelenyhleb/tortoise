@@ -2,7 +2,10 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,7 +102,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
         private void drawState(Context context) {
             if (track.isSelected()) {
-                if (track.isPlaying()){
+                if (track.isPlaying()) {
                     state.setImageDrawable(context.getDrawable(R.drawable.ic_play));
                 } else {
                     state.setImageDrawable(context.getDrawable(R.drawable.ic_pause));

@@ -7,23 +7,14 @@
     android:animateLayoutChanges="true">
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/composition_name"
-        android:id="@+id/image_layout"
-        android:layout_margin="16dp"
-        android:layout_alignParentTop="true">
-
         <ImageView
             android:id="@+id/track_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="16dp"
+            android:layout_above="@id/composition_name"
+            android:layout_margin="48dp"
             android:background="@drawable/layout_bg" />
-    </RelativeLayout>
 
     <SeekBar
         android:id="@+id/composition_progress_bar"
@@ -39,7 +30,6 @@
         android:id="@+id/button_like"
         android:background="@null"
         android:layout_margin="8dp"
-        android:tint="@color/white"
         android:src="@drawable/ic_heart"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/composition_progress_bar"
@@ -95,7 +85,6 @@
             android:layout_weight="1"
             android:background="@null"
             android:src="@drawable/ic_shuffled"
-            android:tint="@color/white"
             android:layout_margin="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -140,7 +129,6 @@
             android:id="@+id/player_loop"
             android:background="@null"
             android:layout_margin="16dp"
-            android:tint="@color/white"
             android:src="@drawable/ic_loop_not"/>
 
 

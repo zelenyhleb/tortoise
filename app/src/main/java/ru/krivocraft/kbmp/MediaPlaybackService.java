@@ -184,8 +184,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         });
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
-        TrackStorageManager trackStorageManager = new TrackStorageManager(this);
-        trackStorageManager.search();
+        TracksProvider tracksProvider = new TracksProvider(this);
+        tracksProvider.search();
 
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);

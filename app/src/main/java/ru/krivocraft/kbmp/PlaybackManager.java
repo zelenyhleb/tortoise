@@ -80,9 +80,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void seekTo(int position) {
-        player.pause();
+        pause();
         player.seekTo(position);
-        player.start();
+        play();
     }
 
     void pause() {

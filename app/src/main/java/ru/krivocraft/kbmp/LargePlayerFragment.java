@@ -221,6 +221,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
         compositionDurationTextView = rootView.findViewById(R.id.composition_duration);
         compositionProgressBar = rootView.findViewById(R.id.composition_progress_bar);
         trackImage = rootView.findViewById(R.id.track_image);
+        trackImage.setClipToOutline(true);
         buttonLike = rootView.findViewById(R.id.button_like);
 
         RelativeLayout playerLayout = rootView.findViewById(R.id.layout_player);
@@ -247,7 +248,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
                 } else {
-                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
+                    if (Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false)){
+                        ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
+                    } else {
+                        ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
+                    }
                 }
             }
         }
@@ -334,7 +339,6 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
-            trackImage.setClipToOutline(true);
             trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
 
             Track track = Tracks.getTrack(context, reference);
