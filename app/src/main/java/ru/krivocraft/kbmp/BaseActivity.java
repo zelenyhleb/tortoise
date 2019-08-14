@@ -12,6 +12,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
             setTheme(R.style.LightTheme);
+        } else {
+            setTheme(R.style.DarkTheme);
         }
     }
 }
