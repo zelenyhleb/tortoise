@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends BaseActivity {
 
     private final static int INDEX_FRAGMENT_PLAYER = 0;
     private final static int INDEX_FRAGMENT_PLAYLIST = 1;
@@ -34,10 +34,6 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-
-        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
-            setTheme(R.style.LightTheme);
-        }
 
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
@@ -135,7 +131,7 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         private TrackListFragment getTrackListPage() {
-            return TrackListFragment.newInstance(trackList, false);
+            return TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
         }
     }
 }

@@ -184,8 +184,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         });
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
-        TrackStorageManager trackStorageManager = new TrackStorageManager(this);
-        trackStorageManager.search();
+        TracksProvider tracksProvider = new TracksProvider(this);
+        tracksProvider.search();
 
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
@@ -215,7 +215,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(TrackStorageManager.getTrack(this, track).getPath()) && trackList.equals(playbackManager.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(Tracks.getTrack(this, track).getPath()) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
@@ -238,6 +238,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     @Override
     public void onDestroy() {
         clearShuffleState();
+        playbackManager.stop();
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(playlistReceiver);
         unregisterReceiver(requestDataReceiver);

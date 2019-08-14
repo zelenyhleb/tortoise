@@ -32,7 +32,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
 
     private SmallPlayerFragment smallPlayerFragment;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        trackListFragment = TrackListFragment.newInstance(trackList, true);
+        trackListFragment = TrackListFragment.newInstance(trackList, true, this);
         return trackListFragment;
     }
 
@@ -74,15 +74,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Utils.getOption(getSharedPreferences(Constants.SETTINGS_NAME, MODE_PRIVATE), Constants.KEY_THEME, false)) {
-            setTheme(R.style.LightTheme);
-        }
-        removeOldStorage();
+        removeOldCache();
 
         requestStoragePermission();
     }
 
-    private void removeOldStorage() {
+    private void removeOldCache() {
         SharedPreferences preferences = getSharedPreferences(Constants.TRACK_LISTS_NAME, MODE_PRIVATE);
         String identifier = "all_tracks";
         if (preferences.getString(identifier, null) != null) {

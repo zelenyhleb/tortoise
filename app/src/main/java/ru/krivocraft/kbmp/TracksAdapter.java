@@ -2,7 +2,10 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +38,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        Track track = TrackStorageManager.getTrack(context, trackList.get(i));
+        Track track = Tracks.getTrack(context, trackList.get(i));
         viewHolder.title.setText(track.getTitle());
         viewHolder.artist.setText(track.getArtist());
         viewHolder.reference = trackList.get(i);
         viewHolder.track = track;
         viewHolder.trackList = trackList;
+        viewHolder.drawState(context);
         viewHolder.loadArt();
     }
 
@@ -79,6 +83,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         TextView title;
         TextView artist;
         ImageView art;
+        ImageView state;
         Track track;
         TrackReference reference;
         TrackList trackList;
@@ -88,9 +93,22 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             title = itemView.findViewById(R.id.composition_name_text);
             artist = itemView.findViewById(R.id.composition_author_text);
             art = itemView.findViewById(R.id.item_track_image);
+            state = itemView.findViewById(R.id.item_track_state);
             itemView.setOnClickListener(new OnClickListener());
             if (editingAllowed) {
                 itemView.setOnLongClickListener(new OnLongClickListener());
+            }
+        }
+
+        private void drawState(Context context) {
+            if (track.isSelected()) {
+                if (track.isPlaying()) {
+                    state.setImageDrawable(context.getDrawable(R.drawable.ic_play));
+                } else {
+                    state.setImageDrawable(context.getDrawable(R.drawable.ic_pause));
+                }
+            } else {
+                state.setImageDrawable(null);
             }
         }
 

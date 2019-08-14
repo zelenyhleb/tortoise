@@ -1,10 +1,7 @@
 package ru.krivocraft.kbmp;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,8 +12,6 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.krivocraft.kbmp.constants.Constants;
 
 class Utils {
     static String getFormattedTime(int time) {
@@ -45,7 +40,7 @@ class Utils {
 
     static List<TrackReference> search(Context context, CharSequence string, List<TrackReference> input) {
         List<TrackReference> trackList = new ArrayList<>();
-        List<Track> searched = TrackStorageManager.getTracks(context, input);
+        List<Track> searched = Tracks.getTracks(context, input);
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();
@@ -105,46 +100,6 @@ class Utils {
         return storage;
     }
 
-    static Track loadData(String path, ContentResolver contentResolver, boolean recognize) {
-        String selection = MediaStore.Audio.Media.DATA + " = ?";
-        String[] projection = {
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DURATION
-        };
-        String[] args = {
-                path
-        };
-        String artist = Constants.UNKNOWN_ARTIST;
-        String title = Constants.UNKNOWN_COMPOSITION;
-        long duration = 0;
-
-        Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, args, MediaStore.Audio.Media.TITLE);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            artist = cursor.getString(0);
-            title = cursor.getString(1);
-            duration = cursor.getLong(2);
-            cursor.close();
-        }
-
-        if (recognize) {
-            String[] meta = title.split(" - ");
-            if (meta.length > 1) {
-                artist = meta[0];
-                title = meta[1];
-            } else {
-                meta = title.split(" — ");
-                if (meta.length > 1) {
-                    artist = meta[0];
-                    title = meta[1];
-                }
-            }
-        }
-
-        return new Track(duration, artist, title, path);
-    }
-
     static Bitmap loadArt(String path) {
         Bitmap art = null;
 
@@ -174,17 +129,6 @@ class Utils {
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
         editor.apply();
-    }
-
-    static void restart(Context context) {
-        Intent mStartActivity = new Intent(context, MainActivity.class);
-        int mPendingIntentId = 123456;
-        PendingIntent mPendingIntent = PendingIntent.getActivity(context, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (mgr != null) {
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 500, mPendingIntent);
-        }
-        System.exit(0);
     }
 
 }

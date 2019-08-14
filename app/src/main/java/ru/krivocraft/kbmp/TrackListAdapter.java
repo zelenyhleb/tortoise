@@ -29,6 +29,7 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
         if (trackList != null) {
             ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getDisplayName());
         }
+        convertView.findViewById(R.id.fragment_playlist_picture).setClipToOutline(true);
         return convertView;
     }
 }

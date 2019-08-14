@@ -1,5 +1,6 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -48,13 +52,27 @@ public class TrackListFragment extends Fragment {
     public TrackListFragment() {
     }
 
-    static TrackListFragment newInstance(TrackList trackList, boolean showControls) {
+    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            tracksAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            tracksAdapter.notifyDataSetChanged();
+        }
+    };
+
+    static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context) {
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(showControls, trackList);
+        trackListFragment.init(showControls, trackList, context);
         return trackListFragment;
     }
 
-    private void init(boolean showControls, TrackList trackList) {
+    private void init(boolean showControls, TrackList trackList, Activity context) {
+        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+        mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.trackList = trackList;
     }

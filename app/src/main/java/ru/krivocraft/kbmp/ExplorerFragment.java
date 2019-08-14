@@ -50,23 +50,23 @@ public class ExplorerFragment extends Fragment {
             CompileTrackListsTask task = new CompileTrackListsTask();
             task.setListener(trackLists -> new Thread(() -> {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), TrackStorageManager.getReferences(context, entry.getValue()), false);
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), false);
                     writeTrackList(trackList);
                 }
                 context.runOnUiThread(this::redrawList);
             }).start());
-            task.execute(TrackStorageManager.getTrackStorage(context));
+            task.execute(Tracks.getTrackStorage(context));
         }
     }
 
     private void compileFavorites() {
         Context context = getContext();
         if (context != null) {
-            List<Track> tracks = TrackStorageManager.getTrackStorage(context);
+            List<Track> tracks = Tracks.getTrackStorage(context);
             List<TrackReference> favorites = new ArrayList<>();
             for (Track track : tracks) {
                 if (track.isLiked()) {
-                    favorites.add(TrackStorageManager.getReference(context, track));
+                    favorites.add(Tracks.getReference(context, track));
                 }
             }
             writeTrackList(new TrackList("Favorites", favorites, true));
@@ -135,7 +135,7 @@ public class ExplorerFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
         TextView textView = view.findViewById(R.id.obtaining_text);
 
-        List<Track> allTracks = TrackStorageManager.getTrackStorage(context);
+        List<Track> allTracks = Tracks.getTrackStorage(context);
         progressBar.setMax(allTracks.size());
 
         List<TrackReference> selectedTracks = new ArrayList<>();

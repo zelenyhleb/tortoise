@@ -5,28 +5,34 @@
     android:layout_height="wrap_content">
 
 
-    <ImageView
-        android:id="@+id/item_track_image"
+    <RelativeLayout
+        android:id="@+id/image_layout"
+        android:layout_margin="4dp"
         android:layout_centerVertical="true"
-        android:layout_width="56dp"
-        android:background="@drawable/layout_bg"
-        android:layout_height="56dp"
-        android:layout_margin="4dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/item_track_image"
+            android:background="@drawable/layout_bg"/>
+        <ImageView
+            android:id="@+id/item_track_state"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:layout_margin="14dp"
+            android:background="@null" />
 
-    <ImageView
-        android:id="@+id/item_track_state"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerVertical="true"
-        android:layout_margin="14dp"
-        android:background="@null" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_centerVertical="true"
         android:orientation="vertical"
         android:layout_marginStart="8dp"
-        android:layout_toEndOf="@id/item_track_image"
+        android:layout_toEndOf="@id/image_layout"
         android:layout_height="wrap_content">
 
         <TextView

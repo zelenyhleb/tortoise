@@ -5,6 +5,8 @@ import android.support.v4.media.MediaMetadataCompat;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
@@ -20,12 +22,14 @@ class Track {
 
     private String title, artist, path;
     private long duration;
+    private List<Tag> tags;
 
-    Track(@NonNull long duration, String artist, String title, @NonNull String path) {
+    Track(long duration, String artist, String title, @NonNull String path) {
         this.duration = duration;
         this.artist = artist;
         this.title = title;
         this.path = path;
+        this.tags = new ArrayList<>();
 
         if (artist.equals("<unknown>")) {
             this.artist = Constants.UNKNOWN_ARTIST;
@@ -91,10 +95,6 @@ class Track {
         return new Gson().fromJson(json, Track.class);
     }
 
-    static String createIdentifier(Track track) {
-        return track.getPath();
-    }
-
     String getArtist() {
         return artist;
     }
@@ -113,5 +113,17 @@ class Track {
 
     void setLiked(boolean liked) {
         this.liked = liked;
+    }
+
+    void addTag(Tag tag) {
+        tags.add(tag);
+    }
+
+    void removeTag(Tag tag) {
+        tags.remove(tag);
+    }
+
+    List<Tag> getTags() {
+        return tags;
     }
 }
