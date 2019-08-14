@@ -7,6 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -31,6 +32,12 @@ class Tracks {
         return tracks;
     }
 
+    static void updateTrackStorage(Context context, List<Track> tracks) {
+        for (int i = 0; i < tracks.size(); i++) {
+            updateTrack(context, new TrackReference(i), tracks.get(i));
+        }
+    }
+
     static List<Track> getTracks(Context context, List<TrackReference> references) {
         List<Track> tracks = new ArrayList<>();
         for (TrackReference reference : references) {
@@ -45,6 +52,12 @@ class Tracks {
         editor.apply();
     }
 
+    static void updateTracks(Context context, Map<TrackReference, Track> trackMap) {
+        for (Map.Entry<TrackReference, Track> entry : trackMap.entrySet()) {
+            updateTrack(context, entry.getKey(), entry.getValue());
+        }
+    }
+
     static TrackReference getReference(Context context, String path) {
         return new TrackReference(new ArrayList<>(CollectionUtils.collect(getTrackStorage(context), Track::getPath)).indexOf(path));
     }
@@ -53,7 +66,7 @@ class Tracks {
         return getReference(context, track.getPath());
     }
 
-    static List<TrackReference> getReferences(Context context, List<Track> tracks){
+    static List<TrackReference> getReferences(Context context, List<Track> tracks) {
         List<TrackReference> references = new ArrayList<>();
         for (Track track : tracks) {
             references.add(getReference(context, track));

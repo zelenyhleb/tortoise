@@ -70,7 +70,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             if (player != null) {
                 player.start();
 
-                selectedTrack.setSelected(true);
                 selectedTrack.setPlaying(true);
                 Tracks.updateTrack(context, selectedReference, selectedTrack);
 
@@ -106,12 +105,18 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (index >= 0 && index < getTracks().size()) {
             pause();
 
-            TrackReference selectedReference = trackList.get(cursor);
-            Track selectedTrack = Tracks.getTrack(context, selectedReference);
-            selectedTrack.setSelected(false);
-            Tracks.updateTrack(context, selectedReference, selectedTrack);
+            TrackReference oldSelectedReference = getTracks().get(cursor);
+            Track oldSelectedTrack = Tracks.getTrack(context, oldSelectedReference);
+            oldSelectedTrack.setPlaying(false);
+            oldSelectedTrack.setSelected(false);
+            Tracks.updateTrack(context, oldSelectedReference, oldSelectedTrack);
 
             cursor = index;
+
+            TrackReference selectedReference = getTracks().get(cursor);
+            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            selectedTrack.setSelected(true);
+            Tracks.updateTrack(context, selectedReference, selectedTrack);
 
             if (playerStateCallback != null) {
                 playerStateCallback.onTrackChanged(Tracks.getTrack(context, getTracks().get(cursor)));
@@ -119,6 +124,15 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             play();
         }
+    }
+
+    private void restoreAll(){
+        List<Track> tracks = Tracks.getTrackStorage(context);
+        for (Track track : tracks) {
+            track.setSelected(false);
+            track.setPlaying(false);
+        }
+        Tracks.updateTrackStorage(context, tracks);
     }
 
     void shuffle() {
@@ -140,11 +154,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     void stop() {
         if (player != null) {
-
-            TrackReference selectedReference = trackList.get(cursor);
-            Track selectedTrack = Tracks.getTrack(context, selectedReference);
-            selectedTrack.setSelected(false);
-            Tracks.updateTrack(context, selectedReference, selectedTrack);
+            restoreAll();
 
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
@@ -239,6 +249,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     @Override
     public void onPrepared(MediaPlayer mp) {
         player.start();
+        TrackReference selectedReference = getTracks().get(cursor);
+        Track selectedTrack = Tracks.getTrack(context, selectedReference);
+        selectedTrack.setPlaying(true);
+        Tracks.updateTrack(context, selectedReference, selectedTrack);
 
         playerState = PlaybackStateCompat.STATE_PLAYING;
         updatePlaybackState();

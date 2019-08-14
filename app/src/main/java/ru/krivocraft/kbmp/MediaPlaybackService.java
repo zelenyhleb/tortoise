@@ -238,6 +238,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     @Override
     public void onDestroy() {
         clearShuffleState();
+        playbackManager.stop();
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(playlistReceiver);
         unregisterReceiver(requestDataReceiver);
