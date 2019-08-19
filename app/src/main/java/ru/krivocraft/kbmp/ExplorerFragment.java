@@ -82,7 +82,7 @@ public class ExplorerFragment extends Fragment {
     };
 
     private boolean getPreference(Context context) {
-        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
+        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_SORT_BY_ARTIST, false);
     }
 
     @Override
