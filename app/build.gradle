@@ -6,8 +6,8 @@ android {
         applicationId "ru.krivocraft.kbmp"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 8
-        versionName "0.2.7-alpha"
+        versionCode 9
+        versionName "0.2.8-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
