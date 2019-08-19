@@ -143,7 +143,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
             @Override
             public boolean onLongClick(View v) {
-                v.getContext().startActivity(new Intent(v.getContext(), MetadataEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, track.toJson()));
+                v.getContext().startActivity(new Intent(v.getContext(), MetadataEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson()));
                 return true;
             }
         }

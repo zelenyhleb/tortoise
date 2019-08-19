@@ -38,6 +38,7 @@
         android:id="@+id/tags_list"/>
     <Button
         android:text="Add tag"
+        android:id="@+id/button_add_tag"
         android:layout_below="@id/tags_list"
         android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"

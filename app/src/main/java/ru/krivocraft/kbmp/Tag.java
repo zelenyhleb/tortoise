@@ -1,15 +1,12 @@
 package ru.krivocraft.kbmp;
 
-import android.graphics.Color;
-
 import com.google.gson.Gson;
 
 class Tag {
     String text;
-    Color color;
 
-    Tag(String text, Color color) {
-
+    Tag(String text) {
+        this.text = text;
     }
 
     String toJson() {
