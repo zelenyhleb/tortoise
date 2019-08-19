@@ -1,8 +1,6 @@
 package ru.krivocraft.kbmp;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
