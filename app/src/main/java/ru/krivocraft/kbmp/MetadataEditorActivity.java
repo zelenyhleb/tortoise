@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -70,19 +71,37 @@ public class MetadataEditorActivity extends AppCompatActivity {
 
         Button addTag = findViewById(R.id.button_add_tag);
         addTag.setOnClickListener(v -> {
-            View dialogView = LayoutInflater.from(MetadataEditorActivity.this).inflate(R.layout.dialog_add_tag, null);
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-            adb.setMessage("Add Tag");
-            adb.setView(dialogView);
-            adb.setPositiveButton("ADD", (dialog, which) -> {
-                EditText editText = dialogView.findViewById(R.id.add_tag_edit_text);
-                Tag tag = new Tag(editText.getText().toString());
-                track.addTag(tag);
-                tagsView.setText(builder.replace(builder.length() - 1, builder.length(), ", " + tag.text + "."));
-                apply.setEnabled(true);
-                addedTag = true;
+            MetadataEditorActivity context = MetadataEditorActivity.this;
+
+            View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_tag, null);
+            AlertDialog ad = new AlertDialog.Builder(this)
+                    .setMessage("Add Tag")
+                    .setView(dialogView)
+                    .setPositiveButton("ADD", null)
+                    .create();
+
+            ad.setOnShowListener(dialog -> {
+                Button positiveButton = ad.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setOnClickListener(v1 -> {
+                    EditText editText = dialogView.findViewById(R.id.add_tag_edit_text);
+                    Tag tag = new Tag(editText.getText().toString());
+                    if (!track.getTags().contains(tag)) {
+                        List<Tag> allTags = Tags.getAllTags(context);
+                        if (!allTags.contains(tag)) {
+                            Tags.createTag(context, tag);
+                        }
+                        track.addTag(tag);
+                        tagsView.setText(builder.replace(builder.length() - 1, builder.length(), ", " + tag.text + "."));
+                        apply.setEnabled(true);
+                        addedTag = true;
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(context, "This track already has the same track", Toast.LENGTH_LONG).show();
+                    }
+                });
             });
-            adb.create().show();
+
+            ad.show();
         });
 
         title.addTextChangedListener(new TextWatcher() {
