@@ -96,7 +96,7 @@ public class MetadataEditorActivity extends AppCompatActivity {
                         addedTag = true;
                         dialog.dismiss();
                     } else {
-                        Toast.makeText(context, "This track already has the same track", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "This track already has the same tag", Toast.LENGTH_LONG).show();
                     }
                 });
             });

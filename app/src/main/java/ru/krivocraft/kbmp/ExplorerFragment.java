@@ -47,7 +47,7 @@ public class ExplorerFragment extends Fragment {
     private void compileByAuthors() {
         Activity context = getActivity();
         if (context != null) {
-            CompileTrackListsTask task = new CompileTrackListsTask();
+            CompileByAuthorTask task = new CompileByAuthorTask();
             task.setListener(trackLists -> new Thread(() -> {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
                     TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), false);
@@ -55,21 +55,22 @@ public class ExplorerFragment extends Fragment {
                 }
                 context.runOnUiThread(this::redrawList);
             }).start());
-            task.execute(Tracks.getTrackStorage(context));
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
     }
 
     private void compileFavorites() {
-        Context context = getContext();
+        Activity context = getActivity();
         if (context != null) {
-            List<Track> tracks = Tracks.getTrackStorage(context);
-            List<TrackReference> favorites = new ArrayList<>();
-            for (Track track : tracks) {
-                if (track.isLiked()) {
-                    favorites.add(Tracks.getReference(context, track));
+            CompileFavoritesTask task = new CompileFavoritesTask();
+            task.setListener(trackLists -> new Thread(() -> {
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), true);
+                    writeTrackList(trackList);
                 }
-            }
-            writeTrackList(new TrackList("Favorites", favorites, true));
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
     }
 
@@ -264,7 +265,7 @@ public class ExplorerFragment extends Fragment {
 
     void invalidate() {
         Context context = getContext();
-        if (context != null){
+        if (context != null) {
             compileFavorites();
             if (getPreference(context)) {
                 compileByAuthors();
