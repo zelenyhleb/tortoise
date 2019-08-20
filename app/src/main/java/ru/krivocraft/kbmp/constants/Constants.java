@@ -16,6 +16,11 @@ public class Constants {
 
     public static final String KEY_TAGS = "allTags";
 
+    public static final int TRACK_LIST_CUSTOM = 91;
+    public static final int TRACK_LIST_BY_AUTHOR= 92;
+    public static final int TRACK_LIST_BY_TAG = 93;
+
+
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_SORT_BY_ARTIST = "sortByArtist";
     public static final String KEY_SORT_BY_TAG = "sortByTag";

@@ -11,16 +11,16 @@ import java.util.List;
 class TrackList {
     private String displayName;
     private boolean shuffled = false;
-    private final boolean custom;
+    private final int type;
 
     private List<TrackReference> tracksReferences;
 
     private List<TrackReference> shuffleCache;
 
-    TrackList(String displayName, List<TrackReference> tracksReferences, boolean custom) {
+    TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
         this.displayName = displayName;
         this.tracksReferences = tracksReferences;
-        this.custom = custom;
+        this.type = type;
     }
 
     @NonNull
@@ -94,7 +94,7 @@ class TrackList {
         this.shuffled = shuffled;
     }
 
-    boolean isCustom() {
-        return custom;
+    int getType() {
+        return type;
     }
 }

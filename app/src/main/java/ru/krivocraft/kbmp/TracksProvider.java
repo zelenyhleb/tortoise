@@ -53,7 +53,7 @@ class TracksProvider {
         }
         tracksEditor.apply();
 
-        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, true);
+        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
         SharedPreferences.Editor trackListsEditor = trackLists.edit();
         trackListsEditor.putString(trackList.getIdentifier(), trackList.toJson());
         trackListsEditor.apply();

@@ -84,12 +84,8 @@ public class MetadataEditorActivity extends AppCompatActivity {
                 Button positiveButton = ad.getButton(AlertDialog.BUTTON_POSITIVE);
                 positiveButton.setOnClickListener(v1 -> {
                     EditText editText = dialogView.findViewById(R.id.add_tag_edit_text);
-                    Tag tag = new Tag(editText.getText().toString());
+                    Tag tag = new Tag(editText.getText().toString().trim());
                     if (!track.getTags().contains(tag)) {
-                        List<Tag> allTags = Tags.getAllTags(context);
-                        if (!allTags.contains(tag)) {
-                            Tags.createTag(context, tag);
-                        }
                         track.addTag(tag);
                         tagsView.setText(builder.replace(builder.length() - 1, builder.length(), ", " + tag.text + "."));
                         apply.setEnabled(true);

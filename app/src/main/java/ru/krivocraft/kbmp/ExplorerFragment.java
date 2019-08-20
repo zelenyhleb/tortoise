@@ -50,7 +50,7 @@ public class ExplorerFragment extends Fragment {
             CompileByAuthorTask task = new CompileByAuthorTask();
             task.setListener(trackLists -> new Thread(() -> {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), false);
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_AUTHOR);
                     writeTrackList(trackList);
                 }
                 context.runOnUiThread(this::redrawList);
@@ -65,7 +65,22 @@ public class ExplorerFragment extends Fragment {
             CompileFavoritesTask task = new CompileFavoritesTask();
             task.setListener(trackLists -> new Thread(() -> {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), true);
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_CUSTOM);
+                    writeTrackList(trackList);
+                }
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
+        }
+    }
+
+    private void compileByTags() {
+        Activity context = getActivity();
+        if (context != null) {
+            CompileByTagsTask task = new CompileByTagsTask();
+            task.setListener(trackLists -> new Thread(() -> {
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
                     writeTrackList(trackList);
                 }
                 context.runOnUiThread(this::redrawList);
@@ -81,8 +96,8 @@ public class ExplorerFragment extends Fragment {
         }
     };
 
-    private boolean getPreference(Context context) {
-        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_SORT_BY_ARTIST, false);
+    private boolean getPreference(Context context, String optionKey) {
+        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), optionKey, false);
     }
 
     @Override
@@ -171,7 +186,7 @@ public class ExplorerFragment extends Fragment {
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
                 if (acceptTrackList(selectedTracks.size(), displayName, context)) {
-                    writeTrackList(new TrackList(displayName, selectedTracks, true));
+                    writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
                     dialog.dismiss();
                 }
             });
@@ -242,8 +257,12 @@ public class ExplorerFragment extends Fragment {
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());
                 System.out.println((String) entry.getValue());
-                if (!trackList.isCustom()) {
-                    if (getPreference(context)) {
+                if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
+                    if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
+                        allTrackLists.add(trackList);
+                    }
+                } else if(trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
+                    if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
                         allTrackLists.add(trackList);
                     }
                 } else {
@@ -267,8 +286,11 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             compileFavorites();
-            if (getPreference(context)) {
+            if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
                 compileByAuthors();
+            }
+            if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
+                compileByTags();
             }
         }
 
