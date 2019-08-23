@@ -200,6 +200,7 @@ public class ExplorerFragment extends Fragment {
                 String displayName = editText.getText().toString();
                 if (acceptTrackList(selectedTracks.size(), displayName, context)) {
                     writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
+                    redrawList();
                     dialog.dismiss();
                 }
             });
