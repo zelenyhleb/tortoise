@@ -7,10 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,6 +86,15 @@ public class ExplorerFragment extends Fragment {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
                     TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
                     writeTrackList(trackList);
+                }
+
+                List<TrackList> all = readTrackLists();
+                for (TrackList trackList : all) {
+                    if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
+                        if (!trackLists.keySet().contains(trackList.getDisplayName())) {
+                            removeTrackList(trackList);
+                        }
+                    }
                 }
                 context.runOnUiThread(this::redrawList);
             }).start());
@@ -261,7 +274,7 @@ public class ExplorerFragment extends Fragment {
                     if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
                         allTrackLists.add(trackList);
                     }
-                } else if(trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
+                } else if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
                     if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
                         allTrackLists.add(trackList);
                     }

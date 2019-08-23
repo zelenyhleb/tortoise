@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 
 import java.util.ArrayList;
 
@@ -112,7 +113,10 @@ public class MetadataEditorActivity extends AppCompatActivity {
                     Tag tag = new Tag(editText.getText().toString().trim());
                     if (!track.getTags().contains(tag)) {
                         track.addTag(tag);
-                        tagsView.setTags(new ArrayList<>(CollectionUtils.collect(track.getTags(), (tag1) -> tag.text)));
+                        ArrayList<String> tags = new ArrayList<>(CollectionUtils.collect(track.getTags(), input -> input.text));
+                        System.out.println(tags);
+                        tagsView.removeAllTags();
+                        tagsView.setTags(tags);
                         apply.setEnabled(true);
                         addedTag = true;
                         dialog.dismiss();
