@@ -245,6 +245,7 @@ public class ExplorerFragment extends Fragment {
             SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
+            invalidate();
         }
     }
 
