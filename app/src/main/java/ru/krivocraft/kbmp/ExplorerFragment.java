@@ -7,10 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,29 +51,54 @@ public class ExplorerFragment extends Fragment {
     private void compileByAuthors() {
         Activity context = getActivity();
         if (context != null) {
-            CompileTrackListsTask task = new CompileTrackListsTask();
+            CompileByAuthorTask task = new CompileByAuthorTask();
             task.setListener(trackLists -> new Thread(() -> {
                 for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), false);
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_AUTHOR);
                     writeTrackList(trackList);
                 }
                 context.runOnUiThread(this::redrawList);
             }).start());
-            task.execute(Tracks.getTrackStorage(context));
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
     }
 
     private void compileFavorites() {
-        Context context = getContext();
+        Activity context = getActivity();
         if (context != null) {
-            List<Track> tracks = Tracks.getTrackStorage(context);
-            List<TrackReference> favorites = new ArrayList<>();
-            for (Track track : tracks) {
-                if (track.isLiked()) {
-                    favorites.add(Tracks.getReference(context, track));
+            CompileFavoritesTask task = new CompileFavoritesTask();
+            task.setListener(trackLists -> new Thread(() -> {
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_CUSTOM);
+                    writeTrackList(trackList);
                 }
-            }
-            writeTrackList(new TrackList("Favorites", favorites, true));
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
+        }
+    }
+
+    private void compileByTags() {
+        Activity context = getActivity();
+        if (context != null) {
+            CompileByTagsTask task = new CompileByTagsTask();
+            task.setListener(trackLists -> new Thread(() -> {
+                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
+                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
+                    writeTrackList(trackList);
+                }
+
+                List<TrackList> all = readTrackLists();
+                for (TrackList trackList : all) {
+                    if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
+                        if (!trackLists.keySet().contains(trackList.getDisplayName())) {
+                            removeTrackList(trackList);
+                        }
+                    }
+                }
+                context.runOnUiThread(this::redrawList);
+            }).start());
+            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
     }
 
@@ -80,8 +109,8 @@ public class ExplorerFragment extends Fragment {
         }
     };
 
-    private boolean getPreference(Context context) {
-        return Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_AUTO_SORT, false);
+    private boolean getPreference(Context context, String optionKey) {
+        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), optionKey, false);
     }
 
     @Override
@@ -104,7 +133,7 @@ public class ExplorerFragment extends Fragment {
             gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_DISPLAY_NAME)) {
+                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
                     showDeletionDialog(context, parent, position);
                 }
                 return true;
@@ -170,7 +199,8 @@ public class ExplorerFragment extends Fragment {
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
                 if (acceptTrackList(selectedTracks.size(), displayName, context)) {
-                    writeTrackList(new TrackList(displayName, selectedTracks, true));
+                    writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
+                    redrawList();
                     dialog.dismiss();
                 }
             });
@@ -203,7 +233,7 @@ public class ExplorerFragment extends Fragment {
     private void writeTrackList(TrackList trackList) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
             editor.putString(trackList.getIdentifier(), trackList.toJson());
             editor.apply();
         }
@@ -213,9 +243,10 @@ public class ExplorerFragment extends Fragment {
     private void removeTrackList(TrackList trackList) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
             editor.remove(trackList.getIdentifier());
             editor.apply();
+            invalidate();
         }
     }
 
@@ -223,7 +254,7 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         List<String> identifiers = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 identifiers.add(entry.getKey());
@@ -236,13 +267,17 @@ public class ExplorerFragment extends Fragment {
         Context context = getContext();
         List<TrackList> allTrackLists = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.TRACK_LISTS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
             Map<String, ?> trackLists = sharedPreferences.getAll();
             for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
                 TrackList trackList = TrackList.fromJson((String) entry.getValue());
                 System.out.println((String) entry.getValue());
-                if (!trackList.isCustom()) {
-                    if (getPreference(context)) {
+                if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
+                    if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
+                        allTrackLists.add(trackList);
+                    }
+                } else if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
+                    if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
                         allTrackLists.add(trackList);
                     }
                 } else {
@@ -264,10 +299,13 @@ public class ExplorerFragment extends Fragment {
 
     void invalidate() {
         Context context = getContext();
-        if (context != null){
+        if (context != null) {
             compileFavorites();
-            if (getPreference(context)) {
+            if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
                 compileByAuthors();
+            }
+            if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
+                compileByTags();
             }
         }
 

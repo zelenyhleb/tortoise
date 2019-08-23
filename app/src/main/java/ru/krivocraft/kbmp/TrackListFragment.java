@@ -6,14 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -100,7 +100,7 @@ public class TrackListFragment extends Fragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         List<TrackReference> trackListSearched = Utils.search(context, s, TrackListFragment.this.trackList.getTrackReferences());
-                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, false), context, showControls));
+                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM), context, showControls));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }

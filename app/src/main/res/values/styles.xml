@@ -10,6 +10,11 @@
         <item name="imageButtonStyle">@style/ImageButtonDark</item>
     </style>
 
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimaryDark">@color/green700</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+
     <style name="LightTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/green700</item>
         <item name="colorPrimaryDark">@color/green900</item>

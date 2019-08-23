@@ -13,14 +13,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v4.widget.ImageViewCompat;
+import androidx.core.widget.ImageViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -248,7 +248,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
                 } else {
-                    if (Utils.getOption(context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE), Constants.KEY_THEME, false)){
+                    if (Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, false)){
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                     } else {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -261,7 +261,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private void drawLoopButton(ImageButton loop) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
             int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
             switch (loopState) {
                 case Constants.NOT_LOOP:
@@ -303,7 +303,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private void loop(ImageView button) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences preferences = context.getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
             switch (loopState) {
