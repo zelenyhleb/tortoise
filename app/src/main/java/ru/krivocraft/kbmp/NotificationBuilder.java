@@ -7,11 +7,12 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+
+import androidx.core.app.NotificationCompat;
+import androidx.media.session.MediaButtonReceiver;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -51,7 +52,7 @@ class NotificationBuilder {
         if (mediaSession.getController().getMetadata() != null) {
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
-            android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle mediaStyle = new android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle();
+            androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
             mediaStyle.setShowCancelButton(true);
             mediaStyle.setShowActionsInCompactView(1, 2, 3);

@@ -126,7 +126,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    private void restoreAll(){
+    private void restoreAll() {
         List<Track> tracks = Tracks.getTrackStorage(context);
         for (Track track : tracks) {
             track.setSelected(false);
@@ -202,9 +202,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     TrackReference getCurrentTrack() {
         if (getTracks() != null)
-            return getTracks().get(cursor);
-        else
-            return null;
+            if (getTracks().size() > 0)
+                return getTracks().get(cursor);
+        return null;
     }
 
     private void updatePlaybackState() {

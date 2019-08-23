@@ -3,19 +3,22 @@ package ru.krivocraft.kbmp;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
+
+import co.lujun.androidtagview.TagContainerLayout;
+import co.lujun.androidtagview.TagView;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class MetadataEditorActivity extends AppCompatActivity {
@@ -32,18 +35,40 @@ public class MetadataEditorActivity extends AppCompatActivity {
         EditText title = findViewById(R.id.metadata_editor_title_edit);
         EditText artist = findViewById(R.id.metadata_editor_artist_edit);
 
-        TextView tagsView = findViewById(R.id.tags_list);
+        TagContainerLayout tagsView = findViewById(R.id.tags_list);
+
+        tagsView.setTags(new ArrayList<>(CollectionUtils.collect(track.getTags(), (tag) -> tag.text)));
+        tagsView.setOnTagClickListener(new TagView.OnTagClickListener() {
+            @Override
+            public void onTagClick(int position, String text) {
+
+            }
+
+            @Override
+            public void onTagLongClick(int position, String text) {
+                tagsView.removeTag(position);
+                track.removeTag(track.getTags().get(position));
+            }
+
+            @Override
+            public void onSelectedTagDrag(int position, String text) {
+
+            }
+
+            @Override
+            public void onTagCrossClick(int position) {
+
+            }
+        });
 
         StringBuilder builder = new StringBuilder();
-        List<Tag> tags = track.getTags();
-        for (Tag tag : tags) {
+        for (Tag tag : track.getTags()) {
             builder.append(tag.text);
             builder.append(", ");
         }
         if (builder.length() >= 3) {
             builder.replace(builder.length() - 2, builder.length(), ".");
         }
-        tagsView.setText(builder);
 
 
         title.setText(track.getTitle());
@@ -87,7 +112,7 @@ public class MetadataEditorActivity extends AppCompatActivity {
                     Tag tag = new Tag(editText.getText().toString().trim());
                     if (!track.getTags().contains(tag)) {
                         track.addTag(tag);
-                        tagsView.setText(builder.replace(builder.length() - 1, builder.length(), ", " + tag.text + "."));
+                        tagsView.setTags(new ArrayList<>(CollectionUtils.collect(track.getTags(), (tag1) -> tag.text)));
                         apply.setEnabled(true);
                         addedTag = true;
                         dialog.dismiss();
