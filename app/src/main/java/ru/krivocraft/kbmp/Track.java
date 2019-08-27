@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-class Track {
+public class Track {
 
     private boolean selected = false;
     private boolean playing = false;
@@ -24,7 +24,7 @@ class Track {
     private long duration;
     private List<Tag> tags;
 
-    Track(long duration, String artist, String title, @NonNull String path) {
+    public Track(long duration, String artist, String title, @NonNull String path) {
         this.duration = duration;
         this.artist = artist;
         this.title = title;
@@ -48,7 +48,7 @@ class Track {
                 .build();
     }
 
-    boolean isSelected() {
+    public boolean isSelected() {
         return selected;
     }
 
@@ -56,7 +56,7 @@ class Track {
         this.selected = selected;
     }
 
-    boolean isPlaying() {
+    public boolean isPlaying() {
         return playing;
     }
 
@@ -64,7 +64,7 @@ class Track {
         this.playing = playing;
     }
 
-    boolean isChecked() {
+    public boolean isChecked() {
         return checked;
     }
 
@@ -87,27 +87,27 @@ class Track {
         return Objects.hash(getArtist(), getTitle(), getPath());
     }
 
-    String toJson() {
+    public String toJson() {
         return new Gson().toJson(this);
     }
 
-    static Track fromJson(String json) {
+    public static Track fromJson(String json) {
         return new Gson().fromJson(json, Track.class);
     }
 
-    String getArtist() {
+    public String getArtist() {
         return artist;
     }
 
-    String getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    String getPath() {
+    public String getPath() {
         return path;
     }
 
-    boolean isLiked() {
+    public boolean isLiked() {
         return liked;
     }
 
@@ -123,7 +123,7 @@ class Track {
         tags.remove(tag);
     }
 
-    List<Tag> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 }

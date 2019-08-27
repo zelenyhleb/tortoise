@@ -44,14 +44,6 @@
         app:tag_theme="pure_teal" />
 
     <Button
-        android:id="@+id/button_remove_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tags_list"
-        android:layout_toStartOf="@id/button_add_tag"
-        android:text="Remove tag" />
-
-    <Button
         android:id="@+id/button_add_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
