@@ -1,7 +1,8 @@
 package ru.krivocraft.kbmp;
 
-import androidx.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
+
+import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 

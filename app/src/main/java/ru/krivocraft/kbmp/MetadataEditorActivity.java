@@ -19,7 +19,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.ArrayList;
 
 import co.lujun.androidtagview.TagContainerLayout;
-import co.lujun.androidtagview.TagView;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class MetadataEditorActivity extends AppCompatActivity {
