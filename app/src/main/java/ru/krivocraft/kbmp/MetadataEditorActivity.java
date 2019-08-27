@@ -39,26 +39,11 @@ public class MetadataEditorActivity extends AppCompatActivity {
         TagContainerLayout tagsView = findViewById(R.id.tags_list);
 
         tagsView.setTags(new ArrayList<>(CollectionUtils.collect(track.getTags(), (tag) -> tag.text)));
-        tagsView.setOnTagClickListener(new TagView.OnTagClickListener() {
-            @Override
-            public void onTagClick(int position, String text) {
-
-            }
-
+        tagsView.setOnTagClickListener(new TagClickSolver() {
             @Override
             public void onTagLongClick(int position, String text) {
                 tagsView.removeTag(position);
                 track.removeTag(track.getTags().get(position));
-            }
-
-            @Override
-            public void onSelectedTagDrag(int position, String text) {
-
-            }
-
-            @Override
-            public void onTagCrossClick(int position) {
-
             }
         });
 
