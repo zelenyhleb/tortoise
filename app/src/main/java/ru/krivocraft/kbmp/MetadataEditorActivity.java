@@ -47,16 +47,6 @@ public class MetadataEditorActivity extends AppCompatActivity {
             }
         });
 
-        StringBuilder builder = new StringBuilder();
-        for (Tag tag : track.getTags()) {
-            builder.append(tag.text);
-            builder.append(", ");
-        }
-        if (builder.length() >= 3) {
-            builder.replace(builder.length() - 2, builder.length(), ".");
-        }
-
-
         title.setText(track.getTitle());
         artist.setText(track.getArtist());
 
