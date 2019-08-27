@@ -13,18 +13,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
+    private static List<String> objects = Arrays.asList(Constants.KEY_THEME, Constants.KEY_SORT_BY_ARTIST, Constants.KEY_SORT_BY_TAG, Constants.KEY_RECOGNIZE_NAMES, Constants.KEY_CLEAR_CACHE);
+
     SettingsAdapter(@NonNull Context context) {
-        super(context, R.layout.settings_item_toggle, new String[]{
-                Constants.KEY_THEME,
-                Constants.KEY_SORT_BY_ARTIST,
-                Constants.KEY_SORT_BY_TAG,
-                Constants.KEY_RECOGNIZE_NAMES,
-                Constants.KEY_CLEAR_CACHE
-        });
+        super(context, R.layout.settings_item_toggle, objects);
     }
 
     @NonNull
@@ -32,27 +31,27 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-            if (position == 0) {
+            if (position == objects.indexOf(Constants.KEY_THEME)) {
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 textView.setText("Light theme (Beta)");
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 initSwitch(s, Constants.KEY_THEME, false);
-            } else if (position == 1) {
+            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_ARTIST)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_ARTIST, false);
                 textView.setText("Automatically sort by artist");
-            } else if (position == 2) {
+            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_TAG)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_TAG, false);
                 textView.setText("Automatically sort by tag");
-            } else if (position == 3) {
+            } else if (position == objects.indexOf(Constants.KEY_RECOGNIZE_NAMES)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_RECOGNIZE_NAMES, true);
                 textView.setText("Try to parse track names for tracks with no metadata");
-            } else if (position == 4) {
+            } else if (position == objects.indexOf(Constants.KEY_CLEAR_CACHE)) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_button, null);
                 Button b = convertView.findViewById(R.id.settings_button);
                 TextView textView = convertView.findViewById(R.id.settings_text);
