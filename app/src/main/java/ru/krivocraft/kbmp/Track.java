@@ -21,6 +21,14 @@ public class Track {
 
     private boolean liked = false;
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     private String title, artist, path;
     private long duration;
     private List<Tag> tags;
