@@ -23,12 +23,11 @@ import androidx.fragment.app.Fragment;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SmallPlayerFragment extends Fragment {
+public class SmallPlayerFragment extends BaseFragment {
 
     private Timer progressBarTimer;
     private View rootView;
     private MediaControllerCompat.TransportControls transportControls;
-
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
@@ -49,9 +48,6 @@ public class SmallPlayerFragment extends Fragment {
             invalidate();
         }
     };
-
-    public SmallPlayerFragment() {
-    }
 
     void init(Activity context, MediaMetadataCompat mediaMetadata, PlaybackStateCompat playbackState, int position) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);

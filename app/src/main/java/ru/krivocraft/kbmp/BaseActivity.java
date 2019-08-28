@@ -8,9 +8,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public abstract class BaseActivity extends AppCompatActivity {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setTheme();
+    }
+
+    private void setTheme() {
         if (Utils.getOption(getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_THEME, false)) {
             setTheme(R.style.LightTheme);
         } else {

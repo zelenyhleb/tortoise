@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +28,7 @@ import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends BaseFragment {
 
     private TracksAdapter tracksAdapter;
     private boolean showControls;
@@ -49,9 +48,6 @@ public class TrackListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
-
-    public TrackListFragment() {
-    }
 
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override

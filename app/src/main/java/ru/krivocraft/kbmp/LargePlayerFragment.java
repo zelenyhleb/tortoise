@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
-import androidx.fragment.app.Fragment;
 
 import java.util.Objects;
 import java.util.Timer;
@@ -38,7 +37,7 @@ import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
+public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -61,7 +60,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private ImageButton buttonLike;
     private ImageButton loop;
 
-    public LargePlayerFragment() {
+    void initHandler() {
         mHandler = new Handler(Looper.getMainLooper()) {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
@@ -73,6 +72,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
         fragment.init(activity, trackList);
+        fragment.initHandler();
         return fragment;
     }
 

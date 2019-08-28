@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -34,14 +33,10 @@ import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 
-public class ExplorerFragment extends Fragment {
+public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
-
-    public ExplorerFragment() {
-        // Required empty public constructor
-    }
 
     static ExplorerFragment newInstance(OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
