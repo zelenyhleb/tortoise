@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
@@ -34,12 +33,9 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class MainActivity extends BaseActivity {
 
-
     private SmallPlayerFragment smallPlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
-
-    private boolean useAlternativeTheme;
 
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
@@ -95,7 +91,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void init() {
-        useAlternativeTheme = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("useAlternativeTheme", false);
 
         setContentView(R.layout.activity_tortoise);
 
@@ -179,15 +174,6 @@ public class MainActivity extends BaseActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public Resources.Theme getTheme() {
-        Resources.Theme theme = super.getTheme();
-        if (useAlternativeTheme) {
-            theme.applyStyle(R.style.LightTheme, true);
-        }
-        return theme;
     }
 
     @Override
