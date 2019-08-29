@@ -275,8 +275,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS:
-                pause();
-                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 pause();
                 break;
