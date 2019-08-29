@@ -5,8 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import ru.krivocraft.kbmp.constants.Constants;
-
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -15,17 +13,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         setTheme();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setTheme();
-    }
+    void setTheme(){
 
-    private void setTheme() {
-        if (Utils.getOption(getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_THEME, false)) {
-            setTheme(R.style.LightTheme);
-        } else {
-            setTheme(R.style.DarkTheme);
-        }
     }
 }

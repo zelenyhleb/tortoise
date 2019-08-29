@@ -1,6 +1,8 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +15,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
-    private static List<String> objects = Arrays.asList(Constants.KEY_THEME, Constants.KEY_SORT_BY_ARTIST, Constants.KEY_SORT_BY_TAG, Constants.KEY_RECOGNIZE_NAMES, Constants.KEY_CLEAR_CACHE);
+    private List<String> objects;
+    private Activity context;
 
-    SettingsAdapter(@NonNull Context context) {
+    SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
+        this.context = context;
+        this.objects = objects;
     }
 
     @NonNull
@@ -74,6 +78,10 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, false);
             } else {
                 Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, true);
+            }
+            if (keyTheme.equals(Constants.KEY_THEME)){
+                context.finish();
+                context.startActivity(new Intent(context, SettingsActivity.class));
             }
         });
     }

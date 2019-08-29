@@ -210,6 +210,11 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     public void onStartTrackingTouch(SeekBar seekBar) {
     }
 
+    @Override
+    void invalidate() {
+        refreshUI();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

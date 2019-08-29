@@ -216,6 +216,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setTheme();
         if (explorerFragment != null) {
             explorerFragment.invalidate();
         }

@@ -18,6 +18,14 @@ public abstract class BaseFragment extends Fragment {
         //Required empty public constructor
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        invalidate();
+    }
+
+    abstract void invalidate();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
