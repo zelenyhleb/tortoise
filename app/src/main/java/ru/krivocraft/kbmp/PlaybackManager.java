@@ -2,6 +2,7 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -14,10 +15,12 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.MODE_PRIVATE;
 
-class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener {
 
     private MediaPlayer player;
     private Context context;
+
+    private AudioManager audioManager;
 
     private int playerState;
 
@@ -32,6 +35,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     PlaybackManager(Context context) {
         this.context = context;
+        this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
     }
@@ -68,6 +72,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             }
 
             if (player != null) {
+                audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
                 player.start();
 
                 selectedTrack.setPlaying(true);
@@ -156,6 +161,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (player != null) {
             restoreAll();
 
+            audioManager.abandonAudioFocus(this);
+
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
             updatePlaybackState();
@@ -241,9 +248,15 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             case Constants.NOT_LOOP:
                 if (getCursor() < getTrackList().size()) {
                     nextTrack();
+                } else {
+                    audioManager.abandonAudioFocus(this);
                 }
                 break;
         }
+    }
+
+    private void setVolume(float volume) {
+        player.setVolume(volume, volume);
     }
 
     @Override
@@ -258,6 +271,24 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         updatePlaybackState();
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                setVolume(0.5f);
+                break;
+            case AudioManager.AUDIOFOCUS_GAIN:
+                play();
+                setVolume(1.0f);
+                break;
+        }
+    }
 
     interface PlayerStateCallback {
         void onPlaybackStateChanged(PlaybackStateCompat stateCompat);

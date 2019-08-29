@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class MediaPlaybackService extends MediaBrowserServiceCompat implements MediaPlayer.OnCompletionListener {
+public class MediaPlaybackService extends MediaBrowserServiceCompat {
 
     private MediaSessionCompat mediaSession;
     private MediaControllerCompat mediaController;
@@ -147,11 +147,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat implements M
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
 
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        playbackManager.nextTrack();
     }
 
     @Override
