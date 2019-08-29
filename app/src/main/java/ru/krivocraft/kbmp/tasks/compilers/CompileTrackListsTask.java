@@ -1,15 +1,17 @@
-package ru.krivocraft.kbmp;
+package ru.krivocraft.kbmp.tasks.compilers;
 
 import android.os.AsyncTask;
 
 import java.util.List;
 import java.util.Map;
 
+import ru.krivocraft.kbmp.Track;
+
 public abstract class CompileTrackListsTask extends AsyncTask<Track, Integer, Map<String, List<Track>>> {
 
     private OnTrackListsCompiledListener listener;
 
-    void setListener(OnTrackListsCompiledListener listener) {
+    public void setListener(OnTrackListsCompiledListener listener) {
         this.listener = listener;
     }
 

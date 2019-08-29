@@ -9,13 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -27,18 +22,20 @@ import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class MainActivity extends BaseActivity {
 
-
     private SmallPlayerFragment smallPlayerFragment;
     private MediaBrowserCompat mediaBrowser;
     private MediaControllerCompat mediaControllerCompat;
-
-    private boolean useAlternativeTheme;
 
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
@@ -94,7 +91,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void init() {
-        useAlternativeTheme = getSharedPreferences("settings", MODE_PRIVATE).getBoolean("useAlternativeTheme", false);
 
         setContentView(R.layout.activity_tortoise);
 
@@ -181,15 +177,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public Resources.Theme getTheme() {
-        Resources.Theme theme = super.getTheme();
-        if (useAlternativeTheme) {
-            theme.applyStyle(R.style.LightTheme, true);
-        }
-        return theme;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mediaBrowser != null) {
@@ -215,6 +202,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        setTheme();
         if (explorerFragment != null) {
             explorerFragment.invalidate();
         }

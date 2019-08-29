@@ -13,14 +13,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import androidx.core.widget.ImageViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +26,18 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
+
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
+public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
@@ -60,7 +60,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     private ImageButton buttonLike;
     private ImageButton loop;
 
-    public LargePlayerFragment() {
+    void initHandler() {
         mHandler = new Handler(Looper.getMainLooper()) {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
@@ -72,6 +72,7 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
     static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
         LargePlayerFragment fragment = new LargePlayerFragment();
         fragment.init(activity, trackList);
+        fragment.initHandler();
         return fragment;
     }
 
@@ -207,6 +208,11 @@ public class LargePlayerFragment extends Fragment implements SeekBar.OnSeekBarCh
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    @Override
+    void invalidate() {
+        refreshUI();
     }
 
     @Nullable

@@ -1,8 +1,8 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,18 +12,22 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.List;
+
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
-    SettingsAdapter(@NonNull Context context) {
-        super(context, R.layout.settings_item_toggle, new String[]{
-                Constants.KEY_THEME,
-                Constants.KEY_SORT_BY_ARTIST,
-                Constants.KEY_SORT_BY_TAG,
-                Constants.KEY_RECOGNIZE_NAMES,
-                Constants.KEY_CLEAR_CACHE
-        });
+    private List<String> objects;
+    private Activity context;
+
+    SettingsAdapter(@NonNull Activity context, List<String> objects) {
+        super(context, R.layout.settings_item_toggle, objects);
+        this.context = context;
+        this.objects = objects;
     }
 
     @NonNull
@@ -31,27 +35,27 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-            if (position == 0) {
+            if (position == objects.indexOf(Constants.KEY_THEME)) {
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 textView.setText("Light theme (Beta)");
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 initSwitch(s, Constants.KEY_THEME, false);
-            } else if (position == 1) {
+            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_ARTIST)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_ARTIST, false);
                 textView.setText("Automatically sort by artist");
-            } else if (position == 2) {
+            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_TAG)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_TAG, false);
                 textView.setText("Automatically sort by tag");
-            } else if (position == 3) {
+            } else if (position == objects.indexOf(Constants.KEY_RECOGNIZE_NAMES)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_RECOGNIZE_NAMES, true);
                 textView.setText("Try to parse track names for tracks with no metadata");
-            } else if (position == 4) {
+            } else if (position == objects.indexOf(Constants.KEY_CLEAR_CACHE)) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_button, null);
                 Button b = convertView.findViewById(R.id.settings_button);
                 TextView textView = convertView.findViewById(R.id.settings_text);
@@ -74,6 +78,10 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, false);
             } else {
                 Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, true);
+            }
+            if (keyTheme.equals(Constants.KEY_THEME)){
+                context.finish();
+                context.startActivity(new Intent(context, SettingsActivity.class));
             }
         });
     }

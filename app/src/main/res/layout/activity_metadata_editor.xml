@@ -39,17 +39,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/metadata_editor_artist_edit"
+        app:container_background_color="#00000000"
+        app:container_border_color="#00000000"
         app:container_enable_drag="false"
+        app:tag_text_color="#FFFFFFFF"
         app:tag_clickable="true"
-        app:tag_theme="pure_teal" />
-
-    <Button
-        android:id="@+id/button_remove_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tags_list"
-        android:layout_toStartOf="@id/button_add_tag"
-        android:text="Remove tag" />
+        app:tag_corner_radius="5dp"
+        app:tag_theme="random" />
 
     <Button
         android:id="@+id/button_add_tag"

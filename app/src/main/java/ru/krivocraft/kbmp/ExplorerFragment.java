@@ -7,14 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,22 +19,26 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
+import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
+import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 
-public class ExplorerFragment extends Fragment {
+public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
 
-    public ExplorerFragment() {
-        // Required empty public constructor
-    }
-
-    public static ExplorerFragment newInstance(OnItemClickListener listener) {
+    static ExplorerFragment newInstance(OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
         explorerFragment.setListener(listener);
         return explorerFragment;
@@ -159,6 +155,7 @@ public class ExplorerFragment extends Fragment {
 
     private void showCreationDialog(@NonNull LayoutInflater inflater, Context context) {
         View view = inflater.inflate(R.layout.dialog_add_track_list, null);
+
         ListView listView = view.findViewById(R.id.tracks_selecting_list);
         EditText editText = view.findViewById(R.id.track_list_name);
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
@@ -198,7 +195,7 @@ public class ExplorerFragment extends Fragment {
             Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
-                if (acceptTrackList(selectedTracks.size(), displayName, context)) {
+                if (checkTrackList(selectedTracks.size(), displayName, context)) {
                     writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
                     redrawList();
                     dialog.dismiss();
@@ -210,7 +207,7 @@ public class ExplorerFragment extends Fragment {
 
     }
 
-    private boolean acceptTrackList(int arrayLength, String displayName, Context context) {
+    private boolean checkTrackList(int arrayLength, String displayName, Context context) {
         if (displayName.length() <= 0) {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;

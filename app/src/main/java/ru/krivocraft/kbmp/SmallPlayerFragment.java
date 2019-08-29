@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -19,15 +17,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SmallPlayerFragment extends Fragment {
+public class SmallPlayerFragment extends BaseFragment {
 
     private Timer progressBarTimer;
     private View rootView;
     private MediaControllerCompat.TransportControls transportControls;
-
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
@@ -48,9 +47,6 @@ public class SmallPlayerFragment extends Fragment {
             invalidate();
         }
     };
-
-    public SmallPlayerFragment() {
-    }
 
     void init(Activity context, MediaMetadataCompat mediaMetadata, PlaybackStateCompat playbackState, int position) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
@@ -121,23 +117,23 @@ public class SmallPlayerFragment extends Fragment {
         }
     }
 
-    public String getTrackTitle() {
+    private String getTrackTitle() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
     }
 
-    public String getTrackArtist() {
+    private String getTrackArtist() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
     }
 
-    public int getTrackDuration() {
+    private int getTrackDuration() {
         return (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
     }
 
-    public String getTrackPath() {
+    private String getTrackPath() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
     }
 
-    public boolean isTrackPlaying() {
+    private boolean isTrackPlaying() {
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 

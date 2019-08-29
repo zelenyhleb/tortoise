@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 
 import java.util.Objects;
 
-class Tag {
-    String text;
+public class Tag {
+    public String text;
 
     Tag(String text) {
         this.text = text;

@@ -1,8 +1,9 @@
 package ru.krivocraft.kbmp;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.widget.ArrayAdapter;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 

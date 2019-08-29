@@ -1,8 +1,8 @@
 package ru.krivocraft.kbmp;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 

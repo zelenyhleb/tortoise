@@ -1,9 +1,10 @@
 package ru.krivocraft.kbmp;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ListView;
+
+import java.util.Arrays;
+import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
@@ -15,17 +16,11 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         ListView listView = findViewById(R.id.settings_list);
-        listView.setAdapter(new SettingsAdapter(this));
+        List<String> settings = getSettings();
+        listView.setAdapter(new SettingsAdapter(this, settings));
     }
 
-    private void switchTheme() {
-        SharedPreferences settings = getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        if (settings.getBoolean(Constants.KEY_THEME, false)) {
-            editor.putBoolean(Constants.KEY_THEME, false);
-        } else {
-            editor.putBoolean(Constants.KEY_THEME, true);
-        }
-        editor.apply();
+    private List<String> getSettings() {
+        return Arrays.asList(Constants.KEY_THEME, Constants.KEY_SORT_BY_ARTIST, Constants.KEY_SORT_BY_TAG, Constants.KEY_RECOGNIZE_NAMES, Constants.KEY_CLEAR_CACHE);
     }
 }

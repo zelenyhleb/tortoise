@@ -6,14 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,11 +19,16 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class TrackListFragment extends Fragment {
+public class TrackListFragment extends BaseFragment {
 
     private TracksAdapter tracksAdapter;
     private boolean showControls;
@@ -48,9 +48,6 @@ public class TrackListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
-
-    public TrackListFragment() {
-    }
 
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
@@ -75,6 +72,11 @@ public class TrackListFragment extends Fragment {
         mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.trackList = trackList;
+    }
+
+    @Override
+    void invalidate() {
+        tracksAdapter.notifyDataSetChanged();
     }
 
     @Override
