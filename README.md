@@ -17,10 +17,6 @@ Awesome music player with great future written for android with java.
 - Supports any android media controller you wish (Like control buttons on your headphones or in your car)
 - Some other small pleasant features
 
-## Screenshots
-
-![image](http://krivocraft.ru/img1.jpg) ![image](http://krivocraft.ru/img2.jpg) ![image](http://krivocraft.ru/img3.jpg)
-
 ## License
 
-Apache 2.0, see LICENSE.md
+Apache 2.0, see LICENSE
