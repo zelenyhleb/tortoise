@@ -70,24 +70,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        removeOldCache();
-
+        clearOld();
         requestStoragePermission();
     }
 
-    private void removeOldCache() {
-        SharedPreferences preferences = getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
-        String identifier = "all_tracks";
-        if (preferences.getString(identifier, null) != null) {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.remove(identifier);
-            editor.apply();
-        }
-        SharedPreferences settings = getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
-            Utils.clearCache(preferences);
-            Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
-        }
+    private void clearOld(){
+        OldStuffCollector collector = new OldStuffCollector(this);
+        collector.execute();
     }
 
     private void init() {
