@@ -1,4 +1,4 @@
-package ru.krivocraft.kbmp;
+package ru.krivocraft.kbmp.api;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
 import ru.krivocraft.kbmp.tasks.ReadTrackListsTask;
@@ -19,6 +20,12 @@ public class TrackListsStorageManager {
 
     public TrackListsStorageManager(@NonNull Context context) {
         this.context = context;
+    }
+
+    public void writeTrackLists(List<TrackList> trackLists) {
+        for (TrackList trackList : trackLists) {
+            writeTrackList(trackList);
+        }
     }
 
     public void writeTrackList(TrackList trackList) {

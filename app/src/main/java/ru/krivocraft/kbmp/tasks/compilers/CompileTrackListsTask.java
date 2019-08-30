@@ -9,9 +9,9 @@ import ru.krivocraft.kbmp.Track;
 
 public abstract class CompileTrackListsTask extends AsyncTask<Track, Integer, Map<String, List<Track>>> {
 
-    private OnTrackListsCompiledListener listener;
+    private OnTrackListsCompileTaskCompleted listener;
 
-    public void setListener(OnTrackListsCompiledListener listener) {
+    public void setListener(OnTrackListsCompileTaskCompleted listener) {
         this.listener = listener;
     }
 
@@ -20,4 +20,5 @@ public abstract class CompileTrackListsTask extends AsyncTask<Track, Integer, Ma
         super.onPostExecute(stringListMap);
         listener.onTrackListsCompiled(stringListMap);
     }
+
 }

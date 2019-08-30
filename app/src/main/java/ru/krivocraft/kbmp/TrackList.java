@@ -62,7 +62,7 @@ public class TrackList {
         return tracksReferences.get(index);
     }
 
-    String getIdentifier() {
+    public String getIdentifier() {
         return createIdentifier(displayName);
     }
 
@@ -74,7 +74,7 @@ public class TrackList {
         return displayName;
     }
 
-    String toJson() {
+    public String toJson() {
         return new Gson().toJson(this);
     }
 

@@ -14,7 +14,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Tracks {
-    static List<Track> getTrackStorage(Context context) {
+    public static List<Track> getTrackStorage(Context context) {
         List<Track> tracks = new ArrayList<>();
         int i = 0;
         TrackReference reference;
@@ -66,7 +66,7 @@ public class Tracks {
         return getReference(context, track.getPath());
     }
 
-    static List<TrackReference> getReferences(Context context, List<Track> tracks) {
+    public static List<TrackReference> getReferences(Context context, List<Track> tracks) {
         List<TrackReference> references = new ArrayList<>();
         for (Track track : tracks) {
             references.add(getReference(context, track));

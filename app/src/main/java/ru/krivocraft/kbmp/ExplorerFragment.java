@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ru.krivocraft.kbmp.api.OnTrackListsCompiledCallback;
+import ru.krivocraft.kbmp.api.TrackListsCompiler;
+import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
@@ -36,7 +39,9 @@ public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
+
     private TrackListsStorageManager trackListsStorageManager;
+    private TrackListsCompiler trackListsCompiler;
 
     private ProgressBar progressBar;
 
@@ -46,49 +51,24 @@ public class ExplorerFragment extends BaseFragment {
         return explorerFragment;
     }
 
-    private void compileByAuthors() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileByAuthorTask task = new CompileByAuthorTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_AUTHOR);
-                    writeTrackList(trackList);
-                }
-                context.runOnUiThread(this::readTrackLists);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
+    private void onNewTrackLists(List<TrackList> trackLists) {
+        Activity activity = getActivity();
+        if (activity != null) {
+            trackListsStorageManager.writeTrackLists(trackLists);
+            activity.runOnUiThread(ExplorerFragment.this::readTrackLists);
         }
+    }
+
+    private void compileByAuthors() {
+        trackListsCompiler.compileByAuthors(this::onNewTrackLists);
     }
 
     private void compileFavorites() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileFavoritesTask task = new CompileFavoritesTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_CUSTOM);
-                    writeTrackList(trackList);
-                }
-                context.runOnUiThread(this::readTrackLists);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
-        }
+        trackListsCompiler.compileFavorites(this::onNewTrackLists);
     }
 
     private void compileByTags() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileByTagsTask task = new CompileByTagsTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
-                    writeTrackList(trackList);
-                }
-                context.runOnUiThread(this::readTrackLists);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
-        }
+        trackListsCompiler.compileByTags(this::onNewTrackLists);
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -108,6 +88,7 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             this.trackListsStorageManager = new TrackListsStorageManager(context);
+            this.trackListsCompiler = new TrackListsCompiler(context);
         }
     }
 
