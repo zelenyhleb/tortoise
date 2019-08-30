@@ -66,7 +66,7 @@ public class TrackList {
         return createIdentifier(displayName);
     }
 
-    List<TrackReference> getTrackReferences() {
+    public List<TrackReference> getTrackReferences() {
         return tracksReferences;
     }
 

@@ -9,7 +9,7 @@ import android.media.MediaMetadataRetriever;
 import java.util.ArrayList;
 import java.util.List;
 
-class Utils {
+public class Utils {
     static String getFormattedTime(int time) {
 
         int seconds = time % 60;
@@ -50,7 +50,7 @@ class Utils {
         return trackList;
     }
 
-    static Bitmap loadArt(String path) {
+    public static Bitmap loadArt(String path) {
         Bitmap art = null;
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
