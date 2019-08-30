@@ -8,6 +8,7 @@ public class Constants {
     public static final int ONE_SECOND = 1000;
 
     public static final String STORAGE_TRACKS_DISPLAY_NAME = "All tracks";
+    public static final String FAVORITES_DISPLAY_NAME = "Favorites";
 
     public static final String STORAGE_TRACK_LISTS = "trackLists";
     public static final String STORAGE_TRACKS = "tracks";

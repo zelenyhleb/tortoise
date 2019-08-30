@@ -124,7 +124,7 @@ public class ExplorerFragment extends BaseFragment {
             gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
             gridView.setOnItemLongClickListener((parent, view, position, id) -> {
                 TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
+                if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
                     showDeletionDialog(context, parent, position);
                 }
                 return true;

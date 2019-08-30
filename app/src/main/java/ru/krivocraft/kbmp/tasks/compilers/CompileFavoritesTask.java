@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.krivocraft.kbmp.Track;
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class CompileFavoritesTask extends CompileTrackListsTask {
 
@@ -18,7 +19,7 @@ public class CompileFavoritesTask extends CompileTrackListsTask {
                 favorites.add(track);
             }
         }
-        trackLists.put("Favorites", favorites);
+        trackLists.put(Constants.FAVORITES_DISPLAY_NAME, favorites);
         return trackLists;
     }
 }
