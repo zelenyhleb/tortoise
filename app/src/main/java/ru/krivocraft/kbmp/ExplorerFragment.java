@@ -25,15 +25,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import ru.krivocraft.kbmp.api.OnTrackListsCompiledCallback;
 import ru.krivocraft.kbmp.api.TrackListsCompiler;
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
-import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
-import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 
 public class ExplorerFragment extends BaseFragment {
 
@@ -55,7 +50,7 @@ public class ExplorerFragment extends BaseFragment {
         Activity activity = getActivity();
         if (activity != null) {
             trackListsStorageManager.writeTrackLists(trackLists);
-            activity.runOnUiThread(ExplorerFragment.this::readTrackLists);
+            activity.runOnUiThread(ExplorerFragment.this::drawTrackLists);
         }
     }
 
@@ -98,28 +93,40 @@ public class ExplorerFragment extends BaseFragment {
         this.progressBar = rootView.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
-            GridView gridView = rootView.findViewById(R.id.playlists_grid);
-            if (adapter == null) {
-                adapter = new TrackListAdapter(new ArrayList<>(), context);
-            }
             context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
+            createAdapter(context);
+            configureGridView(rootView, context);
+            configureAddButton(inflater, rootView, context);
+
             invalidate();
-
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
-            gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-                TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-                if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
-                    showDeletionDialog(context, parent, position);
-                }
-                return true;
-            });
-
-
-            FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
-            addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
         }
         return rootView;
+    }
+
+    private void createAdapter(Context context) {
+        if (adapter == null) {
+            adapter = new TrackListAdapter(new ArrayList<>(), context);
+        }
+    }
+
+    private void configureAddButton(@NonNull LayoutInflater inflater, View rootView, Context context) {
+        FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
+        addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
+    }
+
+    private void configureGridView(View rootView, Context context) {
+        GridView gridView = rootView.findViewById(R.id.playlists_grid);
+        gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> requestRemoveTrackList(context, parent, position));
+    }
+
+    private boolean requestRemoveTrackList(Context context, AdapterView<?> parent, int position) {
+        TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
+        if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
+            showDeletionDialog(context, parent, position);
+        }
+        return true;
     }
 
     private void showDeletionDialog(Context context, AdapterView<?> parent, int position) {
@@ -127,7 +134,7 @@ public class ExplorerFragment extends BaseFragment {
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Are you sure?")
                 .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList(item))
+                .setPositiveButton("DELETE", (dialog12, which) -> trackListsStorageManager.removeTrackList(item))
                 .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
@@ -176,8 +183,8 @@ public class ExplorerFragment extends BaseFragment {
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
                 if (checkTrackList(selectedTracks.size(), displayName, context)) {
-                    writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
-                    readTrackLists();
+                    trackListsStorageManager.writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
+                    drawTrackLists();
                     dialog.dismiss();
                 }
             });
@@ -192,7 +199,7 @@ public class ExplorerFragment extends BaseFragment {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
+        if (trackListsStorageManager.getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
             Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
             return false;
         }
@@ -207,19 +214,7 @@ public class ExplorerFragment extends BaseFragment {
         return true;
     }
 
-    private void writeTrackList(TrackList trackList) {
-        trackListsStorageManager.writeTrackList(trackList);
-    }
-
-    private void removeTrackList(TrackList trackList) {
-        trackListsStorageManager.removeTrackList(trackList);
-    }
-
-    private List<String> getTrackListIdentifiers() {
-        return trackListsStorageManager.getTrackListIdentifiers();
-    }
-
-    private void readTrackLists() {
+    private void drawTrackLists() {
         trackListsStorageManager.readTrackLists(trackLists -> {
             progressBar.setVisibility(View.GONE);
             redrawList(trackLists);
@@ -252,8 +247,6 @@ public class ExplorerFragment extends BaseFragment {
                 compileByTags();
             }
         }
-
-        readTrackLists();
     }
 
     private void setListener(OnItemClickListener listener) {
