@@ -218,7 +218,6 @@ public class MainActivity extends BaseActivity {
 
     private void removeExplorerFragment() {
         hideFragment(explorerFragment);
-        explorerFragment = null;
     }
 
     private void removeTrackListFragment() {

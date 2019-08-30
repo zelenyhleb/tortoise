@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.tasks.ReadTrackListsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
@@ -38,6 +36,7 @@ public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
+    private TrackListsStorageManager trackListsStorageManager;
 
     private ProgressBar progressBar;
 
@@ -106,6 +105,10 @@ public class ExplorerFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Context context = getContext();
+        if (context != null) {
+            this.trackListsStorageManager = new TrackListsStorageManager(context);
+        }
     }
 
     @Override
@@ -115,8 +118,9 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
-            adapter = new TrackListAdapter(new ArrayList<>(), context);
-
+            if (adapter == null) {
+                adapter = new TrackListAdapter(new ArrayList<>(), context);
+            }
             context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
             invalidate();
 
@@ -223,50 +227,22 @@ public class ExplorerFragment extends BaseFragment {
     }
 
     private void writeTrackList(TrackList trackList) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
-            editor.putString(trackList.getIdentifier(), trackList.toJson());
-            editor.apply();
-        }
-
+        trackListsStorageManager.writeTrackList(trackList);
     }
 
     private void removeTrackList(TrackList trackList) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
-            editor.remove(trackList.getIdentifier());
-            editor.apply();
-            invalidate();
-        }
+        trackListsStorageManager.removeTrackList(trackList);
     }
 
     private List<String> getTrackListIdentifiers() {
-        Context context = getContext();
-        List<String> identifiers = new ArrayList<>();
-        if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            Map<String, ?> trackLists = sharedPreferences.getAll();
-            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                identifiers.add(entry.getKey());
-            }
-        }
-        return identifiers;
+        return trackListsStorageManager.getTrackListIdentifiers();
     }
 
     private void readTrackLists() {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences trackListsStorage = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            SharedPreferences settingsStorage = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-
-            ReadTrackListsTask task = new ReadTrackListsTask(trackListsStorage, settingsStorage, trackLists -> {
-                progressBar.setVisibility(View.GONE);
-                redrawList(trackLists);
-            });
-            task.execute();
-        }
+        trackListsStorageManager.readTrackLists(trackLists -> {
+            progressBar.setVisibility(View.GONE);
+            redrawList(trackLists);
+        });
     }
 
     private void redrawList(List<TrackList> trackLists) {
