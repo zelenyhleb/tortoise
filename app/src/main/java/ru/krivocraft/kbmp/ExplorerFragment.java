@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
 import ru.krivocraft.kbmp.tasks.ReadTrackListsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
@@ -57,7 +56,7 @@ public class ExplorerFragment extends BaseFragment {
                     TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_AUTHOR);
                     writeTrackList(trackList);
                 }
-                context.runOnUiThread(this::redrawList);
+                context.runOnUiThread(this::readTrackLists);
             }).start());
             task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
@@ -72,7 +71,7 @@ public class ExplorerFragment extends BaseFragment {
                     TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_CUSTOM);
                     writeTrackList(trackList);
                 }
-                context.runOnUiThread(this::redrawList);
+                context.runOnUiThread(this::readTrackLists);
             }).start());
             task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
@@ -87,16 +86,7 @@ public class ExplorerFragment extends BaseFragment {
                     TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
                     writeTrackList(trackList);
                 }
-
-                List<TrackList> all = readTrackLists();
-                for (TrackList trackList : all) {
-                    if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
-                        if (!trackLists.keySet().contains(trackList.getDisplayName())) {
-                            removeTrackList(trackList);
-                        }
-                    }
-                }
-                context.runOnUiThread(this::redrawList);
+                context.runOnUiThread(this::readTrackLists);
             }).start());
             task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
         }
@@ -125,7 +115,7 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
-            adapter = new TrackListAdapter(readTrackLists(), context);
+            adapter = new TrackListAdapter(new ArrayList<>(), context);
 
             context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
             invalidate();
@@ -202,7 +192,7 @@ public class ExplorerFragment extends BaseFragment {
                 String displayName = editText.getText().toString();
                 if (checkTrackList(selectedTracks.size(), displayName, context)) {
                     writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
-                    redrawList();
+                    readTrackLists();
                     dialog.dismiss();
                 }
             });
@@ -265,21 +255,24 @@ public class ExplorerFragment extends BaseFragment {
         return identifiers;
     }
 
-    private List<TrackList> readTrackLists() {
+    private void readTrackLists() {
         Context context = getContext();
-        List<TrackList> allTrackLists = new ArrayList<>();
         if (context != null) {
-            SharedPreferences trackLists = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            SharedPreferences settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
+            SharedPreferences trackListsStorage = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
+            SharedPreferences settingsStorage = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
 
-            ReadTrackListsTask task = new ReadTrackListsTask(trackLists, settings, trackLists1 -> {
-                allTrackLists.addAll(trackLists1);
-//                progressBar.setVisibility(View.GONE);
-                adapter.notifyDataSetChanged();
+            ReadTrackListsTask task = new ReadTrackListsTask(trackListsStorage, settingsStorage, trackLists -> {
+                progressBar.setVisibility(View.GONE);
+                redrawList(trackLists);
             });
             task.execute();
         }
-        return allTrackLists;
+    }
+
+    private void redrawList(List<TrackList> trackLists) {
+        adapter.clear();
+        adapter.addAll(trackLists);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -303,13 +296,7 @@ public class ExplorerFragment extends BaseFragment {
             }
         }
 
-        redrawList();
-    }
-
-    private void redrawList() {
-        adapter.clear();
-        adapter.addAll(readTrackLists());
-        adapter.notifyDataSetChanged();
+        readTrackLists();
     }
 
     private void setListener(OnItemClickListener listener) {
