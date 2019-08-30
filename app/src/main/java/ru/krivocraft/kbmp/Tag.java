@@ -1,7 +1,5 @@
 package ru.krivocraft.kbmp;
 
-import com.google.gson.Gson;
-
 import java.util.Objects;
 
 public class Tag {
@@ -19,17 +17,13 @@ public class Tag {
         return Objects.equals(text, tag.text);
     }
 
+    public String getText() {
+        return text;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(text);
-    }
-
-    String toJson() {
-        return new Gson().toJson(this);
-    }
-
-    static Tag fromJson(String json) {
-        return new Gson().fromJson(json, Tag.class);
     }
 
 }
