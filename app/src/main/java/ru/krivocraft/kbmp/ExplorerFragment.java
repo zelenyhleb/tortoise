@@ -73,8 +73,8 @@ public class ExplorerFragment extends BaseFragment {
         }
     };
 
-    private boolean getPreference(Context context, String optionKey) {
-        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), optionKey, false);
+    private boolean getPreference(String optionKey) {
+        return settingsManager.getOption(optionKey, false);
     }
 
     @Override
@@ -89,6 +89,8 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View rootView = inflater.inflate(R.layout.fragment_explorer, container, false);
         this.progressBar = rootView.findViewById(R.id.explorer_progress);
         Context context = getContext();
@@ -247,10 +249,10 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             compileFavorites();
-            if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
+            if (getPreference(Constants.KEY_SORT_BY_ARTIST)) {
                 compileByAuthors();
             }
-            if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
+            if (getPreference(Constants.KEY_SORT_BY_TAG)) {
                 compileByTags();
             }
         }

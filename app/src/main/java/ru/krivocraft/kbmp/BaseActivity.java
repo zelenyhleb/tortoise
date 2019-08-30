@@ -16,8 +16,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     void setTheme() {
-        System.out.println(System.currentTimeMillis());
-        boolean useLightTheme = Utils.getOption(getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_THEME, false);
+        SettingsManager settingsManager = new SettingsManager(this);
+        boolean useLightTheme = settingsManager.getOption(Constants.KEY_THEME, false);
 
         if (useLightTheme) {
             setTheme(R.style.LightTheme);
@@ -25,6 +25,5 @@ public abstract class BaseActivity extends AppCompatActivity {
             setTheme(R.style.DarkTheme);
         }
 
-        System.out.println(System.currentTimeMillis());
     }
 }

@@ -81,6 +81,8 @@ public class TrackListFragment extends BaseFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);

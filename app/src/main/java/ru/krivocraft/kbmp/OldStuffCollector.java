@@ -26,10 +26,10 @@ public class OldStuffCollector {
             editor.remove(identifier);
             editor.apply();
         }
-        SharedPreferences settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
+        SettingsManager manager = new SettingsManager(context);
+        if (manager.getOption(Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
             Utils.clearCache(preferences);
-            Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
+            manager.putOption(Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
         }
     }
 

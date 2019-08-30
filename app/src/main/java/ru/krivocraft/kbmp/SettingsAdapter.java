@@ -23,11 +23,13 @@ public class SettingsAdapter extends ArrayAdapter<String> {
 
     private List<String> objects;
     private Activity context;
+    private SettingsManager manager;
 
     SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
         this.context = context;
         this.objects = objects;
+        this.manager = new SettingsManager(context);
     }
 
     @NonNull
@@ -70,16 +72,16 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         return convertView;
     }
 
-    private void initSwitch(Switch s, String keyTheme, boolean defaultValue) {
-        boolean useAlternativeTheme = Utils.getOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, defaultValue);
+    private void initSwitch(Switch s, String key, boolean defaultValue) {
+        boolean useAlternativeTheme = manager.getOption(key, defaultValue);
         s.setChecked(useAlternativeTheme);
         s.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (useAlternativeTheme) {
-                Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, false);
+                manager.putOption(key, false);
             } else {
-                Utils.putOption(getContext().getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), keyTheme, true);
+                manager.putOption(key, true);
             }
-            if (keyTheme.equals(Constants.KEY_THEME)){
+            if (key.equals(Constants.KEY_THEME)){
                 context.finish();
                 context.startActivity(new Intent(context, SettingsActivity.class));
             }

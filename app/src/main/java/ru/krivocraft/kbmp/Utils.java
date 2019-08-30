@@ -77,16 +77,6 @@ public class Utils {
         return art;
     }
 
-    static boolean getOption(SharedPreferences preferences, String key, boolean defValue) {
-        return preferences.getBoolean(key, defValue);
-    }
-
-    static void putOption(SharedPreferences preferences, String key, boolean value) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
     static void clearCache(SharedPreferences preferences) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
