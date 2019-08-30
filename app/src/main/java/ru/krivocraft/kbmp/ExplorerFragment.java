@@ -134,7 +134,10 @@ public class ExplorerFragment extends BaseFragment {
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle("Are you sure?")
                 .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> trackListsStorageManager.removeTrackList(item))
+                .setPositiveButton("DELETE", (dialog12, which) -> {
+                    trackListsStorageManager.removeTrackList(item);
+                    drawTrackLists();
+                })
                 .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
@@ -209,6 +212,10 @@ public class ExplorerFragment extends BaseFragment {
         }
         if (arrayLength <= 0) {
             Toast.makeText(context, "You can't create empty track list", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (displayName.equals("empty")) {
+            Toast.makeText(context, "Ha-ha, very funny. Name field must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
