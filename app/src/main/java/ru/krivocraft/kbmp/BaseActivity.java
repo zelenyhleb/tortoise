@@ -15,13 +15,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         setTheme();
     }
 
-    void setTheme(){
+    void setTheme() {
+        System.out.println(System.currentTimeMillis());
         boolean useLightTheme = Utils.getOption(getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_THEME, false);
 
-        if (useLightTheme){
+        if (useLightTheme) {
             setTheme(R.style.LightTheme);
         } else {
             setTheme(R.style.DarkTheme);
         }
+
+        System.out.println(System.currentTimeMillis());
     }
 }

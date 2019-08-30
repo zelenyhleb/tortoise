@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
+import ru.krivocraft.kbmp.tasks.ReadTrackListsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
@@ -37,6 +39,8 @@ public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
+
+    private ProgressBar progressBar;
 
     static ExplorerFragment newInstance(OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
@@ -117,6 +121,7 @@ public class ExplorerFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_explorer, container, false);
+        this.progressBar = rootView.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
             GridView gridView = rootView.findViewById(R.id.playlists_grid);
@@ -173,10 +178,10 @@ public class ExplorerFragment extends BaseFragment {
             TrackReference reference = new TrackReference(position);
             if (selectedTracks.contains(reference)) {
                 selectedTracks.remove(reference);
-                item.setChecked(false);
+                item.setCheckedInList(false);
             } else {
                 selectedTracks.add(reference);
-                item.setChecked(true);
+                item.setCheckedInList(true);
             }
             adapter.notifyDataSetInvalidated();
         });
@@ -264,23 +269,15 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         List<TrackList> allTrackLists = new ArrayList<>();
         if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            Map<String, ?> trackLists = sharedPreferences.getAll();
-            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                TrackList trackList = TrackList.fromJson((String) entry.getValue());
-                System.out.println((String) entry.getValue());
-                if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
-                    if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
-                        allTrackLists.add(trackList);
-                    }
-                } else if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
-                    if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
-                        allTrackLists.add(trackList);
-                    }
-                } else {
-                    allTrackLists.add(trackList);
-                }
-            }
+            SharedPreferences trackLists = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
+            SharedPreferences settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
+
+            ReadTrackListsTask task = new ReadTrackListsTask(trackLists, settings, trackLists1 -> {
+                allTrackLists.addAll(trackLists1);
+//                progressBar.setVisibility(View.GONE);
+                adapter.notifyDataSetChanged();
+            });
+            task.execute();
         }
         return allTrackLists;
     }
@@ -315,7 +312,7 @@ public class ExplorerFragment extends BaseFragment {
         adapter.notifyDataSetChanged();
     }
 
-    void setListener(OnItemClickListener listener) {
+    private void setListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 

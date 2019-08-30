@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class TrackList {
+public class TrackList {
     private String displayName;
     private boolean shuffled = false;
     private final int type;
@@ -17,7 +17,7 @@ class TrackList {
 
     private List<TrackReference> shuffleCache;
 
-    TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
+    public TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
         this.displayName = displayName;
         this.tracksReferences = tracksReferences;
         this.type = type;
@@ -82,7 +82,7 @@ class TrackList {
         tracksReferences.add(track);
     }
 
-    static TrackList fromJson(String json) {
+    public static TrackList fromJson(String json) {
         return new Gson().fromJson(json, TrackList.class);
     }
 
@@ -94,7 +94,7 @@ class TrackList {
         this.shuffled = shuffled;
     }
 
-    int getType() {
+    public int getType() {
         return type;
     }
 }
