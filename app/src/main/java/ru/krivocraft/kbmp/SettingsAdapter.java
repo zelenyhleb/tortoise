@@ -1,6 +1,8 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -73,17 +75,28 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {
-        boolean useAlternativeTheme = manager.getOption(key, defaultValue);
-        s.setChecked(useAlternativeTheme);
+        boolean option = manager.getOption(key, defaultValue);
+        s.setChecked(option);
         s.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (useAlternativeTheme) {
+            if (option) {
                 manager.putOption(key, false);
             } else {
                 manager.putOption(key, true);
             }
             if (key.equals(Constants.KEY_THEME)){
-                context.finish();
-                context.startActivity(new Intent(context, SettingsActivity.class));
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 228, new Intent(context, MainActivity.class), PendingIntent.FLAG_ONE_SHOT);
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                if (alarmManager != null) {
+                    alarmManager.set(AlarmManager.ELAPSED_REALTIME, 100, pendingIntent);
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        System.exit(0);
+                    }).start();
+                }
             }
         });
     }
