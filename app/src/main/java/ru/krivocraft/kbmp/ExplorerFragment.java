@@ -54,28 +54,12 @@ public class ExplorerFragment extends BaseFragment {
         }
     }
 
-    private void compileByAuthors() {
-        trackListsCompiler.compileByAuthors(this::onNewTrackLists);
-    }
-
-    private void compileFavorites() {
-        trackListsCompiler.compileFavorites(this::onNewTrackLists);
-    }
-
-    private void compileByTags() {
-        trackListsCompiler.compileByTags(this::onNewTrackLists);
-    }
-
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             invalidate();
         }
     };
-
-    private boolean getPreference(String optionKey) {
-        return settingsManager.getOption(optionKey, false);
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,29 +104,17 @@ public class ExplorerFragment extends BaseFragment {
         GridView gridView = rootView.findViewById(R.id.playlists_grid);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
-        gridView.setOnItemLongClickListener((parent, view, position, id) -> requestRemoveTrackList(context, parent, position));
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> showEditor(context, parent, position));
     }
 
-    private boolean requestRemoveTrackList(Context context, AdapterView<?> parent, int position) {
+    private boolean showEditor(Context context, AdapterView<?> parent, int position) {
         TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
         if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
-            showDeletionDialog(context, parent, position);
+            Intent intent = new Intent(context, TrackListEditorActivity.class);
+            intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, itemAtPosition.toJson());
+            context.startActivity(intent);
         }
         return true;
-    }
-
-    private void showDeletionDialog(Context context, AdapterView<?> parent, int position) {
-        TrackList item = (TrackList) parent.getItemAtPosition(position);
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle("Are you sure?")
-                .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> {
-                    trackListsStorageManager.removeTrackList(item);
-                    drawTrackLists();
-                })
-                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
-                .create();
-        dialog.show();
     }
 
     private void showCreationDialog(@NonNull LayoutInflater inflater, Context context) {
@@ -217,7 +189,7 @@ public class ExplorerFragment extends BaseFragment {
             return false;
         }
         if (displayName.equals("empty")) {
-            Toast.makeText(context, "Ha-ha, very funny. Name field must not be empty", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Ha-ha, very funny. Name must contain at least one character", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -248,12 +220,12 @@ public class ExplorerFragment extends BaseFragment {
     void invalidate() {
         Context context = getContext();
         if (context != null) {
-            compileFavorites();
-            if (getPreference(Constants.KEY_SORT_BY_ARTIST)) {
-                compileByAuthors();
+            trackListsCompiler.compileFavorites(this::onNewTrackLists);
+            if (settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
+                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
-            if (getPreference(Constants.KEY_SORT_BY_TAG)) {
-                compileByTags();
+            if (settingsManager.getOption(Constants.KEY_SORT_BY_TAG, false)) {
+                trackListsCompiler.compileByTags(this::onNewTrackLists);
             }
         }
     }

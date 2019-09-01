@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import co.lujun.androidtagview.TagContainerLayout;
 import ru.krivocraft.kbmp.constants.Constants;
 
-public class MetadataEditorActivity extends AppCompatActivity {
+public class TrackEditorActivity extends AppCompatActivity {
 
     Track source;
     Track changed;
@@ -72,7 +72,7 @@ public class MetadataEditorActivity extends AppCompatActivity {
 
         Button addTag = findViewById(R.id.button_add_tag);
         addTag.setOnClickListener(v -> {
-            MetadataEditorActivity context = MetadataEditorActivity.this;
+            TrackEditorActivity context = TrackEditorActivity.this;
 
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_tag, null);
             AlertDialog ad = new AlertDialog.Builder(this)

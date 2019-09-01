@@ -1,5 +1,7 @@
 package ru.krivocraft.kbmp;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -7,11 +9,13 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class TrackList {
     private String displayName;
     private boolean shuffled = false;
     private final int type;
+    private Uri art;
 
     private List<TrackReference> tracksReferences;
 
@@ -70,16 +74,16 @@ public class TrackList {
         return tracksReferences;
     }
 
-    String getDisplayName() {
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
         return displayName;
     }
 
     public String toJson() {
         return new Gson().toJson(this);
-    }
-
-    void addTrack(TrackReference track) {
-        tracksReferences.add(track);
     }
 
     public static TrackList fromJson(String json) {
@@ -96,5 +100,29 @@ public class TrackList {
 
     public int getType() {
         return type;
+    }
+
+    public Uri getArt() {
+        return art;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrackList trackList = (TrackList) o;
+        return type == trackList.type &&
+                displayName.equals(trackList.displayName) &&
+                Objects.equals(art, trackList.art) &&
+                tracksReferences.equals(trackList.tracksReferences);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(displayName, type, art, tracksReferences);
+    }
+
+    public void setArt(Uri art) {
+        this.art = art;
     }
 }
