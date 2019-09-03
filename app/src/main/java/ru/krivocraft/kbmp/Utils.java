@@ -34,7 +34,12 @@ public class Utils {
         Bitmap art = null;
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
+        try {
+            retriever.setDataSource(path);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         byte[] embeddedPicture = retriever.getEmbeddedPicture();
 
