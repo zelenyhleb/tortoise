@@ -83,20 +83,8 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             } else {
                 manager.putOption(key, true);
             }
-            if (key.equals(Constants.KEY_THEME)){
-                PendingIntent pendingIntent = PendingIntent.getActivity(context, 228, new Intent(context, MainActivity.class), PendingIntent.FLAG_ONE_SHOT);
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                if (alarmManager != null) {
-                    alarmManager.set(AlarmManager.ELAPSED_REALTIME, 100, pendingIntent);
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        System.exit(0);
-                    }).start();
-                }
+            if (key.equals(Constants.KEY_RECOGNIZE_NAMES) || key.equals(Constants.KEY_THEME)) {
+                Toast.makeText(context, "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });
     }
