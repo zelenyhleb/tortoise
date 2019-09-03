@@ -1,21 +1,22 @@
 package ru.krivocraft.kbmp;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import java.io.IOException;
 
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
@@ -39,6 +40,7 @@ public class TrackListEditorActivity extends AppCompatActivity {
         source = TrackList.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
         changed = TrackList.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
         art = findViewById(R.id.track_list_editor_image);
+        art.setClipToOutline(true);
 
         TrackListsStorageManager storageManager = new TrackListsStorageManager(TrackListEditorActivity.this);
 
@@ -52,15 +54,21 @@ public class TrackListEditorActivity extends AppCompatActivity {
         });
 
         Uri art = changed.getArt();
-        if (art != null) {
-            this.art.setImageURI(art);
+        if (!art.equals(Uri.EMPTY)) {
+            try {
+                Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), art);
+                Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
+                this.art.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             this.art.setImageDrawable(getDrawable(R.drawable.ic_icon));
         }
 
         Button pick = findViewById(R.id.track_list_editor_button_pick);
         pick.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK);
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType(TYPE_IMAGE);
             intent.putExtra(Intent.EXTRA_MIME_TYPES, MIME_TYPES);
             startActivityForResult(intent, GALLERY_REQUEST_CODE);
@@ -71,9 +79,7 @@ public class TrackListEditorActivity extends AppCompatActivity {
             AlertDialog dialog = new AlertDialog.Builder(TrackListEditorActivity.this)
                     .setTitle("Are you sure?")
                     .setMessage("Do you really want to delete " + source.getDisplayName() + "?")
-                    .setPositiveButton("DELETE", (dialog12, which) -> {
-                        storageManager.removeTrackList(source);
-                    })
+                    .setPositiveButton("DELETE", (dialog12, which) -> storageManager.removeTrackList(source))
                     .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                     .create();
             dialog.show();
@@ -89,6 +95,10 @@ public class TrackListEditorActivity extends AppCompatActivity {
 
         Button cancel = findViewById(R.id.track_list_editor_button_cancel);
         cancel.setOnClickListener(v -> showNotSavedPrompt());
+    }
+
+    private int getSquareDimensions(Bitmap bitmap) {
+        return Math.min(bitmap.getHeight(), bitmap.getWidth());
     }
 
     private void showNotSavedPrompt() {
@@ -111,8 +121,14 @@ public class TrackListEditorActivity extends AppCompatActivity {
             if (requestCode == GALLERY_REQUEST_CODE) {
                 if (data != null) {
                     Uri selectedImage = data.getData();
+                    try {
+                        Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
+                        art.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     changed.setArt(selectedImage);
-                    art.setImageURI(selectedImage);
                 }
             }
 

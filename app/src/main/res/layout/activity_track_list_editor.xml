@@ -48,6 +48,7 @@
         android:id="@+id/track_list_editor_image"
         android:layout_width="128dp"
         android:layout_height="128dp"
+        android:background="@drawable/layout_bg"
         android:src="@drawable/ic_icon" />
 
     <TextView
