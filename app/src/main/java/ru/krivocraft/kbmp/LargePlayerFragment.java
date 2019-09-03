@@ -270,7 +270,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         Context context = getContext();
         if (context != null) {
             SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
             switch (loopState) {
                 case Constants.NOT_LOOP:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
@@ -313,7 +313,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         if (context != null) {
             SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
             switch (loopState) {
                 case Constants.NOT_LOOP:
                     editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK);

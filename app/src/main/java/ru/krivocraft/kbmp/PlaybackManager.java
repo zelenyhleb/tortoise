@@ -107,6 +107,14 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
+        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
+        int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+
+        if (loopType == Constants.LOOP_TRACK_LIST) {
+            if (index < 0) index = trackList.size() - 1;
+            if (index >= getTracks().size()) index = 0;
+        }
+
         if (index >= 0 && index < getTracks().size()) {
             pause();
 
@@ -233,7 +241,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     @Override
     public void onCompletion(MediaPlayer mp) {
         SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+        int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
         switch (loopType) {
             case Constants.LOOP_TRACK:
                 newTrack(getCursor());
