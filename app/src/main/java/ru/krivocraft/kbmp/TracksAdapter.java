@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.tasks.LoadArtTask;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private TrackList trackList;
