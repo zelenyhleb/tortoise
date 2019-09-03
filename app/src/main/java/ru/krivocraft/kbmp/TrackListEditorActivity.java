@@ -79,7 +79,10 @@ public class TrackListEditorActivity extends AppCompatActivity {
             AlertDialog dialog = new AlertDialog.Builder(TrackListEditorActivity.this)
                     .setTitle("Are you sure?")
                     .setMessage("Do you really want to delete " + source.getDisplayName() + "?")
-                    .setPositiveButton("DELETE", (dialog12, which) -> storageManager.removeTrackList(source))
+                    .setPositiveButton("DELETE", (dialog12, which) -> {
+                        storageManager.removeTrackList(source);
+                        finish();
+                    })
                     .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
                     .create();
             dialog.show();
