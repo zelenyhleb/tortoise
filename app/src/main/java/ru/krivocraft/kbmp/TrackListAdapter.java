@@ -25,10 +25,12 @@ import ru.krivocraft.kbmp.tasks.OnAlbumArtAcquiredCallback;
 class TrackListAdapter extends ArrayAdapter<TrackList> {
 
     private Context context;
+    private ThumbnailStorageManager thumbnailStorageManager;
 
     TrackListAdapter(List<TrackList> trackLists, @NonNull Context context) {
         super(context, R.layout.playlists_grid_item, trackLists);
         this.context = context;
+        this.thumbnailStorageManager = new ThumbnailStorageManager();
     }
 
     @SuppressLint("InflateParams")
@@ -42,15 +44,9 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
         ImageView imageView = convertView.findViewById(R.id.fragment_playlist_picture);
 
         if (trackList != null) {
-            Uri art = trackList.getArt();
-            if (!art.equals(Uri.EMPTY)) {
-                try {
-                    Bitmap input = MediaStore.Images.Media.getBitmap(context.getContentResolver(), art);
-                    Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
-                    imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            Bitmap art = thumbnailStorageManager.readThumbnail(trackList.getIdentifier());
+            if (art != null) {
+                imageView.setImageBitmap(art);
             } else {
                 GetAlbumArtTask task = new GetAlbumArtTask(bitmap -> {
                     if (bitmap != null) {

@@ -47,10 +47,11 @@ public class Constants {
         public static final String ACTION_REQUEST_DATA = "request_position";
         public static final String ACTION_RESULT_DATA = "result_position";
         public static final String ACTION_SHUFFLE = "shuffle";
-        public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
+        public static final String ACTION_EDIT_PLAYING_TRACK_LIST = "edit_current_track_list";
         public static final String ACTION_REQUEST_STOP = "stop";
         public static final String ACTION_PLAY_FROM_LIST = "play_from_list";
         public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
+        public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
     }
 
     public static class Extras {

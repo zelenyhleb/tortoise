@@ -15,7 +15,6 @@ public class TrackList {
     private String displayName;
     private boolean shuffled = false;
     private final int type;
-    private String artUri;
 
     private List<TrackReference> tracksReferences;
 
@@ -102,14 +101,6 @@ public class TrackList {
         return type;
     }
 
-    public Uri getArt() {
-        if (artUri != null) {
-            return Uri.parse(artUri);
-        } else {
-            return Uri.EMPTY;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -117,20 +108,12 @@ public class TrackList {
         TrackList trackList = (TrackList) o;
         return type == trackList.type &&
                 displayName.equals(trackList.displayName) &&
-                Objects.equals(artUri, trackList.artUri) &&
                 tracksReferences.equals(trackList.tracksReferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(displayName, type, artUri, tracksReferences);
+        return Objects.hash(displayName, type, tracksReferences);
     }
 
-    public void setArt(Uri art) {
-        if (art != null) {
-            this.artUri = art.toString();
-        } else {
-            this.artUri = null;
-        }
-    }
 }

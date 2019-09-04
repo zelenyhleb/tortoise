@@ -106,7 +106,7 @@ public class TrackListFragment extends BaseFragment {
                         Searcher searcher = new Searcher(context);
                         List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
-                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM), context, showControls));
+                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM), context, showControls, true));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }
@@ -132,17 +132,15 @@ public class TrackListFragment extends BaseFragment {
 
     private void processPaths(Context context) {
         this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        this.tracksAdapter = new TracksAdapter(trackList, context, showControls);
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls);
         this.recyclerView.setAdapter(tracksAdapter);
 
         progressBar.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
 
-        if (!showControls) {
-            ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-            touchHelper.attachToRecyclerView(recyclerView);
-        }
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override

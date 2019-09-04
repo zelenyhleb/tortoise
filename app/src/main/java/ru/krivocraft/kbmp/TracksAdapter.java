@@ -21,11 +21,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private TrackList trackList;
     private Context context;
     private final boolean editingAllowed;
+    private final boolean temp;
 
-    TracksAdapter(TrackList trackList, Context context, boolean editingAllowed) {
+    TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
+        this.temp = temp;
     }
 
     @NonNull
@@ -75,7 +77,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     }
 
     private void sendUpdate() {
-        context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
+        if (temp) {
+            context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
+        } else {
+            context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

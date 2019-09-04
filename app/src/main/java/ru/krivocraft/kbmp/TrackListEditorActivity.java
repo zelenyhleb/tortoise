@@ -3,7 +3,6 @@ package ru.krivocraft.kbmp;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,7 +27,13 @@ public class TrackListEditorActivity extends AppCompatActivity {
     private TrackList source;
     private TrackList changed;
 
+    private ThumbnailStorageManager thumbnailStorageManager;
+
     private ImageView art;
+
+    private Bitmap selectedBitmap;
+    private boolean pictureChanged = false;
+
     private final String TYPE_IMAGE = "image/*";
     private final String[] MIME_TYPES = new String[]{"image/jpeg", "image/png"};
 
@@ -42,7 +47,8 @@ public class TrackListEditorActivity extends AppCompatActivity {
         art = findViewById(R.id.track_list_editor_image);
         art.setClipToOutline(true);
 
-        TrackListsStorageManager storageManager = new TrackListsStorageManager(TrackListEditorActivity.this);
+        thumbnailStorageManager = new ThumbnailStorageManager();
+        TrackListsStorageManager trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this);
 
         EditText title = findViewById(R.id.track_list_editor_edit_text);
         title.setText(source.getDisplayName());
@@ -53,22 +59,16 @@ public class TrackListEditorActivity extends AppCompatActivity {
             }
         });
 
-        Uri art = changed.getArt();
-        if (!art.equals(Uri.EMPTY)) {
-            try {
-                Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), art);
-                Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
-                this.art.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        selectedBitmap = thumbnailStorageManager.readThumbnail(changed.getIdentifier());
+        if (selectedBitmap != null) {
+            this.art.setImageBitmap(selectedBitmap);
         } else {
             this.art.setImageDrawable(getDrawable(R.drawable.ic_icon));
         }
 
         Button pick = findViewById(R.id.track_list_editor_button_pick);
         pick.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType(TYPE_IMAGE);
             intent.putExtra(Intent.EXTRA_MIME_TYPES, MIME_TYPES);
             startActivityForResult(intent, GALLERY_REQUEST_CODE);
@@ -80,7 +80,8 @@ public class TrackListEditorActivity extends AppCompatActivity {
                     .setTitle("Are you sure?")
                     .setMessage("Do you really want to delete " + source.getDisplayName() + "?")
                     .setPositiveButton("DELETE", (dialog12, which) -> {
-                        storageManager.removeTrackList(source);
+                        trackListsStorageManager.removeTrackList(source);
+                        thumbnailStorageManager.removeThumbnail(source.getIdentifier());
                         finish();
                     })
                     .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
@@ -91,8 +92,19 @@ public class TrackListEditorActivity extends AppCompatActivity {
 
         Button apply = findViewById(R.id.track_list_editor_button_apply);
         apply.setOnClickListener(v -> {
-            storageManager.removeTrackList(source);
-            storageManager.writeTrackList(changed);
+            trackListsStorageManager.removeTrackList(source);
+            trackListsStorageManager.writeTrackList(changed);
+
+            if (nameChanged() && !pictureChanged) {
+                replaceThumbnail();
+            }
+
+            try {
+                thumbnailStorageManager.writeThumbnail(changed.getIdentifier(), selectedBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             finish();
         });
 
@@ -100,12 +112,24 @@ public class TrackListEditorActivity extends AppCompatActivity {
         cancel.setOnClickListener(v -> showNotSavedPrompt());
     }
 
+    private boolean nameChanged() {
+        return !source.getIdentifier().equals(changed.getIdentifier());
+    }
+
+    private void replaceThumbnail() {
+        try {
+            thumbnailStorageManager.replaceThumbnail(source.getIdentifier(), changed.getIdentifier());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private int getSquareDimensions(Bitmap bitmap) {
         return Math.min(bitmap.getHeight(), bitmap.getWidth());
     }
 
     private void showNotSavedPrompt() {
-        if (!source.equals(changed)) {
+        if (!source.equals(changed) || pictureChanged) {
             AlertDialog ad = new AlertDialog.Builder(this)
                     .setMessage("Do you really want to leave without saving?")
                     .setTitle("Wait!")
@@ -119,6 +143,11 @@ public class TrackListEditorActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        showNotSavedPrompt();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == Activity.RESULT_OK)
             if (requestCode == GALLERY_REQUEST_CODE) {
@@ -128,10 +157,11 @@ public class TrackListEditorActivity extends AppCompatActivity {
                         Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                         Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
                         art.setImageBitmap(bitmap);
+                        selectedBitmap = bitmap;
+                        pictureChanged = true;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    changed.setArt(selectedImage);
                 }
             }
 
