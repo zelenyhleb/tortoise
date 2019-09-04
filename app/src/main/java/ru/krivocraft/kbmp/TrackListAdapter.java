@@ -51,6 +51,11 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
                 GetAlbumArtTask task = new GetAlbumArtTask(bitmap -> {
                     if (bitmap != null) {
                         imageView.setImageBitmap(bitmap);
+                        try {
+                            thumbnailStorageManager.writeThumbnail(trackList.getIdentifier(), bitmap);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 task.execute(Tracks.getTracks(context, trackList.getTrackReferences()).toArray(new Track[0]));
