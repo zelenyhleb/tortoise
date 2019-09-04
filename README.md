@@ -19,7 +19,6 @@ Awesome music player with great future written for android with java.
 - Supports any android media controller you wish (Like control buttons on your headphones or in your car)
 - Custom pictures for playlists
 - Editing playlists by dragging items
-
 - Some other small pleasant features
 
 ## Requirements
