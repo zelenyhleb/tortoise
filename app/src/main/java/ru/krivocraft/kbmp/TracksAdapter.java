@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -92,6 +93,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         Track track;
         TrackReference reference;
         TrackList trackList;
+        ImageButton more;
 
         ViewHolder(@NonNull View itemView, boolean editingAllowed) {
             super(itemView);
@@ -99,9 +101,12 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             artist = itemView.findViewById(R.id.composition_author_text);
             art = itemView.findViewById(R.id.item_track_image);
             state = itemView.findViewById(R.id.item_track_state);
+            more = itemView.findViewById(R.id.button_more);
             itemView.setOnClickListener(new OnClickListener());
             if (editingAllowed) {
-                itemView.setOnLongClickListener(new OnLongClickListener());
+                more.setOnClickListener(v -> v.getContext().startActivity(new Intent(v.getContext(), TrackEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson())));
+            } else {
+                more.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -141,15 +146,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
                 Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
                 v.getContext().sendBroadcast(interfaceIntent);
-            }
-        }
-
-        private class OnLongClickListener implements View.OnLongClickListener {
-
-            @Override
-            public boolean onLongClick(View v) {
-                v.getContext().startActivity(new Intent(v.getContext(), TrackEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson()));
-                return true;
             }
         }
     }

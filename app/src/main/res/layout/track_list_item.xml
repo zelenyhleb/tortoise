@@ -1,39 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="?android:attr/selectableItemBackground"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground">
 
 
-    <RelativeLayout
-        android:id="@+id/image_layout"
-        android:layout_margin="4dp"
+    <ImageButton
+        android:id="@+id/button_more"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_centerInParent="true"
-            android:id="@+id/item_track_image"
-            android:background="@drawable/layout_bg"/>
-        <ImageView
-            android:id="@+id/item_track_state"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_centerInParent="true"
-            android:layout_margin="14dp"
-            android:background="@null" />
-
-    </RelativeLayout>
+        android:layout_margin="8dp"
+        android:background="@null"
+        android:src="@drawable/ic_more" />
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:orientation="vertical"
         android:layout_marginStart="8dp"
+        android:layout_toStartOf="@id/button_more"
         android:layout_toEndOf="@id/image_layout"
-        android:layout_height="wrap_content">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/composition_name_text"
@@ -52,5 +41,29 @@
             android:singleLine="true"
             android:textSize="12sp" />
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/image_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="4dp">
+
+        <ImageView
+            android:id="@+id/item_track_image"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/layout_bg" />
+
+        <ImageView
+            android:id="@+id/item_track_state"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:layout_margin="14dp"
+            android:background="@null" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

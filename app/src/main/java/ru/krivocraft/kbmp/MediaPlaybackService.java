@@ -101,9 +101,11 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                     break;
                 case Constants.Actions.ACTION_EDIT_TRACK_LIST:
                     TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-                    notifyPlaybackManager(trackListEdited);
+                    if (trackListEdited.equals(playbackManager.getTrackList())) {
+                        notifyPlaybackManager(trackListEdited);
+                    }
                     new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
-
+                    sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
             }
         }
     };
