@@ -14,6 +14,8 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public abstract class BaseFragment extends Fragment {
 
+    SettingsManager settingsManager;
+
     public BaseFragment(){
         //Required empty public constructor
     }
@@ -31,7 +33,8 @@ public abstract class BaseFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Context context = getContext();
         if (context != null) {
-            if (Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, false)){
+            settingsManager = new SettingsManager(context);
+            if (settingsManager.getOption(Constants.KEY_THEME, false)){
                 context.getTheme().applyStyle(R.style.LightTheme, true);
             } else {
                 context.getTheme().applyStyle(R.style.DarkTheme, true);

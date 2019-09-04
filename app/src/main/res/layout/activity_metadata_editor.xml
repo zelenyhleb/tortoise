@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
-    tools:context=".MetadataEditorActivity">
+    tools:context=".TrackEditorActivity">
 
     <TextView
         android:id="@+id/metadata_editor_title"

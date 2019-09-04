@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -22,6 +21,7 @@ import androidx.media.session.MediaButtonReceiver;
 import java.util.List;
 import java.util.Objects;
 
+import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat {
@@ -95,15 +95,26 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                 case Constants.Actions.ACTION_SHUFFLE:
                     playbackManager.shuffle();
                     break;
-                case Constants.Actions.ACTION_EDIT_TRACK_LIST:
+                case Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST:
                     TrackList in = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-                    TrackReference reference = playbackManager.getCurrentTrack();
-                    playbackManager.setTrackList(in, false);
-                    playbackManager.setCursor(in.indexOf(reference));
+                    notifyPlaybackManager(in);
                     break;
+                case Constants.Actions.ACTION_EDIT_TRACK_LIST:
+                    TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                    if (trackListEdited.equals(playbackManager.getTrackList())) {
+                        notifyPlaybackManager(trackListEdited);
+                    }
+                    new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
+                    sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
             }
         }
     };
+
+    private void notifyPlaybackManager(TrackList in) {
+        TrackReference reference = playbackManager.getCurrentTrack();
+        playbackManager.setTrackList(in, false);
+        playbackManager.setCursor(in.indexOf(reference));
+    }
 
     private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
         @Override
@@ -195,6 +206,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
         IntentFilter playlistFilter = new IntentFilter();
         playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
         playlistFilter.addAction(Constants.Actions.ACTION_SHUFFLE);
+        playlistFilter.addAction(Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST);
         playlistFilter.addAction(Constants.Actions.ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
         registerReceiver(playlistReceiver, playlistFilter);

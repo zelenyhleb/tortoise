@@ -26,7 +26,9 @@ class TracksProvider {
         this.storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
         this.trackLists = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();
-        this.recognize = Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE), Constants.KEY_RECOGNIZE_NAMES, true);
+
+        SettingsManager settingsManager = new SettingsManager(context);
+        this.recognize = settingsManager.getOption(Constants.KEY_RECOGNIZE_NAMES, true);
 
         this.context = context;
         metaStorage = new ArrayList<>();

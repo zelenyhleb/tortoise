@@ -62,6 +62,7 @@ public class SmallPlayerFragment extends BaseFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         rootView = inflater.inflate(R.layout.fragment_player_small, container, false);
         invalidate();
         return rootView;

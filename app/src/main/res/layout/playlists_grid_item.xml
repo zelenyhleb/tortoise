@@ -8,6 +8,7 @@
         android:id="@+id/fragment_playlist_picture"
         android:layout_width="128dp"
         android:layout_height="128dp"
+        android:layout_margin="16dp"
         android:layout_centerHorizontal="true"
         android:background="@drawable/layout_bg"
         android:src="@drawable/ic_icon" />
@@ -15,6 +16,7 @@
     <TextView
         android:id="@+id/fragment_playlist_name"
         android:layout_width="128dp"
+        android:layout_margin="16dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/fragment_playlist_picture"
         android:layout_centerHorizontal="true"

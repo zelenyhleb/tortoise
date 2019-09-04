@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,17 +25,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import ru.krivocraft.kbmp.api.TrackListsCompiler;
+import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
-import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
-import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 
 public class ExplorerFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
+
+    private TrackListsStorageManager trackListsStorageManager;
+    private TrackListsCompiler trackListsCompiler;
+
+    private ProgressBar progressBar;
 
     static ExplorerFragment newInstance(OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
@@ -44,57 +46,11 @@ public class ExplorerFragment extends BaseFragment {
         return explorerFragment;
     }
 
-    private void compileByAuthors() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileByAuthorTask task = new CompileByAuthorTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_AUTHOR);
-                    writeTrackList(trackList);
-                }
-                context.runOnUiThread(this::redrawList);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
-        }
-    }
-
-    private void compileFavorites() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileFavoritesTask task = new CompileFavoritesTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_CUSTOM);
-                    writeTrackList(trackList);
-                }
-                context.runOnUiThread(this::redrawList);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
-        }
-    }
-
-    private void compileByTags() {
-        Activity context = getActivity();
-        if (context != null) {
-            CompileByTagsTask task = new CompileByTagsTask();
-            task.setListener(trackLists -> new Thread(() -> {
-                for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-                    TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), Constants.TRACK_LIST_BY_TAG);
-                    writeTrackList(trackList);
-                }
-
-                List<TrackList> all = readTrackLists();
-                for (TrackList trackList : all) {
-                    if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
-                        if (!trackLists.keySet().contains(trackList.getDisplayName())) {
-                            removeTrackList(trackList);
-                        }
-                    }
-                }
-                context.runOnUiThread(this::redrawList);
-            }).start());
-            task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
+    private void onNewTrackLists(List<TrackList> trackLists) {
+        Activity activity = getActivity();
+        if (activity != null) {
+            trackListsStorageManager.writeTrackLists(trackLists);
+            activity.runOnUiThread(ExplorerFragment.this::drawTrackLists);
         }
     }
 
@@ -105,52 +61,60 @@ public class ExplorerFragment extends BaseFragment {
         }
     };
 
-    private boolean getPreference(Context context, String optionKey) {
-        return Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), optionKey, false);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Context context = getContext();
+        if (context != null) {
+            this.trackListsStorageManager = new TrackListsStorageManager(context);
+            this.trackListsCompiler = new TrackListsCompiler(context);
+        }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View rootView = inflater.inflate(R.layout.fragment_explorer, container, false);
+        this.progressBar = rootView.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
-            GridView gridView = rootView.findViewById(R.id.playlists_grid);
-            adapter = new TrackListAdapter(readTrackLists(), context);
-
             context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
+            createAdapter(context);
+            configureGridView(rootView, context);
+            configureAddButton(inflater, rootView, context);
+
             invalidate();
-
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
-            gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-                TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-                if (!itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
-                    showDeletionDialog(context, parent, position);
-                }
-                return true;
-            });
-
-
-            FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
-            addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
         }
         return rootView;
     }
 
-    private void showDeletionDialog(Context context, AdapterView<?> parent, int position) {
-        TrackList item = (TrackList) parent.getItemAtPosition(position);
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle("Are you sure?")
-                .setMessage("Do you really want to delete " + item.getDisplayName() + "?")
-                .setPositiveButton("DELETE", (dialog12, which) -> removeTrackList(item))
-                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
-                .create();
-        dialog.show();
+    private void createAdapter(Context context) {
+        if (adapter == null) {
+            adapter = new TrackListAdapter(new ArrayList<>(), context);
+        }
+    }
+
+    private void configureAddButton(@NonNull LayoutInflater inflater, View rootView, Context context) {
+        FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
+        addTrackList.setOnClickListener(v -> showCreationDialog(inflater, context));
+    }
+
+    private void configureGridView(View rootView, Context context) {
+        GridView gridView = rootView.findViewById(R.id.playlists_grid);
+        gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> showEditor(context, parent, position));
+    }
+
+    private boolean showEditor(Context context, AdapterView<?> parent, int position) {
+        TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
+        if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
+            Intent intent = new Intent(context, TrackListEditorActivity.class);
+            intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, itemAtPosition.toJson());
+            context.startActivity(intent);
+        }
+        return true;
     }
 
     private void showCreationDialog(@NonNull LayoutInflater inflater, Context context) {
@@ -173,10 +137,10 @@ public class ExplorerFragment extends BaseFragment {
             TrackReference reference = new TrackReference(position);
             if (selectedTracks.contains(reference)) {
                 selectedTracks.remove(reference);
-                item.setChecked(false);
+                item.setCheckedInList(false);
             } else {
                 selectedTracks.add(reference);
-                item.setChecked(true);
+                item.setCheckedInList(true);
             }
             adapter.notifyDataSetInvalidated();
         });
@@ -196,8 +160,8 @@ public class ExplorerFragment extends BaseFragment {
             button.setOnClickListener(v -> {
                 String displayName = editText.getText().toString();
                 if (checkTrackList(selectedTracks.size(), displayName, context)) {
-                    writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
-                    redrawList();
+                    trackListsStorageManager.writeTrackList(new TrackList(displayName, selectedTracks, Constants.TRACK_LIST_CUSTOM));
+                    drawTrackLists();
                     dialog.dismiss();
                 }
             });
@@ -212,7 +176,7 @@ public class ExplorerFragment extends BaseFragment {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
+        if (trackListsStorageManager.getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
             Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
             return false;
         }
@@ -224,65 +188,24 @@ public class ExplorerFragment extends BaseFragment {
             Toast.makeText(context, "You can't create empty track list", Toast.LENGTH_LONG).show();
             return false;
         }
+        if (displayName.equals("empty")) {
+            Toast.makeText(context, "Ha-ha, very funny. Name must contain at least one character", Toast.LENGTH_LONG).show();
+            return false;
+        }
         return true;
     }
 
-    private void writeTrackList(TrackList trackList) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
-            editor.putString(trackList.getIdentifier(), trackList.toJson());
-            editor.apply();
-        }
-
+    private void drawTrackLists() {
+        trackListsStorageManager.readTrackLists(trackLists -> {
+            progressBar.setVisibility(View.GONE);
+            redrawList(trackLists);
+        });
     }
 
-    private void removeTrackList(TrackList trackList) {
-        Context context = getContext();
-        if (context != null) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE).edit();
-            editor.remove(trackList.getIdentifier());
-            editor.apply();
-            invalidate();
-        }
-    }
-
-    private List<String> getTrackListIdentifiers() {
-        Context context = getContext();
-        List<String> identifiers = new ArrayList<>();
-        if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            Map<String, ?> trackLists = sharedPreferences.getAll();
-            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                identifiers.add(entry.getKey());
-            }
-        }
-        return identifiers;
-    }
-
-    private List<TrackList> readTrackLists() {
-        Context context = getContext();
-        List<TrackList> allTrackLists = new ArrayList<>();
-        if (context != null) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE);
-            Map<String, ?> trackLists = sharedPreferences.getAll();
-            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                TrackList trackList = TrackList.fromJson((String) entry.getValue());
-                System.out.println((String) entry.getValue());
-                if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
-                    if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
-                        allTrackLists.add(trackList);
-                    }
-                } else if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
-                    if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
-                        allTrackLists.add(trackList);
-                    }
-                } else {
-                    allTrackLists.add(trackList);
-                }
-            }
-        }
-        return allTrackLists;
+    private void redrawList(List<TrackList> trackLists) {
+        adapter.clear();
+        adapter.addAll(trackLists);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -297,25 +220,17 @@ public class ExplorerFragment extends BaseFragment {
     void invalidate() {
         Context context = getContext();
         if (context != null) {
-            compileFavorites();
-            if (getPreference(context, Constants.KEY_SORT_BY_ARTIST)) {
-                compileByAuthors();
+            trackListsCompiler.compileFavorites(this::onNewTrackLists);
+            if (settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
+                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
-            if (getPreference(context, Constants.KEY_SORT_BY_TAG)) {
-                compileByTags();
+            if (settingsManager.getOption(Constants.KEY_SORT_BY_TAG, false)) {
+                trackListsCompiler.compileByTags(this::onNewTrackLists);
             }
         }
-
-        redrawList();
     }
 
-    private void redrawList() {
-        adapter.clear();
-        adapter.addAll(readTrackLists());
-        adapter.notifyDataSetChanged();
-    }
-
-    void setListener(OnItemClickListener listener) {
+    private void setListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 

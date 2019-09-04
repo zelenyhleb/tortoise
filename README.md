@@ -1,6 +1,8 @@
 Tortoise
 ========
 
+Stable (so-so) version: 0.3.0
+
 Awesome music player with great future written for android with java.
 
 ## Features
@@ -11,12 +13,18 @@ Awesome music player with great future written for android with java.
 - Supports custom playlist creation
 - Dark and Light theme (**BETA**)
 - Track's tagging (**BETA**)
-- Basic player features like few ways of suffling, three ways of looping
+- Basic player features like few ways of shuffling, three ways of looping
 - Editing track's metadata (Only locally)
 - Beautiful MediaStyle Notification
 - Supports any android media controller you wish (Like control buttons on your headphones or in your car)
+- Custom pictures for playlists
+- Editing playlists by dragging items
 - Some other small pleasant features
+
+## Requirements
+
+Android 5.0 or above
 
 ## License
 
-Apache 2.0, see LICENSE
+Licensed under Apache 2.0, see LICENSE

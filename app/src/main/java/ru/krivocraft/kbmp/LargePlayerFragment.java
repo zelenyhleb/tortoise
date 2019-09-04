@@ -60,7 +60,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private ImageButton buttonLike;
     private ImageButton loop;
 
-    void initHandler() {
+    private void initHandler() {
         mHandler = new Handler(Looper.getMainLooper()) {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
@@ -104,23 +104,23 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         }
     };
 
-    public String getTrackPath() {
+    private String getTrackPath() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
     }
 
-    public int getTrackDuration() {
+    private int getTrackDuration() {
         return (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
     }
 
-    public String getTrackArtist() {
+    private String getTrackArtist() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
     }
 
-    public String getTrackTitle() {
+    private String getTrackTitle() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
     }
 
-    public boolean isTrackPlaying() {
+    private boolean isTrackPlaying() {
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
@@ -150,7 +150,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         }
     };
 
-    void requestPosition(Context context) {
+    private void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
@@ -159,7 +159,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         context.sendBroadcast(intent);
     }
 
-    void registerTrackListReceiver(Context context) {
+    private void registerTrackListReceiver(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(trackListReceiver, filter);
@@ -218,6 +218,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         View rootView = inflater.inflate(R.layout.fragment_player_large, container, false);
 
         playPauseButton = rootView.findViewById(R.id.play_pause);
@@ -254,7 +256,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
                 } else {
-                    if (Utils.getOption(context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE), Constants.KEY_THEME, false)){
+                    if (settingsManager.getOption(Constants.KEY_THEME, false)){
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                     } else {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -268,7 +270,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         Context context = getContext();
         if (context != null) {
             SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
             switch (loopState) {
                 case Constants.NOT_LOOP:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
@@ -311,7 +313,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         if (context != null) {
             SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
             switch (loopState) {
                 case Constants.NOT_LOOP:
                     editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK);

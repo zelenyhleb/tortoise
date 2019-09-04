@@ -5,6 +5,6 @@ import java.util.Map;
 
 import ru.krivocraft.kbmp.Track;
 
-public interface OnTrackListsCompiledListener {
+public interface OnTrackListsCompileTaskCompleted {
     void onTrackListsCompiled(Map<String, List<Track>> trackLists);
 }

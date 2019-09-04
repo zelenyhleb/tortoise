@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -63,51 +62,38 @@ public class MainActivity extends BaseActivity {
     }
 
     private ExplorerFragment getExplorerFragment() {
-        explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
+        if (explorerFragment == null) {
+            explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment); //ExplorerFragment is singleton, so we will reuse it, if it is possible
+        }
         return explorerFragment;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        removeOldCache();
-
+        clearOld();
         requestStoragePermission();
     }
 
-    private void removeOldCache() {
-        SharedPreferences preferences = getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
-        String identifier = "all_tracks";
-        if (preferences.getString(identifier, null) != null) {
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.remove(identifier);
-            editor.apply();
-        }
-        SharedPreferences settings = getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        if (Utils.getOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
-            Utils.clearCache(preferences);
-            Utils.putOption(settings, Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
-        }
+    private void clearOld() {
+        OldStuffCollector collector = new OldStuffCollector(this);
+        collector.execute();
     }
 
     private void init() {
-
         setContentView(R.layout.activity_tortoise);
+        configureLayoutTransition();
 
-        RelativeLayout layout = findViewById(R.id.main_layout);
-        layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+        startService();
+        registerPlayerControlReceiver();
 
-        if (!MediaPlaybackService.running) {
-            startService(new Intent(this, MediaPlaybackService.class));
-        }
+        initMediaBrowser();
+        mediaBrowser.connect();
 
         showExplorerFragment();
+    }
 
-        IntentFilter showPlayerFilter = new IntentFilter();
-        showPlayerFilter.addAction(Constants.Actions.ACTION_SHOW_PLAYER);
-        showPlayerFilter.addAction(Constants.Actions.ACTION_HIDE_PLAYER);
-        registerReceiver(showPlayerReceiver, showPlayerFilter);
-
+    private void initMediaBrowser() {
         mediaBrowser = new MediaBrowserCompat(
                 MainActivity.this,
                 new ComponentName(MainActivity.this, MediaPlaybackService.class),
@@ -137,7 +123,24 @@ public class MainActivity extends BaseActivity {
                     }
                 },
                 null);
-        mediaBrowser.connect();
+    }
+
+    private void configureLayoutTransition() {
+        RelativeLayout layout = findViewById(R.id.main_layout);
+        layout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+    }
+
+    private void startService() {
+        if (!MediaPlaybackService.running) {
+            startService(new Intent(this, MediaPlaybackService.class));
+        }
+    }
+
+    private void registerPlayerControlReceiver() {
+        IntentFilter showPlayerFilter = new IntentFilter();
+        showPlayerFilter.addAction(Constants.Actions.ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(Constants.Actions.ACTION_HIDE_PLAYER);
+        registerReceiver(showPlayerReceiver, showPlayerFilter);
     }
 
     @Override
@@ -157,13 +160,17 @@ public class MainActivity extends BaseActivity {
 
     private void showExplorerFragment() {
         removeTrackListFragment();
-        showFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
+        if (explorerFragment == null) {
+            addFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
+        } else {
+            showFragment(explorerFragment);
+        }
         viewState = STATE_EXPLORER;
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        removeExplorerFragment();
-        showFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
+        hideExplorerFragment();
+        addFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
         viewState = STATE_TRACK_LIST;
     }
 
@@ -216,13 +223,12 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void removeExplorerFragment() {
+    private void hideExplorerFragment() {
         hideFragment(explorerFragment);
-        explorerFragment = null;
     }
 
     private void removeTrackListFragment() {
-        hideFragment(trackListFragment);
+        removeFragment(trackListFragment);
         trackListFragment = null;
     }
 
@@ -251,7 +257,7 @@ public class MainActivity extends BaseActivity {
                         SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
                         smallPlayerFragment.init(MainActivity.this, metadata, playbackState, position);
                         MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                        showFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment, R.id.player_container);
+                        addFragment(R.anim.fadeinshort, MainActivity.this.smallPlayerFragment, R.id.player_container);
                     }
                 }
             }
@@ -264,7 +270,7 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    private void showFragment(int animationIn, Fragment fragment, int container) {
+    private void addFragment(int animationIn, Fragment fragment, int container) {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -274,7 +280,25 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void showFragment(Fragment fragment) {
+        if (fragment != null && !fragment.isVisible()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .show(fragment)
+                    .commitNowAllowingStateLoss();
+        }
+    }
+
     private void hideFragment(Fragment fragment) {
+        if (fragment != null && fragment.isVisible()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .hide(fragment)
+                    .commitNowAllowingStateLoss();
+        }
+    }
+
+    private void removeFragment(Fragment fragment) {
         if (fragment != null && fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()

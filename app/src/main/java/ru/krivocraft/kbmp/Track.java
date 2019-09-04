@@ -16,18 +16,8 @@ public class Track {
 
     private boolean selected = false;
     private boolean playing = false;
-
-    private boolean checked = false;
-
     private boolean liked = false;
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
+    private boolean checkedInList = false;
 
     private String title, artist, path;
     private long duration;
@@ -57,6 +47,14 @@ public class Track {
                 .build();
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public boolean isSelected() {
         return selected;
     }
@@ -73,12 +71,12 @@ public class Track {
         this.playing = playing;
     }
 
-    public boolean isChecked() {
-        return checked;
+    public boolean isCheckedInList() {
+        return checkedInList;
     }
 
-    void setChecked(boolean checked) {
-        this.checked = checked;
+    void setCheckedInList(boolean checkedInList) {
+        this.checkedInList = checkedInList;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package ru.krivocraft.kbmp;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -7,8 +9,9 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-class TrackList {
+public class TrackList {
     private String displayName;
     private boolean shuffled = false;
     private final int type;
@@ -17,7 +20,7 @@ class TrackList {
 
     private List<TrackReference> shuffleCache;
 
-    TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
+    public TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
         this.displayName = displayName;
         this.tracksReferences = tracksReferences;
         this.type = type;
@@ -62,27 +65,27 @@ class TrackList {
         return tracksReferences.get(index);
     }
 
-    String getIdentifier() {
+    public String getIdentifier() {
         return createIdentifier(displayName);
     }
 
-    List<TrackReference> getTrackReferences() {
+    public List<TrackReference> getTrackReferences() {
         return tracksReferences;
     }
 
-    String getDisplayName() {
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
         return displayName;
     }
 
-    String toJson() {
+    public String toJson() {
         return new Gson().toJson(this);
     }
 
-    void addTrack(TrackReference track) {
-        tracksReferences.add(track);
-    }
-
-    static TrackList fromJson(String json) {
+    public static TrackList fromJson(String json) {
         return new Gson().fromJson(json, TrackList.class);
     }
 
@@ -94,7 +97,23 @@ class TrackList {
         this.shuffled = shuffled;
     }
 
-    int getType() {
+    public int getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrackList trackList = (TrackList) o;
+        return type == trackList.type &&
+                displayName.equals(trackList.displayName) &&
+                tracksReferences.equals(trackList.tracksReferences);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(displayName, type, tracksReferences);
+    }
+
 }

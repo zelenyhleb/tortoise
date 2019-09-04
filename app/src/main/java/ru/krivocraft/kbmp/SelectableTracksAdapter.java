@@ -34,7 +34,7 @@ class SelectableTracksAdapter extends ArrayAdapter<Track> {
         if (track != null) {
             ((TextView) convertView.findViewById(R.id.composition_name_text)).setText(track.getTitle());
             ((TextView) convertView.findViewById(R.id.composition_author_text)).setText(track.getArtist());
-            ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isChecked());
+            ((CheckBox) convertView.findViewById(R.id.composition_checkbox)).setChecked(track.isCheckedInList());
         }
 
         return convertView;
