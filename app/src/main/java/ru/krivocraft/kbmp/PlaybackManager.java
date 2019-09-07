@@ -100,6 +100,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             Track selectedTrack = Tracks.getTrack(context, selectedReference);
             selectedTrack.setPlaying(false);
             Tracks.updateTrack(context, selectedReference, selectedTrack);
+            audioManager.abandonAudioFocus(this);
         }
 
         playerState = PlaybackStateCompat.STATE_PAUSED;
