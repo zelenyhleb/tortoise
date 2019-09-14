@@ -1,7 +1,5 @@
 package ru.krivocraft.kbmp;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;

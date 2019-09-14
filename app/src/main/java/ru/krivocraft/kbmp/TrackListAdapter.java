@@ -3,9 +3,6 @@ package ru.krivocraft.kbmp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +17,6 @@ import java.io.IOException;
 import java.util.List;
 
 import ru.krivocraft.kbmp.tasks.GetAlbumArtTask;
-import ru.krivocraft.kbmp.tasks.OnAlbumArtAcquiredCallback;
 
 class TrackListAdapter extends ArrayAdapter<TrackList> {
 
@@ -66,9 +62,5 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
 
         imageView.setClipToOutline(true);
         return convertView;
-    }
-
-    private int getSquareDimensions(Bitmap bitmap) {
-        return Math.min(bitmap.getHeight(), bitmap.getWidth());
     }
 }
