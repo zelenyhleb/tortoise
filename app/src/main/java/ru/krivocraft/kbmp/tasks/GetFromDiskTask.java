@@ -74,7 +74,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
                 }
 
                 cursor.moveToNext();
-                if (path != null && path.endsWith(".mp3")) {
+                if (path != null && path.endsWith(".mp3") && duration > 0) {
                     storage.add(new Track(duration, artist, title, path));
                 }
             }
