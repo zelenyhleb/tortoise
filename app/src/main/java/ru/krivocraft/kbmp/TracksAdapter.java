@@ -40,6 +40,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     }
 
     @Override
+    public long getItemId(int position) {
+        return Long.parseLong(trackList.get(position).toString());
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         Track track = Tracks.getTrack(context, trackList.get(i));
         viewHolder.title.setText(track.getTitle());
