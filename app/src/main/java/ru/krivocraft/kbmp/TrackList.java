@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +70,10 @@ public class TrackList {
 
     public List<TrackReference> getTrackReferences() {
         return tracksReferences;
+    }
+
+    public void removeAll(Collection<TrackReference> trackReferences) {
+        tracksReferences.removeAll(trackReferences);
     }
 
     public void setDisplayName(String displayName) {

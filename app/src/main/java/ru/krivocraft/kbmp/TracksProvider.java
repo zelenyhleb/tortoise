@@ -8,8 +8,10 @@ import android.content.SharedPreferences;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.GetFromDiskTask;
+import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -18,35 +20,54 @@ class TracksProvider {
     private final Context context;
     private ContentResolver contentResolver;
     private SharedPreferences storage;
-    private SharedPreferences trackLists;
-    private List<Track> metaStorage;
+    private List<Track> tracksFromStorage;
+    private TrackListsStorageManager trackListsStorageManager;
     private boolean recognize;
 
     TracksProvider(Context context) {
         this.storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
-        this.trackLists = context.getSharedPreferences(Constants.STORAGE_TRACK_LISTS, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();
+        this.trackListsStorageManager = new TrackListsStorageManager(context);
 
         SettingsManager settingsManager = new SettingsManager(context);
         this.recognize = settingsManager.getOption(Constants.KEY_RECOGNIZE_NAMES, true);
 
         this.context = context;
-        metaStorage = new ArrayList<>();
+        tracksFromStorage = new ArrayList<>();
     }
 
     void search() {
-        new GetFromDiskTask(contentResolver, recognize, metaStorage, this::manageStorage).execute();
+        new GetFromDiskTask(contentResolver, recognize, tracksFromStorage, this::manageStorage).execute();
     }
 
     private void manageStorage() {
         List<TrackReference> allTracks = new ArrayList<>();
-
         List<Track> existingTracks = Tracks.getTrackStorage(context);
 
         SharedPreferences.Editor tracksEditor = storage.edit();
-        for (int i = 0; i < metaStorage.size(); i++) {
+
+        removeNonExistingTracks(existingTracks, tracksEditor);
+        addNewTracks(allTracks, existingTracks, tracksEditor);
+        tracksEditor.apply();
+
+        writeRootTrackList(allTracks);
+
+        notifyTracksStorageChanged();
+    }
+
+    private void notifyTracksStorageChanged() {
+        context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+    }
+
+    private void writeRootTrackList(List<TrackReference> allTracks) {
+        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
+        trackListsStorageManager.writeTrackList(trackList);
+    }
+
+    private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, SharedPreferences.Editor tracksEditor) {
+        for (int i = 0; i < tracksFromStorage.size(); i++) {
             TrackReference reference = new TrackReference(i);
-            Track track = metaStorage.get(i);
+            Track track = tracksFromStorage.get(i);
 
             if (!existingTracks.contains(track)) {
                 tracksEditor.putString(reference.toString(), track.toJson());
@@ -54,15 +75,46 @@ class TracksProvider {
 
             allTracks.add(reference);
         }
-        tracksEditor.apply();
+    }
 
-        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
-        SharedPreferences.Editor trackListsEditor = trackLists.edit();
-        trackListsEditor.putString(trackList.getIdentifier(), trackList.toJson());
-        trackListsEditor.apply();
+    private void removeNonExistingTracks(List<Track> existingTracks, SharedPreferences.Editor tracksEditor) {
+        List<TrackReference> removedTracks = new ArrayList<>();
+        for (int i = 0; i < existingTracks.size(); i++) {
+            TrackReference reference = new TrackReference(i);
+            Track track = existingTracks.get(i);
 
-        context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+            if (!tracksFromStorage.contains(track)) {
+                tracksEditor.remove(reference.toString());
+                removedTracks.add(reference);
+            }
+        }
+        updateTrackLists(removedTracks);
 
+    }
+
+    private void updateTrackLists(List<TrackReference> removedTracks) {
+        trackListsStorageManager.readTrackLists(trackLists -> {
+            for (TrackList trackList : trackLists) {
+                removeNonExistingTracks(removedTracks, trackList);
+                removeTrackListIfEmpty(trackList);
+            }
+        });
+    }
+
+    private void removeTrackListIfEmpty(TrackList trackList) {
+        if (trackList.size() == 0) {
+            trackListsStorageManager.removeTrackList(trackList);
+        }
+    }
+
+    private void removeNonExistingTracks(List<TrackReference> removedTracks, TrackList trackList) {
+        List<TrackReference> referencesToRemove = new ArrayList<>();
+        for (TrackReference reference : trackList.getTrackReferences()) {
+            if (removedTracks.contains(reference)) {
+                referencesToRemove.add(reference);
+            }
+        }
+        trackList.removeAll(referencesToRemove);
     }
 
 }

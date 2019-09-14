@@ -280,12 +280,4 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
         return playbackManager.getCurrentStreamPosition();
     }
 
-    private MediaMetadataCompat getMetadata() {
-        return mediaSession.getController().getMetadata();
-    }
-
-    private PlaybackStateCompat getPlaybackState() {
-        return mediaSession.getController().getPlaybackState();
-    }
-
 }

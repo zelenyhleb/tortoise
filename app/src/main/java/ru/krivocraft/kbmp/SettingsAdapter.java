@@ -21,12 +21,10 @@ import ru.krivocraft.kbmp.constants.Constants;
 public class SettingsAdapter extends ArrayAdapter<String> {
 
     private List<String> objects;
-    private Activity context;
     private SettingsManager manager;
 
     SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
-        this.context = context;
         this.objects = objects;
         this.manager = new SettingsManager(context);
     }
@@ -81,7 +79,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 manager.putOption(key, true);
             }
             if (key.equals(Constants.KEY_RECOGNIZE_NAMES) || key.equals(Constants.KEY_THEME)) {
-                Toast.makeText(context, "You will see changes after app restarting", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });
     }
