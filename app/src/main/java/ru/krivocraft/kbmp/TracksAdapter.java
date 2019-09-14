@@ -29,6 +29,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         this.context = context;
         this.editingAllowed = editingAllowed;
         this.temp = temp;
+        setHasStableIds(true);
     }
 
     @NonNull
@@ -36,6 +37,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View root = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.track_list_item, viewGroup, false);
         return new ViewHolder(root, editingAllowed);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override

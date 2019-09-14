@@ -6,56 +6,6 @@
     android:orientation="vertical"
     tools:context=".SmallPlayerFragment">
 
-    <ProgressBar
-        android:id="@+id/fragment_progressbar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:layout_above="@id/text_container"
-        android:background="@null" />
-
-    <ImageView
-        android:id="@+id/fragment_track_image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:background="@drawable/layout_bg"
-        android:layout_centerVertical="true"
-        android:layout_margin="16dp" />
-
-    <LinearLayout
-        android:id="@+id/text_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="8dp"
-        android:layout_toEndOf="@id/fragment_track_image"
-        android:layout_toStartOf="@id/fragment_button_previous"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/fragment_composition_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:text="@string/song_name_test"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/fragment_composition_author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
-            android:text="@string/song_author_test" />
-
-    </LinearLayout>
-
     <ImageButton
         android:id="@+id/fragment_button_previous"
         android:layout_width="wrap_content"
@@ -84,5 +34,56 @@
         android:layout_margin="16dp"
         android:background="@null"
         android:src="@drawable/ic_next" />
+
+    <ImageView
+        android:id="@+id/fragment_track_image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_centerVertical="true"
+        android:layout_margin="16dp"
+        android:background="@drawable/layout_bg" />
+
+    <LinearLayout
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
+        android:layout_toStartOf="@id/fragment_button_previous"
+        android:layout_toEndOf="@id/fragment_track_image"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fragment_composition_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="@string/song_name_test"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fragment_composition_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="@string/song_author_test" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/fragment_progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/text_container"
+        android:layout_margin="4dp"
+        android:background="@null" />
 
 </RelativeLayout>

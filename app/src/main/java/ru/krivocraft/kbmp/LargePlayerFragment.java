@@ -81,7 +81,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
             LargePlayerFragment.this.playbackState = playbackState;
             trackProgress = (int) playbackState.getPosition();
-            refreshUI();
+            updateStateShowers();
+
         }
 
         @Override
@@ -368,6 +369,12 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         compositionNameTextView.setSelected(true);
         compositionAuthorTextView.setText(getTrackArtist());
 
+        updateStateShowers();
+
+        compositionProgressBar.setMax(duration);
+    }
+
+    private void updateStateShowers() {
         if (isTrackPlaying()) {
             startUI();
         } else {
@@ -381,8 +388,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 transportControls.play();
             }
         });
-
-        compositionProgressBar.setMax(duration);
     }
 
     private void swapLikeState(Context context, Track track) {
