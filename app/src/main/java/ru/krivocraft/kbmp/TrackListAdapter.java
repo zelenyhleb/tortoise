@@ -52,6 +52,8 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        imageView.setImageDrawable(getContext().getDrawable(R.drawable.ic_track_image_default));
                     }
                 });
                 task.execute(Tracks.getTracks(context, trackList.getTrackReferences()).toArray(new Track[0]));

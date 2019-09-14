@@ -42,12 +42,11 @@ class TracksProvider {
 
     private void manageStorage() {
         List<TrackReference> allTracks = new ArrayList<>();
-        List<Track> existingTracks = Tracks.getTrackStorage(context);
 
         SharedPreferences.Editor tracksEditor = storage.edit();
 
-        removeNonExistingTracks(existingTracks, tracksEditor);
-        addNewTracks(allTracks, existingTracks, tracksEditor);
+        removeNonExistingTracks(Tracks.getTrackStorage(context), tracksEditor);
+        addNewTracks(allTracks, Tracks.getTrackStorage(context), tracksEditor);
         tracksEditor.apply();
 
         writeRootTrackList(allTracks);
@@ -78,18 +77,17 @@ class TracksProvider {
     }
 
     private void removeNonExistingTracks(List<Track> existingTracks, SharedPreferences.Editor tracksEditor) {
-        List<TrackReference> removedTracks = new ArrayList<>();
+        List<TrackReference> removedReferences = new ArrayList<>();
         for (int i = 0; i < existingTracks.size(); i++) {
             TrackReference reference = new TrackReference(i);
             Track track = existingTracks.get(i);
 
             if (!tracksFromStorage.contains(track)) {
                 tracksEditor.remove(reference.toString());
-                removedTracks.add(reference);
+                removedReferences.add(reference);
             }
         }
-        updateTrackLists(removedTracks);
-
+        updateTrackLists(removedReferences);
     }
 
     private void updateTrackLists(List<TrackReference> removedTracks) {

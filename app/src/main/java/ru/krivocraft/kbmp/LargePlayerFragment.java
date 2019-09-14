@@ -348,8 +348,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
-            trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
-
             Track track = Tracks.getTrack(context, reference);
 
             buttonLike.setOnClickListener(v -> {
