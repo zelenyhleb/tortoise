@@ -6,31 +6,61 @@
     android:orientation="vertical"
     tools:context=".SmallPlayerFragment">
 
-    <ProgressBar
-        android:id="@+id/fragment_progressbar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/fragment_button_previous"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:layout_above="@id/text_container"
-        android:background="@null" />
+        android:layout_below="@id/fragment_progressbar"
+        android:layout_alignTop="@id/text_container"
+        android:layout_alignBottom="@id/text_container"
+        android:layout_margin="8dp"
+        android:layout_toStartOf="@id/fragment_button_playpause"
+        android:background="@null"
+        android:src="@drawable/ic_previous" />
+
+    <ImageButton
+        android:id="@+id/fragment_button_playpause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_container"
+        android:layout_alignBottom="@id/text_container"
+        android:layout_margin="8dp"
+        android:layout_toStartOf="@id/fragment_button_next"
+        android:background="@null"
+        android:src="@drawable/ic_play" />
+
+    <ImageButton
+        android:id="@+id/fragment_button_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/text_container"
+        android:layout_alignBottom="@id/text_container"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="8dp"
+        android:background="@null"
+        android:src="@drawable/ic_next" />
 
     <ImageView
         android:id="@+id/fragment_track_image"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:background="@drawable/layout_bg"
-        android:layout_centerVertical="true"
-        android:layout_margin="16dp" />
+        android:layout_below="@id/fragment_progressbar"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/layout_bg" />
 
     <LinearLayout
         android:id="@+id/text_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_below="@id/fragment_progressbar"
         android:layout_marginStart="8dp"
-        android:layout_toEndOf="@id/fragment_track_image"
+        android:layout_marginTop="4dp"
         android:layout_toStartOf="@id/fragment_button_previous"
+        android:layout_toEndOf="@id/fragment_track_image"
+        android:background="?android:attr/selectableItemBackground"
         android:orientation="vertical">
 
         <TextView
@@ -56,33 +86,12 @@
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/fragment_button_previous"
-        android:layout_width="wrap_content"
+    <ProgressBar
+        android:id="@+id/fragment_progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_margin="16dp"
-        android:layout_toStartOf="@id/fragment_button_playpause"
-        android:background="@null"
-        android:src="@drawable/ic_previous" />
-
-    <ImageButton
-        android:id="@+id/fragment_button_playpause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/fragment_button_next"
-        android:background="@null"
-        android:src="@drawable/ic_play" />
-
-    <ImageButton
-        android:id="@+id/fragment_button_next"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="16dp"
-        android:background="@null"
-        android:src="@drawable/ic_next" />
+        android:layout_margin="4dp"
+        android:background="@null" />
 
 </RelativeLayout>

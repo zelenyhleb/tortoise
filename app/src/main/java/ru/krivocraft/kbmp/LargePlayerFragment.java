@@ -19,7 +19,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -81,7 +80,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
             LargePlayerFragment.this.playbackState = playbackState;
             trackProgress = (int) playbackState.getPosition();
-            refreshUI();
+            updateStateShowers();
+
         }
 
         @Override
@@ -150,7 +150,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         }
     };
 
-    private void requestPosition(Context context) {
+    void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
@@ -256,7 +256,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
                 } else {
-                    if (settingsManager.getOption(Constants.KEY_THEME, false)){
+                    if (settingsManager.getOption(Constants.KEY_THEME, false)) {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                     } else {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -333,11 +333,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void refreshUI() {
-        int progress = Utils.getSeconds(trackProgress);
-        int duration = Utils.getSeconds(getTrackDuration());
-
-        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
-        compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
 
         Context context = getContext();
         Bitmap trackArt = Utils.loadArt(getTrackPath());
@@ -347,8 +342,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
-            trackImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
-
             Track track = Tracks.getTrack(context, reference);
 
             buttonLike.setOnClickListener(v -> {
@@ -361,12 +354,24 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         drawLoopButton(loop);
         drawShuffleButton();
 
-        compositionProgressBar.setProgress(progress);
-        compositionProgressBar.setOnSeekBarChangeListener(this);
-
         compositionNameTextView.setText(getTrackTitle());
         compositionNameTextView.setSelected(true);
         compositionAuthorTextView.setText(getTrackArtist());
+
+        int duration = Utils.getSeconds(getTrackDuration());
+        compositionProgressBar.setOnSeekBarChangeListener(this);
+        compositionProgressBar.setMax(duration);
+
+        updateStateShowers();
+    }
+
+    private void updateStateShowers() {
+        int progress = Utils.getSeconds(trackProgress);
+        int duration = Utils.getSeconds(getTrackDuration());
+
+        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+        compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
+        compositionProgressBar.setProgress(progress);
 
         if (isTrackPlaying()) {
             startUI();
@@ -381,8 +386,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 transportControls.play();
             }
         });
-
-        compositionProgressBar.setMax(duration);
     }
 
     private void swapLikeState(Context context, Track track) {

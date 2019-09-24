@@ -14,14 +14,12 @@ import ru.krivocraft.kbmp.Track;
 public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
     private ContentResolver contentResolver;
-    private List<Track> metaStorage;
     private OnStorageUpdateCallback callback;
     private boolean recognize;
 
-    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, List<Track> storage, OnStorageUpdateCallback callback) {
+    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback) {
         this.contentResolver = contentResolver;
         this.recognize = recognize;
-        this.metaStorage = storage;
         this.callback = callback;
     }
 
@@ -33,8 +31,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
     @Override
     protected void onPostExecute(List<Track> tracks) {
         super.onPostExecute(tracks);
-        metaStorage.addAll(tracks);
-        callback.onStorageUpdate();
+        callback.onStorageUpdate(tracks);
     }
 
     private static List<Track> search(ContentResolver contentResolver, boolean recognize) {
@@ -74,7 +71,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
                 }
 
                 cursor.moveToNext();
-                if (path != null && path.endsWith(".mp3")) {
+                if (path != null && path.endsWith(".mp3") && duration > 0) {
                     storage.add(new Track(duration, artist, title, path));
                 }
             }

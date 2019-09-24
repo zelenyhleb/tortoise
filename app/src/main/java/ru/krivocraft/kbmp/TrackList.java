@@ -1,12 +1,11 @@
 package ru.krivocraft.kbmp;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -15,19 +14,25 @@ public class TrackList {
     private String displayName;
     private boolean shuffled = false;
     private final int type;
+    private String identifier;
 
     private List<TrackReference> tracksReferences;
 
     private List<TrackReference> shuffleCache;
 
-    public TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
+    public TrackList(String displayName, List<TrackReference> tracksReferences, int type, String identifier) {
         this.displayName = displayName;
         this.tracksReferences = tracksReferences;
         this.type = type;
+        this.identifier = identifier;
+    }
+
+    public TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
+        this(displayName, tracksReferences, type, createIdentifier(displayName));
     }
 
     @NonNull
-    static String createIdentifier(String displayName) {
+    public static String createIdentifier(String displayName) {
         return displayName.toLowerCase().replace(" ", "");
     }
 
@@ -66,11 +71,15 @@ public class TrackList {
     }
 
     public String getIdentifier() {
-        return createIdentifier(displayName);
+        return identifier;
     }
 
     public List<TrackReference> getTrackReferences() {
         return tracksReferences;
+    }
+
+    public void removeAll(Collection<TrackReference> trackReferences) {
+        tracksReferences.removeAll(trackReferences);
     }
 
     public void setDisplayName(String displayName) {

@@ -38,6 +38,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         updatePlaybackState();
+        restoreAll();
     }
 
     private boolean isPlaying() {
@@ -100,6 +101,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             Track selectedTrack = Tracks.getTrack(context, selectedReference);
             selectedTrack.setPlaying(false);
             Tracks.updateTrack(context, selectedReference, selectedTrack);
+            audioManager.abandonAudioFocus(this);
         }
 
         playerState = PlaybackStateCompat.STATE_PAUSED;
@@ -118,11 +120,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (index >= 0 && index < getTracks().size()) {
             pause();
 
-            TrackReference oldSelectedReference = getTracks().get(cursor);
-            Track oldSelectedTrack = Tracks.getTrack(context, oldSelectedReference);
-            oldSelectedTrack.setPlaying(false);
-            oldSelectedTrack.setSelected(false);
-            Tracks.updateTrack(context, oldSelectedReference, oldSelectedTrack);
+            removeTrackSelection();
 
             cursor = index;
 
@@ -137,6 +135,14 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             play();
         }
+    }
+
+    private void removeTrackSelection() {
+        TrackReference oldSelectedReference = getTracks().get(cursor);
+        Track oldSelectedTrack = Tracks.getTrack(context, oldSelectedReference);
+        oldSelectedTrack.setPlaying(false);
+        oldSelectedTrack.setSelected(false);
+        Tracks.updateTrack(context, oldSelectedReference, oldSelectedTrack);
     }
 
     private void restoreAll() {
@@ -167,8 +173,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     void stop() {
         if (player != null) {
-            restoreAll();
-
             audioManager.abandonAudioFocus(this);
 
             player.stop();

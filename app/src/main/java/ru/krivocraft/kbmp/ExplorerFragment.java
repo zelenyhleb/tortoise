@@ -134,7 +134,7 @@ public class ExplorerFragment extends BaseFragment {
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             Track item = (Track) parent.getItemAtPosition(position);
-            TrackReference reference = new TrackReference(position);
+            TrackReference reference = new TrackReference(item);
             if (selectedTracks.contains(reference)) {
                 selectedTracks.remove(reference);
                 item.setCheckedInList(false);
@@ -189,7 +189,7 @@ public class ExplorerFragment extends BaseFragment {
             return false;
         }
         if (displayName.equals("empty")) {
-            Toast.makeText(context, "Ha-ha, very funny. Name must contain at least one character", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Ha-ha, very funny. Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;

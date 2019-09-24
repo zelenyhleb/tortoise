@@ -1,10 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +21,10 @@ import ru.krivocraft.kbmp.constants.Constants;
 public class SettingsAdapter extends ArrayAdapter<String> {
 
     private List<String> objects;
-    private Activity context;
     private SettingsManager manager;
 
     SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
-        this.context = context;
         this.objects = objects;
         this.manager = new SettingsManager(context);
     }
@@ -41,30 +36,30 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
             if (position == objects.indexOf(Constants.KEY_THEME)) {
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                textView.setText("Light theme (Beta)");
+                textView.setText(R.string.settings_theme);
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 initSwitch(s, Constants.KEY_THEME, false);
             } else if (position == objects.indexOf(Constants.KEY_SORT_BY_ARTIST)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_ARTIST, false);
-                textView.setText("Automatically sort by artist");
+                textView.setText(R.string.settings_sort_artist);
             } else if (position == objects.indexOf(Constants.KEY_SORT_BY_TAG)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_TAG, false);
-                textView.setText("Automatically sort by tag");
+                textView.setText(R.string.settings_sort_tag);
             } else if (position == objects.indexOf(Constants.KEY_RECOGNIZE_NAMES)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_RECOGNIZE_NAMES, true);
-                textView.setText("Try to parse track names for tracks with no metadata");
+                textView.setText(R.string.settings_recognize);
             } else if (position == objects.indexOf(Constants.KEY_CLEAR_CACHE)) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_button, null);
                 Button b = convertView.findViewById(R.id.settings_button);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                b.setText("CLEAR");
-                textView.setText("Clear track lists cache");
+                b.setText(R.string.settings_clear_cache_button);
+                textView.setText(R.string.settings_clear_cache);
                 b.setOnClickListener(v -> {
                     Utils.clearCache(getContext().getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE));
                     Toast.makeText(getContext(), "Cache cleared", Toast.LENGTH_LONG).show();
@@ -84,7 +79,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 manager.putOption(key, true);
             }
             if (key.equals(Constants.KEY_RECOGNIZE_NAMES) || key.equals(Constants.KEY_THEME)) {
-                Toast.makeText(context, "You will see changes after app restarting", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });
     }

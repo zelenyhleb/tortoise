@@ -161,7 +161,7 @@ public class MainActivity extends BaseActivity {
     private void showExplorerFragment() {
         removeTrackListFragment();
         if (explorerFragment == null) {
-            addFragment(R.anim.fadein, getExplorerFragment(), R.id.fragment_container);
+            addFragment(R.anim.fadeinshort, getExplorerFragment(), R.id.fragment_container);
         } else {
             showFragment(explorerFragment);
         }
@@ -170,7 +170,7 @@ public class MainActivity extends BaseActivity {
 
     private void showTrackListFragment(TrackList trackList) {
         hideExplorerFragment();
-        addFragment(R.anim.fadein, getTrackListFragment(trackList), R.id.fragment_container);
+        addFragment(R.anim.fadeinshort, getTrackListFragment(trackList), R.id.fragment_container);
         viewState = STATE_TRACK_LIST;
     }
 
@@ -274,7 +274,7 @@ public class MainActivity extends BaseActivity {
         if (fragment != null && !fragment.isVisible()) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setCustomAnimations(animationIn, R.anim.fadeoutshort)
+                    .setCustomAnimations(animationIn, R.anim.slide_out_right)
                     .add(container, fragment)
                     .commitNowAllowingStateLoss();
         }

@@ -38,7 +38,7 @@ public class SmallPlayerFragment extends BaseFragment {
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             playbackState = state;
             trackProgress = (int) state.getPosition();
-            invalidate();
+            refreshStateShowers();
         }
 
         @Override
@@ -105,7 +105,15 @@ public class SmallPlayerFragment extends BaseFragment {
         bar.setMax(Utils.getSeconds(getTrackDuration()));
         bar.setProgress(Utils.getSeconds(trackProgress));
 
+        refreshStateShowers();
+    }
+
+    private void refreshStateShowers() {
+        final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
+        bar.setProgress(Utils.getSeconds(trackProgress));
+
         ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
+
         if (isTrackPlaying()) {
             playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
             playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());

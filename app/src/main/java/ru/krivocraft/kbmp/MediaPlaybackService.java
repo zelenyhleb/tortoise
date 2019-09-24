@@ -106,6 +106,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                     }
                     new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
                     sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+                    break;
             }
         }
     };
@@ -278,14 +279,6 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
 
     int getProgress() {
         return playbackManager.getCurrentStreamPosition();
-    }
-
-    private MediaMetadataCompat getMetadata() {
-        return mediaSession.getController().getMetadata();
-    }
-
-    private PlaybackStateCompat getPlaybackState() {
-        return mediaSession.getController().getPlaybackState();
     }
 
 }

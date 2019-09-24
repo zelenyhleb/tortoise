@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,27 +15,30 @@ import ru.krivocraft.kbmp.constants.Constants;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Tracks {
+
+    /*
+    *   Decodes tracks and returns ArrayList of decoded tracks
+    * */
     public static List<Track> getTrackStorage(Context context) {
-        List<Track> tracks = new ArrayList<>();
-        int i = 0;
-        TrackReference reference;
-        String json;
-        while (true) {
-            reference = new TrackReference(i);
-            json = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE).getString(reference.toString(), null);
-            if (json != null) {
-                tracks.add(Track.fromJson(json));
-                i++;
-            } else {
-                break;
-            }
+        List<String> encodedTracks = collectEncodedTracks(context);
+        return new ArrayList<>(CollectionUtils.collect(encodedTracks, Track::fromJson));
+    }
+
+    /*
+     *  Collects encoded track data from storage and returns LinkedList of json-encoded tracks
+     * */
+    private static List<String> collectEncodedTracks(Context context) {
+        List<String> encodedTracks = new LinkedList<>();
+        Map<String, ?> storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE).getAll();
+        for (Map.Entry<String, ?> map : storage.entrySet()) {
+            encodedTracks.add(map.getValue().toString());
         }
-        return tracks;
+        return encodedTracks;
     }
 
     static void updateTrackStorage(Context context, List<Track> tracks) {
         for (int i = 0; i < tracks.size(); i++) {
-            updateTrack(context, new TrackReference(i), tracks.get(i));
+            updateTrack(context, new TrackReference(tracks.get(i)), tracks.get(i));
         }
     }
 
@@ -59,7 +63,9 @@ public class Tracks {
     }
 
     static TrackReference getReference(Context context, String path) {
-        return new TrackReference(new ArrayList<>(CollectionUtils.collect(getTrackStorage(context), Track::getPath)).indexOf(path));
+        List<Track> trackStorage = getTrackStorage(context);
+        List<String> paths = new ArrayList<>(CollectionUtils.collect(trackStorage, Track::getPath));
+        return new TrackReference(trackStorage.get(paths.indexOf(path)));
     }
 
     static TrackReference getReference(Context context, Track track) {
