@@ -21,6 +21,7 @@ public class Track {
 
     private String title, artist, path;
     private long duration;
+    private int identifier;
     private List<Tag> tags;
 
     public Track(long duration, String artist, String title, @NonNull String path) {
@@ -29,6 +30,8 @@ public class Track {
         this.title = title;
         this.path = path;
         this.tags = new ArrayList<>();
+
+        this.identifier = path.hashCode();
 
         if (artist.equals("<unknown>")) {
             this.artist = Constants.UNKNOWN_ARTIST;
@@ -132,5 +135,13 @@ public class Track {
 
     public List<Tag> getTags() {
         return tags;
+    }
+
+    public int getIdentifier() {
+        return identifier;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 }

@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class TrackListFragment extends BaseFragment {
 
     private TrackList trackList;
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
@@ -46,6 +45,7 @@ public class TrackListFragment extends BaseFragment {
             processPaths(context);
         }
     };
+
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
@@ -123,10 +123,9 @@ public class TrackListFragment extends BaseFragment {
             } else {
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
-                context.registerReceiver(receiver, filter);
+                context.registerReceiver(trackListReceiver, filter);
             }
         }
-
 
         return rootView;
     }

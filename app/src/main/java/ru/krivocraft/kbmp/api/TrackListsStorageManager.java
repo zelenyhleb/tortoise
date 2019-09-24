@@ -68,8 +68,8 @@ public class TrackListsStorageManager {
         return getPreferences(Constants.STORAGE_TRACK_LISTS);
     }
 
-    private SharedPreferences getPreferences(String storageSettings) {
-        return context.getSharedPreferences(storageSettings, Context.MODE_PRIVATE);
+    private SharedPreferences getPreferences(String storageName) {
+        return context.getSharedPreferences(storageName, Context.MODE_MULTI_PROCESS);
     }
 
     private SharedPreferences.Editor getTrackListStorageEditor() {

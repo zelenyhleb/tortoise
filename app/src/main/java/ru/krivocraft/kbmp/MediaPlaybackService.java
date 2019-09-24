@@ -106,6 +106,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                     }
                     new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
                     sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+                    break;
             }
         }
     };

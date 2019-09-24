@@ -6,12 +6,16 @@ import com.google.gson.Gson;
 
 import java.util.Objects;
 
-class TrackReference {
+public class TrackReference {
 
-    private int index;
+    private int value;
 
-    TrackReference(int index) {
-        this.index = index;
+    public TrackReference(int value) {
+        this.value = value;
+    }
+
+    TrackReference(Track track) {
+        this.value = track.getIdentifier();
     }
 
     @Override
@@ -19,21 +23,25 @@ class TrackReference {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TrackReference reference = (TrackReference) o;
-        return index == reference.index;
+        return value == reference.value;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(index);
+        return Objects.hash(value);
+    }
+
+    public int getValue() {
+        return value;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return String.valueOf(index);
+        return String.valueOf(value);
     }
 
-    String toJson(){
+    String toJson() {
         return new Gson().toJson(this);
     }
 
