@@ -19,7 +19,9 @@ public class CompileFavoritesTask extends CompileTrackListsTask {
                 favorites.add(track);
             }
         }
-        trackLists.put(Constants.FAVORITES_DISPLAY_NAME, favorites);
+        if (favorites.size() > 0) {
+            trackLists.put(Constants.FAVORITES_DISPLAY_NAME, favorites);
+        }
         return trackLists;
     }
 }

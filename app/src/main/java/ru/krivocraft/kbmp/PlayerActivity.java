@@ -29,6 +29,8 @@ public class PlayerActivity extends BaseActivity {
 
     private TrackList trackList;
     private int track;
+    private LargePlayerFragment largePlayerFragment;
+    private TrackListFragment trackListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +75,26 @@ public class PlayerActivity extends BaseActivity {
         mediaBrowser.connect();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (largePlayerFragment != null) {
+            largePlayerFragment.requestPosition(this);
+        }
+    }
+
+    private void createTrackListFragment() {
+        trackListFragment = TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
+    }
+
+    private void createPlayerFragment() {
+        largePlayerFragment = LargePlayerFragment.newInstance(PlayerActivity.this, trackList);
+    }
+
     private void initPager() {
         pager = findViewById(R.id.pager_p);
+        createPlayerFragment();
+        createTrackListFragment();
         pager.setAdapter(new PagerAdapter());
         pager.invalidate();
     }
@@ -106,6 +126,7 @@ public class PlayerActivity extends BaseActivity {
 
     private class PagerAdapter extends FragmentPagerAdapter {
 
+
         PagerAdapter() {
             super(PlayerActivity.this.getSupportFragmentManager());
         }
@@ -127,11 +148,12 @@ public class PlayerActivity extends BaseActivity {
 
         @NonNull
         private LargePlayerFragment getPlayerPage() {
-            return LargePlayerFragment.newInstance(PlayerActivity.this, trackList);
+            return largePlayerFragment;
         }
 
         private TrackListFragment getTrackListPage() {
-            return TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
+            return trackListFragment;
         }
+
     }
 }

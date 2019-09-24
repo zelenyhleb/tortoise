@@ -19,7 +19,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -151,7 +150,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         }
     };
 
-    private void requestPosition(Context context) {
+    void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);

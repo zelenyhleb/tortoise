@@ -31,7 +31,7 @@ public class TrackListsStorageManager {
     public void writeTrackList(TrackList trackList) {
         SharedPreferences.Editor editor = getTrackListStorageEditor();
         editor.putString(trackList.getIdentifier(), trackList.toJson());
-        editor.apply();
+        editor.commit();
     }
 
     public void removeTrackList(TrackList trackList) {
