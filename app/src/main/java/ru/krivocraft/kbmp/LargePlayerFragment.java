@@ -257,7 +257,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
                 } else {
-                    if (settingsManager.getOption(Constants.KEY_THEME, false)){
+                    if (settingsManager.getOption(Constants.KEY_THEME, false)) {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                     } else {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -334,11 +334,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void refreshUI() {
-        int progress = Utils.getSeconds(trackProgress);
-        int duration = Utils.getSeconds(getTrackDuration());
-
-        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
-        compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
 
         Context context = getContext();
         Bitmap trackArt = Utils.loadArt(getTrackPath());
@@ -360,19 +355,25 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         drawLoopButton(loop);
         drawShuffleButton();
 
-        compositionProgressBar.setProgress(progress);
-        compositionProgressBar.setOnSeekBarChangeListener(this);
-
         compositionNameTextView.setText(getTrackTitle());
         compositionNameTextView.setSelected(true);
         compositionAuthorTextView.setText(getTrackArtist());
 
-        updateStateShowers();
-
+        int duration = Utils.getSeconds(getTrackDuration());
+        compositionProgressBar.setOnSeekBarChangeListener(this);
         compositionProgressBar.setMax(duration);
+
+        updateStateShowers();
     }
 
     private void updateStateShowers() {
+        int progress = Utils.getSeconds(trackProgress);
+        int duration = Utils.getSeconds(getTrackDuration());
+
+        compositionProgressTextView.setText(Utils.getFormattedTime(progress));
+        compositionDurationTextView.setText(Utils.getFormattedTime((duration - progress) / 1000));
+        compositionProgressBar.setProgress(progress);
+
         if (isTrackPlaying()) {
             startUI();
         } else {
