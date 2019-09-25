@@ -54,7 +54,7 @@ class TracksProvider {
 
     private void writeRootTrackList(List<TrackReference> allTracks) {
         TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
-        trackListsStorageManager.updateTrackList(trackList);
+        trackListsStorageManager.updateRootTrackList(trackList);
     }
 
     private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, List<Track> readTracks) {
