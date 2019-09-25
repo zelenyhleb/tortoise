@@ -106,7 +106,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                     if (trackListEdited.equals(playbackManager.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
-                    new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
+                    new TrackListsStorageManager(MediaPlaybackService.this).updateTrackList(trackListEdited);
                     sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
                     break;
             }
