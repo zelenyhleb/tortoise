@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.GetFromDiskTask;
 
@@ -19,13 +20,17 @@ class TracksProvider {
     private final Context context;
     private ContentResolver contentResolver;
     private SharedPreferences storage;
+
     private TrackListsStorageManager trackListsStorageManager;
+    private TracksStorageManager tracksStorageManager;
+
     private boolean recognize;
 
     TracksProvider(Context context) {
         this.storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();
         this.trackListsStorageManager = new TrackListsStorageManager(context);
+        this.tracksStorageManager = new TracksStorageManager(context);
 
         SettingsManager settingsManager = new SettingsManager(context);
         this.recognize = settingsManager.getOption(Constants.KEY_RECOGNIZE_NAMES, true);
@@ -42,8 +47,8 @@ class TracksProvider {
 
         SharedPreferences.Editor tracksEditor = storage.edit();
 
-        removeNonExistingTracksFromStorage(Tracks.getTrackStorage(context), tracksEditor, tracks);
-        addNewTracks(allTracks, Tracks.getTrackStorage(context), tracksEditor, tracks);
+        removeNonExistingTracksFromStorage(tracksStorageManager.getTrackStorage(), tracksEditor, tracks);
+        addNewTracks(allTracks, tracksStorageManager.getTrackStorage(), tracksEditor, tracks);
         tracksEditor.apply();
 
         writeRootTrackList(allTracks);
@@ -87,12 +92,11 @@ class TracksProvider {
     }
 
     private void updateTrackLists(List<TrackReference> removedTracks) {
-        trackListsStorageManager.readTrackLists(trackLists -> {
-            for (TrackList trackList : trackLists) {
-                removeNonExistingTracksFromTrackList(removedTracks, trackList);
-                removeTrackListIfEmpty(trackList);
-            }
-        });
+        List<TrackList> trackLists = trackListsStorageManager.readTrackLists();
+        for (TrackList trackList : trackLists) {
+            removeNonExistingTracksFromTrackList(removedTracks, trackList);
+            removeTrackListIfEmpty(trackList);
+        }
     }
 
     private void removeTrackListIfEmpty(TrackList trackList) {

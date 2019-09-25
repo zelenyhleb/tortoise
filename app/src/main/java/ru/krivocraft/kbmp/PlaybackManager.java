@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -18,7 +19,6 @@ import static android.content.Context.MODE_PRIVATE;
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener {
 
     private MediaPlayer player;
-    private Context context;
 
     private AudioManager audioManager;
 
@@ -27,16 +27,20 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private PlayerStateCallback playerStateCallback;
     private PlaylistUpdateCallback playlistUpdateCallback;
 
+    private TracksStorageManager tracksStorageManager;
+
     private TrackReference cache;
 
     private TrackList trackList;
 
     private int cursor = 0;
+    private SharedPreferences settings;
 
     PlaybackManager(Context context) {
-        this.context = context;
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
+        this.tracksStorageManager = new TracksStorageManager(context);
+        this.settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
         updatePlaybackState();
         restoreAll();
     }
@@ -49,7 +53,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (cursor >= 0) {
             TrackReference selectedReference = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
-            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
 
             if (mediaChanged) {
 
@@ -77,7 +81,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 player.start();
 
                 selectedTrack.setPlaying(true);
-                Tracks.updateTrack(context, selectedReference, selectedTrack);
+                tracksStorageManager.updateTrack(selectedTrack);
 
                 playerState = PlaybackStateCompat.STATE_PLAYING;
                 updatePlaybackState();
@@ -98,9 +102,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         if (trackList != null) {
             TrackReference selectedReference = trackList.get(cursor);
-            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
             selectedTrack.setPlaying(false);
-            Tracks.updateTrack(context, selectedReference, selectedTrack);
+            tracksStorageManager.updateTrack(selectedTrack);
             audioManager.abandonAudioFocus(this);
         }
 
@@ -109,8 +113,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+        int loopType = settings.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
 
         if (loopType == Constants.LOOP_TRACK_LIST) {
             if (index < 0) index = trackList.size() - 1;
@@ -125,12 +128,12 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             cursor = index;
 
             TrackReference selectedReference = getTracks().get(cursor);
-            Track selectedTrack = Tracks.getTrack(context, selectedReference);
+            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
             selectedTrack.setSelected(true);
-            Tracks.updateTrack(context, selectedReference, selectedTrack);
+            tracksStorageManager.updateTrack(selectedTrack);
 
             if (playerStateCallback != null) {
-                playerStateCallback.onTrackChanged(Tracks.getTrack(context, getTracks().get(cursor)));
+                playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getTracks().get(cursor)));
             }
 
             play();
@@ -139,19 +142,19 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private void removeTrackSelection() {
         TrackReference oldSelectedReference = getTracks().get(cursor);
-        Track oldSelectedTrack = Tracks.getTrack(context, oldSelectedReference);
+        Track oldSelectedTrack = tracksStorageManager.getTrack(oldSelectedReference);
         oldSelectedTrack.setPlaying(false);
         oldSelectedTrack.setSelected(false);
-        Tracks.updateTrack(context, oldSelectedReference, oldSelectedTrack);
+        tracksStorageManager.updateTrack(oldSelectedTrack);
     }
 
     private void restoreAll() {
-        List<Track> tracks = Tracks.getTrackStorage(context);
+        List<Track> tracks = tracksStorageManager.getTrackStorage();
         for (Track track : tracks) {
             track.setSelected(false);
             track.setPlaying(false);
         }
-        Tracks.updateTrackStorage(context, tracks);
+        tracksStorageManager.updateTrackStorage(tracks);
     }
 
     void shuffle() {
@@ -244,8 +247,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
-        int loopType = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+        int loopType = settings.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
         switch (loopType) {
             case Constants.LOOP_TRACK:
                 newTrack(getCursor());
@@ -275,9 +277,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     public void onPrepared(MediaPlayer mp) {
         player.start();
         TrackReference selectedReference = getTracks().get(cursor);
-        Track selectedTrack = Tracks.getTrack(context, selectedReference);
+        Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
         selectedTrack.setPlaying(true);
-        Tracks.updateTrack(context, selectedReference, selectedTrack);
+        tracksStorageManager.updateTrack(selectedTrack);
 
         playerState = PlaybackStateCompat.STATE_PLAYING;
         updatePlaybackState();

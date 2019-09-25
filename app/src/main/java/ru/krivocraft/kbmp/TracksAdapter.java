@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Collections;
 import java.util.Random;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.LoadArtTask;
 
@@ -23,12 +24,14 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private Context context;
     private final boolean editingAllowed;
     private final boolean temp;
+    private TracksStorageManager tracksStorageManager;
 
     TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
         this.temp = temp;
+        this.tracksStorageManager = new TracksStorageManager(context);
         setHasStableIds(true);
     }
 
@@ -46,7 +49,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        Track track = Tracks.getTrack(context, trackList.get(i));
+        Track track = tracksStorageManager.getTrack(trackList.get(i));
         viewHolder.title.setText(track.getTitle());
         viewHolder.artist.setText(track.getArtist());
         viewHolder.reference = trackList.get(i);

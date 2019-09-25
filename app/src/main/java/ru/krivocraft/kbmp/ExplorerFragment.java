@@ -28,6 +28,7 @@ import java.util.List;
 
 import ru.krivocraft.kbmp.api.TrackListsCompiler;
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class ExplorerFragment extends BaseFragment {
@@ -36,6 +37,7 @@ public class ExplorerFragment extends BaseFragment {
     private OnItemClickListener listener;
 
     private TrackListsStorageManager trackListsStorageManager;
+    private TracksStorageManager tracksStorageManager;
     private TrackListsCompiler trackListsCompiler;
 
     private ProgressBar progressBar;
@@ -67,6 +69,7 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             this.trackListsStorageManager = new TrackListsStorageManager(context);
+            this.tracksStorageManager = new TracksStorageManager(context);
             this.trackListsCompiler = new TrackListsCompiler(context);
         }
     }
@@ -83,8 +86,6 @@ public class ExplorerFragment extends BaseFragment {
             createAdapter(context);
             configureGridView(rootView, context);
             configureAddButton(inflater, rootView, context);
-
-            invalidate();
         }
         return rootView;
     }
@@ -125,7 +126,7 @@ public class ExplorerFragment extends BaseFragment {
         ProgressBar progressBar = view.findViewById(R.id.creation_dialog_progress);
         TextView textView = view.findViewById(R.id.obtaining_text);
 
-        List<Track> allTracks = Tracks.getTrackStorage(context);
+        List<Track> allTracks = tracksStorageManager.getTrackStorage();
         progressBar.setMax(allTracks.size());
 
         List<TrackReference> selectedTracks = new ArrayList<>();
@@ -196,10 +197,8 @@ public class ExplorerFragment extends BaseFragment {
     }
 
     private void drawTrackLists() {
-        trackListsStorageManager.readTrackLists(trackLists -> {
-            progressBar.setVisibility(View.GONE);
-            redrawList(trackLists);
-        });
+        progressBar.setVisibility(View.GONE);
+        redrawList(trackListsStorageManager.readTrackLists());
     }
 
     private void redrawList(List<TrackList> trackLists) {
