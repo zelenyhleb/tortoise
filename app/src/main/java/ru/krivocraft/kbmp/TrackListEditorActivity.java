@@ -37,7 +37,6 @@ public class TrackListEditorActivity extends AppCompatActivity {
     private final String TYPE_IMAGE = "image/*";
     private final String[] MIME_TYPES = new String[]{"image/jpeg", "image/png"};
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +91,7 @@ public class TrackListEditorActivity extends AppCompatActivity {
 
         Button apply = findViewById(R.id.track_list_editor_button_apply);
         apply.setOnClickListener(v -> {
-            trackListsStorageManager.removeTrackList(source);
-            trackListsStorageManager.writeTrackList(changed);
+            trackListsStorageManager.updateTrackList(changed);
 
             if (nameChanged() && !pictureChanged) {
                 replaceThumbnail();

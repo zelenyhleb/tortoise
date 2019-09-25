@@ -177,7 +177,7 @@ public class ExplorerFragment extends BaseFragment {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (trackListsStorageManager.getTrackListIdentifiers().contains(TrackList.createIdentifier(displayName))) {
+        if (trackListsStorageManager.getUnavailableTrackListNames().contains(displayName)) {
             Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
             return false;
         }

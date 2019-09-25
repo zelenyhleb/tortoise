@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +39,12 @@ public class DBConnection {
     }
 
     public void removeTrackList(TrackList trackList) {
-
+        database.delete(TableNames.TRACK_LISTS, "id = ?", new String[]{trackList.getIdentifier()});
+        database.execSQL("drop table if exists '" + trackList.getIdentifier() + "'");
     }
 
-    public void removeTrack(TrackReference track) {
-
+    public void removeTrack(Track track) {
+        database.delete(TableNames.TRACKS, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
     }
 
     public Track getTrack(TrackReference trackReference) {
@@ -64,8 +63,16 @@ public class DBConnection {
         return track;
     }
 
-    public List<String> getTrackListIdentifiers() {
-        return new ArrayList<>();
+    public List<String> getTrackListNames() {
+        List<String> identifiers = new ArrayList<>();
+        Cursor cursor = database.query(TableNames.TRACK_LISTS, new String[]{"name"}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                identifiers.add(cursor.getString(cursor.getColumnIndex("name")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return identifiers;
     }
 
     public void writeTrackList(TrackList trackList) {
@@ -78,6 +85,7 @@ public class DBConnection {
         ContentValues values = new ContentValues();
         values.put("name", trackList.getDisplayName());
         database.update(TableNames.TRACK_LISTS, values, "id = ?", new String[]{trackList.getIdentifier()});
+        fillTrackListTable(trackList);
     }
 
     public List<Track> getTracksStorage() {
@@ -106,14 +114,15 @@ public class DBConnection {
         List<TrackList> trackLists = new ArrayList<>();
         Cursor cursor = database.query(TableNames.TRACK_LISTS, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex("title");
-            int typeIndex = cursor.getColumnIndex("artist");
+            int idIndex = cursor.getColumnIndex("id");
+            int nameIndex = cursor.getColumnIndex("name");
+            int typeIndex = cursor.getColumnIndex("type");
             do {
                 int type = cursor.getInt(typeIndex);
                 String displayName = cursor.getString(nameIndex);
                 List<TrackReference> tracks = getTracksForTrackList(TrackList.createIdentifier(displayName));
 
-                TrackList trackList = new TrackList(displayName, tracks, type);
+                TrackList trackList = new TrackList(displayName, tracks, type, cursor.getString(idIndex));
                 trackLists.add(trackList);
             } while (cursor.moveToNext());
         }
@@ -121,24 +130,51 @@ public class DBConnection {
         return trackLists;
     }
 
+    public TrackList getTrackList(String identifier) {
+        TrackList trackList = null;
+        Cursor cursor = database.query(TableNames.TRACK_LISTS, null, "id = ?", new String[]{identifier}, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
+            int nameIndex = cursor.getColumnIndex("name");
+            int typeIndex = cursor.getColumnIndex("type");
+            do {
+                int type = cursor.getInt(typeIndex);
+                String displayName = cursor.getString(nameIndex);
+                List<TrackReference> tracks = getTracksForTrackList(TrackList.createIdentifier(displayName));
+
+                trackList = new TrackList(displayName, tracks, type, cursor.getString(idIndex));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return trackList;
+    }
+
     private void createTrackListEntry(TrackList trackList) {
-        ContentValues values = new ContentValues();
-        values.put("id", trackList.getIdentifier());
-        values.put("name", trackList.getDisplayName());
-        values.put("type", trackList.getType());
-        database.insert(TableNames.TRACK_LISTS, null, values);
+        if (getTrackList(trackList.getIdentifier()) == null) {
+            ContentValues values = new ContentValues();
+            values.put("id", trackList.getIdentifier());
+            values.put("name", trackList.getDisplayName());
+            values.put("type", trackList.getType());
+            database.insert(TableNames.TRACK_LISTS, null, values);
+        }
     }
 
     private void fillTrackListTable(TrackList trackList) {
-        ContentValues listItems = new ContentValues();
         for (TrackReference reference : trackList.getTrackReferences()) {
+            ContentValues listItems = new ContentValues();
             listItems.put("reference", reference.getValue());
             database.insert(trackList.getIdentifier(), null, listItems);
         }
     }
 
+    public void removeTracks(TrackList trackList, List<TrackReference> references) {
+        for (TrackReference reference : references) {
+            database.delete(trackList.getIdentifier(), "reference = ?", new String[]{reference.toString()});
+        }
+    }
+
     private void createTrackListTable(TrackList trackList) {
-        database.execSQL("create table " + trackList.getIdentifier() + "("
+        database.execSQL("create table if not exists " + trackList.getIdentifier() + " ("
                 + "id integer primary key autoincrement,"
                 + "reference integer);");
     }

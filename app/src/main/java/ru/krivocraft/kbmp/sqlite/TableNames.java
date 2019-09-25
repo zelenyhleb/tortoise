@@ -5,4 +5,5 @@ class TableNames {
     static final String TRACK_LISTS = "track_lists";
     static final String TAGS = "tags";
     static final String TAGS_TRACKS = "tags_tracks";
+    static final String ALL_TRACKS = "alltracks";
 }

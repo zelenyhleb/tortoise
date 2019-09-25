@@ -1,10 +1,14 @@
 package ru.krivocraft.kbmp.sqlite;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
+
+import ru.krivocraft.kbmp.TrackList;
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -30,6 +34,16 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table if not exists " + TableNames.TAGS_TRACKS + " ("
                 + "tag integer,"
                 + "track integer);");
+
+        db.execSQL("create table if not exists " + TableNames.ALL_TRACKS + " ("
+                + "id integer primary key autoincrement,"
+                + "reference integer);");
+
+        ContentValues values = new ContentValues();
+        values.put("id", TrackList.createIdentifier("All tracks"));
+        values.put("name", "All tracks");
+        values.put("type", Constants.TRACK_LIST_CUSTOM);
+        db.insert(TableNames.TRACK_LISTS, null, values);
     }
 
     @Override

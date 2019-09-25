@@ -3,7 +3,6 @@ package ru.krivocraft.kbmp;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +12,10 @@ import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.GetFromDiskTask;
 
-import static android.content.Context.MODE_PRIVATE;
-
 class TracksProvider {
 
     private final Context context;
     private ContentResolver contentResolver;
-    private SharedPreferences storage;
 
     private TrackListsStorageManager trackListsStorageManager;
     private TracksStorageManager tracksStorageManager;
@@ -27,7 +23,6 @@ class TracksProvider {
     private boolean recognize;
 
     TracksProvider(Context context) {
-        this.storage = context.getSharedPreferences(Constants.STORAGE_TRACKS, MODE_PRIVATE);
         this.contentResolver = context.getContentResolver();
         this.trackListsStorageManager = new TrackListsStorageManager(context);
         this.tracksStorageManager = new TracksStorageManager(context);
@@ -45,11 +40,8 @@ class TracksProvider {
     private void manageStorage(List<Track> tracks) {
         List<TrackReference> allTracks = new ArrayList<>();
 
-        SharedPreferences.Editor tracksEditor = storage.edit();
-
-        removeNonExistingTracksFromStorage(tracksStorageManager.getTrackStorage(), tracksEditor, tracks);
-        addNewTracks(allTracks, tracksStorageManager.getTrackStorage(), tracksEditor, tracks);
-        tracksEditor.apply();
+        removeNonExistingTracksFromStorage(tracksStorageManager.getTrackStorage(), tracks);
+        addNewTracks(allTracks, tracksStorageManager.getTrackStorage(), tracks);
 
         writeRootTrackList(allTracks);
 
@@ -62,29 +54,29 @@ class TracksProvider {
 
     private void writeRootTrackList(List<TrackReference> allTracks) {
         TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
-        trackListsStorageManager.writeTrackList(trackList);
+        trackListsStorageManager.updateTrackList(trackList);
     }
 
-    private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, SharedPreferences.Editor tracksEditor, List<Track> readTracks) {
+    private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, List<Track> readTracks) {
         for (int i = 0; i < readTracks.size(); i++) {
             Track track = readTracks.get(i);
             TrackReference reference = new TrackReference(track);
 
             if (!existingTracks.contains(track)) {
-                tracksEditor.putString(reference.toString(), track.toJson());
+                tracksStorageManager.writeTrack(track);
+                allTracks.add(reference);
             }
-            allTracks.add(reference);
         }
     }
 
-    private void removeNonExistingTracksFromStorage(List<Track> existingTracks, SharedPreferences.Editor tracksEditor, List<Track> readTracks) {
+    private void removeNonExistingTracksFromStorage(List<Track> existingTracks, List<Track> readTracks) {
         List<TrackReference> removedReferences = new ArrayList<>();
         for (int i = 0; i < existingTracks.size(); i++) {
             Track track = existingTracks.get(i);
             TrackReference reference = new TrackReference(track);
 
             if (!readTracks.contains(track)) {
-                tracksEditor.remove(reference.toString());
+                tracksStorageManager.removeTrack(track);
                 removedReferences.add(reference);
             }
         }
@@ -100,7 +92,7 @@ class TracksProvider {
     }
 
     private void removeTrackListIfEmpty(TrackList trackList) {
-        if (trackList.size() == 0) {
+        if (trackList.size() == 0 && !trackList.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
             trackListsStorageManager.removeTrackList(trackList);
         }
     }
@@ -113,7 +105,7 @@ class TracksProvider {
             }
         }
         trackList.removeAll(referencesToRemove);
-        trackListsStorageManager.writeTrackList(trackList);
+        trackListsStorageManager.removeTracks(trackList, referencesToRemove);
     }
 
 }

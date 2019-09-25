@@ -3,8 +3,6 @@ package ru.krivocraft.kbmp.api;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.Nullable;
-
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -45,6 +43,14 @@ public class TracksStorageManager {
 
     public void updateTrack(Track updatedTrack) {
         database.updateTrack(updatedTrack);
+    }
+
+    public void writeTrack(Track track) {
+        database.writeTrack(track);
+    }
+
+    public void removeTrack(Track track) {
+        database.removeTrack(track);
     }
 
     public void updateTracks(List<Track> updatedTracks) {

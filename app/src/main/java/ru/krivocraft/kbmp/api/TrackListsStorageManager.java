@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import java.util.List;
 
 import ru.krivocraft.kbmp.TrackList;
+import ru.krivocraft.kbmp.TrackReference;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.sqlite.DBConnection;
 import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
@@ -29,6 +30,14 @@ public class TrackListsStorageManager {
         }
     }
 
+    public void updateTrackList(TrackList trackList) {
+        database.updateTrackList(trackList);
+    }
+
+    public void removeTracks(TrackList trackList, List<TrackReference> references) {
+        database.removeTracks(trackList, references);
+    }
+
     public void writeTrackList(TrackList trackList) {
         database.writeTrackList(trackList);
     }
@@ -46,8 +55,8 @@ public class TrackListsStorageManager {
         task.execute();
     }
 
-    public List<String> getTrackListIdentifiers() {
-        return database.getTrackListIdentifiers();
+    public List<String> getUnavailableTrackListNames() {
+        return database.getTrackListNames();
     }
 
 }
