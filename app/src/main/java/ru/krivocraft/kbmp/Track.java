@@ -41,6 +41,13 @@ public class Track {
         }
     }
 
+    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing) {
+        this(duration, artist, title, path);
+        this.liked = liked;
+        this.selected = selected;
+        this.playing = playing;
+    }
+
     MediaMetadataCompat getAsMediaMetadata() {
         return new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)

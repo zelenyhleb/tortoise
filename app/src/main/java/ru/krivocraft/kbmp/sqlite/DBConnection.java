@@ -24,6 +24,9 @@ public class DBConnection {
         values.put("id", track.getIdentifier());
         values.put("duration", track.getDuration());
         values.put("title", track.getTitle());
+        values.put("playing", track.isPlaying() ? 1 : 0);
+        values.put("liked", track.isLiked() ? 1 : 0);
+        values.put("selected", track.isSelected() ? 1 : 0);
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
         database.insert(TableNames.TRACKS, null, values);
@@ -35,6 +38,9 @@ public class DBConnection {
         values.put("title", track.getTitle());
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
+        values.put("playing", track.isPlaying() ? 1 : 0);
+        values.put("liked", track.isLiked() ? 1 : 0);
+        values.put("selected", track.isSelected() ? 1 : 0);
         database.update(TableNames.TRACKS, values, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
     }
 
@@ -56,8 +62,11 @@ public class DBConnection {
             String artist = cursor.getString(cursor.getColumnIndex("artist"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String path = cursor.getString(cursor.getColumnIndex("path"));
+            boolean liked = cursor.getInt(cursor.getColumnIndex("liked")) == 1;
+            boolean selected = cursor.getInt(cursor.getColumnIndex("selected")) == 1;
+            boolean playing = cursor.getInt(cursor.getColumnIndex("playing")) == 1;
 
-            track = new Track(duration, artist, title, path);
+            track = new Track(duration, artist, title, path, liked, selected, playing);
         }
         cursor.close();
         return track;
@@ -96,13 +105,19 @@ public class DBConnection {
             int artistIndex = cursor.getColumnIndex("artist");
             int pathIndex = cursor.getColumnIndex("path");
             int durationIndex = cursor.getColumnIndex("duration");
+            int likedIndex = cursor.getColumnIndex("liked");
+            int selectedIndex = cursor.getColumnIndex("selected");
+            int playingIndex = cursor.getColumnIndex("playing");
             do {
                 long duration = cursor.getLong(durationIndex);
                 String artist = cursor.getString(artistIndex);
                 String title = cursor.getString(titleIndex);
                 String path = cursor.getString(pathIndex);
+                boolean liked = cursor.getInt(likedIndex) == 1;
+                boolean selected = cursor.getInt(selectedIndex) == 1;
+                boolean playing = cursor.getInt(playingIndex) == 1;
 
-                Track track = new Track(duration, artist, title, path);
+                Track track = new Track(duration, artist, title, path, liked, selected, playing);
                 tracks.add(track);
             } while (cursor.moveToNext());
         }

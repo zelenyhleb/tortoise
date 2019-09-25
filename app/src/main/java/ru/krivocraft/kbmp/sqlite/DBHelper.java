@@ -20,6 +20,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table if not exists " + TableNames.TRACKS + " ("
                 + "id integer,"
+                + "playing integer,"
+                + "selected integer,"
+                + "liked integer,"
                 + "title text,"
                 + "artist text,"
                 + "duration long,"
