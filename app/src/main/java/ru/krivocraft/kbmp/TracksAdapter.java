@@ -80,12 +80,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         return true;
     }
 
-    void shuffle() {
-        long seed = System.nanoTime();
-        Collections.shuffle(trackList.getTrackReferences(), new Random(seed));
-        notifyDataSetChanged();
-    }
-
     private void sendUpdate() {
         if (temp) {
             context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));

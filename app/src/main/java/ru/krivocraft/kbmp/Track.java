@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -134,6 +135,10 @@ public class Track {
 
     void addTag(Tag tag) {
         tags.add(tag);
+    }
+
+    public void addTags(Collection<Tag> tags) {
+        this.tags.addAll(tags);
     }
 
     void removeTag(Tag tag) {

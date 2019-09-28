@@ -28,6 +28,10 @@ public class TrackListsStorageManager {
         database.updateTrackList(trackList);
     }
 
+    public void clearTrackList(TrackList trackList) {
+        database.clearTrackList(trackList);
+    }
+
     public void updateRootTrackList(TrackList trackList) {
         database.updateRootTrackList(trackList);
     }

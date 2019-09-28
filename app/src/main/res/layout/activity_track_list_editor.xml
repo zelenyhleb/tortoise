@@ -51,6 +51,14 @@
         android:background="@drawable/layout_bg"
         android:src="@drawable/ic_icon" />
 
+    <ListView
+        android:id="@+id/track_list_editor_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/track_list_editor_button_delete"
+        android:layout_below="@id/track_list_editor_image"
+        android:layout_margin="8dp" />
+
     <TextView
         android:id="@+id/track_list_editor_name"
         android:layout_width="match_parent"

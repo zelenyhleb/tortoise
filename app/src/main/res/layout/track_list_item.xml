@@ -7,11 +7,11 @@
 
     <ImageButton
         android:id="@+id/button_more"
-        android:layout_width="24dp"
+        android:layout_width="48dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_margin="8dp"
+        android:padding="15dp"
         android:background="@null"
         android:src="@drawable/ic_more" />
 

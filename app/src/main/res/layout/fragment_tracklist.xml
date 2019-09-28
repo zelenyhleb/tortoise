@@ -9,21 +9,8 @@
         android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_toStartOf="@id/shuffle"
+        android:layout_margin="8dp"
         android:visibility="invisible" />
-
-    <ImageButton
-        android:id="@+id/shuffle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/fragment_track_recycler_view"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="12dp"
-        android:background="@null"
-        android:visibility="invisible"
-        android:src="@drawable/ic_shuffled"
-        android:tint="@color/white" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_below="@id/search_edit_text"
