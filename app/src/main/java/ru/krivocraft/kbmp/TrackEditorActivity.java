@@ -17,6 +17,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.ArrayList;
 
 import co.lujun.androidtagview.TagContainerLayout;
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackEditorActivity extends AppCompatActivity {
@@ -24,13 +25,18 @@ public class TrackEditorActivity extends AppCompatActivity {
     Track source;
     Track changed;
 
+    private TracksStorageManager tracksStorageManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_metadata_editor);
+
+        this.tracksStorageManager = new TracksStorageManager(this);
+
         TrackReference trackReference = TrackReference.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK));
-        changed = Tracks.getTrack(this, trackReference);
-        source = Tracks.getTrack(this, trackReference);
+        changed = tracksStorageManager.getTrack(trackReference);
+        source = tracksStorageManager.getTrack(trackReference);
 
         EditText title = findViewById(R.id.metadata_editor_title_edit);
         EditText artist = findViewById(R.id.metadata_editor_artist_edit);
@@ -65,7 +71,7 @@ public class TrackEditorActivity extends AppCompatActivity {
             };
             getContentResolver().update(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues, selection, args);
 
-            Tracks.updateTrack(this, trackReference, changed);
+            tracksStorageManager.updateTrack(changed);
 
             finish();
         });

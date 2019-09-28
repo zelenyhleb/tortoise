@@ -7,17 +7,19 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
+
 public class Searcher {
 
-    private Context context;
+    private TracksStorageManager tracksStorageManager;
 
     public Searcher(Context context) {
-        this.context = context;
+        this.tracksStorageManager = new TracksStorageManager(context);
     }
 
     public List<TrackReference> search(CharSequence string, List<TrackReference> input) {
         List<TrackReference> trackList = new ArrayList<>();
-        List<Track> searched = Tracks.getTracks(context, input);
+        List<Track> searched = tracksStorageManager.getTracks(input);
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();

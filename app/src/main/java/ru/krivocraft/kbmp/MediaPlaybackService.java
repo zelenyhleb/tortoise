@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class MediaPlaybackService extends MediaBrowserServiceCompat {
@@ -29,6 +30,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
     private MediaSessionCompat mediaSession;
     private MediaControllerCompat mediaController;
     private NotificationBuilder notificationBuilder;
+    private TracksStorageManager tracksStorageManager;
 
     private PlaybackManager playbackManager;
 
@@ -104,7 +106,7 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
                     if (trackListEdited.equals(playbackManager.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
-                    new TrackListsStorageManager(MediaPlaybackService.this).writeTrackList(trackListEdited);
+                    new TrackListsStorageManager(MediaPlaybackService.this).updateTrackList(trackListEdited);
                     sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
                     break;
             }
@@ -172,6 +174,8 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
         mediaSession.setActive(true);
         mediaSession.setCallback(callback);
 
+        tracksStorageManager = new TracksStorageManager(this);
+
         mediaController = mediaSession.getController();
 
         notificationBuilder = new NotificationBuilder(this);
@@ -219,20 +223,20 @@ public class MediaPlaybackService extends MediaBrowserServiceCompat {
         sendBroadcast(intent);
     }
 
-    private void playFromList(TrackReference track, TrackList trackList) {
+    private void playFromList(TrackReference reference, TrackList trackList) {
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
-            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
+            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(reference));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(Tracks.getTrack(this, track).getPath()) && trackList.equals(playbackManager.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playbackManager.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
-                playbackManager.setCursor(playbackManager.getTrackList().indexOf(track));
+                playbackManager.setCursor(playbackManager.getTrackList().indexOf(reference));
             } else {
-                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(track));
+                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(reference));
             }
         }
     }

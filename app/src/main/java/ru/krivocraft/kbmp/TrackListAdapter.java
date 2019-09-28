@@ -16,16 +16,17 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.tasks.GetAlbumArtTask;
 
 class TrackListAdapter extends ArrayAdapter<TrackList> {
 
-    private Context context;
     private ThumbnailStorageManager thumbnailStorageManager;
+    private TracksStorageManager tracksStorageManager;
 
     TrackListAdapter(List<TrackList> trackLists, @NonNull Context context) {
         super(context, R.layout.playlists_grid_item, trackLists);
-        this.context = context;
+        this.tracksStorageManager = new TracksStorageManager(context);
         this.thumbnailStorageManager = new ThumbnailStorageManager();
     }
 
@@ -56,7 +57,7 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
                         imageView.setImageDrawable(getContext().getDrawable(R.drawable.ic_track_image_default));
                     }
                 });
-                task.execute(Tracks.getTracks(context, trackList.getTrackReferences()).toArray(new Track[0]));
+                task.execute(tracksStorageManager.getTracks(trackList.getTrackReferences()).toArray(new Track[0]));
             }
 
             ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getDisplayName());

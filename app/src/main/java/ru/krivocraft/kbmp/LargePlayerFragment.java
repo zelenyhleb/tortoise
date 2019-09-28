@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
@@ -50,6 +51,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private int trackProgress;
     private TrackList trackList;
     private TrackReference reference;
+
+    private TracksStorageManager tracksStorageManager;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
@@ -87,10 +90,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             LargePlayerFragment.this.metadata = metadata;
-            Context context = getContext();
-            if (context != null) {
-                LargePlayerFragment.this.reference = Tracks.getReference(context, metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
-            }
+            LargePlayerFragment.this.reference = tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
             refreshUI();
             resetBar();
         }
@@ -125,6 +125,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void init(Activity context, TrackList trackList) {
+        this.tracksStorageManager = new TracksStorageManager(context);
+
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
@@ -132,7 +134,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         this.metadata = mediaController.getMetadata();
 
         String path = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-        this.reference = Tracks.getReference(context, path);
+        this.reference = tracksStorageManager.getReference(path);
 
         this.playbackState = mediaController.getPlaybackState();
 
@@ -342,10 +344,10 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             } else {
                 trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
             }
-            Track track = Tracks.getTrack(context, reference);
+            Track track = tracksStorageManager.getTrack(reference);
 
             buttonLike.setOnClickListener(v -> {
-                swapLikeState(context, track);
+                swapLikeState(track);
                 drawLikeButton(context, buttonLike, track);
             });
             drawLikeButton(context, buttonLike, track);
@@ -388,13 +390,13 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         });
     }
 
-    private void swapLikeState(Context context, Track track) {
+    private void swapLikeState(Track track) {
         if (track.isLiked()) {
             track.setLiked(false);
         } else {
             track.setLiked(true);
         }
-        Tracks.updateTrack(context, reference, track);
+        tracksStorageManager.updateTrack(track);
     }
 
 

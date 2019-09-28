@@ -5,29 +5,28 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class ReadTrackListsTask extends AsyncTask<Void, Integer, List<TrackList>> {
 
-    private SharedPreferences trackListsStorage;
     private SharedPreferences settingsStorage;
     private OnTrackListsReadCallback callback;
+    private DBConnection connection;
 
-    public ReadTrackListsTask(SharedPreferences trackListsStorage, SharedPreferences settingsStorage, OnTrackListsReadCallback callback) {
-        this.trackListsStorage = trackListsStorage;
+    public ReadTrackListsTask(DBConnection connection, SharedPreferences settingsStorage, OnTrackListsReadCallback callback) {
         this.settingsStorage = settingsStorage;
         this.callback = callback;
+        this.connection = connection;
     }
 
     @Override
     protected List<TrackList> doInBackground(Void... voids) {
         List<TrackList> allTrackLists = new ArrayList<>();
-        Map<String, ?> trackLists = trackListsStorage.getAll();
-        for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-            TrackList trackList = TrackList.fromJson((String) entry.getValue());
+        List<TrackList> storedTrackLists = connection.getTrackLists();
+        for (TrackList trackList : storedTrackLists) {
             if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
                 if (settingsStorage.getBoolean(Constants.KEY_SORT_BY_ARTIST, false)) {
                     allTrackLists.add(trackList);

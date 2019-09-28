@@ -166,12 +166,14 @@ public class MainActivity extends BaseActivity {
             showFragment(explorerFragment);
         }
         viewState = STATE_EXPLORER;
+        getSupportActionBar().setTitle("Tortoise");
     }
 
     private void showTrackListFragment(TrackList trackList) {
         hideExplorerFragment();
         addFragment(R.anim.fadeinshort, getTrackListFragment(trackList), R.id.fragment_container);
         viewState = STATE_TRACK_LIST;
+        getSupportActionBar().setTitle(trackList.getDisplayName());
     }
 
     @Override

@@ -14,7 +14,7 @@ public class TrackReference {
         this.value = value;
     }
 
-    TrackReference(Track track) {
+    public TrackReference(Track track) {
         this.value = track.getIdentifier();
     }
 

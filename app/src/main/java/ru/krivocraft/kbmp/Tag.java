@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Tag {
     public String text;
 
-    Tag(String text) {
+    public Tag(String text) {
         this.text = text;
     }
 

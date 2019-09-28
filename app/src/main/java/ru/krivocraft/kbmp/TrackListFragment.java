@@ -87,7 +87,6 @@ public class TrackListFragment extends BaseFragment {
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
-        ImageButton buttonShuffle = rootView.findViewById(R.id.shuffle);
         recyclerView = rootView.findViewById(R.id.fragment_track_recycler_view);
         progressBar = rootView.findViewById(R.id.track_list_progress);
         progressText = rootView.findViewById(R.id.obtaining_text_track_list);
@@ -117,9 +116,7 @@ public class TrackListFragment extends BaseFragment {
                     public void afterTextChanged(Editable s) {
                     }
                 });
-                buttonShuffle.setOnClickListener(v -> tracksAdapter.shuffle());
                 searchFrame.setVisibility(View.VISIBLE);
-                buttonShuffle.setVisibility(View.VISIBLE);
             } else {
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);

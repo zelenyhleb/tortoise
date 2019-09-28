@@ -82,6 +82,14 @@ public class TrackList {
         tracksReferences.removeAll(trackReferences);
     }
 
+    public void remove(TrackReference track) {
+        tracksReferences.remove(track);
+    }
+
+    public void add(TrackReference trackReference) {
+        tracksReferences.add(trackReference);
+    }
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }

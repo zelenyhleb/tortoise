@@ -8,7 +8,6 @@ import java.util.Map;
 
 import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackList;
-import ru.krivocraft.kbmp.Tracks;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
@@ -16,10 +15,10 @@ import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileTrackListsTask;
 
 public class TrackListsCompiler {
-    private Context context;
+    private TracksStorageManager tracksStorageManager;
 
     public TrackListsCompiler(Context context) {
-        this.context = context;
+        this.tracksStorageManager = new TracksStorageManager(context);
     }
 
     public void compileByAuthors(OnTrackListsCompiledCallback callback) {
@@ -40,12 +39,12 @@ public class TrackListsCompiler {
     private void compile(CompileTrackListsTask task, int trackListType, OnTrackListsCompiledCallback callback) {
         List<TrackList> list = new LinkedList<>();
         task.setListener(trackLists -> new Thread(() -> parseMap(callback, list, trackLists, trackListType)).start());
-        task.execute(Tracks.getTrackStorage(context).toArray(new Track[0]));
+        task.execute(tracksStorageManager.getTrackStorage().toArray(new Track[0]));
     }
 
     private void parseMap(OnTrackListsCompiledCallback callback, List<TrackList> list, Map<String, List<Track>> trackLists, int trackListByTag) {
         for (Map.Entry<String, List<Track>> entry : trackLists.entrySet()) {
-            TrackList trackList = new TrackList(entry.getKey(), Tracks.getReferences(context, entry.getValue()), trackListByTag);
+            TrackList trackList = new TrackList(entry.getKey(), tracksStorageManager.getReferences(entry.getValue()), trackListByTag);
             list.add(trackList);
         }
         callback.onTrackListsCompiled(list);

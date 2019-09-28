@@ -1,25 +1,21 @@
 package ru.krivocraft.kbmp.api;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ru.krivocraft.kbmp.TrackList;
-import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.tasks.OnTrackListsReadCallback;
-import ru.krivocraft.kbmp.tasks.ReadTrackListsTask;
+import ru.krivocraft.kbmp.TrackReference;
+import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class TrackListsStorageManager {
 
-    private Context context;
+    private DBConnection database;
 
     public TrackListsStorageManager(@NonNull Context context) {
-        this.context = context;
+        this.database = new DBConnection(context);
     }
 
     public void writeTrackLists(List<TrackList> trackLists) {
@@ -28,51 +24,36 @@ public class TrackListsStorageManager {
         }
     }
 
+    public void updateTrackList(TrackList trackList) {
+        database.updateTrackList(trackList);
+    }
+
+    public void clearTrackList(TrackList trackList) {
+        database.clearTrackList(trackList);
+    }
+
+    public void updateRootTrackList(TrackList trackList) {
+        database.updateRootTrackList(trackList);
+    }
+
+    public void removeTracks(TrackList trackList, List<TrackReference> references) {
+        database.removeTracks(trackList, references);
+    }
+
     public void writeTrackList(TrackList trackList) {
-        SharedPreferences.Editor editor = getTrackListStorageEditor();
-        editor.putString(trackList.getIdentifier(), trackList.toJson());
-        editor.commit();
+        database.writeTrackList(trackList);
     }
 
     public void removeTrackList(TrackList trackList) {
-        SharedPreferences.Editor editor = getTrackListStorageEditor();
-        editor.remove(trackList.getIdentifier());
-        editor.apply();
+        database.removeTrackList(trackList);
     }
 
-    public void readTrackLists(OnTrackListsReadCallback callback) {
-        SharedPreferences trackListsStorage = getTrackListsStorage();
-        SharedPreferences settingsStorage = getSettingsStorage();
-
-        ReadTrackListsTask task = new ReadTrackListsTask(trackListsStorage, settingsStorage, callback);
-        task.execute();
+    public List<TrackList> readTrackLists() {
+        return database.getTrackLists();
     }
 
-    public List<String> getTrackListIdentifiers() {
-        List<String> identifiers = new ArrayList<>();
-        if (context != null) {
-            SharedPreferences sharedPreferences = getTrackListsStorage();
-            Map<String, ?> trackLists = sharedPreferences.getAll();
-            for (Map.Entry<String, ?> entry : trackLists.entrySet()) {
-                identifiers.add(entry.getKey());
-            }
-        }
-        return identifiers;
+    public List<String> getUnavailableTrackListNames() {
+        return database.getTrackListNames();
     }
 
-    private SharedPreferences getSettingsStorage() {
-        return getPreferences(Constants.STORAGE_SETTINGS);
-    }
-
-    private SharedPreferences getTrackListsStorage() {
-        return getPreferences(Constants.STORAGE_TRACK_LISTS);
-    }
-
-    private SharedPreferences getPreferences(String storageName) {
-        return context.getSharedPreferences(storageName, Context.MODE_MULTI_PROCESS);
-    }
-
-    private SharedPreferences.Editor getTrackListStorageEditor() {
-        return getTrackListsStorage().edit();
-    }
 }
