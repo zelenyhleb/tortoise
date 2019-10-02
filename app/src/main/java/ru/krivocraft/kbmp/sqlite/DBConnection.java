@@ -112,7 +112,7 @@ public class DBConnection {
         ContentValues values = new ContentValues();
         values.put("name", trackList.getDisplayName());
         database.update(TableNames.TRACK_LISTS, values, "id = ?", new String[]{trackList.getIdentifier()});
-        database.execSQL("delete from " + trackList.getIdentifier());
+        clearTrackList(trackList);
         fillTrackListTable(trackList);
     }
 

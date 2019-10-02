@@ -43,7 +43,13 @@ public class ExplorerFragment extends BaseFragment {
     private void onNewTrackLists(List<TrackList> trackLists) {
         Activity activity = getActivity();
         if (activity != null) {
-            trackListsStorageManager.writeTrackLists(trackLists);
+            for (TrackList trackList : trackLists) {
+                if (trackListsStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
+                    trackListsStorageManager.updateTrackList(trackList);
+                } else {
+                    trackListsStorageManager.writeTrackList(trackList);
+                }
+            }
             activity.runOnUiThread(ExplorerFragment.this::drawTrackLists);
         }
     }

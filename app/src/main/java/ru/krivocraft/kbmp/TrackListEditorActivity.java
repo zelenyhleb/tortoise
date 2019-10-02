@@ -188,7 +188,7 @@ public class TrackListEditorActivity extends AppCompatActivity {
             Toast.makeText(context, "Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (trackListsStorageManager.getUnavailableTrackListNames().contains(displayName) && !displayName.equals(source.getDisplayName())) {
+        if (trackListsStorageManager.getExistingTrackListNames().contains(displayName) && !displayName.equals(source.getDisplayName())) {
             Toast.makeText(context, "The similar name already exists", Toast.LENGTH_LONG).show();
             return false;
         }

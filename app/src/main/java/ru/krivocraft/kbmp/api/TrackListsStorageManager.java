@@ -52,7 +52,7 @@ public class TrackListsStorageManager {
         return database.getTrackLists();
     }
 
-    public List<String> getUnavailableTrackListNames() {
+    public List<String> getExistingTrackListNames() {
         return database.getTrackListNames();
     }
 
