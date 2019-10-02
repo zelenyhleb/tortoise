@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;
@@ -47,6 +48,8 @@ public class TrackListEditorActivity extends AppCompatActivity {
     private final String TYPE_IMAGE = "image/*";
     private final String[] MIME_TYPES = new String[]{"image/jpeg", "image/png"};
     private TrackListsStorageManager trackListsStorageManager;
+    private ListView listView;
+    private SelectableTracksAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +60,8 @@ public class TrackListEditorActivity extends AppCompatActivity {
         List<TrackReference> trackReferences = changed.getTrackReferences();
         flagExisting(trackStorage, trackReferences);
 
-        SelectableTracksAdapter adapter = new SelectableTracksAdapter(trackStorage, this);
-        ListView listView = findViewById(R.id.track_list_editor_list);
+        adapter = new SelectableTracksAdapter(trackStorage, this);
+        listView = findViewById(R.id.track_list_editor_list);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -123,6 +126,19 @@ public class TrackListEditorActivity extends AppCompatActivity {
         } else {
             this.art.setImageDrawable(getDrawable(R.drawable.ic_icon));
         }
+
+        EditText search = findViewById(R.id.track_list_editor_search);
+        search.addTextChangedListener(new TextChangeSolver() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Searcher searcher = new Searcher(TrackListEditorActivity.this);
+                List<Track> found = searcher.searchInTracks(s, tracksStorageManager.getTrackStorage());
+                listView.setAdapter(new SelectableTracksAdapter(found, TrackListEditorActivity.this));
+                if (s.length() < 1) {
+                    listView.setAdapter(adapter);
+                }
+            }
+        });
 
         Button pick = findViewById(R.id.track_list_editor_button_pick);
         pick.setOnClickListener(v -> {

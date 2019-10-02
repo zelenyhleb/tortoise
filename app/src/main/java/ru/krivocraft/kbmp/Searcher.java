@@ -34,6 +34,22 @@ public class Searcher {
         return trackList;
     }
 
+    public List<Track> searchInTracks(CharSequence string, List<Track> input) {
+        List<Track> trackList = new ArrayList<>();
+        for (Track track : input) {
+
+            String formattedName = track.getTitle().toLowerCase();
+            String formattedArtist = track.getArtist().toLowerCase();
+            String formattedSearchStr = string.toString().toLowerCase();
+            String[] tags = CollectionUtils.collect(track.getTags(), Tag::getText).toArray(new String[0]);
+
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr) || checkInTags(tags, formattedSearchStr)) {
+                trackList.add(input.get(input.indexOf(track)));
+            }
+        }
+        return trackList;
+    }
+
     private boolean checkInTags(String[] tags, String searchString) {
         for (String tag : tags) {
             if (tag.toLowerCase().contains(searchString)) {
