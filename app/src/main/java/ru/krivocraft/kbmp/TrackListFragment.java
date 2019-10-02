@@ -119,6 +119,7 @@ public class TrackListFragment extends BaseFragment {
                 });
                 searchFrame.setVisibility(View.VISIBLE);
             } else {
+                searchFrame.setHeight(0);
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
                 context.registerReceiver(trackListReceiver, filter);
