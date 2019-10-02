@@ -1,8 +1,10 @@
 package ru.krivocraft.kbmp;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
@@ -19,8 +21,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class SmallPlayerFragment extends BaseFragment {
 
@@ -48,16 +53,24 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     };
 
-    void init(Activity context, MediaMetadataCompat mediaMetadata, PlaybackStateCompat playbackState, int position) {
+    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
+            refreshStateShowers();
+        }
+    };
+
+    void init(Activity context) {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
 
         mediaController.registerCallback(callback);
 
-        this.metadata = mediaMetadata;
-        this.playbackState = playbackState;
+        this.metadata = mediaController.getMetadata();
+        this.playbackState = mediaController.getPlaybackState();
 
-        this.trackProgress = position;
+        requestPosition(context);
     }
 
     @Override
@@ -126,6 +139,15 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     }
 
+    void requestPosition(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
+        context.registerReceiver(positionReceiver, filter);
+
+        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
+        context.sendBroadcast(intent);
+    }
+
     private String getTrackTitle() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
     }
@@ -165,5 +187,6 @@ public class SmallPlayerFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
     }
 }

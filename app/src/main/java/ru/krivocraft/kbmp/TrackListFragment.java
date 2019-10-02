@@ -41,8 +41,8 @@ public class TrackListFragment extends BaseFragment {
             TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
             if (trackList != null) {
                 TrackListFragment.this.trackList = trackList;
+                processPaths(context);
             }
-            processPaths(context);
         }
     };
 
@@ -61,6 +61,7 @@ public class TrackListFragment extends BaseFragment {
             tracksAdapter.notifyDataSetChanged();
         }
     };
+    private ItemTouchHelper touchHelper;
 
     static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context) {
         TrackListFragment trackListFragment = new TrackListFragment();
@@ -128,6 +129,9 @@ public class TrackListFragment extends BaseFragment {
     }
 
     private void processPaths(Context context) {
+        if (this.touchHelper != null) {
+            this.touchHelper.attachToRecyclerView(null);
+        }
         this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
         this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls);
         this.recyclerView.setAdapter(tracksAdapter);
@@ -136,7 +140,7 @@ public class TrackListFragment extends BaseFragment {
         progressText.setVisibility(View.GONE);
 
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
     }
 
