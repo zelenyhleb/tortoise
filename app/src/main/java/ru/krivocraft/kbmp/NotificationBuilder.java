@@ -77,11 +77,10 @@ class NotificationBuilder {
 
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);
-            } else {
-                notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_track_image_default));
             }
 
-            if (mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
+            boolean playing = mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
+            if (playing) {
                 notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
             } else {
                 notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
@@ -90,8 +89,13 @@ class NotificationBuilder {
             notificationBuilder.addAction(nextAction);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Tortoise", NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationChannel channel =
+                        new NotificationChannel(CHANNEL_ID,
+                                "Tortoise",
+                                NotificationManager.IMPORTANCE_DEFAULT);
+
                 channel.setImportance(NotificationManager.IMPORTANCE_LOW);
+                channel.setDescription(playing ? "Playing" : "Paused");
                 notificationBuilder.setChannelId(CHANNEL_ID);
                 if (service != null) {
                     service.createNotificationChannel(channel);
