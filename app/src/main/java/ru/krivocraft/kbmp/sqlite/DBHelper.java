@@ -31,20 +31,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "id text,"
                 + "name text,"
                 + "type integer);");
-        db.execSQL("create table if not exists " + TableNames.TAGS + " ("
-                + "id integer primary key autoincrement,"
-                + "name text);");
-        db.execSQL("create table if not exists " + TableNames.TAGS_TRACKS + " ("
-                + "tag integer,"
-                + "track integer);");
-
         db.execSQL("create table if not exists " + TableNames.ALL_TRACKS + " ("
                 + "id integer primary key autoincrement,"
                 + "reference integer);");
 
         ContentValues values = new ContentValues();
-        values.put("id", TrackList.createIdentifier("All tracks"));
-        values.put("name", "All tracks");
+        values.put("id", TrackList.createIdentifier(Constants.STORAGE_TRACKS_DISPLAY_NAME));
+        values.put("name", Constants.STORAGE_TRACKS_DISPLAY_NAME);
         values.put("type", Constants.TRACK_LIST_CUSTOM);
         db.insert(TableNames.TRACK_LISTS, null, values);
     }

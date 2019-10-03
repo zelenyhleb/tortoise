@@ -152,9 +152,6 @@ public class ExplorerFragment extends BaseFragment {
             if (settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
                 trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
-            if (settingsManager.getOption(Constants.KEY_SORT_BY_TAG, false)) {
-                trackListsCompiler.compileByTags(this::onNewTrackLists);
-            }
         }
     }
 

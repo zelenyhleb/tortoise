@@ -20,6 +20,6 @@
     <string name="settings_recognize">Try to parse track names for tracks with no metadata</string>
     <string name="settings_clear_cache">Clear track lists cache</string>
     <string name="settings_clear_cache_button">CLEAR</string>
-    <string name="search">Search...</string>
+    <string name="search">Search</string>
     <string name="name">Name</string>
 </resources>

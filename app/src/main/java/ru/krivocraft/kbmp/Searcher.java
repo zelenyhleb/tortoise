@@ -25,9 +25,8 @@ public class Searcher {
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
-            String[] tags = CollectionUtils.collect(track.getTags(), Tag::getText).toArray(new String[0]);
 
-            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr) || checkInTags(tags, formattedSearchStr)) {
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
                 trackList.add(input.get(searched.indexOf(track)));
             }
         }
@@ -41,21 +40,10 @@ public class Searcher {
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
-            String[] tags = CollectionUtils.collect(track.getTags(), Tag::getText).toArray(new String[0]);
-
-            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr) || checkInTags(tags, formattedSearchStr)) {
+            if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
                 trackList.add(input.get(input.indexOf(track)));
             }
         }
         return trackList;
-    }
-
-    private boolean checkInTags(String[] tags, String searchString) {
-        for (String tag : tags) {
-            if (tag.toLowerCase().contains(searchString)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

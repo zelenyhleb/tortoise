@@ -10,7 +10,6 @@ import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
-import ru.krivocraft.kbmp.tasks.compilers.CompileByTagsTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileTrackListsTask;
 
@@ -29,11 +28,6 @@ public class TrackListsCompiler {
     public void compileFavorites(OnTrackListsCompiledCallback callback) {
         CompileFavoritesTask task = new CompileFavoritesTask();
         compile(task, Constants.TRACK_LIST_CUSTOM, callback);
-    }
-
-    public void compileByTags(OnTrackListsCompiledCallback callback) {
-        CompileByTagsTask task = new CompileByTagsTask();
-        compile(task, Constants.TRACK_LIST_BY_TAG, callback);
     }
 
     private void compile(CompileTrackListsTask task, int trackListType, OnTrackListsCompiledCallback callback) {
