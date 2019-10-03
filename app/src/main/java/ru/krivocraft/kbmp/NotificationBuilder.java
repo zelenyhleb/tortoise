@@ -70,6 +70,7 @@ class NotificationBuilder {
                     .setStyle(mediaStyle)
                     .setColorized(true)
                     .setOngoing(true)
+                    .setShowWhen(false)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             Bitmap image = Utils.loadArt(mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
