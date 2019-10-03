@@ -20,7 +20,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.krivocraft.kbmp.api.TrackListsStorageManager;

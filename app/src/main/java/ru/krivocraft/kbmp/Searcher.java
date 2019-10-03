@@ -2,8 +2,6 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
