@@ -35,7 +35,11 @@ public class Searcher {
 
         for (TrackList trackList : trackLists) {
             if (trackList.getDisplayName().contains(string)) {
-                references.addAll(trackList.getTrackReferences());
+                for (TrackReference reference : trackList.getTrackReferences()) {
+                    if (!references.contains(reference)) {
+                        references.add(reference);
+                    }
+                }
             }
         }
         return references;
@@ -56,7 +60,12 @@ public class Searcher {
 
         for (TrackList trackList : trackLists) {
             if (trackList.getDisplayName().contains(string)) {
-                found.addAll(tracksStorageManager.getTracks(trackList.getTrackReferences()));
+                for (TrackReference trackReference : trackList.getTrackReferences()) {
+                    Track track = tracksStorageManager.getTrack(trackReference);
+                    if (!found.contains(track)) {
+                        found.add(track);
+                    }
+                }
             }
         }
         return found;
