@@ -12,6 +12,7 @@ import ru.krivocraft.kbmp.Tag;
 import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.TrackReference;
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBConnection {
     private SQLiteDatabase database;
@@ -152,6 +153,39 @@ public class DBConnection {
     public List<TrackList> getTrackLists() {
         List<TrackList> trackLists = new ArrayList<>();
         Cursor cursor = database.query(TableNames.TRACK_LISTS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
+            int nameIndex = cursor.getColumnIndex("name");
+            int typeIndex = cursor.getColumnIndex("type");
+            do {
+                int type = cursor.getInt(typeIndex);
+                String displayName = cursor.getString(nameIndex);
+                String identifier = cursor.getString(idIndex);
+                List<TrackReference> tracks = getTracksForTrackList(identifier);
+
+                TrackList trackList = new TrackList(displayName, tracks, type, identifier);
+                trackLists.add(trackList);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return trackLists;
+    }
+
+    public List<TrackList> getTrackLists(boolean sortByTag, boolean sortByAuthor) {
+        List<TrackList> trackLists = new ArrayList<>();
+
+        StringBuilder selection = new StringBuilder();
+        if (!sortByAuthor) {
+            selection.append("type != " + Constants.TRACK_LIST_BY_AUTHOR);
+        }
+        if (!sortByTag) {
+            if (!sortByAuthor) {
+                selection.append(" and ");
+            }
+            selection.append("type != " + Constants.TRACK_LIST_BY_TAG);
+        }
+
+        Cursor cursor = database.query(TableNames.TRACK_LISTS, null, selection.toString(), null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex("id");
             int nameIndex = cursor.getColumnIndex("name");

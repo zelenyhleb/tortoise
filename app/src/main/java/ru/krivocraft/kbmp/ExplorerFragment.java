@@ -125,7 +125,9 @@ public class ExplorerFragment extends BaseFragment {
 
     private void drawTrackLists() {
         progressBar.setVisibility(View.GONE);
-        redrawList(trackListsStorageManager.readTrackLists());
+        boolean sortByTag = settingsManager.getOption(Constants.KEY_SORT_BY_TAG, false);
+        boolean sortByAuthor = settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false);
+        redrawList(trackListsStorageManager.readTrackLists(sortByTag, sortByAuthor));
     }
 
     private void redrawList(List<TrackList> trackLists) {

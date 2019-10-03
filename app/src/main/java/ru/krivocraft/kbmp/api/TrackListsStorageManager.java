@@ -48,8 +48,12 @@ public class TrackListsStorageManager {
         database.removeTrackList(trackList);
     }
 
-    public List<TrackList> readTrackLists() {
+    public List<TrackList> readAllTrackLists() {
         return database.getTrackLists();
+    }
+
+    public List<TrackList> readTrackLists(boolean sortByTag, boolean sortByAuthor) {
+        return database.getTrackLists(sortByTag, sortByAuthor);
     }
 
     public List<String> getExistingTrackListNames() {
