@@ -5,19 +5,23 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TrackListsStorageManager;
 import ru.krivocraft.kbmp.api.TracksStorageManager;
 
 public class Searcher {
 
-    private TracksStorageManager tracksStorageManager;
+    private final TracksStorageManager tracksStorageManager;
+    private final TrackListsStorageManager trackListsStorageManager;
 
     public Searcher(Context context) {
         this.tracksStorageManager = new TracksStorageManager(context);
+        this.trackListsStorageManager = new TrackListsStorageManager(context);
     }
 
     public List<TrackReference> search(CharSequence string, List<TrackReference> input) {
-        List<TrackReference> trackList = new ArrayList<>();
+        List<TrackReference> references = new ArrayList<>();
         List<Track> searched = tracksStorageManager.getTracks(input);
+        List<TrackList> trackLists = trackListsStorageManager.readTrackLists(false, false);
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();
@@ -25,23 +29,36 @@ public class Searcher {
             String formattedSearchStr = string.toString().toLowerCase();
 
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.add(input.get(searched.indexOf(track)));
+                references.add(input.get(searched.indexOf(track)));
             }
         }
-        return trackList;
+
+        for (TrackList trackList : trackLists) {
+            if (trackList.getDisplayName().contains(string)) {
+                references.addAll(trackList.getTrackReferences());
+            }
+        }
+        return references;
     }
 
     public List<Track> searchInTracks(CharSequence string, List<Track> input) {
-        List<Track> trackList = new ArrayList<>();
+        List<Track> found = new ArrayList<>();
+        List<TrackList> trackLists = trackListsStorageManager.readTrackLists(false, false);
         for (Track track : input) {
 
             String formattedName = track.getTitle().toLowerCase();
             String formattedArtist = track.getArtist().toLowerCase();
             String formattedSearchStr = string.toString().toLowerCase();
             if (formattedName.contains(formattedSearchStr) || formattedArtist.contains(formattedSearchStr)) {
-                trackList.add(input.get(input.indexOf(track)));
+                found.add(input.get(input.indexOf(track)));
             }
         }
-        return trackList;
+
+        for (TrackList trackList : trackLists) {
+            if (trackList.getDisplayName().contains(string)) {
+                found.addAll(tracksStorageManager.getTracks(trackList.getTrackReferences()));
+            }
+        }
+        return found;
     }
 }
