@@ -6,9 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import ru.krivocraft.kbmp.constants.Constants;
@@ -23,14 +20,12 @@ public class Track {
     private String title, artist, path;
     private long duration;
     private int identifier;
-    private List<Tag> tags;
 
     public Track(long duration, String artist, String title, @NonNull String path) {
         this.duration = duration;
         this.artist = artist;
         this.title = title;
         this.path = path;
-        this.tags = new ArrayList<>();
 
         this.identifier = path.hashCode();
 
@@ -131,22 +126,6 @@ public class Track {
 
     void setLiked(boolean liked) {
         this.liked = liked;
-    }
-
-    void addTag(Tag tag) {
-        tags.add(tag);
-    }
-
-    public void addTags(Collection<Tag> tags) {
-        this.tags.addAll(tags);
-    }
-
-    void removeTag(Tag tag) {
-        tags.remove(tag);
-    }
-
-    public List<Tag> getTags() {
-        return tags;
     }
 
     public int getIdentifier() {

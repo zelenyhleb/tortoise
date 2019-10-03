@@ -1,7 +1,7 @@
 Tortoise
 ========
 
-Stable (so-so) version: 0.3.0
+Stable (so-so) version: 0.3.3
 
 Awesome music player with great future written for android with java.
 

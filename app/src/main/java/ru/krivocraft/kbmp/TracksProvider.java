@@ -84,7 +84,7 @@ class TracksProvider {
     }
 
     private void updateTrackLists(List<TrackReference> removedTracks) {
-        List<TrackList> trackLists = trackListsStorageManager.readTrackLists();
+        List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
         for (TrackList trackList : trackLists) {
             removeNonExistingTracksFromTrackList(removedTracks, trackList);
             removeTrackListIfEmpty(trackList);

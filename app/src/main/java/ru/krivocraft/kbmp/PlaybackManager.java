@@ -18,25 +18,25 @@ import static android.content.Context.MODE_PRIVATE;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, AudioManager.OnAudioFocusChangeListener {
 
-    private MediaPlayer player;
+    private final SharedPreferences settings;
+    private final AudioManager audioManager;
+    private final MediaPlayer player;
 
-    private AudioManager audioManager;
+    private final TracksStorageManager tracksStorageManager;
 
     private int playerState;
 
     private PlayerStateCallback playerStateCallback;
     private PlaylistUpdateCallback playlistUpdateCallback;
 
-    private TracksStorageManager tracksStorageManager;
-
     private TrackReference cache;
 
     private TrackList trackList;
 
     private int cursor = 0;
-    private SharedPreferences settings;
 
     PlaybackManager(Context context) {
+        this.player = new MediaPlayer();
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
@@ -57,13 +57,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
             if (mediaChanged) {
 
-                if (player == null) {
-                    player = new MediaPlayer();
-                    player.setOnCompletionListener(this);
-                    player.setOnPreparedListener(this);
-                } else {
-                    player.reset();
-                }
+                this.player.reset();
+                this.player.setOnCompletionListener(this);
+                this.player.setOnPreparedListener(this);
 
                 try {
                     player.setDataSource(selectedTrack.getPath());
@@ -100,9 +96,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             player.pause();
         }
 
-        if (trackList != null) {
-            TrackReference selectedReference = trackList.get(cursor);
-            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
+        if (previousTrackExists()) {
+            Track selectedTrack = tracksStorageManager.getTrack(cache);
             selectedTrack.setPlaying(false);
             tracksStorageManager.updateTrack(selectedTrack);
             audioManager.abandonAudioFocus(this);
@@ -141,11 +136,16 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     private void removeTrackSelection() {
-        TrackReference oldSelectedReference = getTracks().get(cursor);
-        Track oldSelectedTrack = tracksStorageManager.getTrack(oldSelectedReference);
-        oldSelectedTrack.setPlaying(false);
-        oldSelectedTrack.setSelected(false);
-        tracksStorageManager.updateTrack(oldSelectedTrack);
+        if (previousTrackExists()) {
+            Track oldSelectedTrack = tracksStorageManager.getTrack(cache);
+            oldSelectedTrack.setPlaying(false);
+            oldSelectedTrack.setSelected(false);
+            tracksStorageManager.updateTrack(oldSelectedTrack);
+        }
+    }
+
+    private boolean previousTrackExists() {
+        return cache != null;
     }
 
     private void restoreAll() {
@@ -182,7 +182,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             playerState = PlaybackStateCompat.STATE_STOPPED;
             updatePlaybackState();
             player.release();
-            player = null;
         }
     }
 

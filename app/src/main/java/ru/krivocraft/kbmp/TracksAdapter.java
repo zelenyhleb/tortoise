@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
-import java.util.Random;
 
 import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
@@ -25,13 +24,15 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private final boolean editingAllowed;
     private final boolean temp;
     private TracksStorageManager tracksStorageManager;
+    private AdapterListener listener;
 
-    TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp) {
+    TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp, AdapterListener listener) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
         this.temp = temp;
         this.tracksStorageManager = new TracksStorageManager(context);
+        this.listener = listener;
         setHasStableIds(true);
     }
 
@@ -66,18 +67,18 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(trackList.getTrackReferences(), i, i + 1);
-            }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(trackList.getTrackReferences(), i, i - 1);
-            }
+        Collections.swap(trackList.getTrackReferences(), fromPosition, toPosition);
+
+        if (listener != null) {
+            listener.maintainRecyclerViewPosition(fromPosition, toPosition);
         }
-        sendUpdate();
-        notifyItemMoved(fromPosition, toPosition);
+
         return true;
+    }
+
+    @Override
+    public void onDragCompleted() {
+        sendUpdate();
     }
 
     private void sendUpdate() {
@@ -86,6 +87,10 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         } else {
             context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
         }
+    }
+
+    interface AdapterListener {
+        void maintainRecyclerViewPosition(int from, int to);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

@@ -37,12 +37,29 @@
         android:layout_alignParentBottom="true"
         android:text="Cancel" />
 
+    <ImageView
+        android:id="@+id/track_list_editor_search_picture_placeholder"
+        android:layout_below="@id/track_list_editor_image"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <EditText
         android:id="@+id/track_list_editor_edit_text"
         android:layout_width="match_parent"
+        android:hint="@string/name"
         android:layout_height="wrap_content"
         android:layout_below="@id/track_list_editor_name"
         android:layout_toEndOf="@id/track_list_editor_image" />
+
+    <EditText
+        android:id="@+id/track_list_editor_search"
+        android:hint="@string/search"
+        android:layout_width="match_parent"
+        android:layout_toStartOf="@id/track_list_editor_search_picture_placeholder"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_list_editor_image"
+        android:layout_margin="8dp" />
 
     <ImageView
         android:id="@+id/track_list_editor_image"
@@ -56,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/track_list_editor_button_delete"
-        android:layout_below="@id/track_list_editor_image"
+        android:layout_below="@id/track_list_editor_search"
         android:layout_margin="8dp" />
 
     <TextView

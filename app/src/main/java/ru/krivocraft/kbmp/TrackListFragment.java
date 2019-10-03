@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -41,8 +40,8 @@ public class TrackListFragment extends BaseFragment {
             TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
             if (trackList != null) {
                 TrackListFragment.this.trackList = trackList;
+                processPaths(context);
             }
-            processPaths(context);
         }
     };
 
@@ -61,6 +60,7 @@ public class TrackListFragment extends BaseFragment {
             tracksAdapter.notifyDataSetChanged();
         }
     };
+    private ItemTouchHelper touchHelper;
 
     static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context) {
         TrackListFragment trackListFragment = new TrackListFragment();
@@ -106,7 +106,13 @@ public class TrackListFragment extends BaseFragment {
                         Searcher searcher = new Searcher(context);
                         List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
-                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM), context, showControls, true));
+                        recyclerView.setAdapter(new TracksAdapter(
+                                new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM),
+                                context,
+                                showControls,
+                                true,
+                                null
+                        ));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }
@@ -118,6 +124,7 @@ public class TrackListFragment extends BaseFragment {
                 });
                 searchFrame.setVisibility(View.VISIBLE);
             } else {
+                searchFrame.setHeight(0);
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
                 context.registerReceiver(trackListReceiver, filter);
@@ -128,15 +135,34 @@ public class TrackListFragment extends BaseFragment {
     }
 
     private void processPaths(Context context) {
-        this.recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls);
+        if (this.touchHelper != null) {
+            this.touchHelper.attachToRecyclerView(null);
+        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        this.recyclerView.setLayoutManager(layoutManager);
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, (from, to) -> {
+            // Some ancient magic below
+            int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
+            int offsetTop = 0;
+
+            if (firstPos >= 0) {
+                View firstView = layoutManager.findViewByPosition(firstPos);
+                offsetTop = layoutManager.getDecoratedTop(firstView) - layoutManager.getTopDecorationHeight(firstView);
+            }
+
+            tracksAdapter.notifyItemMoved(from, to);
+
+            if (firstPos >= 0) {
+                layoutManager.scrollToPositionWithOffset(firstPos, offsetTop);
+            }
+        });
         this.recyclerView.setAdapter(tracksAdapter);
 
         progressBar.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
 
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
     }
 

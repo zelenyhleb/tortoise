@@ -8,10 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.krivocraft.kbmp.Tag;
 import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.TrackReference;
+import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBConnection {
     private SQLiteDatabase database;
@@ -43,15 +43,6 @@ public class DBConnection {
         values.put("liked", track.isLiked() ? 1 : 0);
         values.put("selected", track.isSelected() ? 1 : 0);
         database.update(TableNames.TRACKS, values, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
-
-        for (Tag tag : getTagsForTrack(track)) {
-            if (!track.getTags().contains(tag)) {
-                unbindTagFromTrack(tag, track);
-            }
-        }
-        for (Tag tag : track.getTags()) {
-            bindTag(tag, track);
-        }
     }
 
     public void removeTrackList(TrackList trackList) {
@@ -61,9 +52,6 @@ public class DBConnection {
 
     public void removeTrack(Track track) {
         database.delete(TableNames.TRACKS, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
-        for (Tag tag : track.getTags()) {
-            unbindTagFromTrack(tag, track);
-        }
     }
 
     public Track getTrack(TrackReference trackReference) {
@@ -80,7 +68,6 @@ public class DBConnection {
             boolean playing = cursor.getInt(cursor.getColumnIndex("playing")) == 1;
 
             track = new Track(duration, artist, title, path, liked, selected, playing);
-            track.addTags(getTagsForTrack(track));
         }
         cursor.close();
         return track;
@@ -112,7 +99,7 @@ public class DBConnection {
         ContentValues values = new ContentValues();
         values.put("name", trackList.getDisplayName());
         database.update(TableNames.TRACK_LISTS, values, "id = ?", new String[]{trackList.getIdentifier()});
-        database.execSQL("delete from " + trackList.getIdentifier());
+        clearTrackList(trackList);
         fillTrackListTable(trackList);
     }
 
@@ -141,7 +128,6 @@ public class DBConnection {
                 boolean playing = cursor.getInt(playingIndex) == 1;
 
                 Track track = new Track(duration, artist, title, path, liked, selected, playing);
-                track.addTags(getTagsForTrack(track));
                 tracks.add(track);
             } while (cursor.moveToNext());
         }
@@ -152,6 +138,39 @@ public class DBConnection {
     public List<TrackList> getTrackLists() {
         List<TrackList> trackLists = new ArrayList<>();
         Cursor cursor = database.query(TableNames.TRACK_LISTS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
+            int nameIndex = cursor.getColumnIndex("name");
+            int typeIndex = cursor.getColumnIndex("type");
+            do {
+                int type = cursor.getInt(typeIndex);
+                String displayName = cursor.getString(nameIndex);
+                String identifier = cursor.getString(idIndex);
+                List<TrackReference> tracks = getTracksForTrackList(identifier);
+
+                TrackList trackList = new TrackList(displayName, tracks, type, identifier);
+                trackLists.add(trackList);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return trackLists;
+    }
+
+    public List<TrackList> getTrackLists(boolean sortByTag, boolean sortByAuthor) {
+        List<TrackList> trackLists = new ArrayList<>();
+
+        StringBuilder selection = new StringBuilder();
+        if (!sortByAuthor) {
+            selection.append("type != " + Constants.TRACK_LIST_BY_AUTHOR);
+        }
+        if (!sortByTag) {
+            if (!sortByAuthor) {
+                selection.append(" and ");
+            }
+            selection.append("type != " + Constants.TRACK_LIST_BY_TAG);
+        }
+
+        Cursor cursor = database.query(TableNames.TRACK_LISTS, null, selection.toString(), null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex("id");
             int nameIndex = cursor.getColumnIndex("name");
@@ -211,80 +230,6 @@ public class DBConnection {
         for (TrackReference reference : references) {
             database.delete(trackList.getIdentifier(), "reference = ?", new String[]{reference.toString()});
         }
-    }
-
-    public List<Tag> getTagsForTrack(Track track) {
-        List<Tag> tags = new ArrayList<>();
-        Cursor cursor = database.query(
-                TableNames.TAGS_TRACKS,
-                new String[]{"tag"}, "track = ?",
-                new String[]{String.valueOf(track.getIdentifier())},
-                null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                tags.add(getTag(cursor.getInt(cursor.getColumnIndex("tag"))));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return tags;
-    }
-
-    public List<Tag> getTags() {
-        List<Tag> tags = new ArrayList<>();
-        Cursor cursor = database.query(TableNames.TAGS, null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                tags.add(new Tag(cursor.getString(cursor.getColumnIndex("name"))));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return tags;
-    }
-
-    public void bindTag(Tag tag, Track track) {
-        if (!getTags().contains(tag)) {
-            writeTag(tag);
-        }
-
-        if (!getTagsForTrack(track).contains(tag)) {
-            int tagId = getTagId(tag);
-            if (tagId > -1) {
-                ContentValues values = new ContentValues();
-                values.put("tag", tagId);
-                values.put("track", track.getIdentifier());
-                database.insert(TableNames.TAGS_TRACKS, null, values);
-            }
-        }
-    }
-
-    private int getTagId(Tag tag) {
-        int id = -1;
-        Cursor cursor = database.query(TableNames.TAGS, new String[]{"id"}, "name = ?", new String[]{tag.getText()}, null, null, null);
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(cursor.getColumnIndex("id"));
-        }
-        cursor.close();
-        return id;
-    }
-
-    public void unbindTagFromTrack(Tag tag, Track track) {
-        database.delete(TableNames.TAGS_TRACKS, "tag = ? and track = ?", new String[]{String.valueOf(getTagId(tag)), String.valueOf(track.getIdentifier())});
-    }
-
-    private void writeTag(Tag tag) {
-        ContentValues values = new ContentValues();
-        values.put("name", tag.getText());
-        database.insert(TableNames.TAGS, null, values);
-    }
-
-    private Tag getTag(int index) {
-        Tag tag = null;
-        Cursor cursor = database.query(TableNames.TAGS, null, "id = ?", new String[]{String.valueOf(index)}, null, null, null);
-        if (cursor.moveToFirst()) {
-            tag = new Tag(cursor.getString(cursor.getColumnIndex("name")));
-        }
-        cursor.close();
-        return tag;
     }
 
     private void createTrackListTable(TrackList trackList) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class TrackList {
+    private static final String TABLE_PREFIX = "l";
     private String displayName;
     private boolean shuffled = false;
     private final int type;
@@ -33,7 +34,11 @@ public class TrackList {
 
     @NonNull
     public static String createIdentifier(String displayName) {
-        return displayName.toLowerCase().replace(" ", "");
+        StringBuilder sb = new StringBuilder(TABLE_PREFIX);
+        for (int i = 0; i < displayName.length(); i++) {
+            sb.append(Integer.parseInt(String.valueOf(displayName.codePointAt(i)),16));
+        }
+        return sb.toString();
     }
 
     int shuffle(TrackReference currentTrack) {

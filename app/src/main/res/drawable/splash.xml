@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@color/green700"
+        android:drawable="@color/grey900"
         android:gravity="fill"/>
 
             <item
