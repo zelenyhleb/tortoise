@@ -106,7 +106,13 @@ public class TrackListFragment extends BaseFragment {
                         Searcher searcher = new Searcher(context);
                         List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
-                        recyclerView.setAdapter(new TracksAdapter(new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM), context, showControls, true, null));
+                        recyclerView.setAdapter(new TracksAdapter(
+                                new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM),
+                                context,
+                                showControls,
+                                true,
+                                null
+                        ));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
                         }

@@ -2,7 +2,9 @@ package ru.krivocraft.kbmp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
@@ -73,8 +76,12 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             listener.maintainRecyclerViewPosition(fromPosition, toPosition);
         }
 
-        sendUpdate();
         return true;
+    }
+
+    @Override
+    public void onDragCompleted() {
+        sendUpdate();
     }
 
     private void sendUpdate() {
