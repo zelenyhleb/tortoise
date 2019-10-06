@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class TrackListFragment extends BaseFragment {
@@ -49,6 +50,8 @@ public class TrackListFragment extends BaseFragment {
     private ProgressBar progressBar;
     private TextView progressText;
 
+    private TracksStorageManager tracksStorageManager;
+
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -72,6 +75,7 @@ public class TrackListFragment extends BaseFragment {
         MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         mediaController.registerCallback(callback);
         this.showControls = showControls;
+        this.tracksStorageManager = new TracksStorageManager(context);
         this.trackList = trackList;
     }
 
@@ -140,6 +144,9 @@ public class TrackListFragment extends BaseFragment {
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         this.recyclerView.setLayoutManager(layoutManager);
+        if (!showControls) {
+            layoutManager.scrollToPosition(getSelectedItem());
+        }
         this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
@@ -164,6 +171,15 @@ public class TrackListFragment extends BaseFragment {
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
         touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    private int getSelectedItem() {
+        for (TrackReference reference : trackList.getTrackReferences()) {
+            if (tracksStorageManager.getTrack(reference).isSelected()) {
+                return trackList.getTrackReferences().indexOf(reference);
+            }
+        }
+        return 0;
     }
 
     @Override
