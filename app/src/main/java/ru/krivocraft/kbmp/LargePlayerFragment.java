@@ -30,6 +30,9 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
 
+import com.devs.vectorchildfinder.VectorChildFinder;
+import com.devs.vectorchildfinder.VectorDrawableCompat;
+
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,6 +50,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
     private Handler mHandler;
+    private ColorManager colorManager;
 
     private int trackProgress;
     private TrackList trackList;
@@ -139,6 +143,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         this.playbackState = mediaController.getPlaybackState();
 
         this.trackList = trackList;
+
+        this.colorManager = new ColorManager(context);
 
         registerTrackListReceiver(context);
         requestPosition(context);
@@ -342,7 +348,9 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             if (trackArt != null) {
                 trackImage.setImageBitmap(trackArt);
             } else {
-                trackImage.setImageDrawable(context.getDrawable(R.drawable.ic_track_image_default));
+                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
+                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                background.setFillColor(colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor()));
             }
             Track track = tracksStorageManager.getTrack(reference);
 

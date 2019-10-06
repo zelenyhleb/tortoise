@@ -24,6 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "selected integer,"
                 + "liked integer,"
                 + "title text,"
+                + "color integer,"
                 + "artist text,"
                 + "duration long,"
                 + "path text);");
@@ -44,6 +45,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("drop table " + TableNames.TRACKS);
+        db.execSQL("create table if not exists " + TableNames.TRACKS + " ("
+                + "id integer,"
+                + "playing integer,"
+                + "selected integer,"
+                + "liked integer,"
+                + "title text,"
+                + "color integer,"
+                + "artist text,"
+                + "duration long,"
+                + "path text);");
     }
 }

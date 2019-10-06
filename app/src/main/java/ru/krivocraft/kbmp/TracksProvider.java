@@ -34,7 +34,7 @@ class TracksProvider {
     }
 
     void search() {
-        new GetFromDiskTask(contentResolver, recognize, this::manageStorage).execute();
+        new GetFromDiskTask(contentResolver, recognize, this::manageStorage, new ColorManager(context)).execute();
     }
 
     private void manageStorage(List<Track> tracks) {

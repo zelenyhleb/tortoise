@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.ColorManager;
 import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackList;
 import ru.krivocraft.kbmp.TrackReference;
@@ -27,6 +28,7 @@ public class DBConnection {
         values.put("title", track.getTitle());
         values.put("playing", track.isPlaying() ? 1 : 0);
         values.put("liked", track.isLiked() ? 1 : 0);
+        values.put("color", track.getColor());
         values.put("selected", track.isSelected() ? 1 : 0);
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
@@ -55,7 +57,7 @@ public class DBConnection {
     }
 
     public Track getTrack(TrackReference trackReference) {
-        Track track = new Track(0, "", "", "");
+        Track track = new Track(0, "", "", "", ColorManager.GREEN);
         Cursor cursor = database.query(TableNames.TRACKS, null, "id = ?", new String[]{trackReference.toString()}, null, null, null);
         if (cursor.moveToFirst()) {
 
@@ -63,11 +65,12 @@ public class DBConnection {
             String artist = cursor.getString(cursor.getColumnIndex("artist"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String path = cursor.getString(cursor.getColumnIndex("path"));
+            int color = cursor.getInt(cursor.getColumnIndex("color"));
             boolean liked = cursor.getInt(cursor.getColumnIndex("liked")) == 1;
             boolean selected = cursor.getInt(cursor.getColumnIndex("selected")) == 1;
             boolean playing = cursor.getInt(cursor.getColumnIndex("playing")) == 1;
 
-            track = new Track(duration, artist, title, path, liked, selected, playing);
+            track = new Track(duration, artist, title, path, liked, selected, playing, color);
         }
         cursor.close();
         return track;
@@ -115,6 +118,7 @@ public class DBConnection {
             int artistIndex = cursor.getColumnIndex("artist");
             int pathIndex = cursor.getColumnIndex("path");
             int durationIndex = cursor.getColumnIndex("duration");
+            int colorIndex = cursor.getColumnIndex("color");
             int likedIndex = cursor.getColumnIndex("liked");
             int selectedIndex = cursor.getColumnIndex("selected");
             int playingIndex = cursor.getColumnIndex("playing");
@@ -126,8 +130,9 @@ public class DBConnection {
                 boolean liked = cursor.getInt(likedIndex) == 1;
                 boolean selected = cursor.getInt(selectedIndex) == 1;
                 boolean playing = cursor.getInt(playingIndex) == 1;
+                int color = cursor.getInt(colorIndex);
 
-                Track track = new Track(duration, artist, title, path, liked, selected, playing);
+                Track track = new Track(duration, artist, title, path, liked, selected, playing, color);
                 tracks.add(track);
             } while (cursor.moveToNext());
         }

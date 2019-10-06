@@ -21,10 +21,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.devs.vectorchildfinder.VectorChildFinder;
+import com.devs.vectorchildfinder.VectorDrawableCompat;
+
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class SmallPlayerFragment extends BaseFragment {
@@ -35,6 +39,8 @@ public class SmallPlayerFragment extends BaseFragment {
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
+    private ColorManager colorManager;
+    private TracksStorageManager tracksStorageManager;
 
     private int trackProgress;
 
@@ -69,6 +75,8 @@ public class SmallPlayerFragment extends BaseFragment {
 
         this.metadata = mediaController.getMetadata();
         this.playbackState = mediaController.getPlaybackState();
+        this.colorManager = new ColorManager(context);
+        this.tracksStorageManager = new TracksStorageManager(context);
 
         requestPosition(context);
     }
@@ -102,7 +110,9 @@ public class SmallPlayerFragment extends BaseFragment {
             if (trackArt != null) {
                 viewImage.setImageBitmap(trackArt);
             } else {
-                viewImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_track_image_default));
+                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
+                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                background.setFillColor(colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor()));
             }
             viewImage.setClipToOutline(true);
             viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));

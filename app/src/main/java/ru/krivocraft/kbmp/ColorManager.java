@@ -1,6 +1,7 @@
 package ru.krivocraft.kbmp;
 
 import android.content.Context;
+import android.graphics.Color;
 
 import androidx.core.content.res.ResourcesCompat;
 
@@ -40,12 +41,12 @@ public class ColorManager {
     }
 
     public int getRandomColor() {
-        int color = random.nextInt(16);
-        return getColor(color);
+        return random.nextInt(16);
     }
 
     public int getColor(int color) {
-        return ResourcesCompat.getColor(context.getResources(), availableColors.get(color), null);
+        int colorResource = ResourcesCompat.getColor(context.getResources(), availableColors.get(color), null);
+        return Color.rgb(Color.red(colorResource), Color.green(colorResource), Color.blue(colorResource));
     }
 
     private void fillAvailableColors() {
