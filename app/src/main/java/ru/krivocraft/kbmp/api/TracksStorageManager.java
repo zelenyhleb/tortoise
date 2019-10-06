@@ -1,7 +1,6 @@
 package ru.krivocraft.kbmp.api;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -10,17 +9,14 @@ import java.util.List;
 
 import ru.krivocraft.kbmp.Track;
 import ru.krivocraft.kbmp.TrackReference;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class TracksStorageManager {
 
-    private SharedPreferences settings;
-    private DBConnection database;
+    private final DBConnection database;
 
     public TracksStorageManager(Context context) {
         this.database = new DBConnection(context);
-        this.settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_MULTI_PROCESS);
     }
 
     public List<Track> getTrackStorage() {
@@ -53,19 +49,13 @@ public class TracksStorageManager {
         database.removeTrack(track);
     }
 
-    public void updateTracks(List<Track> updatedTracks) {
-        for (Track updatedTrack : updatedTracks) {
-            updateTrack(updatedTrack);
-        }
-    }
-
     public TrackReference getReference(String path) {
         List<Track> trackStorage = getTrackStorage();
         List<String> paths = new ArrayList<>(CollectionUtils.collect(trackStorage, Track::getPath));
         return new TrackReference(trackStorage.get(paths.indexOf(path)));
     }
 
-    public List<TrackReference> getReferences(List<Track> tracks) {
+    List<TrackReference> getReferences(List<Track> tracks) {
         List<TrackReference> references = new ArrayList<>();
         for (Track track : tracks) {
             references.add(getReference(track.getPath()));

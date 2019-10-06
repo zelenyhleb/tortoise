@@ -14,7 +14,7 @@ import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileTrackListsTask;
 
 public class TrackListsCompiler {
-    private TracksStorageManager tracksStorageManager;
+    private final TracksStorageManager tracksStorageManager;
 
     public TrackListsCompiler(Context context) {
         this.tracksStorageManager = new TracksStorageManager(context);
