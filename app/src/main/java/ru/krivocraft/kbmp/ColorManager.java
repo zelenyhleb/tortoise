@@ -49,6 +49,10 @@ public class ColorManager {
         return Color.rgb(Color.red(colorResource), Color.green(colorResource), Color.blue(colorResource));
     }
 
+    public int getColorResource(int color) {
+        return availableColors.get(color);
+    }
+
     private void fillAvailableColors() {
         availableColors.add(R.color.red700);
         availableColors.add(R.color.pink700);

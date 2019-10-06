@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -42,6 +44,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
+    private int tintColor = R.color.green700;
     private ImageButton playPauseButton;
     private TextView compositionNameTextView;
     private TextView compositionAuthorTextView;
@@ -262,7 +265,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         if (context != null) {
             if (track != null) {
                 if (track.isLiked()) {
-                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.green700)));
+                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, tintColor)));
                 } else {
                     if (settingsManager.getOption(Constants.KEY_THEME, false)) {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
@@ -344,15 +347,23 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
         Context context = getContext();
         Bitmap trackArt = Utils.loadArt(getTrackPath());
+        Track track = tracksStorageManager.getTrack(reference);
         if (context != null) {
             if (trackArt != null) {
                 trackImage.setImageBitmap(trackArt);
             } else {
                 VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
                 VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-                background.setFillColor(colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor()));
+
+                int color = track.getColor();
+
+                background.setFillColor(colorManager.getColor(color));
+                tintColor = colorManager.getColorResource(color);
+                drawLikeButton(context, buttonLike, track);
+
+                compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
             }
-            Track track = tracksStorageManager.getTrack(reference);
 
             buttonLike.setOnClickListener(v -> {
                 swapLikeState(track);
