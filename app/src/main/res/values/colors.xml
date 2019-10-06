@@ -3,10 +3,27 @@
     <color name="grey700">#616161</color>
     <color name="grey800">#3F3F40</color>
     <color name="grey900">#212121</color>
-    <color name="green700">#388e3c</color>
     <color name="green900">#1b5e20</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="red">#C62828</color>
+
+    <!--    Material 700 colors-->
+    <color name="red700">#d32f2f</color>
+    <color name="pink700">#c2185b</color>
+    <color name="purple700">#7c1fa3</color>
+    <color name="deep_purple700">#512da8</color>
+    <color name="indigo700">#303f9f</color>
+    <color name="blue700">#1976d2</color>
+    <color name="light_blue700">#0288d1</color>
+    <color name="cyan700">#0097a7</color>
+    <color name="teal700">#00796b</color>
+    <color name="green700">#388e3c</color>
+    <color name="light_green700">#689f38</color>
+    <color name="lime700">#afb42b</color>
+    <color name="yellow700">#fbc02d</color>
+    <color name="amber700">#ffa000</color>
+    <color name="orange00">#f57c00</color>
+    <color name="deep_orange700">#e64a19</color>
 </resources>

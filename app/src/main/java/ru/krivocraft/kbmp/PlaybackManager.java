@@ -178,10 +178,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (player != null) {
             audioManager.abandonAudioFocus(this);
 
+            restoreAll();
+
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
             updatePlaybackState();
-            player.release();
         }
     }
 

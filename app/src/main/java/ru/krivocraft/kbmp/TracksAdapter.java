@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.devs.vectorchildfinder.VectorChildFinder;
+import com.devs.vectorchildfinder.VectorDrawableCompat;
+
 import java.util.Collections;
 
 import ru.krivocraft.kbmp.api.TracksStorageManager;
@@ -25,6 +28,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private final boolean temp;
     private TracksStorageManager tracksStorageManager;
     private AdapterListener listener;
+    private ColorManager colorManager;
 
     TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp, AdapterListener listener) {
         this.trackList = trackList;
@@ -32,6 +36,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         this.editingAllowed = editingAllowed;
         this.temp = temp;
         this.tracksStorageManager = new TracksStorageManager(context);
+        this.colorManager = new ColorManager(context);
         this.listener = listener;
         setHasStableIds(true);
     }
@@ -40,7 +45,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View root = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.track_list_item, viewGroup, false);
-        return new ViewHolder(root, editingAllowed);
+        return new ViewHolder(root, editingAllowed, colorManager);
     }
 
     @Override
@@ -102,9 +107,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         TrackReference reference;
         TrackList trackList;
         ImageButton more;
+        ColorManager colorManager;
 
-        ViewHolder(@NonNull View itemView, boolean editingAllowed) {
+        ViewHolder(@NonNull View itemView, boolean editingAllowed, ColorManager colorManager) {
             super(itemView);
+            this.colorManager = colorManager;
             title = itemView.findViewById(R.id.composition_name_text);
             artist = itemView.findViewById(R.id.composition_author_text);
             art = itemView.findViewById(R.id.item_track_image);
@@ -138,7 +145,9 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
                 if (art != null) {
                     this.art.setImageBitmap(art);
                 } else {
-                    this.art.setImageDrawable(this.art.getContext().getDrawable(R.drawable.ic_track_image_default));
+                    VectorChildFinder finder = new VectorChildFinder(this.art.getContext(), R.drawable.ic_track_image_default, this.art);
+                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                    background.setFillColor(colorManager.getColor(track.getColor()));
                 }
             });
             loadArtTask.execute(track.getPath());

@@ -9,18 +9,21 @@ import android.provider.MediaStore;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.ColorManager;
 import ru.krivocraft.kbmp.Track;
 
 public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
     private ContentResolver contentResolver;
     private OnStorageUpdateCallback callback;
+    private ColorManager colorManager;
     private boolean recognize;
 
-    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback) {
+    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback, ColorManager colorManager) {
         this.contentResolver = contentResolver;
         this.recognize = recognize;
         this.callback = callback;
+        this.colorManager = colorManager;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
         callback.onStorageUpdate(tracks);
     }
 
-    private static List<Track> search(ContentResolver contentResolver, boolean recognize) {
+    private List<Track> search(ContentResolver contentResolver, boolean recognize) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.DATA,
@@ -72,7 +75,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3") && duration > 0) {
-                    storage.add(new Track(duration, artist, title, path));
+                    storage.add(new Track(duration, artist, title, path, colorManager.getRandomColor()));
                 }
             }
             cursor.close();

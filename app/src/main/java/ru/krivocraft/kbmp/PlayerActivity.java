@@ -46,7 +46,7 @@ public class PlayerActivity extends BaseActivity {
     private void initMediaBrowser() {
         mediaBrowser = new MediaBrowserCompat(
                 PlayerActivity.this,
-                new ComponentName(PlayerActivity.this, MediaPlaybackService.class),
+                new ComponentName(PlayerActivity.this, AndroidMediaService.class),
                 new MediaBrowserCompat.ConnectionCallback() {
                     @Override
                     public void onConnected() {

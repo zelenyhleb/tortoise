@@ -20,12 +20,14 @@ public class Track {
     private String title, artist, path;
     private long duration;
     private int identifier;
+    private int color;
 
-    public Track(long duration, String artist, String title, @NonNull String path) {
+    public Track(long duration, String artist, String title, @NonNull String path, int color) {
         this.duration = duration;
         this.artist = artist;
         this.title = title;
         this.path = path;
+        this.color = color;
 
         this.identifier = path.hashCode();
 
@@ -37,8 +39,8 @@ public class Track {
         }
     }
 
-    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing) {
-        this(duration, artist, title, path);
+    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color) {
+        this(duration, artist, title, path, color);
         this.liked = liked;
         this.selected = selected;
         this.playing = playing;
@@ -134,5 +136,9 @@ public class Track {
 
     public long getDuration() {
         return duration;
+    }
+
+    public int getColor() {
+        return color;
     }
 }

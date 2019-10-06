@@ -12,16 +12,10 @@ import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class TrackListsStorageManager {
 
-    private DBConnection database;
+    private final DBConnection database;
 
     public TrackListsStorageManager(@NonNull Context context) {
         this.database = new DBConnection(context);
-    }
-
-    public void writeTrackLists(List<TrackList> trackLists) {
-        for (TrackList trackList : trackLists) {
-            writeTrackList(trackList);
-        }
     }
 
     public void updateTrackList(TrackList trackList) {

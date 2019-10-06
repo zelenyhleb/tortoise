@@ -4,8 +4,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -13,6 +15,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.devs.vectorchildfinder.VectorChildFinder;
+import com.devs.vectorchildfinder.VectorDrawableCompat;
+
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -20,16 +26,21 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 class NotificationBuilder {
 
     static final int NOTIFY_ID = 124;
-    private MediaPlaybackService context;
+    private Context context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
     private NotificationCompat.Action previousAction;
     private NotificationCompat.Action stopAction;
+    private TracksStorageManager tracksStorageManager;
+    private ColorManager colorManager;
 
 
-    NotificationBuilder(MediaPlaybackService context) {
+    NotificationBuilder(Context context) {
         this.context = context;
+
+        this.tracksStorageManager = new TracksStorageManager(context);
+        this.colorManager = new ColorManager(context);
 
         playAction = new NotificationCompat.Action(R.drawable.ic_play, "play",
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_PLAY));
@@ -73,10 +84,14 @@ class NotificationBuilder {
                     .setShowWhen(false)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
-            Bitmap image = Utils.loadArt(mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
+            String path = mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+            Bitmap image = Utils.loadArt(path);
 
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);
+            } else {
+                int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(path)).getColor());
+                notificationBuilder.setColor(color);
             }
 
             boolean playing = mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
