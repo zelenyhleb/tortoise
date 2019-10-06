@@ -43,7 +43,7 @@
         </receiver>
 
         <service
-            android:name=".MediaPlaybackService"
+            android:name=".AndroidMediaService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true">

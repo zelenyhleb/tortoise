@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
@@ -20,7 +21,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 class NotificationBuilder {
 
     static final int NOTIFY_ID = 124;
-    private MediaPlaybackService context;
+    private Context context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
@@ -28,7 +29,7 @@ class NotificationBuilder {
     private NotificationCompat.Action stopAction;
 
 
-    NotificationBuilder(MediaPlaybackService context) {
+    NotificationBuilder(Context context) {
         this.context = context;
 
         playAction = new NotificationCompat.Action(R.drawable.ic_play, "play",

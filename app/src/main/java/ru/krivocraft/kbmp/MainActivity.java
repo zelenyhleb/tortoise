@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity {
     private void initMediaBrowser() {
         mediaBrowser = new MediaBrowserCompat(
                 MainActivity.this,
-                new ComponentName(MainActivity.this, MediaPlaybackService.class),
+                new ComponentName(MainActivity.this, AndroidMediaService.class),
                 new MediaBrowserCompat.ConnectionCallback() {
                     @Override
                     public void onConnected() {
@@ -136,8 +136,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void startService() {
-        if (!MediaPlaybackService.running) {
-            startService(new Intent(this, MediaPlaybackService.class));
+        if (!AndroidMediaService.running) {
+            startService(new Intent(this, AndroidMediaService.class));
         }
     }
 

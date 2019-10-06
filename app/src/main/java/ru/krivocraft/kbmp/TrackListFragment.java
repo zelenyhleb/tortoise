@@ -169,5 +169,11 @@ public class TrackListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (!showControls) {
+            Context context = getContext();
+            if (context != null) {
+                context.unregisterReceiver(trackListReceiver);
+            }
+        }
     }
 }
