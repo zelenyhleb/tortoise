@@ -15,6 +15,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.devs.vectorchildfinder.VectorChildFinder;
+import com.devs.vectorchildfinder.VectorDrawableCompat;
+
+import ru.krivocraft.kbmp.api.TracksStorageManager;
 import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -28,10 +32,15 @@ class NotificationBuilder {
     private NotificationCompat.Action nextAction;
     private NotificationCompat.Action previousAction;
     private NotificationCompat.Action stopAction;
+    private TracksStorageManager tracksStorageManager;
+    private ColorManager colorManager;
 
 
     NotificationBuilder(Context context) {
         this.context = context;
+
+        this.tracksStorageManager = new TracksStorageManager(context);
+        this.colorManager = new ColorManager(context);
 
         playAction = new NotificationCompat.Action(R.drawable.ic_play, "play",
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_PLAY));
@@ -75,12 +84,14 @@ class NotificationBuilder {
                     .setShowWhen(false)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
-            Bitmap image = Utils.loadArt(mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI));
+            String path = mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+            Bitmap image = Utils.loadArt(path);
 
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);
             } else {
-                notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_track_image_default));
+                int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(path)).getColor());
+                notificationBuilder.setColor(color);
             }
 
             boolean playing = mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
