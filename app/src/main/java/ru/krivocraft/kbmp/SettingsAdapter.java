@@ -44,26 +44,11 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_SORT_BY_ARTIST, false);
                 textView.setText(R.string.settings_sort_artist);
-            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_TAG)) {
-                Switch s = convertView.findViewById(R.id.settings_switch);
-                TextView textView = convertView.findViewById(R.id.settings_text);
-                initSwitch(s, Constants.KEY_SORT_BY_TAG, false);
-                textView.setText(R.string.settings_sort_tag);
             } else if (position == objects.indexOf(Constants.KEY_RECOGNIZE_NAMES)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 initSwitch(s, Constants.KEY_RECOGNIZE_NAMES, true);
                 textView.setText(R.string.settings_recognize);
-            } else if (position == objects.indexOf(Constants.KEY_CLEAR_CACHE)) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_button, null);
-                Button b = convertView.findViewById(R.id.settings_button);
-                TextView textView = convertView.findViewById(R.id.settings_text);
-                b.setText(R.string.settings_clear_cache_button);
-                textView.setText(R.string.settings_clear_cache);
-                b.setOnClickListener(v -> {
-                    Utils.clearCache(getContext().getSharedPreferences(Constants.STORAGE_TRACK_LISTS, Context.MODE_PRIVATE));
-                    Toast.makeText(getContext(), "Cache cleared", Toast.LENGTH_LONG).show();
-                });
             }
         }
         return convertView;

@@ -18,8 +18,12 @@ public class TrackListsStorageManager {
         this.database = new DBConnection(context);
     }
 
-    public void updateTrackList(TrackList trackList) {
-        database.updateTrackList(trackList);
+    public void updateTrackListData(TrackList trackList) {
+        database.updateTrackListData(trackList);
+    }
+
+    public void updateTrackListContent(TrackList trackList) {
+        database.updateTrackListContent(trackList);
     }
 
     public void clearTrackList(TrackList trackList) {

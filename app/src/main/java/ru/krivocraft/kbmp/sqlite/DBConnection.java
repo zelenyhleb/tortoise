@@ -41,6 +41,7 @@ public class DBConnection {
         values.put("title", track.getTitle());
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
+        values.put("color", track.getColor());
         values.put("playing", track.isPlaying() ? 1 : 0);
         values.put("liked", track.isLiked() ? 1 : 0);
         values.put("selected", track.isSelected() ? 1 : 0);
@@ -98,10 +99,13 @@ public class DBConnection {
         database.delete(trackList.getIdentifier(), "1", null);
     }
 
-    public void updateTrackList(TrackList trackList) {
+    public void updateTrackListData(TrackList trackList) {
         ContentValues values = new ContentValues();
         values.put("name", trackList.getDisplayName());
         database.update(TableNames.TRACK_LISTS, values, "id = ?", new String[]{trackList.getIdentifier()});
+    }
+
+    public void updateTrackListContent(TrackList trackList) {
         clearTrackList(trackList);
         fillTrackListTable(trackList);
     }

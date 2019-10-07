@@ -1,9 +1,12 @@
 package ru.krivocraft.kbmp;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+
+import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class Utils {
     static String getFormattedTime(int time) {
@@ -48,12 +51,6 @@ public class Utils {
         }
 
         return art;
-    }
-
-    static void clearCache(SharedPreferences preferences) {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.apply();
     }
 
 }

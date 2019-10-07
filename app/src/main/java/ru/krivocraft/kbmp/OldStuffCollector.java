@@ -28,7 +28,6 @@ public class OldStuffCollector {
         }
         SettingsManager manager = new SettingsManager(context);
         if (manager.getOption(Constants.KEY_OLD_TRACK_LISTS_EXIST, true)) {
-            Utils.clearCache(preferences);
             manager.putOption(Constants.KEY_OLD_TRACK_LISTS_EXIST, false);
         }
     }

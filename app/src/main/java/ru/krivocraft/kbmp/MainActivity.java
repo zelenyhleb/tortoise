@@ -216,9 +216,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         setTheme();
-        if (explorerFragment != null) {
-            explorerFragment.invalidate();
-        }
 
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);

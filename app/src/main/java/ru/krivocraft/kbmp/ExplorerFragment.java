@@ -45,9 +45,10 @@ public class ExplorerFragment extends BaseFragment {
         if (activity != null) {
             for (TrackList trackList : trackLists) {
                 if (trackListsStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
-                    trackListsStorageManager.updateTrackList(trackList);
+                    trackListsStorageManager.updateTrackListContent(trackList);
                 } else {
                     trackListsStorageManager.writeTrackList(trackList);
+
                 }
             }
             activity.runOnUiThread(ExplorerFragment.this::drawTrackLists);
@@ -57,7 +58,7 @@ public class ExplorerFragment extends BaseFragment {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            invalidate();
+            drawTrackLists();
         }
     };
 

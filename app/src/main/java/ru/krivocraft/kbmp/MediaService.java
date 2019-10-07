@@ -167,7 +167,7 @@ class MediaService {
                     if (trackListEdited.equals(playbackManager.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
-                    trackListsStorageManager.updateTrackList(trackListEdited);
+                    trackListsStorageManager.updateTrackListData(trackListEdited);
                     context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
                     break;
             }
