@@ -138,21 +138,23 @@ public class SmallPlayerFragment extends BaseFragment {
     }
 
     private void refreshStateShowers() {
-        final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-        bar.setProgress(Utils.getSeconds(trackProgress));
+        if (rootView != null) {
+            final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
+            bar.setProgress(Utils.getSeconds(trackProgress));
 
-        ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-
-        if (isTrackPlaying()) {
-            playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
-            playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());
-            cancelCurrentTimer();
-            startNewTimer(bar);
-        } else {
-            playPauseCompositionButton.setImageResource(R.drawable.ic_play);
-            playPauseCompositionButton.setOnClickListener(v -> transportControls.play());
-            cancelCurrentTimer();
+            ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
+            if (isTrackPlaying()) {
+                playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
+                playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());
+                cancelCurrentTimer();
+                startNewTimer(bar);
+            } else {
+                playPauseCompositionButton.setImageResource(R.drawable.ic_play);
+                playPauseCompositionButton.setOnClickListener(v -> transportControls.play());
+                cancelCurrentTimer();
+            }
         }
+
     }
 
     void requestPosition(Context context) {
