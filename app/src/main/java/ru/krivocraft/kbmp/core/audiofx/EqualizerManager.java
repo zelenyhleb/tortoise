@@ -6,7 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.audiofx.Equalizer;
 
+import ru.krivocraft.kbmp.core.storage.EqualizerStorageManager;
+import ru.krivocraft.kbmp.core.storage.PreferencesManager;
+
 public class EqualizerManager {
+
+    private static final String STORAGE_NAME = "equalizer_data";
 
     public static final String ACTION_REQUEST_STATE = "request_equalizer_state";
     public static final String ACTION_RESULT_STATE = "result_equalizer_state";
@@ -22,11 +27,18 @@ public class EqualizerManager {
 
     private final Equalizer equalizer;
     private final Context context;
+    private final EqualizerStorageManager storageManager;
 
     public EqualizerManager(int audioSessionId, Context context) {
         this.equalizer = new Equalizer(0, audioSessionId);
         this.equalizer.setEnabled(true);
         this.context = context;
+        this.storageManager = new EqualizerStorageManager(new PreferencesManager(context, STORAGE_NAME));
+
+        Equalizer.Settings settings = storageManager.readSettings();
+        if (settings.numBands > 0) {
+            this.equalizer.setProperties(settings);
+        }
 
         registerReceivers();
     }
@@ -93,6 +105,7 @@ public class EqualizerManager {
             short band = intent.getShortExtra(EXTRA_BAND, (short) 0);
             short level = intent.getShortExtra(EXTRA_LEVEL, (short) 0);
             setBandGain(band, level);
+            storageManager.writeSettings(equalizer.getProperties());
         }
     };
 }
