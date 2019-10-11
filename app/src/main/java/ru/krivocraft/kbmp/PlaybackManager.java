@@ -23,6 +23,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private final MediaPlayer player;
 
     private final TracksStorageManager tracksStorageManager;
+    private final EqualizerManager equalizerManager;
 
     private int playerState;
 
@@ -41,6 +42,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
         this.settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
+        this.equalizerManager = new EqualizerManager(player.getAudioSessionId(), context);
         updatePlaybackState();
         restoreAll();
     }
@@ -135,6 +137,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
+    public int getAudioSessionId() {
+        return player.getAudioSessionId();
+    }
+
     private void removeTrackSelection() {
         if (previousTrackExists()) {
             Track oldSelectedTrack = tracksStorageManager.getTrack(cache);
@@ -178,7 +184,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (player != null) {
             audioManager.abandonAudioFocus(this);
 
-            restoreAll();
+            removeTrackSelection();
 
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
@@ -231,7 +237,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private void updatePlaybackState() {
         if (playerStateCallback != null) {
-            long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_SEEK_TO;
+            long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_STOP;
 
             if (playerState == PlaybackStateCompat.STATE_PLAYING) {
                 availableActions |= PlaybackStateCompat.ACTION_PAUSE;
@@ -300,6 +306,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 setVolume(1.0f);
                 break;
         }
+    }
+
+    public EqualizerManager getEqualizerManager() {
+        return equalizerManager;
     }
 
     interface PlayerStateCallback {

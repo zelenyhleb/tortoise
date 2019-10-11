@@ -11,11 +11,14 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import ru.krivocraft.kbmp.constants.Constants;
@@ -28,19 +31,53 @@ public class PlayerActivity extends BaseActivity {
     private MediaBrowserCompat mediaBrowser;
 
     private TrackList trackList;
-    private int track;
     private LargePlayerFragment largePlayerFragment;
     private TrackListFragment trackListFragment;
+
+    private boolean equalizerShown = false;
+    private EqualizerFragment equalizerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        equalizerFragment = new EqualizerFragment();
+
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);
+        filter.addAction(EqualizerFragment.ACTION_RESULT_SESSION_ID);
         registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_player, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_equalizer) {
+            changeEqualizerState();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void changeEqualizerState() {
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
+        if (!equalizerShown) {
+            transaction.add(R.id.player_container, equalizerFragment);
+        } else {
+            transaction.remove(equalizerFragment);
+        }
+        equalizerShown = !equalizerShown;
+
+        transaction.commitNowAllowingStateLoss();
     }
 
     private void initMediaBrowser() {
@@ -102,9 +139,10 @@ public class PlayerActivity extends BaseActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-            PlayerActivity.this.track = intent.getIntExtra(Constants.Extras.EXTRA_CURSOR, 0);
-            initPager();
+            if (!EqualizerFragment.ACTION_RESULT_SESSION_ID.equals(intent.getAction())) {
+                PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                initPager();
+            }
         }
     };
 
@@ -117,10 +155,14 @@ public class PlayerActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (pager.getCurrentItem() == INDEX_FRAGMENT_PLAYLIST) {
-            pager.setCurrentItem(INDEX_FRAGMENT_PLAYER);
+        if (equalizerShown) {
+            changeEqualizerState();
         } else {
-            super.onBackPressed();
+            if (pager.getCurrentItem() == INDEX_FRAGMENT_PLAYLIST) {
+                pager.setCurrentItem(INDEX_FRAGMENT_PLAYER);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 

@@ -65,7 +65,7 @@ class MediaService {
         });
         playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
 
-        mediaSession.setCallback(new MediaSessionCallback(playbackManager));
+        mediaSession.setCallback(new MediaSessionCallback(playbackManager, this::stopPlayback));
 
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
@@ -153,7 +153,7 @@ class MediaService {
                     playFromList(intent);
                     break;
                 case Constants.Actions.ACTION_REQUEST_STOP:
-                    stopPlayback(context);
+                    stopPlayback();
                     break;
                 case Constants.Actions.ACTION_SHUFFLE:
                     shuffle();
@@ -178,11 +178,14 @@ class MediaService {
         playbackManager.shuffle();
     }
 
-    private void stopPlayback(Context context) {
+    private void stopPlayback() {
+        System.out.println(System.currentTimeMillis());
         playbackManager.stop();
-        context.sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
+        System.out.println(System.currentTimeMillis());
         hideNotification();
-        MediaService.this.context.stopSelf();
+        System.out.println(System.currentTimeMillis());
+        context.sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
+        System.out.println(System.currentTimeMillis());
     }
 
     private void playFromList(Intent intent) {
@@ -226,10 +229,13 @@ class MediaService {
         MediaButtonReceiver.handleIntent(mediaSession, intent);
     }
 
-    void destroy(){
+    void destroy() {
         clearShuffleState();
+
         context.unregisterReceiver(headsetReceiver);
         context.unregisterReceiver(playlistReceiver);
         context.unregisterReceiver(requestDataReceiver);
+
+        playbackManager.getEqualizerManager().destroy();
     }
 }

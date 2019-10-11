@@ -3,10 +3,13 @@ package ru.krivocraft.kbmp;
 import android.support.v4.media.session.MediaSessionCompat;
 
 public class MediaSessionCallback extends MediaSessionCompat.Callback {
-    private final PlaybackManager playbackManager;
 
-    public MediaSessionCallback(PlaybackManager playbackManager) {
+    private final PlaybackManager playbackManager;
+    private final OnStopCallback onStopCallback;
+
+    public MediaSessionCallback(PlaybackManager playbackManager, OnStopCallback onStopCallback) {
         this.playbackManager = playbackManager;
+        this.onStopCallback = onStopCallback;
     }
 
     @Override
@@ -37,5 +40,14 @@ public class MediaSessionCallback extends MediaSessionCompat.Callback {
     @Override
     public void onSkipToQueueItem(long id) {
         playbackManager.newTrack((int) id);
+    }
+
+    @Override
+    public void onStop() {
+        onStopCallback.onStop();
+    }
+
+    interface OnStopCallback {
+        void onStop();
     }
 }

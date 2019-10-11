@@ -55,7 +55,7 @@ class NotificationBuilder {
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
 
         stopAction = new NotificationCompat.Action(R.drawable.ic_close, "stop",
-                PendingIntent.getBroadcast(context.getApplicationContext(), 228, new Intent(Constants.Actions.ACTION_REQUEST_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
+                MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_STOP));
     }
 
     Notification getNotification(MediaSessionCompat mediaSession) {
@@ -90,6 +90,7 @@ class NotificationBuilder {
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);
             } else {
+                notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_track_image_default));
                 int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(path)).getColor());
                 notificationBuilder.setColor(color);
             }
