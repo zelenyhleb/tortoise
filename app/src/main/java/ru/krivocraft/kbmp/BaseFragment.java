@@ -16,10 +16,6 @@ public abstract class BaseFragment extends Fragment {
 
     private SettingsManager settingsManager;
 
-    public BaseFragment(){
-        //Required empty public constructor
-    }
-
     @Override
     public void onResume() {
         super.onResume();
