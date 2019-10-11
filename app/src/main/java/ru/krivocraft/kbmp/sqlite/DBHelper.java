@@ -8,9 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-import ru.krivocraft.kbmp.ColorManager;
-import ru.krivocraft.kbmp.Track;
-import ru.krivocraft.kbmp.TrackList;
+import ru.krivocraft.kbmp.core.ColorManager;
+import ru.krivocraft.kbmp.core.track.Track;
+import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBHelper extends SQLiteOpenHelper {

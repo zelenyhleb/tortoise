@@ -9,8 +9,8 @@ import android.provider.MediaStore;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.krivocraft.kbmp.ColorManager;
-import ru.krivocraft.kbmp.Track;
+import ru.krivocraft.kbmp.core.ColorManager;
+import ru.krivocraft.kbmp.core.track.Track;
 
 public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 

@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import java.util.List;
 import java.util.Map;
 
-import ru.krivocraft.kbmp.Track;
+import ru.krivocraft.kbmp.core.track.Track;
 
 public abstract class CompileTrackListsTask extends AsyncTask<Track, Integer, Map<String, List<Track>>> {
 

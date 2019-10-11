@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.krivocraft.kbmp.TrackList;
+import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.sqlite.DBConnection;
 

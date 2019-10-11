@@ -8,10 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.krivocraft.kbmp.ColorManager;
-import ru.krivocraft.kbmp.Track;
-import ru.krivocraft.kbmp.TrackList;
-import ru.krivocraft.kbmp.TrackReference;
+import ru.krivocraft.kbmp.core.ColorManager;
+import ru.krivocraft.kbmp.core.track.Track;
+import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBConnection {

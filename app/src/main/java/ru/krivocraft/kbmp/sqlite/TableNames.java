@@ -1,6 +1,6 @@
 package ru.krivocraft.kbmp.sqlite;
 
-import ru.krivocraft.kbmp.TrackList;
+import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.constants.Constants;
 
 class TableNames {
