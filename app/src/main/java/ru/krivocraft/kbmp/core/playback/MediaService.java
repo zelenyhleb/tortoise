@@ -16,10 +16,10 @@ import androidx.media.session.MediaButtonReceiver;
 
 import java.util.Objects;
 
+import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.contexts.AndroidMediaService;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
@@ -144,6 +144,7 @@ public class MediaService {
             } else {
                 Intent result = new Intent(Constants.Actions.ACTION_RESULT_TRACK_LIST);
                 result.putExtra(Constants.Extras.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
+                result.putExtra(Constants.Extras.EXTRA_TRACK, playbackManager.getCurrentTrack().toJson());
                 result.putExtra(Constants.Extras.EXTRA_CURSOR, playbackManager.getCursor());
                 context.sendBroadcast(result);
             }

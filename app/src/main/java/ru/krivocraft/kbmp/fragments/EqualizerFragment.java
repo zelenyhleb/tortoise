@@ -1,10 +1,15 @@
 package ru.krivocraft.kbmp.fragments;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,19 +18,34 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
+import java.util.ArrayList;
+import java.util.List;
 
-import ru.krivocraft.kbmp.core.audiofx.EqualizerManager;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.ColorManager;
+import ru.krivocraft.kbmp.core.audiofx.EqualizerManager;
+import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
+import ru.krivocraft.kbmp.core.track.Track;
+import ru.krivocraft.kbmp.core.track.TrackReference;
 
-public class EqualizerFragment extends Fragment {
+public class EqualizerFragment extends BaseFragment {
 
     public static final String ACTION_RESULT_SESSION_ID = "result_session_id";
 
     private LinearLayout linearLayout;
+    private TracksStorageManager tracksStorageManager;
+    private ColorManager colorManager;
+    private List<SeekBar> controls = new ArrayList<>();
+    private Track track;
 
     public EqualizerFragment() {
         // Required empty public constructor
+    }
+
+    public static EqualizerFragment newInstance(Activity activity, TrackReference track) {
+        EqualizerFragment fragment = new EqualizerFragment();
+        fragment.init(activity, track);
+        return fragment;
     }
 
     @Override
@@ -36,6 +56,31 @@ public class EqualizerFragment extends Fragment {
         return rootView;
     }
 
+    private void init(Activity activity, TrackReference track) {
+        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(activity);
+        mediaController.registerCallback(callback);
+
+        this.tracksStorageManager = new TracksStorageManager(activity);
+        this.colorManager = new ColorManager(activity);
+        this.track = tracksStorageManager.getTrack(track);
+    }
+
+    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+            for (SeekBar seekBar : controls) {
+                seekBar.getProgressDrawable().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
+                seekBar.getThumb().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
+            }
+            EqualizerFragment.this.track = track;
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
@@ -44,6 +89,11 @@ public class EqualizerFragment extends Fragment {
             context.registerReceiver(receiver, new IntentFilter(EqualizerManager.ACTION_RESULT_STATE));
             context.sendBroadcast(new Intent(EqualizerManager.ACTION_REQUEST_STATE));
         }
+    }
+
+    @Override
+    public void invalidate() {
+
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -91,6 +141,8 @@ public class EqualizerFragment extends Fragment {
                 bar.setLayoutParams(layoutParams);
                 bar.setMax(maxEQLevel - minEQLevel);
                 bar.setProgress(bandLevel - minEQLevel);
+                bar.getProgressDrawable().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
+                bar.getThumb().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
 
                 bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -109,6 +161,7 @@ public class EqualizerFragment extends Fragment {
 
                     }
                 });
+                controls.add(bar);
 
                 row.addView(minDbTextView);
                 row.addView(bar);

@@ -21,12 +21,13 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
-import ru.krivocraft.kbmp.fragments.EqualizerFragment;
-import ru.krivocraft.kbmp.fragments.LargePlayerFragment;
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.fragments.TrackListFragment;
 import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.core.track.TrackReference;
+import ru.krivocraft.kbmp.fragments.EqualizerFragment;
+import ru.krivocraft.kbmp.fragments.LargePlayerFragment;
+import ru.krivocraft.kbmp.fragments.TrackListFragment;
 
 public class PlayerActivity extends BaseActivity {
 
@@ -47,12 +48,9 @@ public class PlayerActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        equalizerFragment = new EqualizerFragment();
-
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);
-        filter.addAction(EqualizerFragment.ACTION_RESULT_SESSION_ID);
         registerReceiver(receiver, filter);
     }
 
@@ -72,17 +70,19 @@ public class PlayerActivity extends BaseActivity {
     }
 
     private void changeEqualizerState() {
-        FragmentTransaction transaction = getSupportFragmentManager()
-                .beginTransaction()
-                .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
-        if (!equalizerShown) {
-            transaction.add(R.id.player_container, equalizerFragment);
-        } else {
-            transaction.remove(equalizerFragment);
-        }
-        equalizerShown = !equalizerShown;
+        if (equalizerFragment != null) {
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
+            if (!equalizerShown) {
+                transaction.add(R.id.player_container, equalizerFragment);
+            } else {
+                transaction.remove(equalizerFragment);
+            }
+            equalizerShown = !equalizerShown;
 
-        transaction.commitNowAllowingStateLoss();
+            transaction.commitNowAllowingStateLoss();
+        }
     }
 
     private void initMediaBrowser() {
@@ -146,6 +146,7 @@ public class PlayerActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (!EqualizerFragment.ACTION_RESULT_SESSION_ID.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK)));
                 initPager();
             }
         }
