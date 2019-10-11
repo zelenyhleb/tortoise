@@ -137,10 +137,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         }
     }
 
-    public int getAudioSessionId() {
-        return player.getAudioSessionId();
-    }
-
     private void removeTrackSelection() {
         if (previousTrackExists()) {
             Track oldSelectedTrack = tracksStorageManager.getTrack(cache);
