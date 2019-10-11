@@ -5,5 +5,11 @@
         android:id="@+id/action_equalizer"
         android:icon="@drawable/ic_settings"
         android:title="@string/equalizer"
-        app:showAsAction="always" />
+        app:showAsAction="collapseActionView" />
+    <item
+        android:checkable="true"
+        android:id="@+id/action_mono"
+        android:icon="@drawable/ic_unshuffled"
+        android:title="@string/to_mono"
+        app:showAsAction="collapseActionView" />
 </menu>

@@ -23,4 +23,5 @@
     <string name="settings_clear_cache_button">CLEAR</string>
     <string name="search">Search</string>
     <string name="name">Name</string>
+    <string name="to_mono">To mono</string>
 </resources>

@@ -8,7 +8,6 @@
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/pager_p"
-        android:layout_above="@id/player_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
