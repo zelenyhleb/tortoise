@@ -35,10 +35,15 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         TrackList trackList = getItem(position);
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
+
+        View itemView;
+        if (convertView != null) {
+            itemView = convertView;
+        } else {
+            itemView = LayoutInflater.from(getContext()).inflate(R.layout.playlists_grid_item, null);
         }
-        ImageView imageView = convertView.findViewById(R.id.fragment_playlist_picture);
+
+        ImageView imageView = itemView.findViewById(R.id.fragment_playlist_picture);
 
         if (trackList != null) {
             Bitmap art = thumbnailStorageManager.readThumbnail(trackList.getIdentifier());
@@ -60,10 +65,10 @@ class TrackListAdapter extends ArrayAdapter<TrackList> {
                 task.execute(tracksStorageManager.getTracks(trackList.getTrackReferences()).toArray(new Track[0]));
             }
 
-            ((TextView) convertView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getDisplayName());
+            ((TextView) itemView.findViewById(R.id.fragment_playlist_name)).setText(trackList.getDisplayName());
         }
 
         imageView.setClipToOutline(true);
-        return convertView;
+        return itemView;
     }
 }

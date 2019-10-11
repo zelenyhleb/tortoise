@@ -15,11 +15,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.devs.vectorchildfinder.VectorChildFinder;
-import com.devs.vectorchildfinder.VectorDrawableCompat;
-
 import ru.krivocraft.kbmp.api.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 

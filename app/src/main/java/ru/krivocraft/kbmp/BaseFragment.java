@@ -14,7 +14,7 @@ import ru.krivocraft.kbmp.constants.Constants;
 
 public abstract class BaseFragment extends Fragment {
 
-    SettingsManager settingsManager;
+    private SettingsManager settingsManager;
 
     public BaseFragment(){
         //Required empty public constructor
@@ -27,6 +27,10 @@ public abstract class BaseFragment extends Fragment {
     }
 
     abstract void invalidate();
+
+    public SettingsManager getSettingsManager() {
+        return settingsManager;
+    }
 
     @Nullable
     @Override

@@ -126,8 +126,8 @@ public class ExplorerFragment extends BaseFragment {
 
     private void drawTrackLists() {
         progressBar.setVisibility(View.GONE);
-        boolean sortByTag = settingsManager.getOption(Constants.KEY_SORT_BY_TAG, false);
-        boolean sortByAuthor = settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false);
+        boolean sortByTag = getSettingsManager().getOption(Constants.KEY_SORT_BY_TAG, false);
+        boolean sortByAuthor = getSettingsManager().getOption(Constants.KEY_SORT_BY_ARTIST, false);
         redrawList(trackListsStorageManager.readTrackLists(sortByTag, sortByAuthor));
     }
 
@@ -150,7 +150,7 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             trackListsCompiler.compileFavorites(this::onNewTrackLists);
-            if (settingsManager.getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
+            if (getSettingsManager().getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
                 trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
         }
