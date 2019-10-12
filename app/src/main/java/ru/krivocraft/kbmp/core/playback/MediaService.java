@@ -42,7 +42,7 @@ public class MediaService {
 
     public MediaService(MediaBrowserServiceCompat context) {
         this.context = context;
-        mediaSession = new MediaSessionCompat(context, AndroidMediaService.class.getSimpleName());
+        mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
         context.setSessionToken(mediaSession.getSessionToken());
 
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);

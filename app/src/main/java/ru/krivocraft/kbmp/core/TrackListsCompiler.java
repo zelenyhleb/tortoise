@@ -1,11 +1,14 @@
 package ru.krivocraft.kbmp.core;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
@@ -15,9 +18,11 @@ import ru.krivocraft.kbmp.tasks.compilers.CompileTrackListsTask;
 
 public class TrackListsCompiler {
     private final TracksStorageManager tracksStorageManager;
+    private final TrackListsStorageManager trackListsStorageManager;
 
     public TrackListsCompiler(Context context) {
         this.tracksStorageManager = new TracksStorageManager(context);
+        this.trackListsStorageManager = new TrackListsStorageManager(context);
     }
 
     public void compileByAuthors(OnTrackListsCompiledCallback callback) {
@@ -26,6 +31,11 @@ public class TrackListsCompiler {
     }
 
     public void compileFavorites(OnTrackListsCompiledCallback callback) {
+        try {
+            trackListsStorageManager.clearTrackList(TrackList.createIdentifier(TrackListsStorageManager.FAVORITES_DISPLAY_NAME));
+        } catch (SQLiteException e) {
+            //No trackList available
+        }
         CompileFavoritesTask task = new CompileFavoritesTask();
         compile(task, TrackList.TRACK_LIST_CUSTOM, callback);
     }

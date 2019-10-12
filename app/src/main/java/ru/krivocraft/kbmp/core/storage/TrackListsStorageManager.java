@@ -29,7 +29,7 @@ public class TrackListsStorageManager {
         database.updateTrackListContent(trackList);
     }
 
-    public void clearTrackList(TrackList trackList) {
+    public void clearTrackList(String trackList) {
         database.clearTrackList(trackList);
     }
 

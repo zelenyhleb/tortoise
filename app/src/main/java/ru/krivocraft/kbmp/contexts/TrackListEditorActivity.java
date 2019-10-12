@@ -93,7 +93,7 @@ public class TrackListEditorActivity extends AppCompatActivity {
         apply.setOnClickListener(v -> {
             if (checkTrackList(changed.size(), changed.getDisplayName(), TrackListEditorActivity.this)) {
                 if (!creation) {
-                    trackListsStorageManager.clearTrackList(changed);
+                    trackListsStorageManager.clearTrackList(changed.getIdentifier());
                     trackListsStorageManager.updateTrackListData(changed);
                     trackListsStorageManager.updateTrackListContent(changed);
                 } else {

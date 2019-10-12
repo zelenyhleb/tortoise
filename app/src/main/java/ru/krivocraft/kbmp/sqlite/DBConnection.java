@@ -101,8 +101,8 @@ public class DBConnection {
         createTrackListEntry(trackList);
     }
 
-    public void clearTrackList(TrackList trackList) {
-        database.delete(trackList.getIdentifier(), "1", null);
+    public void clearTrackList(String trackList) {
+        database.delete(trackList, "1", null);
     }
 
     public void updateTrackListData(TrackList trackList) {
@@ -112,7 +112,7 @@ public class DBConnection {
     }
 
     public void updateTrackListContent(TrackList trackList) {
-        clearTrackList(trackList);
+        clearTrackList(trackList.getIdentifier());
         fillTrackListTable(trackList);
     }
 
