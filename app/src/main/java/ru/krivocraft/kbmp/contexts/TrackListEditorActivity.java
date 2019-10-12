@@ -8,6 +8,8 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,8 +18,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,7 @@ import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 
-public class TrackListEditorActivity extends AppCompatActivity {
+public class TrackListEditorActivity extends BaseActivity {
 
     private static final int GALLERY_REQUEST_CODE = 2831;
     public static final String EXTRA_CREATION = "creation";
@@ -83,10 +85,13 @@ public class TrackListEditorActivity extends AppCompatActivity {
             adapter.notifyDataSetInvalidated();
         });
 
-        if (creation) {
-            getSupportActionBar().setTitle("Create Playlist");
-        } else {
-            getSupportActionBar().setTitle("Edit Playlist");
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            if (creation) {
+                supportActionBar.setTitle("Create Playlist");
+            } else {
+                supportActionBar.setTitle("Edit Playlist");
+            }
         }
 
         Button apply = findViewById(R.id.track_list_editor_button_apply);
@@ -183,6 +188,26 @@ public class TrackListEditorActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    void init() {
+        //Do nothing
+    }
+
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
+        //Do nothing
+    }
+
+    @Override
+    void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        //Do nothing
+    }
+
+    @Override
+    void onMediaBrowserConnected() {
+        //Do nothing
     }
 
     private void initTools() {

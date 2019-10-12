@@ -30,17 +30,15 @@ import ru.krivocraft.kbmp.core.track.TrackReference;
 
 public class EqualizerFragment extends BaseFragment {
 
-    public static final String ACTION_RESULT_SESSION_ID = "result_session_id";
-
     private LinearLayout linearLayout;
     private TracksStorageManager tracksStorageManager;
     private ColorManager colorManager;
     private List<SeekBar> controls = new ArrayList<>();
     private Track track;
 
-    public static EqualizerFragment newInstance(Activity activity, TrackReference track) {
+    public static EqualizerFragment newInstance(Activity activity, TrackReference track, MediaControllerCompat mediaController) {
         EqualizerFragment fragment = new EqualizerFragment();
-        fragment.init(activity, track);
+        fragment.init(activity, track, mediaController);
         return fragment;
     }
 
@@ -51,8 +49,7 @@ public class EqualizerFragment extends BaseFragment {
         return rootView;
     }
 
-    private void init(Activity activity, TrackReference track) {
-        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(activity);
+    private void init(Activity activity, TrackReference track, MediaControllerCompat mediaController) {
         mediaController.registerCallback(callback);
 
         this.tracksStorageManager = new TracksStorageManager(activity);

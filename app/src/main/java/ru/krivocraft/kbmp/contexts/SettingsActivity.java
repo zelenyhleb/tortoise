@@ -1,6 +1,8 @@
 package ru.krivocraft.kbmp.contexts;
 
 import android.os.Bundle;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.ListView;
 
 import java.util.Arrays;
@@ -20,6 +22,26 @@ public class SettingsActivity extends BaseActivity {
         ListView listView = findViewById(R.id.settings_list);
         List<String> settings = getSettings();
         listView.setAdapter(new SettingsAdapter(this, settings));
+    }
+
+    @Override
+    void init() {
+        //Do nothing
+    }
+
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
+        //Do nothing
+    }
+
+    @Override
+    void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        //Do nothing
+    }
+
+    @Override
+    void onMediaBrowserConnected() {
+        //Do nothing
     }
 
     private List<String> getSettings() {

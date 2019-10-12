@@ -1,28 +1,19 @@
 package ru.krivocraft.kbmp.contexts;
 
-import android.Manifest;
 import android.animation.LayoutTransition;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 
 import ru.krivocraft.kbmp.R;
@@ -32,18 +23,13 @@ import ru.krivocraft.kbmp.fragments.ExplorerFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackListFragment;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
 public class MainActivity extends BaseActivity {
 
     private SmallPlayerFragment smallPlayerFragment;
-    private MediaBrowserCompat mediaBrowser;
 
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
     private static final int STATE_TRACK_LIST = 2;
-
-    private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
@@ -61,22 +47,27 @@ public class MainActivity extends BaseActivity {
     private TrackListFragment trackListFragment;
     private ExplorerFragment explorerFragment;
 
-    private final MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            showSmallPlayerFragment();
-        }
-    };
+    @Override
+    void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        showSmallPlayerFragment();
+    }
+
+    @Override
+    void onMediaBrowserConnected() {
+        showSmallPlayerFragment();
+        showExplorerFragment();
+    }
 
     @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        trackListFragment = TrackListFragment.newInstance(trackList, true, this);
+        trackListFragment = TrackListFragment.newInstance(trackList, true, this, mediaController);
         return trackListFragment;
     }
 
     private ExplorerFragment getExplorerFragment() {
         if (explorerFragment == null) {
-            explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment); //ExplorerFragment is singleton, so we will reuse it, if it is possible
+            //ExplorerFragment is singleton, so we will reuse it, if it is possible
+            explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
         }
         return explorerFragment;
     }
@@ -85,7 +76,6 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         clearOld();
-        requestStoragePermission();
     }
 
     private void clearOld() {
@@ -93,49 +83,18 @@ public class MainActivity extends BaseActivity {
         collector.execute();
     }
 
-    private void init() {
+    @Override
+    void init() {
         setContentView(R.layout.activity_tortoise);
         configureLayoutTransition();
 
         startService();
         registerPlayerControlReceiver();
-
-        initMediaBrowser();
-        mediaBrowser.connect();
-
-        showExplorerFragment();
     }
 
-    private void initMediaBrowser() {
-        mediaBrowser = new MediaBrowserCompat(
-                MainActivity.this,
-                new ComponentName(MainActivity.this, AndroidMediaService.class),
-                new MediaBrowserCompat.ConnectionCallback() {
-                    @Override
-                    public void onConnected() {
-                        try {
-                            MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
-                            MediaControllerCompat controller = new MediaControllerCompat(MainActivity.this, token);
-                            MediaControllerCompat.setMediaController(MainActivity.this, controller);
-                            controller.registerCallback(callback);
-                            showSmallPlayerFragment();
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    }
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
 
-                    @Override
-                    public void onConnectionFailed() {
-                        Log.e("TAG", "onConnectionFailed");
-                        Toast.makeText(MainActivity.this, "Something is wrong", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onConnectionSuspended() {
-                        Log.e("TAG", "onConnectionSuspended");
-                    }
-                },
-                null);
     }
 
     private void configureLayoutTransition() {
@@ -179,14 +138,20 @@ public class MainActivity extends BaseActivity {
             showFragment(explorerFragment);
         }
         viewState = STATE_EXPLORER;
-        getSupportActionBar().setTitle("Tortoise");
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle("Tortoise");
+        }
     }
 
     private void showTrackListFragment(TrackList trackList) {
         hideExplorerFragment();
         addFragment(R.anim.fadeinshort, getTrackListFragment(trackList), R.id.fragment_container);
         viewState = STATE_TRACK_LIST;
-        getSupportActionBar().setTitle(trackList.getDisplayName());
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle(trackList.getDisplayName());
+        }
     }
 
     @Override
@@ -201,40 +166,14 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaBrowser != null) {
-            mediaBrowser.disconnect();
-
-            unregisterReceiver(showPlayerReceiver);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                init();
-            } else {
-                Toast.makeText(this, "App requires external storage permission to work", Toast.LENGTH_LONG).show();
-                finishAffinity();
-            }
-        }
+        unregisterReceiver(showPlayerReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setTheme();
-
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
-        }
-    }
-
-    private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
-        } else {
-            init();
         }
     }
 
@@ -248,10 +187,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showSmallPlayerFragment() {
-        if (getMediaController().getMetadata() != null) {
+        if (mediaController.getMetadata() != null) {
             if (smallPlayerFragment == null) {
                 SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                smallPlayerFragment.init(MainActivity.this);
+                smallPlayerFragment.init(MainActivity.this, mediaController);
                 MainActivity.this.smallPlayerFragment = smallPlayerFragment;
                 addFragment(R.anim.slideup, MainActivity.this.smallPlayerFragment, R.id.player_container);
             } else {

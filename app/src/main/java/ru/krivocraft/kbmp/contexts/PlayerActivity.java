@@ -1,19 +1,14 @@
 package ru.krivocraft.kbmp.contexts;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -35,7 +30,6 @@ public class PlayerActivity extends BaseActivity {
     private final static int INDEX_FRAGMENT_PLAYER = 0;
     private final static int INDEX_FRAGMENT_PLAYLIST = 1;
     private ViewPager pager;
-    private MediaBrowserCompat mediaBrowser;
 
     private TrackList trackList;
     private LargePlayerFragment largePlayerFragment;
@@ -49,11 +43,30 @@ public class PlayerActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
         filter.addAction(MainActivity.ACTION_HIDE_PLAYER);
         registerReceiver(receiver, filter);
+    }
+
+    @Override
+    void init() {
+        //Do nothing
+    }
+
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
+        //Do nothing
+    }
+
+    @Override
+    void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        //Do nothing
+    }
+
+    @Override
+    void onMediaBrowserConnected() {
+        sendBroadcast(new Intent(MediaService.ACTION_REQUEST_TRACK_LIST));
     }
 
     @Override
@@ -87,38 +100,6 @@ public class PlayerActivity extends BaseActivity {
         }
     }
 
-    private void initMediaBrowser() {
-        mediaBrowser = new MediaBrowserCompat(
-                PlayerActivity.this,
-                new ComponentName(PlayerActivity.this, AndroidMediaService.class),
-                new MediaBrowserCompat.ConnectionCallback() {
-                    @Override
-                    public void onConnected() {
-                        try {
-                            MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
-                            MediaControllerCompat controller = new MediaControllerCompat(PlayerActivity.this, token);
-                            MediaControllerCompat.setMediaController(PlayerActivity.this, controller);
-                            sendBroadcast(new Intent(MediaService.ACTION_REQUEST_TRACK_LIST));
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onConnectionFailed() {
-                        Log.e("TAG", "onConnectionFailed");
-                        Toast.makeText(PlayerActivity.this, "Something is wrong", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onConnectionSuspended() {
-                        Log.e("TAG", "onConnectionSuspended");
-                    }
-                },
-                null);
-        mediaBrowser.connect();
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -128,11 +109,11 @@ public class PlayerActivity extends BaseActivity {
     }
 
     private void createTrackListFragment() {
-        trackListFragment = TrackListFragment.newInstance(trackList, false, PlayerActivity.this);
+        trackListFragment = TrackListFragment.newInstance(trackList, false, PlayerActivity.this, mediaController);
     }
 
     private void createPlayerFragment() {
-        largePlayerFragment = LargePlayerFragment.newInstance(PlayerActivity.this, trackList);
+        largePlayerFragment = LargePlayerFragment.newInstance(PlayerActivity.this, trackList, mediaController);
     }
 
     private void initPager() {
@@ -150,7 +131,7 @@ public class PlayerActivity extends BaseActivity {
                 finish();
             } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
+                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)), mediaController);
                 initPager();
             }
         }
@@ -159,7 +140,6 @@ public class PlayerActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaBrowser.disconnect();
         unregisterReceiver(receiver);
     }
 

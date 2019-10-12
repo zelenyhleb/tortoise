@@ -86,9 +86,9 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         };
     }
 
-    public static LargePlayerFragment newInstance(Activity activity, TrackList trackList) {
+    public static LargePlayerFragment newInstance(Activity activity, TrackList trackList, MediaControllerCompat mediaController) {
         LargePlayerFragment fragment = new LargePlayerFragment();
-        fragment.init(activity, trackList);
+        fragment.init(activity, trackList, mediaController);
         fragment.initHandler();
         return fragment;
     }
@@ -139,10 +139,9 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
-    private void init(Activity context, TrackList trackList) {
+    private void init(Activity context, TrackList trackList, MediaControllerCompat mediaController) {
         this.tracksStorageManager = new TracksStorageManager(context);
 
-        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
         this.transportControls = mediaController.getTransportControls();
         mediaController.registerCallback(callback);
 

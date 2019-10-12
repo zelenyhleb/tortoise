@@ -3,11 +3,12 @@ package ru.krivocraft.kbmp.contexts;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.TextChangeSolver;
@@ -15,7 +16,7 @@ import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 
-public class TrackEditorActivity extends AppCompatActivity {
+public class TrackEditorActivity extends BaseActivity {
 
     private Track source;
     private Track changed;
@@ -73,6 +74,26 @@ public class TrackEditorActivity extends AppCompatActivity {
                 changed.setArtist(s.toString());
             }
         });
+    }
+
+    @Override
+    void init() {
+        //Do nothing
+    }
+
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
+        //Do nothing
+    }
+
+    @Override
+    void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        //Do nothing
+    }
+
+    @Override
+    void onMediaBrowserConnected() {
+        //Do nothing
     }
 
     private void showNotSavedPrompt() {

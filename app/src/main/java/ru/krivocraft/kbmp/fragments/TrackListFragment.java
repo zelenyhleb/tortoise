@@ -71,14 +71,13 @@ public class TrackListFragment extends BaseFragment {
     };
     private ItemTouchHelper touchHelper;
 
-    public static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context) {
+    public static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context, MediaControllerCompat mediaController) {
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(showControls, trackList, context);
+        trackListFragment.init(showControls, trackList, context, mediaController);
         return trackListFragment;
     }
 
-    private void init(boolean showControls, TrackList trackList, Activity context) {
-        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+    private void init(boolean showControls, TrackList trackList, Activity context, MediaControllerCompat mediaController) {
         mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.tracksStorageManager = new TracksStorageManager(context);

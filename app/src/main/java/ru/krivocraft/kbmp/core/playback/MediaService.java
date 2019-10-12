@@ -16,6 +16,7 @@ import androidx.media.session.MediaButtonReceiver;
 import java.util.Objects;
 
 import ru.krivocraft.kbmp.contexts.MainActivity;
+import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
@@ -91,6 +92,10 @@ public class MediaService {
         playlistFilter.addAction(ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(ACTION_PLAY_FROM_LIST);
         context.registerReceiver(playlistReceiver, playlistFilter);
+
+        IntentFilter colorFilter = new IntentFilter();
+        colorFilter.addAction(ColorManager.ACTION_REQUEST_COLOR);
+        context.registerReceiver(colorRequestReceiver, colorFilter);
 
     }
 
@@ -228,6 +233,20 @@ public class MediaService {
         }
     }
 
+    private BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Track track = tracksStorageManager.getTrack(playbackManager.getCurrentTrack());
+            int color = -1;
+            if (track != null) {
+                color = track.getColor();
+            }
+            context.sendBroadcast(new Intent(ColorManager.ACTION_RESULT_COLOR)
+                    .putExtra(ColorManager.EXTRA_COLOR, color));
+
+        }
+    };
+
     private void updateTrackList(TrackList list) {
         Intent intent = new Intent(ACTION_UPDATE_TRACK_LIST);
         intent.putExtra(TrackList.EXTRA_TRACK_LIST, list.toJson());
@@ -249,6 +268,7 @@ public class MediaService {
         context.unregisterReceiver(headsetReceiver);
         context.unregisterReceiver(playlistReceiver);
         context.unregisterReceiver(requestDataReceiver);
+        context.unregisterReceiver(colorRequestReceiver);
 
         playbackManager.destroy();
     }

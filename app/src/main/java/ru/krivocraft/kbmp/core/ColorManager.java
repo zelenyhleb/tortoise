@@ -34,6 +34,10 @@ public class ColorManager {
     public static final int ORANGE = 14;
     public static final int DEEP_ORANGE = 15;
 
+    public static final String ACTION_RESULT_COLOR = "result_color";
+    public static final String ACTION_REQUEST_COLOR = "request_color";
+    public static final String EXTRA_COLOR = "color";
+
     public ColorManager(Context context) {
         this.context = context;
         this.random = new Random();

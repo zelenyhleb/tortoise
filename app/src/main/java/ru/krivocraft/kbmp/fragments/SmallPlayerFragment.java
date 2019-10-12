@@ -73,8 +73,7 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     };
 
-    public void init(Activity context) {
-        MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(context);
+    public void init(Activity context, MediaControllerCompat mediaController) {
         this.transportControls = mediaController.getTransportControls();
 
         mediaController.registerCallback(callback);
