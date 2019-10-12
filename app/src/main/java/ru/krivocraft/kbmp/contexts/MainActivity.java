@@ -25,12 +25,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import ru.krivocraft.kbmp.fragments.ExplorerFragment;
-import ru.krivocraft.kbmp.core.OldStuffCollector;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.OldStuffCollector;
+import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.fragments.ExplorerFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackListFragment;
-import ru.krivocraft.kbmp.core.track.TrackList;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 

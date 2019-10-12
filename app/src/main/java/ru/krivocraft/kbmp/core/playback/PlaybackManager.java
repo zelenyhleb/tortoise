@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.core.audiofx.EqualizerManager;
 import ru.krivocraft.kbmp.core.storage.PreferencesManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.core.audiofx.EqualizerManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;

@@ -15,7 +15,7 @@ public class TrackList {
     public static final String EXTRA_TRACK_LIST = "track_list_extra";
 
     public static final int TRACK_LIST_CUSTOM = 91;
-    public static final int TRACK_LIST_BY_AUTHOR= 92;
+    public static final int TRACK_LIST_BY_AUTHOR = 92;
     public static final int TRACK_LIST_BY_TAG = 93;
 
     public static final String LOOP_TYPE = "loop_type";
@@ -48,7 +48,7 @@ public class TrackList {
     public static String createIdentifier(String displayName) {
         StringBuilder sb = new StringBuilder(TABLE_PREFIX);
         for (int i = 0; i < displayName.length(); i++) {
-            sb.append(Integer.parseInt(String.valueOf(displayName.codePointAt(i)),16));
+            sb.append(Integer.parseInt(String.valueOf(displayName.codePointAt(i)), 16));
         }
         return sb.toString();
     }

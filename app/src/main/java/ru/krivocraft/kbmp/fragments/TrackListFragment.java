@@ -25,8 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import ru.krivocraft.kbmp.core.ItemTouchHelperCallback;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.ItemTouchHelperCallback;
 import ru.krivocraft.kbmp.core.Searcher;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;

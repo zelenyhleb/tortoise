@@ -15,9 +15,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
-import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.PlayerActivity;
+import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.utils.BitmapUtils;
 

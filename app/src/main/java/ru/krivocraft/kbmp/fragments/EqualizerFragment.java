@@ -38,10 +38,6 @@ public class EqualizerFragment extends BaseFragment {
     private List<SeekBar> controls = new ArrayList<>();
     private Track track;
 
-    public EqualizerFragment() {
-        // Required empty public constructor
-    }
-
     public static EqualizerFragment newInstance(Activity activity, TrackReference track) {
         EqualizerFragment fragment = new EqualizerFragment();
         fragment.init(activity, track);
@@ -52,7 +48,6 @@ public class EqualizerFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_equalizer, container, false);
         linearLayout = rootView.findViewById(R.id.equalizer_layout);
-
         return rootView;
     }
 
@@ -68,6 +63,7 @@ public class EqualizerFragment extends BaseFragment {
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+            //do nothing
         }
 
         @Override
@@ -93,7 +89,7 @@ public class EqualizerFragment extends BaseFragment {
 
     @Override
     public void invalidate() {
-
+        //do nothing
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -155,10 +151,11 @@ public class EqualizerFragment extends BaseFragment {
                     }
 
                     public void onStartTrackingTouch(SeekBar seekBar) {
+                        //do nothing
                     }
 
                     public void onStopTrackingTouch(SeekBar seekBar) {
-
+                        //do nothing
                     }
                 });
                 controls.add(bar);

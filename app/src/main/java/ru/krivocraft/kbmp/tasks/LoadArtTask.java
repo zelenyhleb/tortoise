@@ -24,7 +24,7 @@ public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
         this.callback = callback;
     }
 
-    public interface BitmapDecoderCallback{
+    public interface BitmapDecoderCallback {
         void onBitmapDecoded(Bitmap bitmap);
     }
 }

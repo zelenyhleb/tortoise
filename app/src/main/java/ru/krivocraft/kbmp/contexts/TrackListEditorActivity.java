@@ -24,11 +24,11 @@ import java.util.List;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.Searcher;
-import ru.krivocraft.kbmp.core.track.SelectableTracksAdapter;
 import ru.krivocraft.kbmp.core.TextChangeSolver;
 import ru.krivocraft.kbmp.core.storage.ThumbnailStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
+import ru.krivocraft.kbmp.core.track.SelectableTracksAdapter;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;

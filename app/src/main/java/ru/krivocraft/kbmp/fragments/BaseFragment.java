@@ -35,7 +35,7 @@ public abstract class BaseFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             settingsManager = new SettingsStorageManager(context);
-            if (settingsManager.getOption(SettingsStorageManager.KEY_THEME, false)){
+            if (settingsManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
                 context.getTheme().applyStyle(R.style.LightTheme, true);
             } else {
                 context.getTheme().applyStyle(R.style.DarkTheme, true);

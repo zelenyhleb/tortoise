@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.core.track.Track;
 
 public class SelectableTracksAdapter extends ArrayAdapter<Track> {
 

@@ -29,7 +29,7 @@ public class PreferencesManager {
         return preferences.getInt(key, 0);
     }
 
-    private SharedPreferences.Editor getEditor(){
+    private SharedPreferences.Editor getEditor() {
         return preferences.edit();
     }
 }

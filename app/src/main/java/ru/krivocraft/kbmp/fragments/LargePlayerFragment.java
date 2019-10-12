@@ -38,17 +38,17 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.PreferencesManager;
 import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
-import ru.krivocraft.kbmp.core.utils.TimeUtils;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.core.utils.BitmapUtils;
+import ru.krivocraft.kbmp.core.utils.TimeUtils;
 
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
