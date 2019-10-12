@@ -250,6 +250,6 @@ public class MediaService {
         context.unregisterReceiver(playlistReceiver);
         context.unregisterReceiver(requestDataReceiver);
 
-        playbackManager.getEqualizerManager().destroy();
+        playbackManager.destroy();
     }
 }

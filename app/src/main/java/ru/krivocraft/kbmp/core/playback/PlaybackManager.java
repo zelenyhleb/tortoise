@@ -46,7 +46,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 setVolume(0.3f);
                 break;
-            case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+            case AudioManager.AUDIOFOCUS_GAIN:
                 play();
                 setVolume(1.0f);
                 break;
@@ -71,7 +71,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.equalizerManager = new EqualizerManager(player.getAudioSessionId(), context);
         updatePlaybackState();
         restoreAll();
-        requestAudioFocus();
     }
 
     private void requestAudioFocus() {
@@ -81,7 +80,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build();
-                AudioFocusRequest focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                AudioFocusRequest focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                         .setAudioAttributes(playbackAttributes)
                         .setAcceptsDelayedFocusGain(false)
                         .setOnAudioFocusChangeListener(focusChangeListener)
@@ -89,7 +88,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
                 audioManager.requestAudioFocus(focusRequest);
             } else {
-                audioManager.requestAudioFocus(focusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+                audioManager.requestAudioFocus(focusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
             }
         }
     }
@@ -103,6 +102,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             TrackReference selectedReference = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
             Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
+
+            requestAudioFocus();
 
             if (mediaChanged) {
 
@@ -146,9 +147,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             Track selectedTrack = tracksStorageManager.getTrack(cache);
             selectedTrack.setPlaying(false);
             tracksStorageManager.updateTrack(selectedTrack);
-            audioManager.abandonAudioFocus(focusChangeListener);
         }
-
+        audioManager.abandonAudioFocus(focusChangeListener);
         playerState = PlaybackStateCompat.STATE_PAUSED;
         updatePlaybackState();
     }
@@ -319,6 +319,13 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         player.setVolume(volume, volume);
     }
 
+    void destroy(){
+        equalizerManager.destroy();
+
+        audioManager.abandonAudioFocus(focusChangeListener);
+        player.release();
+    }
+
     @Override
     public void onPrepared(MediaPlayer mp) {
         player.start();
@@ -329,10 +336,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         playerState = PlaybackStateCompat.STATE_PLAYING;
         updatePlaybackState();
-    }
-
-    public EqualizerManager getEqualizerManager() {
-        return equalizerManager;
     }
 
     interface PlayerStateCallback {
