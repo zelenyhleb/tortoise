@@ -42,19 +42,16 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             case AudioManager.AUDIOFOCUS_LOSS:
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 pause();
-                System.out.println("LOST");
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 setVolume(0.3f);
-                System.out.println("DUCK");
                 break;
             case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
                 play();
                 setVolume(1.0f);
-                System.out.println("GAIN");
                 break;
             default:
-                System.out.println("NOTHING");
+                //Do nothing
                 break;
         }
     };

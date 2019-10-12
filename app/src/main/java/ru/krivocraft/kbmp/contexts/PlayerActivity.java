@@ -52,6 +52,7 @@ public class PlayerActivity extends BaseActivity {
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
+        filter.addAction(MainActivity.ACTION_HIDE_PLAYER);
         registerReceiver(receiver, filter);
     }
 
@@ -145,7 +146,9 @@ public class PlayerActivity extends BaseActivity {
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!EqualizerFragment.ACTION_RESULT_SESSION_ID.equals(intent.getAction())) {
+            if (MainActivity.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
+                finish();
+            } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                 equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
                 initPager();
