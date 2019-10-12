@@ -40,9 +40,11 @@ import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.playback.MediaService;
+import ru.krivocraft.kbmp.core.storage.PreferencesManager;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.utils.TimeUtils;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
@@ -112,7 +114,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
             drawShuffleButton();
         }
     };
@@ -162,23 +164,23 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
+            trackProgress = intent.getIntExtra(MediaService.EXTRA_POSITION, 0);
             refreshUI();
         }
     };
 
     public void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
+        filter.addAction(MediaService.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
     }
 
     private void registerTrackListReceiver(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
+        filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(trackListReceiver, filter);
     }
 
@@ -192,7 +194,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 public void run() {
                     mHandler.sendEmptyMessage(0);
                 }
-            }, Constants.ONE_SECOND, Constants.ONE_SECOND);
+            }, TimeUtils.ONE_SECOND, TimeUtils.ONE_SECOND);
         }
         playPauseButton.setImageResource(R.drawable.ic_pause);
     }
@@ -273,7 +275,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 if (track.isLiked()) {
                     ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, tintColor)));
                 } else {
-                    if (getSettingsManager().getOption(Constants.KEY_THEME, false)) {
+                    if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                     } else {
                         ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -286,16 +288,16 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void drawLoopButton(ImageButton loop) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+            SharedPreferences preferences = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_PRIVATE);
+            int loopState = preferences.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
             switch (loopState) {
-                case Constants.NOT_LOOP:
+                case TrackList.NOT_LOOP:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
                     break;
-                case Constants.LOOP_TRACK:
+                case TrackList.LOOP_TRACK:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
                     break;
-                case Constants.LOOP_TRACK_LIST:
+                case TrackList.LOOP_TRACK_LIST:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
                     break;
             }
@@ -316,7 +318,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void shuffle(ImageButton shuffle) {
         Context context = getContext();
         if (context != null) {
-            context.sendBroadcast(new Intent(Constants.Actions.ACTION_SHUFFLE));
+            context.sendBroadcast(new Intent(MediaService.ACTION_SHUFFLE));
             if (trackList.isShuffled()) {
                 shuffle.setImageDrawable(context.getDrawable(R.drawable.ic_unshuffled));
             } else {
@@ -328,20 +330,20 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void loop(ImageView button) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
+            SharedPreferences preferences = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-            int loopState = preferences.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+            int loopState = preferences.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
             switch (loopState) {
-                case Constants.NOT_LOOP:
-                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK);
+                case TrackList.NOT_LOOP:
+                    editor.putInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK);
                     button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_track));
                     break;
-                case Constants.LOOP_TRACK:
-                    editor.putInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+                case TrackList.LOOP_TRACK:
+                    editor.putInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
                     button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
                     break;
-                case Constants.LOOP_TRACK_LIST:
-                    editor.putInt(Constants.LOOP_TYPE, Constants.NOT_LOOP);
+                case TrackList.LOOP_TRACK_LIST:
+                    editor.putInt(TrackList.LOOP_TYPE, TrackList.NOT_LOOP);
                     button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
                     break;
             }

@@ -31,10 +31,10 @@ import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.utils.TimeUtils;
 import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.utils.BitmapUtils;
 
 public class SmallPlayerFragment extends BaseFragment {
@@ -68,7 +68,7 @@ public class SmallPlayerFragment extends BaseFragment {
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(Constants.Extras.EXTRA_POSITION, 0);
+            trackProgress = intent.getIntExtra(MediaService.EXTRA_POSITION, 0);
             refreshStateShowers();
         }
     };
@@ -164,10 +164,10 @@ public class SmallPlayerFragment extends BaseFragment {
 
     public void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.Actions.ACTION_RESULT_DATA);
+        filter.addAction(MediaService.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
 
-        Intent intent = new Intent(Constants.Actions.ACTION_REQUEST_DATA);
+        Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
     }
 

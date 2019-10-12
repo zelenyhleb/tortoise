@@ -30,7 +30,6 @@ import ru.krivocraft.kbmp.core.OldStuffCollector;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackListFragment;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.TrackList;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -46,12 +45,15 @@ public class MainActivity extends BaseActivity {
 
     private int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
 
+    public static final String ACTION_HIDE_PLAYER = "action_hide_player";
+    public static final String ACTION_SHOW_PLAYER = "action_show_player";
+
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.Actions.ACTION_SHOW_PLAYER.equals(intent.getAction())) {
+            if (ACTION_SHOW_PLAYER.equals(intent.getAction())) {
                 showSmallPlayerFragment();
-            } else if (Constants.Actions.ACTION_HIDE_PLAYER.equals(intent.getAction())) {
+            } else if (ACTION_HIDE_PLAYER.equals(intent.getAction())) {
                 hideSmallPlayerFragment();
             }
         }
@@ -149,8 +151,8 @@ public class MainActivity extends BaseActivity {
 
     private void registerPlayerControlReceiver() {
         IntentFilter showPlayerFilter = new IntentFilter();
-        showPlayerFilter.addAction(Constants.Actions.ACTION_SHOW_PLAYER);
-        showPlayerFilter.addAction(Constants.Actions.ACTION_HIDE_PLAYER);
+        showPlayerFilter.addAction(ACTION_SHOW_PLAYER);
+        showPlayerFilter.addAction(ACTION_HIDE_PLAYER);
         registerReceiver(showPlayerReceiver, showPlayerFilter);
     }
 

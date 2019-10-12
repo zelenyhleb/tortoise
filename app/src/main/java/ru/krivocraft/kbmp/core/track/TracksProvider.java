@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.krivocraft.kbmp.core.ColorManager;
-import ru.krivocraft.kbmp.core.settings.SettingsManager;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.GetFromDiskTask;
 
 public class TracksProvider {
+
+    public static final String ACTION_UPDATE_STORAGE = "action_update_storage";
 
     private final Context context;
     private ContentResolver contentResolver;
@@ -29,8 +30,8 @@ public class TracksProvider {
         this.trackListsStorageManager = new TrackListsStorageManager(context);
         this.tracksStorageManager = new TracksStorageManager(context);
 
-        SettingsManager settingsManager = new SettingsManager(context);
-        this.recognize = settingsManager.getOption(Constants.KEY_RECOGNIZE_NAMES, true);
+        SettingsStorageManager settingsManager = new SettingsStorageManager(context);
+        this.recognize = settingsManager.getOption(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
 
         this.context = context;
     }
@@ -51,11 +52,11 @@ public class TracksProvider {
     }
 
     private void notifyTracksStorageChanged() {
-        context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+        context.sendBroadcast(new Intent(ACTION_UPDATE_STORAGE));
     }
 
     private void writeRootTrackList(List<TrackReference> allTracks) {
-        TrackList trackList = new TrackList(Constants.STORAGE_TRACKS_DISPLAY_NAME, allTracks, Constants.TRACK_LIST_CUSTOM);
+        TrackList trackList = new TrackList(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME, allTracks, TrackList.TRACK_LIST_CUSTOM);
         trackListsStorageManager.updateRootTrackList(trackList);
     }
 
@@ -94,7 +95,7 @@ public class TracksProvider {
     }
 
     private void removeTrackListIfEmpty(TrackList trackList) {
-        if (trackList.size() == 0 && !trackList.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME)) {
+        if (trackList.size() == 0 && !trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
             trackListsStorageManager.removeTrackList(trackList);
         }
     }

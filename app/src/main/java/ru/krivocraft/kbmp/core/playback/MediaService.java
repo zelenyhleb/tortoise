@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -16,8 +15,8 @@ import androidx.media.session.MediaButtonReceiver;
 
 import java.util.Objects;
 
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.contexts.AndroidMediaService;
+import ru.krivocraft.kbmp.contexts.MainActivity;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
@@ -27,6 +26,8 @@ import ru.krivocraft.kbmp.core.track.TracksProvider;
 
 public class MediaService {
 
+    public static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
+    public static final String ACTION_REQUEST_TRACK_LIST = "action_request_track_list";
     private static final int HEADSET_STATE_PLUG_IN = 1;
     private static final int HEADSET_STATE_PLUG_OUT = 0;
 
@@ -80,16 +81,16 @@ public class MediaService {
         context.registerReceiver(headsetReceiver, headsetFilter);
 
         IntentFilter positionFilter = new IntentFilter();
-        positionFilter.addAction(Constants.Actions.ACTION_REQUEST_DATA);
-        positionFilter.addAction(Constants.Actions.ACTION_REQUEST_TRACK_LIST);
+        positionFilter.addAction(ACTION_REQUEST_DATA);
+        positionFilter.addAction(ACTION_REQUEST_TRACK_LIST);
         context.registerReceiver(requestDataReceiver, positionFilter);
 
         IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(Constants.Actions.ACTION_REQUEST_STOP);
-        playlistFilter.addAction(Constants.Actions.ACTION_SHUFFLE);
-        playlistFilter.addAction(Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST);
-        playlistFilter.addAction(Constants.Actions.ACTION_EDIT_TRACK_LIST);
-        playlistFilter.addAction(Constants.Actions.ACTION_PLAY_FROM_LIST);
+        playlistFilter.addAction(ACTION_REQUEST_STOP);
+        playlistFilter.addAction(ACTION_SHUFFLE);
+        playlistFilter.addAction(ACTION_EDIT_PLAYING_TRACK_LIST);
+        playlistFilter.addAction(ACTION_EDIT_TRACK_LIST);
+        playlistFilter.addAction(ACTION_PLAY_FROM_LIST);
         context.registerReceiver(playlistReceiver, playlistFilter);
 
     }
@@ -100,13 +101,6 @@ public class MediaService {
         if (notification != null) {
             context.startForeground(NotificationBuilder.NOTIFY_ID, notification);
         }
-    }
-
-    private void clearShuffleState() {
-        SharedPreferences preferences = context.getSharedPreferences(Constants.STORAGE_SETTINGS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(Constants.SHUFFLE_STATE, Constants.STATE_UNSHUFFLED);
-        editor.apply();
     }
 
     private void hideNotification() {
@@ -132,49 +126,65 @@ public class MediaService {
         }
     };
 
+    private static final String EXTRA_PLAYBACK_STATE = "playback_state";
+    private static final String EXTRA_CURSOR = "cursor";
+    private static final String EXTRA_METADATA = "metadata";
+
+    public static final String EXTRA_POSITION = "position";
+
     private final BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Constants.Actions.ACTION_REQUEST_DATA.equals(intent.getAction())) {
-                Intent result = new Intent(Constants.Actions.ACTION_RESULT_DATA);
-                result.putExtra(Constants.Extras.EXTRA_POSITION, playbackManager.getCurrentStreamPosition());
-                result.putExtra(Constants.Extras.EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
-                result.putExtra(Constants.Extras.EXTRA_METADATA, mediaSession.getController().getMetadata());
+            if (ACTION_REQUEST_DATA.equals(intent.getAction())) {
+                Intent result = new Intent(ACTION_RESULT_DATA);
+                result.putExtra(EXTRA_POSITION, playbackManager.getCurrentStreamPosition());
+                result.putExtra(EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
+                result.putExtra(EXTRA_METADATA, mediaSession.getController().getMetadata());
                 context.sendBroadcast(result);
             } else {
-                Intent result = new Intent(Constants.Actions.ACTION_RESULT_TRACK_LIST);
-                result.putExtra(Constants.Extras.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
-                result.putExtra(Constants.Extras.EXTRA_TRACK, playbackManager.getCurrentTrack().toJson());
-                result.putExtra(Constants.Extras.EXTRA_CURSOR, playbackManager.getCursor());
+                Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
+                result.putExtra(TrackList.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
+                result.putExtra(Track.EXTRA_TRACK, playbackManager.getCurrentTrack().toJson());
+                result.putExtra(EXTRA_CURSOR, playbackManager.getCursor());
                 context.sendBroadcast(result);
             }
         }
     };
 
+    private static final String ACTION_REQUEST_STOP = "stop";
+
+    public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
+    public static final String ACTION_RESULT_DATA = "result_position";
+    public static final String ACTION_REQUEST_DATA = "request_position";
+    public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
+    public static final String ACTION_PLAY_FROM_LIST = "play_from_list";
+    public static final String ACTION_EDIT_PLAYING_TRACK_LIST = "edit_current_track_list";
+    public static final String ACTION_SHUFFLE = "shuffle";
+
     private final BroadcastReceiver playlistReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (Objects.requireNonNull(intent.getAction())) {
-                case Constants.Actions.ACTION_PLAY_FROM_LIST:
+                case ACTION_PLAY_FROM_LIST:
                     playFromList(intent);
                     break;
-                case Constants.Actions.ACTION_REQUEST_STOP:
+                case ACTION_REQUEST_STOP:
                     stopPlayback();
                     break;
-                case Constants.Actions.ACTION_SHUFFLE:
+                case ACTION_SHUFFLE:
                     shuffle();
                     break;
-                case Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST:
-                    TrackList in = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                case ACTION_EDIT_PLAYING_TRACK_LIST:
+                    TrackList in = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                     notifyPlaybackManager(in);
                     break;
-                case Constants.Actions.ACTION_EDIT_TRACK_LIST:
-                    TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+                case ACTION_EDIT_TRACK_LIST:
+                    TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                     if (trackListEdited.equals(playbackManager.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
                     trackListsStorageManager.updateTrackListData(trackListEdited);
-                    context.sendBroadcast(new Intent(Constants.Actions.ACTION_UPDATE_STORAGE));
+                    context.sendBroadcast(new Intent(TracksProvider.ACTION_UPDATE_STORAGE));
                     break;
             }
         }
@@ -190,13 +200,13 @@ public class MediaService {
         System.out.println(System.currentTimeMillis());
         hideNotification();
         System.out.println(System.currentTimeMillis());
-        context.sendBroadcast(new Intent(Constants.Actions.ACTION_HIDE_PLAYER));
+        context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
         System.out.println(System.currentTimeMillis());
     }
 
     private void playFromList(Intent intent) {
-        TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-        TrackReference reference = TrackReference.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK));
+        TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
+        TrackReference reference = TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK));
 
         if (!trackList.equals(playbackManager.getTrackList())) {
             playbackManager.setTrackList(trackList, true);
@@ -220,8 +230,8 @@ public class MediaService {
     }
 
     private void updateTrackList(TrackList list) {
-        Intent intent = new Intent(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
-        intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, list.toJson());
+        Intent intent = new Intent(ACTION_UPDATE_TRACK_LIST);
+        intent.putExtra(TrackList.EXTRA_TRACK_LIST, list.toJson());
         context.sendBroadcast(intent);
     }
 
@@ -236,7 +246,6 @@ public class MediaService {
     }
 
     public void destroy() {
-        clearShuffleState();
 
         context.unregisterReceiver(headsetReceiver);
         context.unregisterReceiver(playlistReceiver);

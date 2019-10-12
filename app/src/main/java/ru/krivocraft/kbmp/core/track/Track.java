@@ -8,9 +8,12 @@ import com.google.gson.Gson;
 
 import java.util.Objects;
 
-import ru.krivocraft.kbmp.constants.Constants;
-
 public class Track {
+
+    public static final String EXTRA_TRACK = "path";
+
+    private static final String UNKNOWN_ARTIST = "Unknown Artist";
+    private static final String UNKNOWN_COMPOSITION = "Unknown Track";
 
     private boolean selected = false;
     private boolean playing = false;
@@ -32,10 +35,10 @@ public class Track {
         this.identifier = path.hashCode();
 
         if (artist.equals("<unknown>")) {
-            this.artist = Constants.UNKNOWN_ARTIST;
+            this.artist = UNKNOWN_ARTIST;
         }
         if (title.equals("<unknown>")) {
-            this.title = Constants.UNKNOWN_COMPOSITION;
+            this.title = UNKNOWN_COMPOSITION;
         }
     }
 

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.core.storage.PreferencesManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.audiofx.EqualizerManager;
 import ru.krivocraft.kbmp.core.track.Track;
@@ -45,7 +45,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.settings = context.getSharedPreferences(Constants.STORAGE_SETTINGS, MODE_PRIVATE);
+        this.settings = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, MODE_PRIVATE);
         this.equalizerManager = new EqualizerManager(player.getAudioSessionId(), context);
         updatePlaybackState();
         restoreAll();
@@ -114,9 +114,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        int loopType = settings.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
 
-        if (loopType == Constants.LOOP_TRACK_LIST) {
+        if (loopType == TrackList.LOOP_TRACK_LIST) {
             if (index < 0) index = trackList.size() - 1;
             if (index >= getTracks().size()) index = 0;
         }
@@ -253,19 +253,19 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        int loopType = settings.getInt(Constants.LOOP_TYPE, Constants.LOOP_TRACK_LIST);
+        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
         switch (loopType) {
-            case Constants.LOOP_TRACK:
+            case TrackList.LOOP_TRACK:
                 newTrack(getCursor());
                 break;
-            case Constants.LOOP_TRACK_LIST:
+            case TrackList.LOOP_TRACK_LIST:
                 if (getCursor() + 1 < getTrackList().size()) {
                     nextTrack();
                 } else {
                     newTrack(0);
                 }
                 break;
-            case Constants.NOT_LOOP:
+            case TrackList.NOT_LOOP:
                 if (getCursor() < getTrackList().size()) {
                     nextTrack();
                 } else {

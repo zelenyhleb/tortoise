@@ -12,6 +12,9 @@ import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class TrackListsStorageManager {
 
+    public static final String STORAGE_TRACKS_DISPLAY_NAME = "All tracks";
+    public static final String FAVORITES_DISPLAY_NAME = "Favorites";
+
     private final DBConnection database;
 
     public TrackListsStorageManager(@NonNull Context context) {

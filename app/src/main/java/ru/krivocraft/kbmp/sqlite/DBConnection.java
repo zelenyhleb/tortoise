@@ -12,7 +12,6 @@ import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
-import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBConnection {
     private SQLiteDatabase database;
@@ -170,13 +169,13 @@ public class DBConnection {
 
         StringBuilder selection = new StringBuilder();
         if (!sortByAuthor) {
-            selection.append("type != " + Constants.TRACK_LIST_BY_AUTHOR);
+            selection.append("type != " + TrackList.TRACK_LIST_BY_AUTHOR);
         }
         if (!sortByTag) {
             if (!sortByAuthor) {
                 selection.append(" and ");
             }
-            selection.append("type != " + Constants.TRACK_LIST_BY_TAG);
+            selection.append("type != " + TrackList.TRACK_LIST_BY_TAG);
         }
 
         Cursor cursor = database.query(TableNames.TRACK_LISTS, null, selection.toString(), null, null, null, null);

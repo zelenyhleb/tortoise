@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import ru.krivocraft.kbmp.core.ColorManager;
+import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
-import ru.krivocraft.kbmp.constants.Constants;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -43,9 +43,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "reference integer);");
 
         ContentValues values = new ContentValues();
-        values.put("id", TrackList.createIdentifier(Constants.STORAGE_TRACKS_DISPLAY_NAME));
-        values.put("name", Constants.STORAGE_TRACKS_DISPLAY_NAME);
-        values.put("type", Constants.TRACK_LIST_CUSTOM);
+        values.put("id", TrackList.createIdentifier(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME));
+        values.put("name", TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME);
+        values.put("type", TrackList.TRACK_LIST_CUSTOM);
         db.insert(TableNames.TRACK_LISTS, null, values);
     }
 

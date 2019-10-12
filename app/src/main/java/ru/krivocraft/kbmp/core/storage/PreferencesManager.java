@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PreferencesManager {
+    public static final String STORAGE_TRACK_LISTS = "trackLists";
+    public static final String STORAGE_SETTINGS = "settings";
+
     private final SharedPreferences preferences;
 
     public PreferencesManager(Context context, String preferencesName) {

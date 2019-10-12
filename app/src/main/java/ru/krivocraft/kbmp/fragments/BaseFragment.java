@@ -11,12 +11,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.constants.Constants;
-import ru.krivocraft.kbmp.core.settings.SettingsManager;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
 public abstract class BaseFragment extends Fragment {
 
-    private SettingsManager settingsManager;
+    private SettingsStorageManager settingsManager;
 
     @Override
     public void onResume() {
@@ -26,7 +25,7 @@ public abstract class BaseFragment extends Fragment {
 
     public abstract void invalidate();
 
-    public SettingsManager getSettingsManager() {
+    public SettingsStorageManager getSettingsManager() {
         return settingsManager;
     }
 
@@ -35,8 +34,8 @@ public abstract class BaseFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Context context = getContext();
         if (context != null) {
-            settingsManager = new SettingsManager(context);
-            if (settingsManager.getOption(Constants.KEY_THEME, false)){
+            settingsManager = new SettingsStorageManager(context);
+            if (settingsManager.getOption(SettingsStorageManager.KEY_THEME, false)){
                 context.getTheme().applyStyle(R.style.LightTheme, true);
             } else {
                 context.getTheme().applyStyle(R.style.DarkTheme, true);

@@ -22,7 +22,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.core.playback.MediaService;
+import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.fragments.EqualizerFragment;
@@ -50,7 +51,7 @@ public class PlayerActivity extends BaseActivity {
 
         initMediaBrowser();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.Actions.ACTION_RESULT_TRACK_LIST);
+        filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
         registerReceiver(receiver, filter);
     }
 
@@ -96,7 +97,7 @@ public class PlayerActivity extends BaseActivity {
                             MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
                             MediaControllerCompat controller = new MediaControllerCompat(PlayerActivity.this, token);
                             MediaControllerCompat.setMediaController(PlayerActivity.this, controller);
-                            sendBroadcast(new Intent(Constants.Actions.ACTION_REQUEST_TRACK_LIST));
+                            sendBroadcast(new Intent(MediaService.ACTION_REQUEST_TRACK_LIST));
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
@@ -145,8 +146,8 @@ public class PlayerActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (!EqualizerFragment.ACTION_RESULT_SESSION_ID.equals(intent.getAction())) {
-                PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK)));
+                PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
+                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
                 initPager();
             }
         }

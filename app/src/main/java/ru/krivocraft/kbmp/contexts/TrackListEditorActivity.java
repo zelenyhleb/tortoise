@@ -29,7 +29,6 @@ import ru.krivocraft.kbmp.core.TextChangeSolver;
 import ru.krivocraft.kbmp.core.storage.ThumbnailStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
@@ -188,8 +187,8 @@ public class TrackListEditorActivity extends AppCompatActivity {
 
     private void initTools() {
         creation = getIntent().getBooleanExtra(EXTRA_CREATION, false);
-        source = TrackList.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
-        changed = TrackList.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+        source = TrackList.fromJson(getIntent().getStringExtra(TrackList.EXTRA_TRACK_LIST));
+        changed = TrackList.fromJson(getIntent().getStringExtra(TrackList.EXTRA_TRACK_LIST));
         art = findViewById(R.id.track_list_editor_image);
         art.setClipToOutline(true);
 

@@ -6,8 +6,8 @@ import android.os.AsyncTask;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.sqlite.DBConnection;
 
 public class ReadTrackListsTask extends AsyncTask<Void, Integer, List<TrackList>> {
@@ -27,12 +27,12 @@ public class ReadTrackListsTask extends AsyncTask<Void, Integer, List<TrackList>
         List<TrackList> allTrackLists = new ArrayList<>();
         List<TrackList> storedTrackLists = connection.getTrackLists();
         for (TrackList trackList : storedTrackLists) {
-            if (trackList.getType() == Constants.TRACK_LIST_BY_AUTHOR) {
-                if (settingsStorage.getBoolean(Constants.KEY_SORT_BY_ARTIST, false)) {
+            if (trackList.getType() == TrackList.TRACK_LIST_BY_AUTHOR) {
+                if (settingsStorage.getBoolean(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
                     allTrackLists.add(trackList);
                 }
-            } else if (trackList.getType() == Constants.TRACK_LIST_BY_TAG) {
-                if (settingsStorage.getBoolean(Constants.KEY_SORT_BY_TAG, false)) {
+            } else if (trackList.getType() == TrackList.TRACK_LIST_BY_TAG) {
+                if (settingsStorage.getBoolean(SettingsStorageManager.KEY_SORT_BY_TAG, false)) {
                     allTrackLists.add(trackList);
                 }
             } else {

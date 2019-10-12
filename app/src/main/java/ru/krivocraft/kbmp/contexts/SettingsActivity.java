@@ -8,7 +8,7 @@ import java.util.List;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.settings.SettingsAdapter;
-import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -23,6 +23,6 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private List<String> getSettings() {
-        return Arrays.asList(Constants.KEY_THEME, Constants.KEY_SORT_BY_ARTIST, Constants.KEY_SORT_BY_TAG, Constants.KEY_RECOGNIZE_NAMES, Constants.KEY_CLEAR_CACHE);
+        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_SORT_BY_ARTIST, SettingsStorageManager.KEY_SORT_BY_TAG, SettingsStorageManager.KEY_RECOGNIZE_NAMES, SettingsStorageManager.KEY_CLEAR_CACHE);
     }
 }

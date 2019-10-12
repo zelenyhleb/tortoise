@@ -15,17 +15,17 @@ import androidx.annotation.Nullable;
 import java.util.List;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
     private List<String> objects;
-    private SettingsManager manager;
+    private SettingsStorageManager manager;
 
     public SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
         this.objects = objects;
-        this.manager = new SettingsManager(context);
+        this.manager = new SettingsStorageManager(context);
     }
 
     @NonNull
@@ -33,20 +33,20 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-            if (position == objects.indexOf(Constants.KEY_THEME)) {
+            if (position == objects.indexOf(SettingsStorageManager.KEY_THEME)) {
                 TextView textView = convertView.findViewById(R.id.settings_text);
                 textView.setText(R.string.settings_theme);
                 Switch s = convertView.findViewById(R.id.settings_switch);
-                initSwitch(s, Constants.KEY_THEME, false);
-            } else if (position == objects.indexOf(Constants.KEY_SORT_BY_ARTIST)) {
+                initSwitch(s, SettingsStorageManager.KEY_THEME, false);
+            } else if (position == objects.indexOf(SettingsStorageManager.KEY_SORT_BY_ARTIST)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                initSwitch(s, Constants.KEY_SORT_BY_ARTIST, false);
+                initSwitch(s, SettingsStorageManager.KEY_SORT_BY_ARTIST, false);
                 textView.setText(R.string.settings_sort_artist);
-            } else if (position == objects.indexOf(Constants.KEY_RECOGNIZE_NAMES)) {
+            } else if (position == objects.indexOf(SettingsStorageManager.KEY_RECOGNIZE_NAMES)) {
                 Switch s = convertView.findViewById(R.id.settings_switch);
                 TextView textView = convertView.findViewById(R.id.settings_text);
-                initSwitch(s, Constants.KEY_RECOGNIZE_NAMES, true);
+                initSwitch(s, SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
                 textView.setText(R.string.settings_recognize);
             }
         }
@@ -62,7 +62,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             } else {
                 manager.putOption(key, true);
             }
-            if (key.equals(Constants.KEY_RECOGNIZE_NAMES) || key.equals(Constants.KEY_THEME)) {
+            if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(SettingsStorageManager.KEY_THEME)) {
                 Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });

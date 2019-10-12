@@ -9,7 +9,6 @@ import java.util.Map;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileFavoritesTask;
 import ru.krivocraft.kbmp.tasks.compilers.CompileTrackListsTask;
@@ -23,12 +22,12 @@ public class TrackListsCompiler {
 
     public void compileByAuthors(OnTrackListsCompiledCallback callback) {
         CompileByAuthorTask task = new CompileByAuthorTask();
-        compile(task, Constants.TRACK_LIST_BY_AUTHOR, callback);
+        compile(task, TrackList.TRACK_LIST_BY_AUTHOR, callback);
     }
 
     public void compileFavorites(OnTrackListsCompiledCallback callback) {
         CompileFavoritesTask task = new CompileFavoritesTask();
-        compile(task, Constants.TRACK_LIST_CUSTOM, callback);
+        compile(task, TrackList.TRACK_LIST_CUSTOM, callback);
     }
 
     private void compile(CompileTrackListsTask task, int trackListType, OnTrackListsCompiledCallback callback) {

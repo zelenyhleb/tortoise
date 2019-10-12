@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.TextChangeSolver;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 
@@ -30,7 +29,7 @@ public class TrackEditorActivity extends AppCompatActivity {
 
         this.tracksStorageManager = new TracksStorageManager(this);
 
-        TrackReference trackReference = TrackReference.fromJson(getIntent().getStringExtra(Constants.Extras.EXTRA_TRACK));
+        TrackReference trackReference = TrackReference.fromJson(getIntent().getStringExtra(Track.EXTRA_TRACK));
         changed = tracksStorageManager.getTrack(trackReference);
         source = tracksStorageManager.getTrack(trackReference);
 

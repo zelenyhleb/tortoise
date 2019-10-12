@@ -17,12 +17,13 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 
 import java.util.Collections;
 
+import ru.krivocraft.kbmp.contexts.MainActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.ItemTouchHelperAdapter;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.TrackEditorActivity;
+import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.tasks.LoadArtTask;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
@@ -92,9 +93,9 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     private void sendUpdate() {
         if (temp) {
-            context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
+            context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
         } else {
-            context.sendBroadcast(new Intent(Constants.Actions.ACTION_EDIT_TRACK_LIST).putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson()));
+            context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
         }
     }
 
@@ -123,7 +124,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             more = itemView.findViewById(R.id.button_more);
             itemView.setOnClickListener(new OnClickListener());
             if (editingAllowed) {
-                more.setOnClickListener(v -> v.getContext().startActivity(new Intent(v.getContext(), TrackEditorActivity.class).putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson())));
+                more.setOnClickListener(v -> v.getContext().startActivity(new Intent(v.getContext(), TrackEditorActivity.class).putExtra(Track.EXTRA_TRACK, reference.toJson())));
             } else {
                 more.setVisibility(View.INVISIBLE);
             }
@@ -160,12 +161,12 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         private class OnClickListener implements View.OnClickListener {
             @Override
             public void onClick(View v) {
-                Intent serviceIntent = new Intent(Constants.Actions.ACTION_PLAY_FROM_LIST);
-                serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK, reference.toJson());
-                serviceIntent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, trackList.toJson());
+                Intent serviceIntent = new Intent(MediaService.ACTION_PLAY_FROM_LIST);
+                serviceIntent.putExtra(Track.EXTRA_TRACK, reference.toJson());
+                serviceIntent.putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson());
                 v.getContext().sendBroadcast(serviceIntent);
 
-                Intent interfaceIntent = new Intent(Constants.Actions.ACTION_SHOW_PLAYER);
+                Intent interfaceIntent = new Intent(MainActivity.ACTION_SHOW_PLAYER);
                 v.getContext().sendBroadcast(interfaceIntent);
             }
         }

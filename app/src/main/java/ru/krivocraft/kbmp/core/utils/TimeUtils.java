@@ -1,6 +1,8 @@
 package ru.krivocraft.kbmp.core.utils;
 
 public class TimeUtils {
+    public static final int ONE_SECOND = 1000;
+
     public static String getFormattedTime(int time) {
 
         int seconds = time % 60;

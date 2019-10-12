@@ -6,8 +6,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.core.settings.SettingsManager;
-import ru.krivocraft.kbmp.constants.Constants;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -18,8 +17,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     void setTheme() {
-        SettingsManager settingsManager = new SettingsManager(this);
-        boolean useLightTheme = settingsManager.getOption(Constants.KEY_THEME, false);
+        SettingsStorageManager settingsManager = new SettingsStorageManager(this);
+        boolean useLightTheme = settingsManager.getOption(SettingsStorageManager.KEY_THEME, false);
 
         if (useLightTheme) {
             setTheme(R.style.LightTheme);

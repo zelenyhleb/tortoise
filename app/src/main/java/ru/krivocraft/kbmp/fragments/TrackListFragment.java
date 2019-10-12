@@ -28,8 +28,8 @@ import java.util.List;
 import ru.krivocraft.kbmp.core.ItemTouchHelperCallback;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.Searcher;
+import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.core.track.TracksAdapter;
@@ -44,7 +44,7 @@ public class TrackListFragment extends BaseFragment {
     private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            TrackList trackList = TrackList.fromJson(intent.getStringExtra(Constants.Extras.EXTRA_TRACK_LIST));
+            TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
             if (trackList != null) {
                 TrackListFragment.this.trackList = trackList;
                 processPaths(context);
@@ -117,7 +117,7 @@ public class TrackListFragment extends BaseFragment {
                         List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
                         recyclerView.setAdapter(new TracksAdapter(
-                                new TrackList("found", trackListSearched, Constants.TRACK_LIST_CUSTOM),
+                                new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
                                 context,
                                 showControls,
                                 true,
@@ -136,7 +136,7 @@ public class TrackListFragment extends BaseFragment {
             } else {
                 searchFrame.setHeight(0);
                 IntentFilter filter = new IntentFilter();
-                filter.addAction(Constants.Actions.ACTION_UPDATE_TRACK_LIST);
+                filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
                 context.registerReceiver(trackListReceiver, filter);
             }
         }

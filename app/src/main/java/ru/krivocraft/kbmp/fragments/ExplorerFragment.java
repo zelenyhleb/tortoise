@@ -23,10 +23,11 @@ import java.util.List;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.TrackListEditorActivity;
 import ru.krivocraft.kbmp.core.TrackListsCompiler;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
-import ru.krivocraft.kbmp.constants.Constants;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackListAdapter;
+import ru.krivocraft.kbmp.core.track.TracksProvider;
 
 public class ExplorerFragment extends BaseFragment {
 
@@ -84,7 +85,7 @@ public class ExplorerFragment extends BaseFragment {
         this.progressBar = rootView.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
-            context.registerReceiver(receiver, new IntentFilter(Constants.Actions.ACTION_UPDATE_STORAGE));
+            context.registerReceiver(receiver, new IntentFilter(TracksProvider.ACTION_UPDATE_STORAGE));
             createAdapter(context);
             configureGridView(rootView, context);
             configureAddButton(rootView, context);
@@ -112,9 +113,9 @@ public class ExplorerFragment extends BaseFragment {
 
     private boolean showEditor(Context context, AdapterView<?> parent, int position) {
         TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
-        if (!(itemAtPosition.getDisplayName().equals(Constants.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(Constants.FAVORITES_DISPLAY_NAME))) {
+        if (!(itemAtPosition.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(TrackListsStorageManager.FAVORITES_DISPLAY_NAME))) {
             Intent intent = new Intent(context, TrackListEditorActivity.class);
-            intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, itemAtPosition.toJson());
+            intent.putExtra(TrackList.EXTRA_TRACK_LIST, itemAtPosition.toJson());
             intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, false);
             context.startActivity(intent);
         }
@@ -123,15 +124,15 @@ public class ExplorerFragment extends BaseFragment {
 
     private void showCreationDialog(Context context) {
         Intent intent = new Intent(context, TrackListEditorActivity.class);
-        intent.putExtra(Constants.Extras.EXTRA_TRACK_LIST, new TrackList("", new ArrayList<>(), Constants.TRACK_LIST_CUSTOM).toJson());
+        intent.putExtra(TrackList.EXTRA_TRACK_LIST, new TrackList("", new ArrayList<>(), TrackList.TRACK_LIST_CUSTOM).toJson());
         intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, true);
         context.startActivity(intent);
     }
 
     private void drawTrackLists() {
         progressBar.setVisibility(View.GONE);
-        boolean sortByTag = getSettingsManager().getOption(Constants.KEY_SORT_BY_TAG, false);
-        boolean sortByAuthor = getSettingsManager().getOption(Constants.KEY_SORT_BY_ARTIST, false);
+        boolean sortByTag = getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_TAG, false);
+        boolean sortByAuthor = getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false);
         redrawList(trackListsStorageManager.readTrackLists(sortByTag, sortByAuthor));
     }
 
@@ -154,7 +155,7 @@ public class ExplorerFragment extends BaseFragment {
         Context context = getContext();
         if (context != null) {
             trackListsCompiler.compileFavorites(this::onNewTrackLists);
-            if (getSettingsManager().getOption(Constants.KEY_SORT_BY_ARTIST, false)) {
+            if (getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
                 trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
         }
