@@ -11,19 +11,14 @@ public class Seconds {
     public String formatted() {
         int secondsTail = seconds % 60;
         int minutes = (seconds - secondsTail) / 60;
+        return twoDigits(minutes) + ":" + twoDigits(secondsTail);
+    }
 
-        String formattedSeconds = String.valueOf(secondsTail);
-        String formattedMinutes = String.valueOf(minutes);
-
-        if (secondsTail < 10) {
-            formattedSeconds = "0" + formattedSeconds;
+    private String twoDigits(int numerical) {
+        String formatted = String.valueOf(numerical);
+        if (numerical < 10) {
+            formatted = "0" + formatted;
         }
-
-        if (minutes < 10) {
-            formattedMinutes = "0" + formattedMinutes;
-        }
-
-
-        return formattedMinutes + ":" + formattedSeconds;
+        return formatted;
     }
 }
