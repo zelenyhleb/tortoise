@@ -19,7 +19,7 @@ import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -85,7 +85,7 @@ public class NotificationBuilder {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             String path = mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-            Bitmap image = BitmapUtils.loadArt(path);
+            Bitmap image = new Art(path).load();
 
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);

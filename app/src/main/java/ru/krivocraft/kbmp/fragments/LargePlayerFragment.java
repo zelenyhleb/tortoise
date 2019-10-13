@@ -47,7 +47,7 @@ import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
 import ru.krivocraft.kbmp.core.utils.Milliseconds;
 import ru.krivocraft.kbmp.core.utils.Seconds;
 
@@ -354,7 +354,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void refreshUI() {
 
         Context context = getContext();
-        Bitmap trackArt = BitmapUtils.loadArt(getTrackPath());
+        Bitmap trackArt = new Art(getTrackPath()).load();
         Track track = tracksStorageManager.getTrack(reference);
         if (context != null) {
             if (trackArt != null) {

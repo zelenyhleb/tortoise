@@ -34,7 +34,7 @@ import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
 import ru.krivocraft.kbmp.core.utils.Milliseconds;
 
 public class SmallPlayerFragment extends BaseFragment {
@@ -111,7 +111,7 @@ public class SmallPlayerFragment extends BaseFragment {
         viewName.setText(getTrackTitle());
         viewName.setSelected(true);
 
-        Bitmap trackArt = BitmapUtils.loadArt(getTrackPath());
+        Bitmap trackArt = new Art(getTrackPath()).load()    ;
 
         if (context != null) {
             if (trackArt != null) {
