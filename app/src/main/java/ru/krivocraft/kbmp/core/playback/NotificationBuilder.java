@@ -85,7 +85,7 @@ public class NotificationBuilder {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             String path = mediaSession.getController().getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-            Bitmap image = new Art(path).load();
+            Bitmap image = new Art(path).bitmap();
 
             if (image != null) {
                 notificationBuilder.setLargeIcon(image);

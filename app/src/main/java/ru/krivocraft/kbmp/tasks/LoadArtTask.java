@@ -11,7 +11,7 @@ public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(String... strings) {
-        return new Art(strings[0]).load();
+        return new Art(strings[0]).bitmap();
     }
 
     @Override

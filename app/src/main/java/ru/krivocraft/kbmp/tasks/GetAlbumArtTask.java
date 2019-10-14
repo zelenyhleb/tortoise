@@ -17,7 +17,7 @@ public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {
     @Override
     protected Bitmap doInBackground(Track... tracks) {
         for (Track track : tracks) {
-            Bitmap bitmap = new Art(track.getPath()).load();
+            Bitmap bitmap = new Art(track.getPath()).bitmap();
             if (bitmap != null) {
                 return bitmap;
             }

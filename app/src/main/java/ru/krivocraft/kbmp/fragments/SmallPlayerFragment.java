@@ -111,7 +111,7 @@ public class SmallPlayerFragment extends BaseFragment {
         viewName.setText(getTrackTitle());
         viewName.setSelected(true);
 
-        Bitmap trackArt = new Art(getTrackPath()).load()    ;
+        Bitmap trackArt = new Art(getTrackPath()).bitmap()    ;
 
         if (context != null) {
             if (trackArt != null) {

@@ -11,7 +11,7 @@ public class Art {
         this.path = path;
     }
 
-    public Bitmap load() {
+    public Bitmap bitmap() {
         byte[] embeddedPicture = pictureContent();
         if (embeddedPicture != null) {
             return BitmapFactory.decodeByteArray(embeddedPicture, 0, embeddedPicture.length);

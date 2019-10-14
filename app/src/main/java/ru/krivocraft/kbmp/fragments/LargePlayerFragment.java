@@ -354,7 +354,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void refreshUI() {
 
         Context context = getContext();
-        Bitmap trackArt = new Art(getTrackPath()).load();
+        Bitmap trackArt = new Art(getTrackPath()).bitmap();
         Track track = tracksStorageManager.getTrack(reference);
         if (context != null) {
             if (trackArt != null) {
