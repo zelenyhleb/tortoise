@@ -3,7 +3,7 @@ Tortoise
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8b89073eb0a40f6b8cb43f6580db473)](https://www.codacy.com/manual/zelenyhleb/tortoise?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zelenyhleb/tortoise&amp;utm_campaign=Badge_Grade)
 [![Release](https://img.shields.io/badge/Release-Latest%200.3.4-green.svg)](https://github.com/zelenyhleb/tortoise/releases/latest)
-[![Build Status](https://travis-ci.org/zelenyhleb/tortoise.svg?branch=master)](https://travis-ci.org/zelenyhleb/tortoise)
+[![Build Status](https://travis-ci.org/zelenyhleb/tortoise.svg?branch=develop)](https://travis-ci.org/zelenyhleb/tortoise)
 
 <img src="http://www.krivocraft.ru/icon.png" height="256px"/>
 
@@ -16,7 +16,6 @@ Awesome music player with great future written for android with java.
   - Parses bad track's metadata to good one automatically (*You can switch off this feature*)
   - Supports custom playlist creation
   - Dark and Light theme (**BETA**)
-  - Track's tagging (**BETA**)
   - Basic player features like few ways of shuffling, three ways of looping
   - Editing track's metadata (Only locally)
   - Beautiful MediaStyle Notification
