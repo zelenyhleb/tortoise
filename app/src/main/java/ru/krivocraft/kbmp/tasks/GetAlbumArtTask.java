@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
 import ru.krivocraft.kbmp.core.track.Track;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
 
 public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {
 
@@ -17,7 +17,7 @@ public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {
     @Override
     protected Bitmap doInBackground(Track... tracks) {
         for (Track track : tracks) {
-            Bitmap bitmap = BitmapUtils.loadArt(track.getPath());
+            Bitmap bitmap = new Art(track.getPath()).bitmap();
             if (bitmap != null) {
                 return bitmap;
             }

@@ -47,8 +47,9 @@ import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
-import ru.krivocraft.kbmp.core.utils.TimeUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
+import ru.krivocraft.kbmp.core.utils.Milliseconds;
+import ru.krivocraft.kbmp.core.utils.Seconds;
 
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
@@ -193,7 +194,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 public void run() {
                     mHandler.sendEmptyMessage(0);
                 }
-            }, TimeUtils.ONE_SECOND, TimeUtils.ONE_SECOND);
+            }, 1000, 1000);
         }
         playPauseButton.setImageResource(R.drawable.ic_pause);
     }
@@ -220,8 +221,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
     private void updateTextViews(int duration, int progress) {
         int estimated = duration - progress;
-        compositionProgressTextView.setText(TimeUtils.getFormattedTime(progress));
-        compositionDurationTextView.setText(String.format("-%s", TimeUtils.getFormattedTime(estimated)));
+        compositionProgressTextView.setText(new Seconds(progress).formatted());
+        compositionDurationTextView.setText(String.format("-%s", new Seconds(estimated).formatted()));
     }
 
     @Override
@@ -353,7 +354,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void refreshUI() {
 
         Context context = getContext();
-        Bitmap trackArt = BitmapUtils.loadArt(getTrackPath());
+        Bitmap trackArt = new Art(getTrackPath()).bitmap();
         Track track = tracksStorageManager.getTrack(reference);
         if (context != null) {
             if (trackArt != null) {
@@ -386,7 +387,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         compositionNameTextView.setSelected(true);
         compositionAuthorTextView.setText(getTrackArtist());
 
-        int duration = TimeUtils.getSeconds(getTrackDuration());
+        int duration = new Milliseconds(getTrackDuration()).seconds();
         compositionProgressBar.setOnSeekBarChangeListener(this);
         compositionProgressBar.setMax(duration);
 
@@ -394,11 +395,11 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void updateStateShowers() {
-        int progress = TimeUtils.getSeconds(trackProgress);
-        int duration = TimeUtils.getSeconds(getTrackDuration());
+        int progress = new Milliseconds(trackProgress).seconds();
+        int duration = new Milliseconds(getTrackDuration()).seconds();
 
-        compositionProgressTextView.setText(TimeUtils.getFormattedTime(progress));
-        compositionDurationTextView.setText(TimeUtils.getFormattedTime((duration - progress) / 1000));
+        compositionProgressTextView.setText(new Seconds(progress).formatted());
+        compositionDurationTextView.setText(new Seconds((duration - progress) / 1000).formatted());
         compositionProgressBar.setProgress(progress);
 
         if (isTrackPlaying()) {

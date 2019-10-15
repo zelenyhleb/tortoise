@@ -34,8 +34,8 @@ import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.core.utils.BitmapUtils;
-import ru.krivocraft.kbmp.core.utils.TimeUtils;
+import ru.krivocraft.kbmp.core.utils.Art;
+import ru.krivocraft.kbmp.core.utils.Milliseconds;
 
 public class SmallPlayerFragment extends BaseFragment {
 
@@ -111,7 +111,7 @@ public class SmallPlayerFragment extends BaseFragment {
         viewName.setText(getTrackTitle());
         viewName.setSelected(true);
 
-        Bitmap trackArt = BitmapUtils.loadArt(getTrackPath());
+        Bitmap trackArt = new Art(getTrackPath()).bitmap()    ;
 
         if (context != null) {
             if (trackArt != null) {
@@ -135,8 +135,8 @@ public class SmallPlayerFragment extends BaseFragment {
         previousCompositionButton.setOnClickListener(v -> transportControls.skipToPrevious());
         nextCompositionButton.setOnClickListener(v -> transportControls.skipToNext());
 
-        bar.setMax(TimeUtils.getSeconds(getTrackDuration()));
-        bar.setProgress(TimeUtils.getSeconds(trackProgress));
+        bar.setMax(new Milliseconds(getTrackDuration()).seconds());
+        bar.setProgress(new Milliseconds(trackProgress).seconds());
 
         refreshStateShowers();
     }
@@ -144,7 +144,7 @@ public class SmallPlayerFragment extends BaseFragment {
     private void refreshStateShowers() {
         if (rootView != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-            bar.setProgress(TimeUtils.getSeconds(trackProgress));
+            bar.setProgress(new Milliseconds(trackProgress).seconds());
 
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
             if (isTrackPlaying()) {
