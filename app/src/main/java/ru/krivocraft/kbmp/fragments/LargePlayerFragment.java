@@ -61,14 +61,16 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private TextView compositionDurationTextView;
     private SeekBar compositionProgressBar;
     private ImageView trackImage;
+
     private Handler mHandler;
-    private ColorManager colorManager;
+    private Timer compositionProgressTimer;
 
     private int trackProgress;
     private TrackList trackList;
     private TrackReference reference;
 
     private TracksStorageManager tracksStorageManager;
+    private ColorManager colorManager;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
@@ -78,9 +80,10 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private ImageButton buttonLike;
     private ImageButton loop;
 
+
     private void initHandler() {
         mHandler = new Handler(Looper.getMainLooper()) {
-            public void handleMessage(Message msg) {
+            public void handleMessage(@NonNull Message msg) {
                 super.handleMessage(msg);
                 updateBar();
             }
@@ -93,7 +96,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         fragment.initHandler();
         return fragment;
     }
-
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
@@ -119,6 +121,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             drawShuffleButton();
         }
     };
+
 
     private String getTrackPath() {
         return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
@@ -160,7 +163,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         registerTrackListReceiver(context);
         requestPosition(context);
     }
-
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -168,6 +170,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             refreshUI();
         }
     };
+
 
     public void requestPosition(Context context) {
         IntentFilter filter = new IntentFilter();
@@ -183,8 +186,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
         context.registerReceiver(trackListReceiver, filter);
     }
-
-    private Timer compositionProgressTimer;
 
     private void startUI() {
         if (compositionProgressTimer == null) {
@@ -227,6 +228,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
+        //Do nothing
     }
 
     @Override
@@ -270,16 +272,14 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void drawLikeButton(Context context, ImageButton buttonLike, Track track) {
-        if (context != null) {
-            if (track != null) {
-                if (track.isLiked()) {
-                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, tintColor)));
+        if (context != null && track != null) {
+            if (track.isLiked()) {
+                ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, tintColor)));
+            } else {
+                if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
+                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
                 } else {
-                    if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
-                        ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
-                    } else {
-                        ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
-                    }
+                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
                 }
             }
         }
@@ -345,6 +345,9 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 case TrackList.LOOP_TRACK_LIST:
                     editor.putInt(TrackList.LOOP_TYPE, TrackList.NOT_LOOP);
                     button.setImageDrawable(context.getDrawable(R.drawable.ic_loop_not));
+                    break;
+                default:
+                    //Do nothing
                     break;
             }
             editor.apply();

@@ -20,7 +20,9 @@ public class Track {
     private boolean liked = false;
     private boolean checkedInList = false;
 
-    private String title, artist, path;
+    private String title;
+    private String artist;
+    private String path;
     private long duration;
     private int identifier;
     private int color;
@@ -34,10 +36,10 @@ public class Track {
 
         this.identifier = path.hashCode();
 
-        if (artist.equals("<unknown>")) {
+        if ("<unknown>".equals(artist)) {
             this.artist = UNKNOWN_ARTIST;
         }
-        if (title.equals("<unknown>")) {
+        if ("<unknown>".equals(title)) {
             this.title = UNKNOWN_COMPOSITION;
         }
     }

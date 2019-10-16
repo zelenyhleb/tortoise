@@ -63,37 +63,89 @@ public class TrackListEditorActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list_editor);
+
         initTools();
-        List<Track> trackStorage = tracksStorageManager.getTrackStorage();
-        List<TrackReference> trackReferences = changed.getTrackReferences();
-        flagExisting(trackStorage, trackReferences);
+        initList();
+        initTitleEditor();
+        initSearch();
+        initApplyButton();
+        initPickButton();
+        initDeleteButton();
+        initCancelButton();
 
-        adapter = new SelectableTracksAdapter(trackStorage, this);
-        listView = findViewById(R.id.track_list_editor_list);
-        listView.setAdapter(adapter);
+        createActionBarTitle();
+        setTrackListThumbnail();
+    }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            Track item = (Track) parent.getItemAtPosition(position);
-            TrackReference reference = new TrackReference(item);
-            if (trackReferences.contains(reference)) {
-                item.setCheckedInList(false);
-                changed.remove(reference);
+    private void initCancelButton() {
+        Button cancel = findViewById(R.id.track_list_editor_button_cancel);
+        cancel.setOnClickListener(v -> {
+            if (!creation) {
+                showNotSavedPrompt();
             } else {
-                item.setCheckedInList(true);
-                changed.add(reference);
+                finish();
             }
-            adapter.notifyDataSetInvalidated();
         });
+    }
 
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            if (creation) {
-                supportActionBar.setTitle("Create Playlist");
-            } else {
-                supportActionBar.setTitle("Edit Playlist");
-            }
+    private void initDeleteButton() {
+        Button delete = findViewById(R.id.track_list_editor_button_delete);
+        if (!creation) {
+            delete.setOnClickListener(v -> {
+                AlertDialog dialog = new AlertDialog.Builder(TrackListEditorActivity.this)
+                        .setTitle("Are you sure?")
+                        .setMessage("Do you really want to delete " + source.getDisplayName() + "?")
+                        .setPositiveButton("DELETE", (dialog12, which) -> {
+                            trackListsStorageManager.removeTrackList(source);
+                            thumbnailStorageManager.removeThumbnail(source.getIdentifier());
+                            finish();
+                        })
+                        .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                        .create();
+                dialog.show();
+            });
+        } else {
+            delete.setVisibility(View.GONE);
         }
+    }
 
+    private void initPickButton() {
+        Button pick = findViewById(R.id.track_list_editor_button_pick);
+        pick.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType(TYPE_IMAGE);
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, MIME_TYPES);
+            startActivityForResult(intent, GALLERY_REQUEST_CODE);
+        });
+    }
+
+    private void initSearch() {
+        EditText search = findViewById(R.id.track_list_editor_search);
+        search.addTextChangedListener(new TextChangeSolver() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Searcher searcher = new Searcher(TrackListEditorActivity.this);
+                List<Track> found = searcher.searchInTracks(s, tracksStorageManager.getTrackStorage());
+                listView.setAdapter(new SelectableTracksAdapter(found, TrackListEditorActivity.this));
+                if (s.length() < 1) {
+                    listView.setAdapter(adapter);
+                }
+            }
+        });
+    }
+
+    private void initTitleEditor() {
+        EditText title = findViewById(R.id.track_list_editor_edit_text);
+        title.setText(source.getDisplayName());
+        title.addTextChangedListener(new TextChangeSolver() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changed.setDisplayName(s.toString());
+            }
+        });
+    }
+
+    private void initApplyButton() {
         Button apply = findViewById(R.id.track_list_editor_button_apply);
         apply.setOnClickListener(v -> {
             if (checkTrackList(changed.size(), changed.getDisplayName(), TrackListEditorActivity.this)) {
@@ -122,72 +174,48 @@ public class TrackListEditorActivity extends BaseActivity {
 
             finish();
         });
+    }
 
-        EditText title = findViewById(R.id.track_list_editor_edit_text);
-        title.setText(source.getDisplayName());
-        title.addTextChangedListener(new TextChangeSolver() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changed.setDisplayName(s.toString());
+    private void initList() {
+        List<Track> trackStorage = tracksStorageManager.getTrackStorage();
+        List<TrackReference> trackReferences = changed.getTrackReferences();
+        flagExisting(trackStorage, trackReferences);
+
+        adapter = new SelectableTracksAdapter(trackStorage, this);
+        listView = findViewById(R.id.track_list_editor_list);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Track item = (Track) parent.getItemAtPosition(position);
+            TrackReference reference = new TrackReference(item);
+            if (trackReferences.contains(reference)) {
+                item.setCheckedInList(false);
+                changed.remove(reference);
+            } else {
+                item.setCheckedInList(true);
+                changed.add(reference);
             }
+            adapter.notifyDataSetInvalidated();
         });
+    }
 
+    private void setTrackListThumbnail() {
         selectedBitmap = thumbnailStorageManager.readThumbnail(changed.getIdentifier());
         if (selectedBitmap != null) {
             this.art.setImageBitmap(selectedBitmap);
         } else {
             this.art.setImageDrawable(getDrawable(R.drawable.ic_icon));
         }
+    }
 
-        EditText search = findViewById(R.id.track_list_editor_search);
-        search.addTextChangedListener(new TextChangeSolver() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Searcher searcher = new Searcher(TrackListEditorActivity.this);
-                List<Track> found = searcher.searchInTracks(s, tracksStorageManager.getTrackStorage());
-                listView.setAdapter(new SelectableTracksAdapter(found, TrackListEditorActivity.this));
-                if (s.length() < 1) {
-                    listView.setAdapter(adapter);
-                }
-            }
-        });
-
-        Button pick = findViewById(R.id.track_list_editor_button_pick);
-        pick.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType(TYPE_IMAGE);
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, MIME_TYPES);
-            startActivityForResult(intent, GALLERY_REQUEST_CODE);
-        });
-
-        Button delete = findViewById(R.id.track_list_editor_button_delete);
-        if (!creation) {
-            delete.setOnClickListener(v -> {
-                AlertDialog dialog = new AlertDialog.Builder(TrackListEditorActivity.this)
-                        .setTitle("Are you sure?")
-                        .setMessage("Do you really want to delete " + source.getDisplayName() + "?")
-                        .setPositiveButton("DELETE", (dialog12, which) -> {
-                            trackListsStorageManager.removeTrackList(source);
-                            thumbnailStorageManager.removeThumbnail(source.getIdentifier());
-                            finish();
-                        })
-                        .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
-                        .create();
-                dialog.show();
-            });
-        } else {
-            delete.setVisibility(View.GONE);
-        }
-
-
-        Button cancel = findViewById(R.id.track_list_editor_button_cancel);
-        cancel.setOnClickListener(v -> {
-            if (!creation) {
-                showNotSavedPrompt();
+    private void createActionBarTitle() {
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            if (creation) {
+                supportActionBar.setTitle("Create Playlist");
             } else {
-                finish();
+                supportActionBar.setTitle("Edit Playlist");
             }
-        });
+        }
     }
 
     @Override
@@ -248,7 +276,7 @@ public class TrackListEditorActivity extends BaseActivity {
             Toast.makeText(context, "You can't create empty track list", Toast.LENGTH_LONG).show();
             return false;
         }
-        if (displayName.equals("empty")) {
+        if ("empty".equals(displayName)) {
             Toast.makeText(context, "Ha-ha, very funny. Name must not be empty", Toast.LENGTH_LONG).show();
             return false;
         }
@@ -292,21 +320,20 @@ public class TrackListEditorActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == Activity.RESULT_OK)
-            if (requestCode == GALLERY_REQUEST_CODE) {
-                if (data != null) {
-                    Uri selectedImage = data.getData();
-                    try {
-                        Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
-                        art.setImageBitmap(bitmap);
-                        selectedBitmap = bitmap;
-                        pictureChanged = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+        if (resultCode == Activity.RESULT_OK
+                && requestCode == GALLERY_REQUEST_CODE
+                && data != null) {
+            Uri selectedImage = data.getData();
+            try {
+                Bitmap input = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                Bitmap bitmap = ThumbnailUtils.extractThumbnail(input, getSquareDimensions(input), getSquareDimensions(input));
+                art.setImageBitmap(bitmap);
+                selectedBitmap = bitmap;
+                pictureChanged = true;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
 
     }
 }

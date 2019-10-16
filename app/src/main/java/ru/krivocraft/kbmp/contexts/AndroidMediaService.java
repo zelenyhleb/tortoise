@@ -26,7 +26,7 @@ public class AndroidMediaService extends MediaBrowserServiceCompat {
 
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-
+        //Do nothing yet.
     }
 
     @Override

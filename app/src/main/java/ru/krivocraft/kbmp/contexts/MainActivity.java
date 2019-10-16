@@ -94,7 +94,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-
+        //No update for new state in MainActivity
     }
 
     private void configureLayoutTransition() {

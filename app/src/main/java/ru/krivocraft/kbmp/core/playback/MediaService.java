@@ -28,8 +28,24 @@ import static android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY;
 
 public class MediaService {
 
+    private static final String ACTION_REQUEST_STOP = "stop";
+
+    private static final String EXTRA_PLAYBACK_STATE = "playback_state";
+    private static final String EXTRA_CURSOR = "cursor";
+    private static final String EXTRA_METADATA = "metadata";
+
+    public static final String EXTRA_POSITION = "position";
     public static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
     public static final String ACTION_REQUEST_TRACK_LIST = "action_request_track_list";
+
+    public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
+    public static final String ACTION_RESULT_DATA = "result_position";
+    public static final String ACTION_REQUEST_DATA = "request_position";
+    public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
+    public static final String ACTION_PLAY_FROM_LIST = "play_from_list";
+    public static final String ACTION_EDIT_PLAYING_TRACK_LIST = "edit_current_track_list";
+    public static final String ACTION_SHUFFLE = "shuffle";
+
     private static final int HEADSET_STATE_PLUG_IN = 1;
     private static final int HEADSET_STATE_PLUG_OUT = 0;
 
@@ -129,6 +145,9 @@ public class MediaService {
                     case HEADSET_STATE_PLUG_OUT:
                         mediaSession.getController().getTransportControls().pause();
                         break;
+                    default:
+                        //No idea what to do in this case
+                        break;
                 }
             } else {
                 //Mute if some device unplugged
@@ -137,11 +156,6 @@ public class MediaService {
         }
     };
 
-    private static final String EXTRA_PLAYBACK_STATE = "playback_state";
-    private static final String EXTRA_CURSOR = "cursor";
-    private static final String EXTRA_METADATA = "metadata";
-
-    public static final String EXTRA_POSITION = "position";
 
     private final BroadcastReceiver requestDataReceiver = new BroadcastReceiver() {
         @Override
@@ -162,15 +176,6 @@ public class MediaService {
         }
     };
 
-    private static final String ACTION_REQUEST_STOP = "stop";
-
-    public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
-    public static final String ACTION_RESULT_DATA = "result_position";
-    public static final String ACTION_REQUEST_DATA = "request_position";
-    public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
-    public static final String ACTION_PLAY_FROM_LIST = "play_from_list";
-    public static final String ACTION_EDIT_PLAYING_TRACK_LIST = "edit_current_track_list";
-    public static final String ACTION_SHUFFLE = "shuffle";
 
     private final BroadcastReceiver playlistReceiver = new BroadcastReceiver() {
         @Override
@@ -196,6 +201,9 @@ public class MediaService {
                     }
                     trackListsStorageManager.updateTrackListData(trackListEdited);
                     context.sendBroadcast(new Intent(TracksProvider.ACTION_UPDATE_STORAGE));
+                    break;
+                default:
+                    //Do nothing
                     break;
             }
         }

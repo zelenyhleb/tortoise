@@ -3,7 +3,6 @@ package ru.krivocraft.kbmp.core;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

@@ -156,25 +156,26 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     void newTrack(int index) {
         int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
 
+        int cursor = index;
         if (loopType == TrackList.LOOP_TRACK_LIST) {
-            if (index < 0) index = trackList.size() - 1;
-            if (index >= getTracks().size()) index = 0;
+            if (index < 0) cursor = trackList.size() - 1;
+            if (index >= getTracks().size()) cursor = 0;
         }
 
-        if (index >= 0 && index < getTracks().size()) {
+        if (cursor >= 0 && cursor < getTracks().size()) {
             pause();
 
             removeTrackSelection();
 
-            cursor = index;
+            this.cursor = cursor;
 
-            TrackReference selectedReference = getTracks().get(cursor);
+            TrackReference selectedReference = getTracks().get(this.cursor);
             Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
             selectedTrack.setSelected(true);
             tracksStorageManager.updateTrack(selectedTrack);
 
             if (playerStateCallback != null) {
-                playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getTracks().get(cursor)));
+                playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getTracks().get(this.cursor)));
             }
 
             play();
@@ -269,9 +270,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     TrackReference getCurrentTrack() {
-        if (getTracks() != null)
-            if (getTracks().size() > 0)
-                return getTracks().get(cursor);
+        if (getTracks() != null && getTracks().size() > 0) {
+            return getTracks().get(cursor);
+        }
         return null;
     }
 
@@ -312,6 +313,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                     audioManager.abandonAudioFocus(focusChangeListener);
                 }
                 break;
+            default:
+                //Do nothing
+                break;
         }
     }
 
@@ -319,7 +323,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         player.setVolume(volume, volume);
     }
 
-    void destroy(){
+    void destroy() {
         equalizerManager.destroy();
 
         audioManager.abandonAudioFocus(focusChangeListener);

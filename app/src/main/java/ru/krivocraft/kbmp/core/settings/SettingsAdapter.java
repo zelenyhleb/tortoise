@@ -31,26 +31,29 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View itemView;
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
+            itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
             if (position == objects.indexOf(SettingsStorageManager.KEY_THEME)) {
-                TextView textView = convertView.findViewById(R.id.settings_text);
+                TextView textView = itemView.findViewById(R.id.settings_text);
                 textView.setText(R.string.settings_theme);
-                Switch s = convertView.findViewById(R.id.settings_switch);
+                Switch s = itemView.findViewById(R.id.settings_switch);
                 initSwitch(s, SettingsStorageManager.KEY_THEME, false);
             } else if (position == objects.indexOf(SettingsStorageManager.KEY_SORT_BY_ARTIST)) {
-                Switch s = convertView.findViewById(R.id.settings_switch);
-                TextView textView = convertView.findViewById(R.id.settings_text);
+                Switch s = itemView.findViewById(R.id.settings_switch);
+                TextView textView = itemView.findViewById(R.id.settings_text);
                 initSwitch(s, SettingsStorageManager.KEY_SORT_BY_ARTIST, false);
                 textView.setText(R.string.settings_sort_artist);
             } else if (position == objects.indexOf(SettingsStorageManager.KEY_RECOGNIZE_NAMES)) {
-                Switch s = convertView.findViewById(R.id.settings_switch);
-                TextView textView = convertView.findViewById(R.id.settings_text);
+                Switch s = itemView.findViewById(R.id.settings_switch);
+                TextView textView = itemView.findViewById(R.id.settings_text);
                 initSwitch(s, SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
                 textView.setText(R.string.settings_recognize);
             }
+        } else {
+            itemView = convertView;
         }
-        return convertView;
+        return itemView;
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {

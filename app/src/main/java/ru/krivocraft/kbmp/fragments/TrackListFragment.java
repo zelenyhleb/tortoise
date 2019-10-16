@@ -108,6 +108,7 @@ public class TrackListFragment extends BaseFragment {
                 searchFrame.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        //Do nothing
                     }
 
                     @Override
@@ -129,6 +130,7 @@ public class TrackListFragment extends BaseFragment {
 
                     @Override
                     public void afterTextChanged(Editable s) {
+                        //Do nothing
                     }
                 });
                 searchFrame.setVisibility(View.VISIBLE);
