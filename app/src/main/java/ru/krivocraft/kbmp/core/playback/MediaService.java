@@ -24,6 +24,8 @@ import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.core.track.TracksProvider;
 
+import static android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY;
+
 public class MediaService {
 
     public static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
@@ -78,6 +80,7 @@ public class MediaService {
 
         IntentFilter headsetFilter = new IntentFilter();
         headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        headsetFilter.addAction(ACTION_AUDIO_BECOMING_NOISY);
         context.registerReceiver(headsetReceiver, headsetFilter);
 
         IntentFilter positionFilter = new IntentFilter();
@@ -115,6 +118,8 @@ public class MediaService {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction())) {
+                //Old method works only with wired headset and some bluetooth headphones.
+                //The feature is replaying audio when user plugs headphones back
                 switch (intent.getIntExtra("state", -1)) {
                     case HEADSET_STATE_PLUG_IN:
                         if (playbackManager.getCurrentTrack() != null) {
@@ -125,7 +130,9 @@ public class MediaService {
                         mediaSession.getController().getTransportControls().pause();
                         break;
                 }
-
+            } else {
+                //Mute if some device unplugged
+                mediaSession.getController().getTransportControls().pause();
             }
         }
     };
@@ -236,9 +243,10 @@ public class MediaService {
     private BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Track track = tracksStorageManager.getTrack(playbackManager.getCurrentTrack());
+            TrackReference currentTrack = playbackManager.getCurrentTrack();
             int color = -1;
-            if (track != null) {
+            if (currentTrack != null) {
+                Track track = tracksStorageManager.getTrack(currentTrack);
                 color = track.getColor();
             }
             context.sendBroadcast(new Intent(ColorManager.ACTION_RESULT_COLOR)
