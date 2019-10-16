@@ -96,6 +96,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         fragment.initHandler();
         return fragment;
     }
+
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
@@ -163,6 +164,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         registerTrackListReceiver(context);
         requestPosition(context);
     }
+
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -299,6 +301,9 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                     break;
                 case TrackList.LOOP_TRACK_LIST:
                     loop.setImageDrawable(context.getDrawable(R.drawable.ic_loop_list));
+                    break;
+                default:
+                    //Do nothing
                     break;
             }
         }

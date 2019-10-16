@@ -33,6 +33,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+        //Do nothing (No swipe provided by business logic)
     }
 
     @Override
