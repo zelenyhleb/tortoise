@@ -1,9 +1,9 @@
 Tortoise
 ========
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8b89073eb0a40f6b8cb43f6580db473)](https://www.codacy.com/manual/zelenyhleb/tortoise?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zelenyhleb/tortoise&amp;utm_campaign=Badge_Grade)
-[![Release](https://img.shields.io/badge/Release-Latest%200.3.4-green.svg)](https://github.com/zelenyhleb/tortoise/releases/latest)
 [![Build Status](https://travis-ci.org/zelenyhleb/tortoise.svg?branch=develop)](https://travis-ci.org/zelenyhleb/tortoise)
+[![Release](https://img.shields.io/badge/Release-Latest%200.3.4-green.svg)](https://github.com/zelenyhleb/tortoise/releases/latest)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8b89073eb0a40f6b8cb43f6580db473)](https://www.codacy.com/manual/zelenyhleb/tortoise?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zelenyhleb/tortoise&amp;utm_campaign=Badge_Grade)
 
 <img src="http://www.krivocraft.ru/icon.png" height="256px"/>
 
