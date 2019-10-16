@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.krivocraft.kbmp.Track;
+import ru.krivocraft.kbmp.core.track.Track;
 
 public class CompileByAuthorTask extends CompileTrackListsTask {
 

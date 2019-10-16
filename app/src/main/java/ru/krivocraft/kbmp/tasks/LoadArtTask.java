@@ -3,7 +3,7 @@ package ru.krivocraft.kbmp.tasks;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
-import ru.krivocraft.kbmp.Utils;
+import ru.krivocraft.kbmp.core.utils.Art;
 
 public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
 
@@ -11,7 +11,7 @@ public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(String... strings) {
-        return Utils.loadArt(strings[0]);
+        return new Art(strings[0]).bitmap();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
         this.callback = callback;
     }
 
-    public interface BitmapDecoderCallback{
+    public interface BitmapDecoderCallback {
         void onBitmapDecoded(Bitmap bitmap);
     }
 }
