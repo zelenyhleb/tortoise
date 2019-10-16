@@ -9,6 +9,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.playback.MediaService;
+import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
@@ -37,11 +39,14 @@ public class PlayerActivity extends BaseActivity {
 
     private boolean equalizerShown = false;
     private EqualizerFragment equalizerFragment;
+    private SettingsStorageManager settingsStorageManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
+        settingsStorageManager = new SettingsStorageManager(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
@@ -97,6 +102,15 @@ public class PlayerActivity extends BaseActivity {
             equalizerShown = !equalizerShown;
 
             transaction.commitNowAllowingStateLoss();
+
+            View view = equalizerFragment.getView();
+            if (view != null) {
+                if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+                    view.setBackgroundResource(R.drawable.background_light);
+                } else {
+                    view.setBackgroundResource(R.drawable.background_dark);
+                }
+            }
         }
     }
 
