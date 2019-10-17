@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -368,17 +369,21 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             if (trackArt != null) {
                 trackImage.setImageBitmap(trackArt);
             } else {
-                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
-                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                    VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
+                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
 
-                int color = track.getColor();
+                    int color = track.getColor();
 
-                background.setFillColor(colorManager.getColor(color));
-                tintColor = colorManager.getColorResource(color);
-                drawLikeButton(context, buttonLike, track);
+                    background.setFillColor(colorManager.getColor(color));
+                    tintColor = colorManager.getColorResource(color);
+                    drawLikeButton(context, buttonLike, track);
 
-                compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
-                compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                    compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                    compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                } else {
+                    trackImage.setImageResource(R.drawable.ic_track_image_default);
+                }
             }
 
             buttonLike.setOnClickListener(v -> {

@@ -130,7 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             boolean useLightTheme = settingsManager.getOption(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme && Build.VERSION.SDK_INT == Build.VERSION_CODES.N) {
+            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 int color = colorManager.getColor(
                         tracksStorageManager
                                 .getTrack(tracksStorageManager
@@ -184,7 +184,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             boolean useLightTheme = settingsManager.getOption(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme) {
+            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 int color = intent.getIntExtra(ColorManager.EXTRA_COLOR, -1);
                 if (color != -1) {
                     int formattedColor = colorManager.getColor(color);
