@@ -41,6 +41,7 @@ public class DBConnection {
 
     public DBConnection(Context context) {
         this.database = new DBHelper(context).getWritableDatabase();
+        removeDuplicatedTrackLists();
     }
 
     public void writeTrack(Track track) {
@@ -115,6 +116,25 @@ public class DBConnection {
         createTrackListTable(trackList);
         fillTrackListTable(trackList);
         createTrackListEntry(trackList);
+    }
+
+    private void removeDuplicatedTrackLists() {
+        List<String> trackListNames = getTrackListNames();
+        for (String string : trackListNames) {
+            Cursor cursor = database.query(TRACK_LISTS, null, "name = ?", new String[]{string}, null, null, null);
+            if (cursor.moveToFirst()) {
+                String identifier = cursor.getString(cursor.getColumnIndex("id"));
+                int type = cursor.getInt(cursor.getColumnIndex("type"));
+
+                database.delete(TRACK_LISTS, "string = ?", new String[]{string});
+                ContentValues values = new ContentValues();
+                values.put("id", identifier);
+                values.put("type", type);
+                values.put("name", string);
+                database.insert(TRACK_LISTS, null, values);
+            }
+            cursor.close();
+        }
     }
 
     public void clearTrackList(String trackList) {
