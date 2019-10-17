@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.contexts;
 
 import android.Manifest;
@@ -7,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
@@ -129,7 +146,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             boolean useLightTheme = settingsManager.getOption(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme) {
+            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 int color = colorManager.getColor(
                         tracksStorageManager
                                 .getTrack(tracksStorageManager
@@ -183,7 +200,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             boolean useLightTheme = settingsManager.getOption(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme) {
+            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 int color = intent.getIntExtra(ColorManager.EXTRA_COLOR, -1);
                 if (color != -1) {
                     int formattedColor = colorManager.getColor(color);

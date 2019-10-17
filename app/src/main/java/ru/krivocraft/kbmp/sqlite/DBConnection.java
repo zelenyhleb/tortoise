@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.sqlite;
 
 import android.content.ContentValues;
@@ -25,6 +41,7 @@ public class DBConnection {
 
     public DBConnection(Context context) {
         this.database = new DBHelper(context).getWritableDatabase();
+        removeDuplicatedTrackLists();
     }
 
     public void writeTrack(Track track) {
@@ -99,6 +116,25 @@ public class DBConnection {
         createTrackListTable(trackList);
         fillTrackListTable(trackList);
         createTrackListEntry(trackList);
+    }
+
+    private void removeDuplicatedTrackLists() {
+        List<String> trackListNames = getTrackListNames();
+        for (String string : trackListNames) {
+            Cursor cursor = database.query(TRACK_LISTS, null, "name = ?", new String[]{string}, null, null, null);
+            if (cursor.moveToFirst()) {
+                String identifier = cursor.getString(cursor.getColumnIndex("id"));
+                int type = cursor.getInt(cursor.getColumnIndex("type"));
+
+                database.delete(TRACK_LISTS, "name = ?", new String[]{string});
+                ContentValues values = new ContentValues();
+                values.put("id", identifier);
+                values.put("type", type);
+                values.put("name", string);
+                database.insert(TRACK_LISTS, null, values);
+            }
+            cursor.close();
+        }
     }
 
     public void clearTrackList(String trackList) {

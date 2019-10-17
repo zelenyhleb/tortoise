@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.core.playback;
 
 import android.content.Context;
@@ -34,8 +50,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private int playerState;
 
-    private PlayerStateCallback playerStateCallback;
-    private PlaylistUpdateCallback playlistUpdateCallback;
+    private final PlayerStateCallback playerStateCallback;
+    private final PlaylistUpdateCallback playlistUpdateCallback;
 
     private AudioManager.OnAudioFocusChangeListener focusChangeListener = focusChange -> {
         switch (focusChange) {
@@ -62,7 +78,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private int cursor = 0;
 
-    PlaybackManager(Context context) {
+    PlaybackManager(Context context, PlayerStateCallback playerStateCallback, PlaylistUpdateCallback playlistUpdateCallback) {
+        this.playerStateCallback = playerStateCallback;
+        this.playlistUpdateCallback = playlistUpdateCallback;
         this.player = new MediaPlayer();
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
@@ -158,31 +176,37 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
         int cursor = index;
         if (loopType == TrackList.LOOP_TRACK_LIST) {
-            if (index < 0) cursor = trackList.size() - 1;
-            if (index >= getTracks().size()) cursor = 0;
+            cursor = replaceCursorIfOutOfBounds(index, cursor);
         }
 
-        if (cursor >= 0 && cursor < getTracks().size()) {
+        if (!cursorOutOfBounds(cursor)) {
             pause();
-
-            removeTrackSelection();
-
+            deselectCurrentTrack();
             this.cursor = cursor;
-
-            TrackReference selectedReference = getTracks().get(this.cursor);
-            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
-            selectedTrack.setSelected(true);
-            tracksStorageManager.updateTrack(selectedTrack);
-
-            if (playerStateCallback != null) {
-                playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getTracks().get(this.cursor)));
-            }
-
+            selectCurrentTrack();
+            playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getSelectedTrackReference()));
             play();
         }
     }
 
-    private void removeTrackSelection() {
+    private int replaceCursorIfOutOfBounds(int index, int cursor) {
+        if (index < 0) return trackList.size() - 1;
+        if (index >= getTracks().size()) return 0;
+        return cursor;
+    }
+
+    private void selectCurrentTrack() {
+        TrackReference selectedReference = getTracks().get(this.cursor);
+        Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
+        selectedTrack.setSelected(true);
+        tracksStorageManager.updateTrack(selectedTrack);
+    }
+
+    private boolean cursorOutOfBounds(int cursor) {
+        return cursor < 0 || cursor > getTracks().size();
+    }
+
+    private void deselectCurrentTrack() {
         if (previousTrackExists()) {
             Track oldSelectedTrack = tracksStorageManager.getTrack(cache);
             oldSelectedTrack.setPlaying(false);
@@ -205,7 +229,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void shuffle() {
-        cursor = trackList.shuffle(getCurrentTrack());
+        cursor = trackList.shuffle(getSelectedTrackReference());
         playlistUpdateCallback.onPlaylistUpdated(trackList);
     }
 
@@ -225,7 +249,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         if (player != null) {
             audioManager.abandonAudioFocus(focusChangeListener);
 
-            removeTrackSelection();
+            deselectCurrentTrack();
 
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
@@ -253,14 +277,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             return new ArrayList<>();
     }
 
-    void setPlayerStateCallback(PlayerStateCallback playerStateCallback) {
-        this.playerStateCallback = playerStateCallback;
-    }
-
-    void setPlaylistUpdateCallback(PlaylistUpdateCallback playlistUpdateCallback) {
-        this.playlistUpdateCallback = playlistUpdateCallback;
-    }
-
     TrackList getTrackList() {
         return trackList;
     }
@@ -269,7 +285,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         return player != null ? player.getCurrentPosition() : 0;
     }
 
-    TrackReference getCurrentTrack() {
+    TrackReference getSelectedTrackReference() {
         if (getTracks() != null && getTracks().size() > 0) {
             return getTracks().get(cursor);
         }

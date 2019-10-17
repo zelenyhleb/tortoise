@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.fragments;
 
 import android.app.Activity;
@@ -7,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -117,12 +134,16 @@ public class SmallPlayerFragment extends BaseFragment {
             if (trackArt != null) {
                 viewImage.setImageBitmap(trackArt);
             } else {
-                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
-                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-                int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor());
-                background.setFillColor(color);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                    VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
+                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                    int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor());
+                    background.setFillColor(color);
 
-                bar.setProgressTintList(ColorStateList.valueOf(color));
+                    bar.setProgressTintList(ColorStateList.valueOf(color));
+                } else {
+                    viewImage.setImageResource(R.drawable.ic_track_image_default);
+                }
 
             }
             viewImage.setClipToOutline(true);

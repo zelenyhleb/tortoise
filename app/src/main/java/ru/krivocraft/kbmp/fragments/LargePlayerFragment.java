@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.fragments;
 
 import android.animation.LayoutTransition;
@@ -10,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -368,17 +385,21 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             if (trackArt != null) {
                 trackImage.setImageBitmap(trackArt);
             } else {
-                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
-                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                    VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
+                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
 
-                int color = track.getColor();
+                    int color = track.getColor();
 
-                background.setFillColor(colorManager.getColor(color));
-                tintColor = colorManager.getColorResource(color);
-                drawLikeButton(context, buttonLike, track);
+                    background.setFillColor(colorManager.getColor(color));
+                    tintColor = colorManager.getColorResource(color);
+                    drawLikeButton(context, buttonLike, track);
 
-                compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
-                compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                    compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                    compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                } else {
+                    trackImage.setImageResource(R.drawable.ic_track_image_default);
+                }
             }
 
             buttonLike.setOnClickListener(v -> {

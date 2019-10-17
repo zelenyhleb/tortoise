@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Nikifor Fedorov
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *     SPDX-License-Identifier: Apache-2.0
+ *     Contributors:
+ * 	    Nikifor Fedorov - whole development
+ */
+
 package ru.krivocraft.kbmp.core.playback;
 
 import android.app.Notification;
@@ -73,8 +89,7 @@ public class MediaService {
 
         notificationBuilder = new NotificationBuilder(context);
 
-        playbackManager = new PlaybackManager(context);
-        playbackManager.setPlayerStateCallback(new PlaybackManager.PlayerStateCallback() {
+        playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
@@ -86,8 +101,7 @@ public class MediaService {
                 mediaSession.setMetadata(track.getAsMediaMetadata());
                 showNotification();
             }
-        });
-        playbackManager.setPlaylistUpdateCallback(this::updateTrackList);
+        }, this::updateTrackList);
 
         mediaSession.setCallback(new MediaSessionCallback(playbackManager, this::stopPlayback));
 
@@ -138,7 +152,7 @@ public class MediaService {
                 //The feature is replaying audio when user plugs headphones back
                 switch (intent.getIntExtra("state", -1)) {
                     case HEADSET_STATE_PLUG_IN:
-                        if (playbackManager.getCurrentTrack() != null) {
+                        if (playbackManager.getSelectedTrackReference() != null) {
                             mediaSession.getController().getTransportControls().play();
                         }
                         break;
@@ -169,7 +183,7 @@ public class MediaService {
             } else {
                 Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
                 result.putExtra(TrackList.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
-                result.putExtra(Track.EXTRA_TRACK, playbackManager.getCurrentTrack().toJson());
+                result.putExtra(Track.EXTRA_TRACK, playbackManager.getSelectedTrackReference().toJson());
                 result.putExtra(EXTRA_CURSOR, playbackManager.getCursor());
                 context.sendBroadcast(result);
             }
@@ -251,7 +265,7 @@ public class MediaService {
     private BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            TrackReference currentTrack = playbackManager.getCurrentTrack();
+            TrackReference currentTrack = playbackManager.getSelectedTrackReference();
             int color = -1;
             if (currentTrack != null) {
                 Track track = tracksStorageManager.getTrack(currentTrack);
@@ -270,7 +284,7 @@ public class MediaService {
     }
 
     private void notifyPlaybackManager(TrackList in) {
-        TrackReference reference = playbackManager.getCurrentTrack();
+        TrackReference reference = playbackManager.getSelectedTrackReference();
         playbackManager.setTrackList(in, false);
         playbackManager.setCursor(in.indexOf(reference));
     }
