@@ -126,7 +126,7 @@ public class DBConnection {
                 String identifier = cursor.getString(cursor.getColumnIndex("id"));
                 int type = cursor.getInt(cursor.getColumnIndex("type"));
 
-                database.delete(TRACK_LISTS, "string = ?", new String[]{string});
+                database.delete(TRACK_LISTS, "name = ?", new String[]{string});
                 ContentValues values = new ContentValues();
                 values.put("id", identifier);
                 values.put("type", type);
