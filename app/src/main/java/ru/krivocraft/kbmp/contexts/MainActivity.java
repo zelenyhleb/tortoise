@@ -35,7 +35,9 @@ import androidx.fragment.app.Fragment;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.OldStuffCollector;
 import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.fragments.BaseFragment;
 import ru.krivocraft.kbmp.fragments.ExplorerFragment;
+import ru.krivocraft.kbmp.fragments.SettingsFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackListFragment;
 
@@ -46,6 +48,7 @@ public class MainActivity extends BaseActivity {
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
     private static final int STATE_TRACK_LIST = 2;
+    private static final int STATE_SETTINGS = 3;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
@@ -140,7 +143,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            showSettingsFragment();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -148,11 +151,7 @@ public class MainActivity extends BaseActivity {
 
     private void showExplorerFragment() {
         removeTrackListFragment();
-        if (explorerFragment == null) {
-            addFragment(R.anim.fadeinshort, getExplorerFragment(), R.id.fragment_container);
-        } else {
-            showFragment(explorerFragment);
-        }
+        replaceFragment(getExplorerFragment(), R.id.fragment_container, R.anim.fadeinshort);
         viewState = STATE_EXPLORER;
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -161,8 +160,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        hideExplorerFragment();
-        addFragment(R.anim.fadeinshort, getTrackListFragment(trackList), R.id.fragment_container);
+        replaceFragment(getTrackListFragment(trackList), R.id.fragment_container, R.anim.fadeinshort);
         viewState = STATE_TRACK_LIST;
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -170,9 +168,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void showSettingsFragment() {
+        replaceFragment(SettingsFragment.newInstance(), R.id.fragment_container, R.anim.fadeinshort);
+        viewState = STATE_SETTINGS;
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle("Settings");
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        if (viewState == STATE_TRACK_LIST) {
+        if (viewState != STATE_EXPLORER) {
             showExplorerFragment();
         } else {
             super.onBackPressed();
@@ -191,10 +198,6 @@ public class MainActivity extends BaseActivity {
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
         }
-    }
-
-    private void hideExplorerFragment() {
-        hideFragment(explorerFragment);
     }
 
     private void removeTrackListFragment() {
@@ -220,6 +223,16 @@ public class MainActivity extends BaseActivity {
         smallPlayerFragment = null;
     }
 
+
+    private void replaceFragment(BaseFragment fragment, int container, int animation) {
+        if (fragment != null && !fragment.isVisible()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(container, fragment)
+                    .setCustomAnimations(animation, R.anim.slide_out_right)
+                    .commitNow();
+        }
+    }
 
     private void addFragment(int animationIn, Fragment fragment, int container) {
         if (fragment != null && !fragment.isVisible()) {

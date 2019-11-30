@@ -14,11 +14,13 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.kbmp.contexts;
+package ru.krivocraft.kbmp.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.Arrays;
@@ -28,39 +30,30 @@ import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.settings.SettingsAdapter;
 import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsFragment extends BaseFragment {
+
+    public static SettingsFragment newInstance() {
+        return new SettingsFragment();
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-
-        ListView listView = findViewById(R.id.settings_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+        ListView listView = rootView.findViewById(R.id.settings_list);
         List<String> settings = getSettings();
-        listView.setAdapter(new SettingsAdapter(this, settings));
-    }
-
-    @Override
-    void init() {
-        //Do nothing
-    }
-
-    @Override
-    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        //Do nothing
-    }
-
-    @Override
-    void onMetadataChanged(MediaMetadataCompat newMetadata) {
-        //Do nothing
-    }
-
-    @Override
-    void onMediaBrowserConnected() {
-        //Do nothing
+        Activity context = getActivity();
+        if (context != null) {
+            listView.setAdapter(new SettingsAdapter(context, settings));
+        }
+        return rootView;
     }
 
     private List<String> getSettings() {
         return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_SORT_BY_ARTIST, SettingsStorageManager.KEY_RECOGNIZE_NAMES);
+    }
+
+    @Override
+    public void invalidate() {
+
     }
 }
