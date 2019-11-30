@@ -94,9 +94,9 @@ public class NotificationBuilder {
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())
                     .setContentIntent(contentIntent)
                     .setSound(null)
+                    .setCategory(Notification.CATEGORY_PROGRESS)
                     .setStyle(mediaStyle)
                     .setColorized(true)
-                    .setOngoing(true)
                     .setShowWhen(false)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
@@ -113,7 +113,7 @@ public class NotificationBuilder {
 
             boolean playing = mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
             if (playing) {
-                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
+                notificationBuilder.addAction(pauseAction).setOngoing(true).setSmallIcon(R.drawable.ic_play);
             } else {
                 notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
             }
@@ -123,7 +123,7 @@ public class NotificationBuilder {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationChannel channel =
                         new NotificationChannel(CHANNEL_ID,
-                                "Tortoise",
+                                playing ? "Playing" : "Paused",
                                 NotificationManager.IMPORTANCE_DEFAULT);
 
                 channel.setImportance(NotificationManager.IMPORTANCE_LOW);

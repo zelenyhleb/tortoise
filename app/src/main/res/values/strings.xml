@@ -30,7 +30,7 @@
     <string name="equalizer">Equalizer</string>
     <string name="track_list_name">Track list name</string>
     <string name="obtaining_tracks_data">Obtaining tracks data…</string>
-    <string name="app_version">Tortoise v0.3.5</string>
+    <string name="app_version">Tortoise v0.3.6</string>
     <string name="settings_theme">Light theme (Beta)</string>
     <string name="settings_sort_artist">Automatically sort by artist</string>
     <string name="settings_sort_tag">Automatically sort by tag</string>

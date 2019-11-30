@@ -56,6 +56,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private MediaBrowserCompat mediaBrowser;
 
     private static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 22892;
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 22893;
 
     MediaControllerCompat mediaController;
 
@@ -91,8 +92,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_WRITE_EXTERNAL_STORAGE);
         } else {
             onPermissionGranted();
         }
@@ -171,7 +172,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE) {
+        if (requestCode == PERMISSION_WRITE_EXTERNAL_STORAGE || requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PERMISSION_GRANTED) {
                 onPermissionGranted();
             } else {

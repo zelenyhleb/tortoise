@@ -46,9 +46,15 @@ public class AndroidMediaService extends MediaBrowserServiceCompat {
     }
 
     @Override
-    public void onDestroy() {
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
         this.mediaService.destroy();
         running = false;
+        stopSelf();
+    }
+
+    @Override
+    public void onDestroy() {
         super.onDestroy();
     }
 
@@ -62,7 +68,7 @@ public class AndroidMediaService extends MediaBrowserServiceCompat {
     public int onStartCommand(Intent intent, int flags, int startId) {
         this.mediaService.handleCommand(intent);
         running = true;
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 }
