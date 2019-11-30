@@ -67,8 +67,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         colorManager = new ColorManager(this);
         tracksStorageManager = new TracksStorageManager(this);
         setTheme();
-        requestStoragePermission();
-
     }
 
     final void setTheme() {
@@ -85,6 +83,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        requestStoragePermission();
+
         IntentFilter colorFilter = new IntentFilter(ColorManager.ACTION_RESULT_COLOR);
         registerReceiver(interfaceRecolorReceiver, colorFilter);
 
