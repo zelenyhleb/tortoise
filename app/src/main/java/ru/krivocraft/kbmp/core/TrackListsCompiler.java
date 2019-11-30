@@ -37,7 +37,7 @@ public class TrackListsCompiler {
 
     public TrackListsCompiler(Context context) {
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.trackListsStorageManager = new TrackListsStorageManager(context);
+        this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
     }
 
     public void compileByAuthors(OnTrackListsCompiledCallback callback) {

@@ -85,7 +85,7 @@ public class MediaService {
         mediaSession.setActive(true);
 
         tracksStorageManager = new TracksStorageManager(context);
-        trackListsStorageManager = new TrackListsStorageManager(context);
+        trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
 
         mediaController = mediaSession.getController();
 

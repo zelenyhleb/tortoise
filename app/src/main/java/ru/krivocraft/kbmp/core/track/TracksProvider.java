@@ -43,7 +43,7 @@ public class TracksProvider {
 
     public TracksProvider(Context context) {
         this.contentResolver = context.getContentResolver();
-        this.trackListsStorageManager = new TrackListsStorageManager(context);
+        this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.tracksStorageManager = new TracksStorageManager(context);
 
         SettingsStorageManager settingsManager = new SettingsStorageManager(context);

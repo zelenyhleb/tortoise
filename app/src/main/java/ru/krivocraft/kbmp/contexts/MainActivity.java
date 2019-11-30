@@ -63,7 +63,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     };
-    private TrackListFragment trackListFragment;
     private ExplorerFragment explorerFragment;
 
     @Override
@@ -79,13 +78,12 @@ public class MainActivity extends BaseActivity {
 
     @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        trackListFragment = TrackListFragment.newInstance(trackList, true, this, mediaController);
-        return trackListFragment;
+        return TrackListFragment.newInstance(trackList, true, this, mediaController);
     }
 
     private ExplorerFragment getExplorerFragment() {
         if (explorerFragment == null) {
-            //ExplorerFragment is singleton, so we will reuse it, if it is possible
+            //TrackListStackFragment is singleton, so we will reuse it, if it is possible
             explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
         }
         return explorerFragment;
@@ -150,30 +148,23 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showExplorerFragment() {
-        removeTrackListFragment();
-        replaceFragment(getExplorerFragment(), R.id.fragment_container, R.anim.fadeinshort);
-        viewState = STATE_EXPLORER;
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle("Tortoise");
-        }
+        showFragment(getExplorerFragment(), "Tortoise", STATE_EXPLORER);
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        replaceFragment(getTrackListFragment(trackList), R.id.fragment_container, R.anim.fadeinshort);
-        viewState = STATE_TRACK_LIST;
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle(trackList.getDisplayName());
-        }
+        showFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST);
     }
 
     private void showSettingsFragment() {
-        replaceFragment(SettingsFragment.newInstance(), R.id.fragment_container, R.anim.fadeinshort);
-        viewState = STATE_SETTINGS;
+        showFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
+    }
+
+    private void showFragment(BaseFragment fragment, String title, int boundState) {
+        replaceFragment(fragment, R.id.fragment_container, R.anim.fadeinshort);
+        viewState = boundState;
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
-            supportActionBar.setTitle("Settings");
+            supportActionBar.setTitle(title);
         }
     }
 
@@ -200,18 +191,13 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void removeTrackListFragment() {
-        removeFragment(trackListFragment);
-        trackListFragment = null;
-    }
-
     private void showSmallPlayerFragment() {
         if (mediaController.getMetadata() != null) {
             if (smallPlayerFragment == null) {
                 SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
                 smallPlayerFragment.init(MainActivity.this, mediaController);
                 MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                addFragment(R.anim.slideup, MainActivity.this.smallPlayerFragment, R.id.player_container);
+                replaceFragment(MainActivity.this.smallPlayerFragment, R.id.player_container, R.anim.slideup);
             } else {
                 this.smallPlayerFragment.invalidate();
             }
@@ -230,25 +216,6 @@ public class MainActivity extends BaseActivity {
                     .beginTransaction()
                     .replace(container, fragment)
                     .setCustomAnimations(animation, R.anim.slide_out_right)
-                    .commitNow();
-        }
-    }
-
-    private void addFragment(int animationIn, Fragment fragment, int container) {
-        if (fragment != null && !fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(animationIn, R.anim.slide_out_right)
-                    .add(container, fragment)
-                    .commitNowAllowingStateLoss();
-        }
-    }
-
-    private void showFragment(Fragment fragment) {
-        if (fragment != null && !fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .show(fragment)
                     .commitNowAllowingStateLoss();
         }
     }
@@ -258,15 +225,6 @@ public class MainActivity extends BaseActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .hide(fragment)
-                    .commitNowAllowingStateLoss();
-        }
-    }
-
-    private void removeFragment(Fragment fragment) {
-        if (fragment != null && fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(fragment)
                     .commitNowAllowingStateLoss();
         }
     }

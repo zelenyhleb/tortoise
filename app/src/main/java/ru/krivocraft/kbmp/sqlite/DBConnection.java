@@ -207,6 +207,38 @@ public class DBConnection {
         return trackLists;
     }
 
+    public List<TrackList> getCustom() {
+        return getFilteredTrackLists(TrackList.TRACK_LIST_CUSTOM);
+    }
+
+    public List<TrackList> getSortedByArtist() {
+        return getFilteredTrackLists(TrackList.TRACK_LIST_BY_AUTHOR);
+    }
+
+    private List<TrackList> getFilteredTrackLists(int filter) {
+        List<TrackList> trackLists = new ArrayList<>();
+
+        Cursor cursor = database.query(TRACK_LISTS, null,
+                "type == " + filter,
+                null, null, null, null);
+        if (cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
+            int nameIndex = cursor.getColumnIndex("name");
+            int typeIndex = cursor.getColumnIndex("type");
+            do {
+                int type = cursor.getInt(typeIndex);
+                String displayName = cursor.getString(nameIndex);
+                String identifier = cursor.getString(idIndex);
+                List<TrackReference> tracks = getTracksForTrackList(identifier);
+
+                TrackList trackList = new TrackList(displayName, tracks, type, identifier);
+                trackLists.add(trackList);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return trackLists;
+    }
+
     public List<TrackList> getTrackLists(boolean sortByTag, boolean sortByAuthor) {
         List<TrackList> trackLists = new ArrayList<>();
 

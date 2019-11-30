@@ -263,7 +263,7 @@ public class TrackListEditorActivity extends BaseActivity {
 
         thumbnailStorageManager = new ThumbnailStorageManager();
         tracksStorageManager = new TracksStorageManager(this);
-        trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this);
+        trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL);
     }
 
     private void flagExisting(List<Track> trackStorage, List<TrackReference> trackReferences) {
