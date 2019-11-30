@@ -21,7 +21,7 @@
 
     <TextView
         android:id="@+id/settings_text"
-        android:text="Включить или выключить эту хуйню блять"
+        android:text="@string/settings_item_default"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"

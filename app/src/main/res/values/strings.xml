@@ -40,4 +40,5 @@
     <string name="search">Search</string>
     <string name="name">Name</string>
     <string name="to_mono">To mono</string>
+    <string name="settings_item_default">Включить или выключить эту хуйню блять</string>
 </resources>

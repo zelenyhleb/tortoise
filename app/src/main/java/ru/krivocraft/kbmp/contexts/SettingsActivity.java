@@ -61,6 +61,6 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private List<String> getSettings() {
-        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_SORT_BY_ARTIST, SettingsStorageManager.KEY_SORT_BY_TAG, SettingsStorageManager.KEY_RECOGNIZE_NAMES, SettingsStorageManager.KEY_CLEAR_CACHE);
+        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_SORT_BY_ARTIST, SettingsStorageManager.KEY_RECOGNIZE_NAMES);
     }
 }
