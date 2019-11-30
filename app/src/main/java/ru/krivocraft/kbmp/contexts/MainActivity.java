@@ -31,6 +31,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.OldStuffCollector;
@@ -63,7 +64,10 @@ public class MainActivity extends BaseActivity {
             }
         }
     };
+
     private ExplorerFragment explorerFragment;
+    private TrackListFragment trackListFragment;
+    private BaseFragment currentFragment;
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
@@ -73,17 +77,20 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
-        showExplorerFragment();
     }
 
     @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        return TrackListFragment.newInstance(trackList, true, this, mediaController);
+        if (trackListFragment == null) {
+            trackListFragment = TrackListFragment.newInstance(true, this, mediaController);
+        }
+        trackListFragment.setTrackList(trackList);
+        return trackListFragment;
     }
 
     private ExplorerFragment getExplorerFragment() {
         if (explorerFragment == null) {
-            //TrackListStackFragment is singleton, so we will reuse it, if it is possible
+            //ExplorerFragment is singleton, so we will reuse it, if it is possible
             explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
         }
         return explorerFragment;
@@ -148,19 +155,19 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showExplorerFragment() {
-        showFragment(getExplorerFragment(), "Tortoise", STATE_EXPLORER);
+        showFragment(getExplorerFragment(), "Tortoise", STATE_EXPLORER, R.anim.fadeinshort);
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        showFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST);
+        showFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST, R.anim.fadeinshort);
     }
 
     private void showSettingsFragment() {
-        showFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
+        showFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS, R.anim.fadeinshort);
     }
 
-    private void showFragment(BaseFragment fragment, String title, int boundState) {
-        replaceFragment(fragment, R.id.fragment_container, R.anim.fadeinshort);
+    private void showFragment(BaseFragment fragment, String title, int boundState, int animation) {
+        showFragment(fragment, R.id.fragment_container, animation);
         viewState = boundState;
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -186,6 +193,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        showExplorerFragment();
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
         }
@@ -197,7 +205,7 @@ public class MainActivity extends BaseActivity {
                 SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
                 smallPlayerFragment.init(MainActivity.this, mediaController);
                 MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                replaceFragment(MainActivity.this.smallPlayerFragment, R.id.player_container, R.anim.slideup);
+                showFragment(MainActivity.this.smallPlayerFragment, R.id.player_container, R.anim.slideup);
             } else {
                 this.smallPlayerFragment.invalidate();
             }
@@ -209,14 +217,26 @@ public class MainActivity extends BaseActivity {
         smallPlayerFragment = null;
     }
 
-
-    private void replaceFragment(BaseFragment fragment, int container, int animation) {
+    private void showFragment(BaseFragment fragment, int container, int animation) {
         if (fragment != null && !fragment.isVisible()) {
-            getSupportFragmentManager()
+
+            FragmentTransaction transaction = getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(container, fragment)
-                    .setCustomAnimations(animation, R.anim.slide_out_right)
-                    .commitNowAllowingStateLoss();
+                    .setCustomAnimations(animation, R.anim.fadeoutshort);
+
+            if (currentFragment != null) {
+                transaction.hide(currentFragment);
+            }
+
+            if (!fragment.isAdded()) {
+                transaction.add(container, fragment);
+            } else {
+                transaction.show(fragment);
+            }
+
+            transaction.commitNowAllowingStateLoss();
+
+            currentFragment = fragment;
         }
     }
 

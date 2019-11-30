@@ -53,6 +53,7 @@ import ru.krivocraft.kbmp.core.track.TracksAdapter;
 public class TrackListFragment extends BaseFragment {
 
     private TracksAdapter tracksAdapter;
+    private ItemTouchHelper touchHelper;
     private boolean showControls;
 
     private TrackList trackList;
@@ -85,19 +86,17 @@ public class TrackListFragment extends BaseFragment {
             tracksAdapter.notifyDataSetChanged();
         }
     };
-    private ItemTouchHelper touchHelper;
 
-    public static TrackListFragment newInstance(TrackList trackList, boolean showControls, Activity context, MediaControllerCompat mediaController) {
+    public static TrackListFragment newInstance(boolean showControls, Activity context, MediaControllerCompat mediaController) {
         TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(showControls, trackList, context, mediaController);
+        trackListFragment.init(showControls, context, mediaController);
         return trackListFragment;
     }
 
-    private void init(boolean showControls, TrackList trackList, Activity context, MediaControllerCompat mediaController) {
+    private void init(boolean showControls, Activity context, MediaControllerCompat mediaController) {
         mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.trackList = trackList;
     }
 
     @Override
@@ -203,6 +202,14 @@ public class TrackListFragment extends BaseFragment {
             }
         }
         return 0;
+    }
+
+    public void setTrackList(TrackList trackList) {
+        this.trackList = trackList;
+        Context context = getContext();
+        if (context != null) {
+            processPaths(context);
+        }
     }
 
     @Override

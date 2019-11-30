@@ -139,7 +139,8 @@ public class PlayerActivity extends BaseActivity {
     }
 
     private void createTrackListFragment() {
-        trackListFragment = TrackListFragment.newInstance(trackList, false, PlayerActivity.this, mediaController);
+        trackListFragment = TrackListFragment.newInstance(false, PlayerActivity.this, mediaController);
+        trackListFragment.setTrackList(trackList);
     }
 
     private void createPlayerFragment() {

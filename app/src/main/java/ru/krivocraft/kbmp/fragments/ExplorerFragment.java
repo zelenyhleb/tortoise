@@ -31,7 +31,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.animation.MotionSpec;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
@@ -117,8 +116,13 @@ public class ExplorerFragment extends BaseFragment {
 
                 }
             }
-            activity.runOnUiThread(artistFragment::invalidate);
-            activity.runOnUiThread(customFragment::invalidate);
+            if (artistFragment != null) {
+                activity.runOnUiThread(artistFragment::invalidate);
+            }
+
+            if (customFragment != null) {
+                activity.runOnUiThread(customFragment::invalidate);
+            }
         }
     }
 
