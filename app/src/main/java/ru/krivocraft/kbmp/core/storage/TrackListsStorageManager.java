@@ -82,11 +82,11 @@ public class TrackListsStorageManager {
         }
     }
 
-    private List<TrackList> readSortedByArtist() {
+    public List<TrackList> readSortedByArtist() {
         return database.getSortedByArtist();
     }
 
-    private List<TrackList> readCustom() {
+    public List<TrackList> readCustom() {
         return database.getCustom();
     }
 

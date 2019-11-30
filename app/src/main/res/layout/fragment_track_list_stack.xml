@@ -31,15 +31,6 @@
         android:layout_marginBottom="8dp"
         android:numColumns="2"
         />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/add_track_list_button"
-        android:layout_margin="32dp"
-        android:layout_gravity="bottom|end"
-        android:src="@drawable/ic_add"
-        android:tint="@color/white"
-        />
 
     <ProgressBar
         android:id="@+id/explorer_progress"

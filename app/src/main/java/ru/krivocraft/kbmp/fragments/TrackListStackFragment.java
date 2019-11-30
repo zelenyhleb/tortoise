@@ -16,7 +16,6 @@
 
 package ru.krivocraft.kbmp.fragments;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,15 +30,11 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.TrackListEditorActivity;
-import ru.krivocraft.kbmp.core.TrackListsCompiler;
-import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackListAdapter;
@@ -50,32 +45,14 @@ public class TrackListStackFragment extends BaseFragment {
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
 
-    private TrackListsStorageManager trackListsStorageManager;
-    private TrackListsCompiler trackListsCompiler;
-
     private ProgressBar progressBar;
-    private String filter;
+    private List<TrackList> trackLists;
 
-    public static TrackListStackFragment newInstance(OnItemClickListener listener, String filter) {
+    public static TrackListStackFragment newInstance(OnItemClickListener listener, List<TrackList> trackLists) {
         TrackListStackFragment explorerFragment = new TrackListStackFragment();
         explorerFragment.setListener(listener);
-        explorerFragment.setFilter(filter);
+        explorerFragment.setTrackLists(trackLists);
         return explorerFragment;
-    }
-
-    private void onNewTrackLists(List<TrackList> trackLists) {
-        Activity activity = getActivity();
-        if (activity != null) {
-            for (TrackList trackList : trackLists) {
-                if (trackListsStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
-                    trackListsStorageManager.updateTrackListContent(trackList);
-                } else {
-                    trackListsStorageManager.writeTrackList(trackList);
-
-                }
-            }
-            activity.runOnUiThread(TrackListStackFragment.this::drawTrackLists);
-        }
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -84,16 +61,6 @@ public class TrackListStackFragment extends BaseFragment {
             drawTrackLists();
         }
     };
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Context context = getContext();
-        if (context != null) {
-            this.trackListsStorageManager = new TrackListsStorageManager(context, filter);
-            this.trackListsCompiler = new TrackListsCompiler(context);
-        }
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
@@ -106,7 +73,6 @@ public class TrackListStackFragment extends BaseFragment {
             context.registerReceiver(receiver, new IntentFilter(TracksProvider.ACTION_UPDATE_STORAGE));
             createAdapter(context);
             configureGridView(rootView, context);
-            configureAddButton(rootView, context);
         }
         return rootView;
     }
@@ -115,11 +81,6 @@ public class TrackListStackFragment extends BaseFragment {
         if (adapter == null) {
             adapter = new TrackListAdapter(new ArrayList<>(), context);
         }
-    }
-
-    private void configureAddButton(View rootView, Context context) {
-        FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
-        addTrackList.setOnClickListener(v -> showCreationDialog(context));
     }
 
     private void configureGridView(View rootView, Context context) {
@@ -140,16 +101,9 @@ public class TrackListStackFragment extends BaseFragment {
         return true;
     }
 
-    private void showCreationDialog(Context context) {
-        Intent intent = new Intent(context, TrackListEditorActivity.class);
-        intent.putExtra(TrackList.EXTRA_TRACK_LIST, new TrackList("", new ArrayList<>(), TrackList.TRACK_LIST_CUSTOM).toJson());
-        intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, true);
-        context.startActivity(intent);
-    }
-
     private void drawTrackLists() {
         progressBar.setVisibility(View.GONE);
-        redrawList(trackListsStorageManager.readAllTrackLists());
+        redrawList(trackLists);
     }
 
     private void redrawList(List<TrackList> trackLists) {
@@ -168,21 +122,15 @@ public class TrackListStackFragment extends BaseFragment {
     }
 
     public void invalidate() {
-        Context context = getContext();
-        if (context != null) {
-            trackListsCompiler.compileFavorites(this::onNewTrackLists);
-            if (getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
-                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
-            }
-        }
+        drawTrackLists();
     }
 
     private void setListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    private void setFilter(String filter) {
-        this.filter = filter;
+    public void setTrackLists(List<TrackList> trackLists) {
+        this.trackLists = trackLists;
     }
 
     public interface OnItemClickListener {
