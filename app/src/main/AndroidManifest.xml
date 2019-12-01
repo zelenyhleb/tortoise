@@ -30,11 +30,6 @@
         android:theme="@style/DarkTheme">
         <activity android:name=".contexts.TrackListEditorActivity" />
         <activity
-            android:name=".contexts.TrackEditorActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".contexts.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

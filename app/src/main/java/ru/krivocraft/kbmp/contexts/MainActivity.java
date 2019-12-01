@@ -35,16 +35,20 @@ import androidx.fragment.app.FragmentTransaction;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.OldStuffCollector;
+import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.fragments.BaseFragment;
 import ru.krivocraft.kbmp.fragments.ExplorerFragment;
 import ru.krivocraft.kbmp.fragments.PlayerRootFragment;
 import ru.krivocraft.kbmp.fragments.SettingsFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
+import ru.krivocraft.kbmp.fragments.TrackEditorFragment;
 import ru.krivocraft.kbmp.fragments.TrackListFragment;
 
 public class MainActivity extends BaseActivity {
 
+    private final int STATE_TRACK_EDITOR = 5;
     private SmallPlayerFragment smallPlayerFragment;
 
     private int viewState = 0;
@@ -55,6 +59,7 @@ public class MainActivity extends BaseActivity {
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
+    public static final String ACTION_SHOW_TRACK_EDITOR = "action_show_tracks_editor";
 
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
@@ -67,9 +72,17 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private BroadcastReceiver showEditorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showTrackEditorFragment(TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
+        }
+    };
+
     private ExplorerFragment explorerFragment;
     private TrackListFragment trackListFragment;
     private PlayerRootFragment playerRootFragment;
+    private TrackEditorFragment trackEditorFragment;
     private BaseFragment currentFragment;
 
     @Override
@@ -101,6 +114,13 @@ public class MainActivity extends BaseActivity {
     private PlayerRootFragment getPlayerRootFragment() {
         createPlayerFragment();
         return playerRootFragment;
+    }
+
+    private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
+        if (trackEditorFragment == null) {
+            trackEditorFragment = TrackEditorFragment.newInstance(this::showExplorerFragment, reference);
+        }
+        return trackEditorFragment;
     }
 
     private void createTrackListFragment() {
@@ -139,6 +159,9 @@ public class MainActivity extends BaseActivity {
 
         startService();
         registerPlayerControlReceiver();
+
+        IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
+        registerReceiver(showEditorReceiver, filter);
     }
 
     @Override
@@ -199,6 +222,11 @@ public class MainActivity extends BaseActivity {
         hideSmallPlayerFragment();
     }
 
+    private void showTrackEditorFragment(TrackReference trackReference) {
+        replaceFragment(getTrackEditorFragment(trackReference), "Edit Metadata", STATE_TRACK_EDITOR);
+        hideSmallPlayerFragment();
+    }
+
     private void replaceFragment(BaseFragment fragment, String title, int boundState) {
         replaceFragment(fragment);
         viewState = boundState;
@@ -210,8 +238,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewState != STATE_EXPLORER) {
+        if (viewState == STATE_TRACK_LIST || viewState == STATE_SETTINGS || viewState == STATE_PLAYER) {
             showExplorerFragment();
+        } else if (viewState == STATE_TRACK_EDITOR) {
+            trackEditorFragment.onBackPressed();
         } else {
             super.onBackPressed();
         }

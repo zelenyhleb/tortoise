@@ -14,16 +14,19 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.kbmp.contexts;
+package ru.krivocraft.kbmp.fragments;
 
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import ru.krivocraft.kbmp.R;
@@ -32,36 +35,47 @@ import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 
-public class TrackEditorActivity extends BaseActivity {
+public class TrackEditorFragment extends BaseFragment {
+
+    @Override
+    public void invalidate() {
+
+    }
 
     private Track source;
     private Track changed;
+    private OnTaskCompletedListener listener;
+    private TrackReference reference;
 
     private TracksStorageManager tracksStorageManager;
 
+    public static TrackEditorFragment newInstance(OnTaskCompletedListener listener, TrackReference reference) {
+        TrackEditorFragment fragment = new TrackEditorFragment();
+        fragment.setListener(listener);
+        fragment.setReference(reference);
+        return fragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_metadata_editor);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_metadata_editor, container, false);
 
-        this.tracksStorageManager = new TracksStorageManager(this);
+        this.tracksStorageManager = new TracksStorageManager(requireContext());
 
-        TrackReference trackReference = TrackReference.fromJson(getIntent().getStringExtra(Track.EXTRA_TRACK));
-        changed = tracksStorageManager.getTrack(trackReference);
-        source = tracksStorageManager.getTrack(trackReference);
+        changed = tracksStorageManager.getTrack(reference);
+        source = tracksStorageManager.getTrack(reference);
 
-        EditText title = findViewById(R.id.metadata_editor_title_edit);
-        EditText artist = findViewById(R.id.metadata_editor_artist_edit);
+        EditText title = rootView.findViewById(R.id.metadata_editor_title_edit);
+        EditText artist = rootView.findViewById(R.id.metadata_editor_artist_edit);
 
         title.setText(changed.getTitle());
         artist.setText(changed.getArtist());
 
-        Button cancel = findViewById(R.id.metadata_editor_button_cancel);
-        cancel.setOnClickListener(v -> {
-            showNotSavedPrompt();
-        });
+        Button cancel = rootView.findViewById(R.id.metadata_editor_button_cancel);
+        cancel.setOnClickListener(v -> showNotSavedPrompt());
 
-        Button apply = findViewById(R.id.metadata_editor_button_apply);
+        Button apply = rootView.findViewById(R.id.metadata_editor_button_apply);
         apply.setOnClickListener(v -> {
             String selection = MediaStore.Audio.Media.DATA + " = ?";
             ContentValues contentValues = new ContentValues();
@@ -70,11 +84,11 @@ public class TrackEditorActivity extends BaseActivity {
             String[] args = {
                     changed.getPath()
             };
-            getContentResolver().update(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues, selection, args);
+            requireContext().getContentResolver().update(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues, selection, args);
 
             tracksStorageManager.updateTrack(changed);
 
-            finish();
+            listener.onComplete();
         });
 
         title.addTextChangedListener(new TextChangeSolver() {
@@ -90,44 +104,36 @@ public class TrackEditorActivity extends BaseActivity {
                 changed.setArtist(s.toString());
             }
         });
+        return rootView;
     }
 
-    @Override
-    void init() {
-        //Do nothing
+    public void onBackPressed() {
+        showNotSavedPrompt();
     }
 
-    @Override
-    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        //Do nothing
+    public void setListener(OnTaskCompletedListener listener) {
+        this.listener = listener;
     }
 
-    @Override
-    void onMetadataChanged(MediaMetadataCompat newMetadata) {
-        //Do nothing
-    }
-
-    @Override
-    void onMediaBrowserConnected() {
-        //Do nothing
+    public void setReference(TrackReference reference) {
+        this.reference = reference;
     }
 
     private void showNotSavedPrompt() {
         if (!source.equals(changed)) {
-            AlertDialog ad = new AlertDialog.Builder(this)
+            AlertDialog ad = new AlertDialog.Builder(requireContext())
                     .setMessage("Do you really want to leave without saving?")
                     .setTitle("Wait!")
-                    .setPositiveButton("Yes", (dialog, which) -> finish())
+                    .setPositiveButton("Yes", (dialog, which) -> listener.onComplete())
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .create();
             ad.show();
         } else {
-            finish();
+            listener.onComplete();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        showNotSavedPrompt();
+    public interface OnTaskCompletedListener {
+        void onComplete();
     }
 }

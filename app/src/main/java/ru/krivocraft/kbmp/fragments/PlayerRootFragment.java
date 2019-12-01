@@ -64,7 +64,7 @@ public class PlayerRootFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.activity_player, container, false);
+        rootView = inflater.inflate(R.layout.fragment_player, container, false);
         return rootView;
     }
 

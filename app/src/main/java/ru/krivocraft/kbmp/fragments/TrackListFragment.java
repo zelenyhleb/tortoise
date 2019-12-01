@@ -26,11 +26,13 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Editable;
+import android.text.Layout;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -73,7 +75,6 @@ public class TrackListFragment extends BaseFragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
-    private ViewGroup container;
 
     private TracksStorageManager tracksStorageManager;
 
@@ -156,13 +157,7 @@ public class TrackListFragment extends BaseFragment {
                 context.registerReceiver(trackListReceiver, filter);
             }
         }
-        this.container = container;
         return rootView;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
     }
 
     private void processPaths(Context context) {
