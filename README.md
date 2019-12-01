@@ -6,7 +6,7 @@ Tortoise
 
 <img src="http://www.krivocraft.ru/icon.png" height="256px"/>
 
-Awesome music player with great future written for android with java.
+Awesome music player with great future written for android with Java.
 
 ## Features
 
