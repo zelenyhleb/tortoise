@@ -55,14 +55,12 @@ public class PlayerActivity extends BaseActivity {
 
     private boolean equalizerShown = false;
     private EqualizerFragment equalizerFragment;
-    private SettingsStorageManager settingsStorageManager;
+    private SettingsStorageManager settingsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-
-        settingsStorageManager = new SettingsStorageManager(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
@@ -121,7 +119,7 @@ public class PlayerActivity extends BaseActivity {
 
             View view = equalizerFragment.getView();
             if (view != null) {
-                if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+                if (settingsManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
                     view.setBackgroundResource(R.drawable.background_light);
                 } else {
                     view.setBackgroundResource(R.drawable.background_dark);

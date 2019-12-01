@@ -47,7 +47,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
@@ -64,6 +63,7 @@ public class SmallPlayerFragment extends BaseFragment {
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
+    private View.OnClickListener listener;
 
     private int trackProgress;
 
@@ -90,7 +90,7 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     };
 
-    public void init(Activity context, MediaControllerCompat mediaController) {
+    public void init(Activity context, MediaControllerCompat mediaController, View.OnClickListener listener) {
         this.transportControls = mediaController.getTransportControls();
 
         mediaController.registerCallback(callback);
@@ -99,6 +99,7 @@ public class SmallPlayerFragment extends BaseFragment {
         this.playbackState = mediaController.getPlaybackState();
         this.colorManager = new ColorManager(context);
         this.tracksStorageManager = new TracksStorageManager(context);
+        this.listener = listener;
 
         requestPosition(context);
     }
@@ -113,11 +114,7 @@ public class SmallPlayerFragment extends BaseFragment {
 
     public void invalidate() {
         final Context context = getContext();
-        rootView.findViewById(R.id.text_container).setOnClickListener(v -> {
-            if (context != null) {
-                context.startActivity(new Intent(context, PlayerActivity.class));
-            }
-        });
+        rootView.findViewById(R.id.text_container).setOnClickListener(v -> listener.onClick(v));
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
@@ -128,7 +125,7 @@ public class SmallPlayerFragment extends BaseFragment {
         viewName.setText(getTrackTitle());
         viewName.setSelected(true);
 
-        Bitmap trackArt = new Art(getTrackPath()).bitmap()    ;
+        Bitmap trackArt = new Art(getTrackPath()).bitmap();
 
         if (context != null) {
             if (trackArt != null) {

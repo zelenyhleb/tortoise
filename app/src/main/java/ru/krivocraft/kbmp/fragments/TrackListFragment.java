@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,6 +73,7 @@ public class TrackListFragment extends BaseFragment {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView progressText;
+    private ViewGroup container;
 
     private TracksStorageManager tracksStorageManager;
 
@@ -107,9 +109,7 @@ public class TrackListFragment extends BaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
         View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
-
         EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
         recyclerView = rootView.findViewById(R.id.fragment_track_recycler_view);
         progressBar = rootView.findViewById(R.id.track_list_progress);
@@ -156,8 +156,13 @@ public class TrackListFragment extends BaseFragment {
                 context.registerReceiver(trackListReceiver, filter);
             }
         }
-
+        this.container = container;
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
     private void processPaths(Context context) {
