@@ -56,10 +56,6 @@ public class MainActivity extends BaseActivity {
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
 
-    private static final String EXPLORER_ID = "explorer";
-    private static final String TRACKLIST_ID = "tracklist";
-    private static final String SETTINGS_ID = "settings";
-
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -84,9 +80,9 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
-//        createExplorerFragment();
-//        createPlayerFragment();
-//        createTrackListFragment();
+        if (getIntent().getBooleanExtra("notify", false)) {
+            showPlayerFragment();
+        }
     }
 
     @NonNull

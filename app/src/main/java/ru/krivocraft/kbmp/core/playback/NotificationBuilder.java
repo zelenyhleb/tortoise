@@ -32,7 +32,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.contexts.PlayerActivity;
+import ru.krivocraft.kbmp.contexts.MainActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.utils.Art;
@@ -76,7 +76,7 @@ public class NotificationBuilder {
 
     Notification getNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).putExtra("notify", true), PendingIntent.FLAG_CANCEL_CURRENT);
 
             androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());
