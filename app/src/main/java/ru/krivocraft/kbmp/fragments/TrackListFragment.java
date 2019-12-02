@@ -63,8 +63,7 @@ public class TrackListFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
             if (trackList != null) {
-                TrackListFragment.this.trackList = trackList;
-                processPaths(context);
+                setTrackList(trackList);
             }
         }
     };
@@ -181,15 +180,17 @@ public class TrackListFragment extends BaseFragment {
         return trackList;
     }
 
-    private void processPaths(Context context) {
+    private void processPaths(Activity context) {
         if (this.touchHelper != null) {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         this.recyclerView.setLayoutManager(layoutManager);
-        if (!showControls) {
-            layoutManager.scrollToPosition(getSelectedItem());
-        }
+        context.runOnUiThread(() -> {
+            if (!showControls) {
+                layoutManager.scrollToPosition(getSelectedItem());
+            }
+        });
         this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
@@ -212,9 +213,11 @@ public class TrackListFragment extends BaseFragment {
     }
 
     private int getSelectedItem() {
-        for (TrackReference reference : trackList.getTrackReferences()) {
-            if (tracksStorageManager.getTrack(reference).isSelected()) {
-                return trackList.getTrackReferences().indexOf(reference);
+        if (trackList != null) {
+            for (TrackReference reference : trackList.getTrackReferences()) {
+                if (tracksStorageManager.getTrack(reference).isSelected()) {
+                    return trackList.getTrackReferences().indexOf(reference);
+                }
             }
         }
         return 0;
@@ -222,7 +225,7 @@ public class TrackListFragment extends BaseFragment {
 
     public void setTrackList(TrackList trackList) {
         this.trackList = trackList;
-        Context context = getContext();
+        Activity context = getActivity();
         if (context != null) {
             processPaths(context);
         }
@@ -231,7 +234,9 @@ public class TrackListFragment extends BaseFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mediaController.unregisterCallback(callback);
+        if (mediaController != null) {
+            mediaController.unregisterCallback(callback);
+        }
     }
 
     @Override
@@ -240,7 +245,11 @@ public class TrackListFragment extends BaseFragment {
         if (!showControls) {
             Context context = getContext();
             if (context != null) {
-                context.unregisterReceiver(trackListReceiver);
+                try {
+                    context.unregisterReceiver(trackListReceiver);
+                } catch (IllegalArgumentException e) {
+                    //Do nothing
+                }
             }
         }
     }

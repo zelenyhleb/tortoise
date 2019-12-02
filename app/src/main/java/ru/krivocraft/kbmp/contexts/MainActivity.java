@@ -47,13 +47,13 @@ import ru.krivocraft.kbmp.fragments.TrackListFragment;
 public class MainActivity extends BaseActivity {
 
     private final int STATE_TRACK_EDITOR = 5;
+
     private SmallPlayerFragment smallPlayerFragment;
 
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
     private static final int STATE_TRACK_LIST = 2;
     private static final int STATE_SETTINGS = 3;
-    private static final int STATE_PLAYER = 4;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
@@ -196,7 +196,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewState == STATE_TRACK_LIST || viewState == STATE_SETTINGS || viewState == STATE_PLAYER) {
+        if (viewState == STATE_TRACK_LIST || viewState == STATE_SETTINGS) {
             showExplorerFragment();
         } else if (viewState == STATE_TRACK_EDITOR) {
             currentFragment.onBackPressed();
@@ -213,7 +213,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onPause() {
-        hideFragment(smallPlayerFragment);
         super.onPause();
     }
 
@@ -230,14 +229,12 @@ public class MainActivity extends BaseActivity {
     private void showSmallPlayerFragment() {
         if (mediaController != null)
             if (mediaController.getMetadata() != null) {
-                if (smallPlayerFragment == null) {
+                if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
                     SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
                     smallPlayerFragment.init(MainActivity.this, mediaController, view -> startActivity(new Intent(this, PlayerActivity.class)));
                     MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                } else {
-                    this.smallPlayerFragment.invalidate();
+                    showFragment(smallPlayerFragment);
                 }
-                showFragment(MainActivity.this.smallPlayerFragment);
             }
     }
 
@@ -250,33 +247,30 @@ public class MainActivity extends BaseActivity {
                     .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort);
 
             transaction.replace(R.id.fragment_container, fragment);
-            transaction.addToBackStack(fragment.getClass().getSimpleName());
 
-            transaction.commit();
+            transaction.commitAllowingStateLoss();
 
             currentFragment = fragment;
-
-            System.out.println(fragment.getClass().getSimpleName() + " " + fragment.isVisible());
         }
     }
 
     private void showFragment(BaseFragment fragment) {
-        if (fragment != null && !fragment.isVisible() && viewState != STATE_PLAYER) {
+        if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
 
             transaction.replace(R.id.player_container, fragment);
 
-            transaction.commitNow();
+            transaction.commitNowAllowingStateLoss();
         }
     }
 
     private void hideFragment(Fragment fragment) {
-        if (fragment != null && fragment.isAdded() && fragment.isVisible()) {
+        if (fragment != null && fragment.isAdded()) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)
-                    .commitNow();
+                    .commitNowAllowingStateLoss();
         }
     }
 

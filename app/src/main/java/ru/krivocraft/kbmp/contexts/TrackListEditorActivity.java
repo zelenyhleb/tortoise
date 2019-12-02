@@ -157,6 +157,7 @@ public class TrackListEditorActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 changed.setDisplayName(s.toString());
+                changed.setIdentifier(TrackList.createIdentifier(s.toString()));
             }
         });
     }

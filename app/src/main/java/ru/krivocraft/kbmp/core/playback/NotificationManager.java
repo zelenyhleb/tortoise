@@ -40,7 +40,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationManager {
 
-    static final int NOTIFY_ID = 124;
+    private static final int NOTIFY_ID = 124;
     private Service context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
