@@ -34,12 +34,33 @@ public abstract class BaseFragment extends Fragment {
     private SettingsStorageManager settingsManager;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         invalidate();
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        System.out.println("ATTACH" + getClass().getCanonicalName());
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("DETACH" + getClass().getCanonicalName());
+    }
+
     public abstract void invalidate();
+
+    public void onBackPressed() {
+
+    }
 
     public SettingsStorageManager getSettingsManager() {
         return settingsManager;

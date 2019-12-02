@@ -16,8 +16,6 @@
 
 package ru.krivocraft.kbmp.core.playback;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -69,12 +67,11 @@ public class MediaService {
     private final MediaBrowserServiceCompat context;
     private final MediaSessionCompat mediaSession;
     private final MediaControllerCompat mediaController;
-    private final NotificationBuilder notificationBuilder;
+    private final NotificationManager notificationManager;
     private final TracksStorageManager tracksStorageManager;
     private final TrackListsStorageManager trackListsStorageManager;
 
     private final PlaybackManager playbackManager;
-    private final NotificationManager service;
 
     public MediaService(MediaBrowserServiceCompat context) {
         this.context = context;
@@ -89,8 +86,7 @@ public class MediaService {
 
         mediaController = mediaSession.getController();
 
-        notificationBuilder = new NotificationBuilder(context);
-        service = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = new NotificationManager(context);
 
         playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
             @Override
@@ -137,14 +133,11 @@ public class MediaService {
 
 
     private void showNotification() {
-        Notification notification = notificationBuilder.getNotification(mediaSession);
-        if (notification != null && service != null) {
-            service.notify(NotificationBuilder.NOTIFY_ID, notification);
-        }
+        notificationManager.showNotification(mediaSession);
     }
 
     private void hideNotification() {
-        service.cancel(NotificationBuilder.NOTIFY_ID);
+        notificationManager.dismissNotification();
     }
 
     private final BroadcastReceiver headsetReceiver = new BroadcastReceiver() {

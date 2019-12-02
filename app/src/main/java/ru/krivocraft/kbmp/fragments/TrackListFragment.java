@@ -26,15 +26,12 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Editable;
-import android.text.Layout;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,21 +71,23 @@ public class TrackListFragment extends BaseFragment {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private TextView progressText;
 
     private TracksStorageManager tracksStorageManager;
 
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            tracksAdapter.notifyDataSetChanged();
+            if (tracksAdapter != null)
+                tracksAdapter.notifyDataSetChanged();
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            tracksAdapter.notifyDataSetChanged();
+            if (tracksAdapter != null)
+                tracksAdapter.notifyDataSetChanged();
         }
     };
+    private MediaControllerCompat mediaController;
 
     public static TrackListFragment newInstance(boolean showControls, Activity context, MediaControllerCompat mediaController) {
         TrackListFragment trackListFragment = new TrackListFragment();
@@ -97,67 +96,89 @@ public class TrackListFragment extends BaseFragment {
     }
 
     private void init(boolean showControls, Activity context, MediaControllerCompat mediaController) {
-        mediaController.registerCallback(callback);
+        this.mediaController = mediaController;
+        this.mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.tracksStorageManager = new TracksStorageManager(context);
     }
 
     @Override
     public void invalidate() {
-        tracksAdapter.notifyDataSetChanged();
+        if (tracksAdapter != null) {
+            tracksAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View rootView = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        EditText searchFrame = rootView.findViewById(R.id.search_edit_text);
-        recyclerView = rootView.findViewById(R.id.fragment_track_recycler_view);
-        progressBar = rootView.findViewById(R.id.track_list_progress);
-        progressText = rootView.findViewById(R.id.obtaining_text_track_list);
+        return inflater.inflate(R.layout.fragment_tracklist, container, false);
+    }
 
-        final Context context = getContext();
-        if (context != null) {
-            processPaths(context);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        new Thread(() -> {
+            EditText searchFrame = view.findViewById(R.id.search_edit_text);
+            recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
+            progressBar = view.findViewById(R.id.track_list_progress);
 
-            if (showControls) {
-                searchFrame.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                        //Do nothing
-                    }
+            final Activity context = getActivity();
+            if (context != null) {
+                processPaths(context);
 
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        Searcher searcher = new Searcher(context);
-                        List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
-
-                        recyclerView.setAdapter(new TracksAdapter(
-                                new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
-                                context,
-                                showControls,
-                                true,
-                                null
-                        ));
-                        if (s.length() == 0) {
-                            recyclerView.setAdapter(tracksAdapter);
+                if (showControls) {
+                    searchFrame.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                            //Do nothing
                         }
-                    }
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        //Do nothing
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            Searcher searcher = new Searcher(context);
+                            List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
+
+                            recyclerView.setAdapter(new TracksAdapter(
+                                    new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
+                                    context,
+                                    showControls,
+                                    true,
+                                    null
+                            ));
+                            if (s.length() == 0) {
+                                recyclerView.setAdapter(tracksAdapter);
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            //Do nothing
+                        }
+                    });
+                } else {
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
+                    context.registerReceiver(trackListReceiver, filter);
+                }
+
+                context.runOnUiThread(() -> {
+                    if (showControls) {
+                        searchFrame.setVisibility(View.VISIBLE);
+                    } else {
+                        searchFrame.setHeight(0);
                     }
+                    recyclerView.setAdapter(tracksAdapter);
+                    touchHelper.attachToRecyclerView(recyclerView);
+                    progressBar.setVisibility(View.GONE);
                 });
-                searchFrame.setVisibility(View.VISIBLE);
-            } else {
-                searchFrame.setHeight(0);
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
-                context.registerReceiver(trackListReceiver, filter);
             }
-        }
-        return rootView;
+        }).start();
+
+    }
+
+    public TrackList getTrackList() {
+        return trackList;
     }
 
     private void processPaths(Context context) {
@@ -185,14 +206,9 @@ public class TrackListFragment extends BaseFragment {
                 layoutManager.scrollToPositionWithOffset(firstPos, offsetTop);
             }
         });
-        this.recyclerView.setAdapter(tracksAdapter);
-
-        progressBar.setVisibility(View.GONE);
-        progressText.setVisibility(View.GONE);
 
         ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
         touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(recyclerView);
     }
 
     private int getSelectedItem() {
@@ -210,6 +226,12 @@ public class TrackListFragment extends BaseFragment {
         if (context != null) {
             processPaths(context);
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mediaController.unregisterCallback(callback);
     }
 
     @Override

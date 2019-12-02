@@ -47,6 +47,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.krivocraft.kbmp.R;
+import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
@@ -114,7 +115,6 @@ public class SmallPlayerFragment extends BaseFragment {
 
     public void invalidate() {
         final Context context = getContext();
-        rootView.findViewById(R.id.text_container).setOnClickListener(v -> listener.onClick(v));
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
@@ -128,6 +128,7 @@ public class SmallPlayerFragment extends BaseFragment {
         Bitmap trackArt = new Art(getTrackPath()).bitmap();
 
         if (context != null) {
+            rootView.findViewById(R.id.text_container).setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
             if (trackArt != null) {
                 viewImage.setImageBitmap(trackArt);
             } else {

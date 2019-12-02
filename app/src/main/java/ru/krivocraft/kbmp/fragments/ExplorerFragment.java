@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -52,11 +53,17 @@ public class ExplorerFragment extends BaseFragment {
 
     private TrackListStackFragment customFragment;
     private TrackListStackFragment artistFragment;
+    private PagerAdapter adapter;
 
     public static ExplorerFragment newInstance(TrackListStackFragment.OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
         explorerFragment.setListener(listener);
         return explorerFragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
     }
 
     @Nullable
@@ -68,41 +75,50 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        PagerAdapter adapter = new PagerAdapter(getChildFragmentManager());
-        ViewPager pager = view.findViewById(R.id.explorer_pager);
-        pager.setAdapter(adapter);
+        new Thread(() -> {
+            FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
 
-        FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //Do nothing
+            FragmentActivity activity = getActivity();
+            if (activity != null) {
+                configureAddButton(view, activity);
+                this.tracksStorageManager = new TrackListsStorageManager(activity, TrackListsStorageManager.FILTER_ALL);
+                this.trackListsCompiler = new TrackListsCompiler(activity);
             }
 
-            @Override
-            public void onPageSelected(int position) {
-                if (position > 0) {
-                    button.hide();
-                } else {
-                    button.show();
+            ViewPager pager = view.findViewById(R.id.explorer_pager);
+            pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    //Do nothing
                 }
+
+                @Override
+                public void onPageSelected(int position) {
+                    if (position > 0) {
+                        button.hide();
+                    } else {
+                        button.show();
+                    }
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    //Do nothing
+                }
+            });
+            adapter = new PagerAdapter(getChildFragmentManager());
+
+            TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
+
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
+                    view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
+                    pager.setAdapter(adapter);
+                    tabLayout.setupWithViewPager(pager);
+                });
             }
+        }).start();
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                //Do nothing
-            }
-        });
-
-
-        TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
-        tabLayout.setupWithViewPager(pager);
-        Context context = getContext();
-        if (context != null) {
-            configureAddButton(view, context);
-            this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
-            this.trackListsCompiler = new TrackListsCompiler(context);
-        }
     }
 
     private void onNewTrackLists(List<TrackList> trackLists) {
@@ -130,9 +146,11 @@ public class ExplorerFragment extends BaseFragment {
     public void invalidate() {
         Context context = getContext();
         if (context != null) {
-            trackListsCompiler.compileFavorites(this::onNewTrackLists);
-            if (getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
-                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
+            if (trackListsCompiler != null) {
+                trackListsCompiler.compileFavorites(this::onNewTrackLists);
+                if (getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
+                    trackListsCompiler.compileByAuthors(this::onNewTrackLists);
+                }
             }
         }
     }

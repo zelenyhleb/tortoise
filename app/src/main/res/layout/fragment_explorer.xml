@@ -19,6 +19,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ProgressBar
+        android:id="@+id/explorer_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/explorer_pager"
         android:layout_width="match_parent"
