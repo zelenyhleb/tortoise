@@ -47,6 +47,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        setRetainInstance(true);
         System.out.println("ATTACH" + getClass().getCanonicalName());
     }
 

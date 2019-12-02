@@ -54,6 +54,7 @@ public class ExplorerFragment extends BaseFragment {
     private TrackListStackFragment customFragment;
     private TrackListStackFragment artistFragment;
     private PagerAdapter adapter;
+    private ViewPager pager;
 
     public static ExplorerFragment newInstance(TrackListStackFragment.OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
@@ -76,6 +77,7 @@ public class ExplorerFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         new Thread(() -> {
+
             FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
 
             FragmentActivity activity = getActivity();
@@ -85,7 +87,7 @@ public class ExplorerFragment extends BaseFragment {
                 this.trackListsCompiler = new TrackListsCompiler(activity);
             }
 
-            ViewPager pager = view.findViewById(R.id.explorer_pager);
+            pager = view.findViewById(R.id.explorer_pager);
             pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -94,6 +96,7 @@ public class ExplorerFragment extends BaseFragment {
 
                 @Override
                 public void onPageSelected(int position) {
+                    getSettingsManager().putOption("endOnSorted", position > 0);
                     if (position > 0) {
                         button.hide();
                     } else {
@@ -116,6 +119,7 @@ public class ExplorerFragment extends BaseFragment {
                 activity.runOnUiThread(() -> {
                     view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
                     pager.setAdapter(adapter);
+                    pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
                     tabLayout.setupWithViewPager(pager);
                 });
             }
@@ -131,7 +135,6 @@ public class ExplorerFragment extends BaseFragment {
                     tracksStorageManager.updateTrackListContent(trackList);
                 } else {
                     tracksStorageManager.writeTrackList(trackList);
-
                 }
             }
             if (artistFragment != null) {

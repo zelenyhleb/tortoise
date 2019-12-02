@@ -46,7 +46,6 @@ import ru.krivocraft.kbmp.fragments.TrackListFragment;
 
 public class MainActivity extends BaseActivity {
 
-    private final int STATE_TRACK_EDITOR = 5;
 
     private SmallPlayerFragment smallPlayerFragment;
 
@@ -54,6 +53,7 @@ public class MainActivity extends BaseActivity {
     private static final int STATE_EXPLORER = 1;
     private static final int STATE_TRACK_LIST = 2;
     private static final int STATE_SETTINGS = 3;
+    private static final int STATE_TRACK_EDITOR = 4;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
