@@ -132,6 +132,7 @@ public class NotificationManager {
                 context.startForeground(NOTIFY_ID, notificationBuilder.addAction(pauseAction).setOngoing(true).setSmallIcon(R.drawable.ic_play).addAction(nextAction).build());
             } else {
                 if (notificationManager != null) {
+                    context.stopForeground(false);
                     notificationManager.notify(NOTIFY_ID, notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause).addAction(nextAction).build());
                 }
             }
