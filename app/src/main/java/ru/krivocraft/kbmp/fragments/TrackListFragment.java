@@ -185,8 +185,8 @@ public class TrackListFragment extends BaseFragment {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        this.recyclerView.setLayoutManager(layoutManager);
         context.runOnUiThread(() -> {
+            this.recyclerView.setLayoutManager(layoutManager);
             if (!showControls) {
                 layoutManager.scrollToPosition(getSelectedItem());
             }

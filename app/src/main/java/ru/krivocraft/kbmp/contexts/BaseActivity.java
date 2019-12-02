@@ -119,7 +119,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                             mediaController = new MediaControllerCompat(BaseActivity.this, token);
                             mediaController.registerCallback(callback);
                             onMediaBrowserConnected();
-                        } catch (RemoteException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }

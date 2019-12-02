@@ -110,6 +110,8 @@ public class ExplorerFragment extends BaseFragment {
 
             TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
 
+            invalidate();
+
             if (activity != null) {
                 activity.runOnUiThread(() -> {
                     view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
