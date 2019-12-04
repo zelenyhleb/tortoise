@@ -38,11 +38,11 @@ import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.fragments.BaseFragment;
-import ru.krivocraft.kbmp.fragments.ExplorerFragment;
 import ru.krivocraft.kbmp.fragments.SettingsFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackEditorFragment;
-import ru.krivocraft.kbmp.fragments.TrackListFragment;
+import ru.krivocraft.kbmp.fragments.explorer.ExplorerFragment;
+import ru.krivocraft.kbmp.fragments.tracklist.TrackListFragment;
 
 public class MainActivity extends BaseActivity {
 

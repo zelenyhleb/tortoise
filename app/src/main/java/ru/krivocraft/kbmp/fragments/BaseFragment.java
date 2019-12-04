@@ -44,23 +44,10 @@ public abstract class BaseFragment extends Fragment {
         invalidate();
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        setRetainInstance(true);
-        System.out.println("ATTACH" + getClass().getCanonicalName());
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        System.out.println("DETACH" + getClass().getCanonicalName());
-    }
-
     public abstract void invalidate();
 
     public void onBackPressed() {
-
+        //This callback can be implemented by inheritors
     }
 
     public SettingsStorageManager getSettingsManager() {

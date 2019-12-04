@@ -41,7 +41,7 @@ import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.fragments.EqualizerFragment;
 import ru.krivocraft.kbmp.fragments.LargePlayerFragment;
-import ru.krivocraft.kbmp.fragments.TrackListFragment;
+import ru.krivocraft.kbmp.fragments.tracklist.TrackListFragment;
 
 public class PlayerActivity extends BaseActivity {
 

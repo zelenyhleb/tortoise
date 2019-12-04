@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.kbmp.fragments;
+package ru.krivocraft.kbmp.fragments.tracklist;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -49,6 +49,7 @@ import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackReference;
 import ru.krivocraft.kbmp.core.track.TracksAdapter;
+import ru.krivocraft.kbmp.fragments.BaseFragment;
 
 public class TrackListFragment extends BaseFragment {
 
@@ -176,6 +177,7 @@ public class TrackListFragment extends BaseFragment {
                 });
             }
         }).start();
+
     }
 
     private synchronized void processPaths(Activity context, TrackList trackList) {
@@ -228,11 +230,6 @@ public class TrackListFragment extends BaseFragment {
         if (tracksAdapter != null) {
             processPaths(getActivity(), trackList);
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override

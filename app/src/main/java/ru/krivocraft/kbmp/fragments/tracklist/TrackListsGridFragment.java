@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.kbmp.fragments;
+package ru.krivocraft.kbmp.fragments.tracklist;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,6 +29,8 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +41,9 @@ import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
 import ru.krivocraft.kbmp.core.track.TrackListAdapter;
 import ru.krivocraft.kbmp.core.track.TracksProvider;
+import ru.krivocraft.kbmp.fragments.BaseFragment;
 
-public class TrackListStackFragment extends BaseFragment {
+public class TrackListsGridFragment extends BaseFragment {
 
     private TrackListAdapter adapter;
     private OnItemClickListener listener;
@@ -48,8 +51,9 @@ public class TrackListStackFragment extends BaseFragment {
     private ProgressBar progressBar;
     private List<TrackList> trackLists;
 
-    public static TrackListStackFragment newInstance(OnItemClickListener listener, List<TrackList> trackLists) {
-        TrackListStackFragment explorerFragment = new TrackListStackFragment();
+    public static TrackListsGridFragment newInstance(OnItemClickListener listener, List<TrackList> trackLists, Context context) {
+        TrackListsGridFragment explorerFragment = new TrackListsGridFragment();
+        explorerFragment.createAdapter(context);
         explorerFragment.setListener(listener);
         explorerFragment.setTrackLists(trackLists);
         return explorerFragment;
@@ -64,17 +68,18 @@ public class TrackListStackFragment extends BaseFragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.fragment_track_list_stack, container, false);
+    }
 
-        View rootView = inflater.inflate(R.layout.fragment_track_list_stack, container, false);
-        this.progressBar = rootView.findViewById(R.id.explorer_progress);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        this.progressBar = view.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
+            configureGridView(view, context);
             context.registerReceiver(receiver, new IntentFilter(TracksProvider.ACTION_UPDATE_STORAGE));
-            createAdapter(context);
-            configureGridView(rootView, context);
         }
-        return rootView;
     }
 
     private void createAdapter(Context context) {
@@ -102,14 +107,21 @@ public class TrackListStackFragment extends BaseFragment {
     }
 
     private void drawTrackLists() {
-        progressBar.setVisibility(View.GONE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
         redrawList(trackLists);
     }
 
     private void redrawList(List<TrackList> trackLists) {
-        adapter.clear();
-        adapter.addAll(trackLists);
-        adapter.notifyDataSetChanged();
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                adapter.clear();
+                adapter.addAll(trackLists);
+                adapter.notifyDataSetChanged();
+            });
+        }
     }
 
     @Override

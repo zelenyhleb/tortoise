@@ -14,9 +14,8 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.kbmp.fragments;
+package ru.krivocraft.kbmp.fragments.explorer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,36 +25,27 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.TrackListEditorActivity;
-import ru.krivocraft.kbmp.core.TrackListsCompiler;
-import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
+import ru.krivocraft.kbmp.fragments.BaseFragment;
+import ru.krivocraft.kbmp.fragments.tracklist.TrackListsGridFragment;
 
 public class ExplorerFragment extends BaseFragment {
 
-    private TrackListStackFragment.OnItemClickListener listener;
-    private TrackListsStorageManager tracksStorageManager;
-    private TrackListsCompiler trackListsCompiler;
-
-    private TrackListStackFragment customFragment;
-    private TrackListStackFragment artistFragment;
-    private PagerAdapter adapter;
+    private ExplorerPagerAdapter adapter;
     private ViewPager pager;
+    private Explorer explorer;
 
-    public static ExplorerFragment newInstance(TrackListStackFragment.OnItemClickListener listener) {
+    public static ExplorerFragment newInstance(TrackListsGridFragment.OnItemClickListener listener) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
         explorerFragment.setListener(listener);
         return explorerFragment;
@@ -70,6 +60,10 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        setExplorer(new Explorer(this::invalidate, view.getContext()));
+        initAdapter();
+
         new Thread(() -> {
 
             FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
@@ -77,8 +71,6 @@ public class ExplorerFragment extends BaseFragment {
             FragmentActivity activity = getActivity();
             if (activity != null) {
                 configureAddButton(view, activity);
-                this.tracksStorageManager = new TrackListsStorageManager(activity, TrackListsStorageManager.FILTER_ALL);
-                this.trackListsCompiler = new TrackListsCompiler(activity);
             }
 
             pager = view.findViewById(R.id.explorer_pager);
@@ -103,10 +95,8 @@ public class ExplorerFragment extends BaseFragment {
                     //Do nothing
                 }
             });
-            adapter = new PagerAdapter(getChildFragmentManager());
 
             TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
-
             invalidate();
 
             if (activity != null) {
@@ -118,45 +108,21 @@ public class ExplorerFragment extends BaseFragment {
                 });
             }
         }).start();
-
     }
 
-    private void onNewTrackLists(List<TrackList> trackLists) {
-        Activity activity = getActivity();
-        if (activity != null) {
-            for (TrackList trackList : trackLists) {
-                if (tracksStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
-                    tracksStorageManager.updateTrackListContent(trackList);
-                } else {
-                    tracksStorageManager.writeTrackList(trackList);
-                }
-            }
+    @Override
+    public void onResume() {
+        super.onResume();
+        explorer.compileTrackLists();
+    }
 
-            for (TrackList trackList : tracksStorageManager.readSortedByArtist()) {
-                if (trackList.size() <= 1) {
-                    tracksStorageManager.removeTrackList(trackList);
-                }
-            }
-
-            if (artistFragment != null) {
-                activity.runOnUiThread(artistFragment::invalidate);
-            }
-
-            if (customFragment != null) {
-                activity.runOnUiThread(customFragment::invalidate);
-            }
-        }
+    private void initAdapter() {
+        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), getContext());
     }
 
     @Override
     public void invalidate() {
-        Context context = getContext();
-        if (context != null) {
-            if (trackListsCompiler != null) {
-                trackListsCompiler.compileFavorites(this::onNewTrackLists);
-                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
-            }
-        }
+        adapter.invalidate();
     }
 
     private void configureAddButton(View rootView, Context context) {
@@ -171,53 +137,13 @@ public class ExplorerFragment extends BaseFragment {
         context.startActivity(intent);
     }
 
-    private TrackListStackFragment getCustom() {
-        if (customFragment == null) {
-            customFragment = TrackListStackFragment.newInstance(listener, tracksStorageManager.readCustom());
-        }
-        return customFragment;
-    }
+    private TrackListsGridFragment.OnItemClickListener listener;
 
-    private TrackListStackFragment getSortByArtist() {
-        if (artistFragment == null) {
-            artistFragment = TrackListStackFragment.newInstance(listener, tracksStorageManager.readSortedByArtist());
-        }
-        return artistFragment;
-    }
-
-    public void setListener(TrackListStackFragment.OnItemClickListener listener) {
+    private void setListener(TrackListsGridFragment.OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    private class PagerAdapter extends FragmentPagerAdapter {
-
-        private PagerAdapter(@NonNull FragmentManager fm) {
-            super(fm);
-        }
-
-        @NonNull
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0) {
-                return getCustom();
-            } else {
-                return getSortByArtist();
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if (position == 0) {
-                return "Custom";
-            } else {
-                return "Sorted by artist";
-            }
-        }
+    private void setExplorer(Explorer explorer) {
+        this.explorer = explorer;
     }
 }
