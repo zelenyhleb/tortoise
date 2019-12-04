@@ -132,7 +132,7 @@ public class ExplorerFragment extends BaseFragment {
                 }
             }
 
-            for (TrackList trackList : tracksStorageManager.readAllTrackLists()) {
+            for (TrackList trackList : tracksStorageManager.readSortedByArtist()) {
                 if (trackList.size() <= 1) {
                     tracksStorageManager.removeTrackList(trackList);
                 }

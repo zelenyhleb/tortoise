@@ -81,11 +81,13 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     PlaybackManager(Context context, PlayerStateCallback playerStateCallback, PlaylistUpdateCallback playlistUpdateCallback) {
         this.playerStateCallback = playerStateCallback;
         this.playlistUpdateCallback = playlistUpdateCallback;
+
         this.player = new MediaPlayer();
+
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.settings = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, MODE_PRIVATE);
+        this.settings = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_MULTI_PROCESS);
         this.equalizerManager = new EqualizerManager(player.getAudioSessionId(), context);
         updatePlaybackState();
         restoreAll();
@@ -314,6 +316,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         switch (loopType) {
             case TrackList.LOOP_TRACK:
                 newTrack(getCursor());
+                System.out.println("LOOP TRACK");
                 break;
             case TrackList.LOOP_TRACK_LIST:
                 if (getCursor() + 1 < getTrackList().size()) {
@@ -321,6 +324,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 } else {
                     newTrack(0);
                 }
+                System.out.println("LOOP TRACKLIST");
                 break;
             case TrackList.NOT_LOOP:
                 if (getCursor() < getTrackList().size()) {
@@ -328,9 +332,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 } else {
                     audioManager.abandonAudioFocus(focusChangeListener);
                 }
+                System.out.println("LOOP NONE");
                 break;
             default:
-                //Do nothing
+                System.out.println("DEFAULT");
                 break;
         }
     }

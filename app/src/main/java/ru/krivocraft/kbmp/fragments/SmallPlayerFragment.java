@@ -64,7 +64,6 @@ public class SmallPlayerFragment extends BaseFragment {
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
-    private View.OnClickListener listener;
 
     private int trackProgress;
 
@@ -91,7 +90,7 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     };
 
-    public void init(Activity context, MediaControllerCompat mediaController, View.OnClickListener listener) {
+    public void init(Activity context, MediaControllerCompat mediaController) {
         this.transportControls = mediaController.getTransportControls();
 
         mediaController.registerCallback(callback);
@@ -100,7 +99,6 @@ public class SmallPlayerFragment extends BaseFragment {
         this.playbackState = mediaController.getPlaybackState();
         this.colorManager = new ColorManager(context);
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.listener = listener;
 
         requestPosition(context);
     }

@@ -231,7 +231,7 @@ public class MainActivity extends BaseActivity {
             if (mediaController.getMetadata() != null) {
                 if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
                     SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                    smallPlayerFragment.init(MainActivity.this, mediaController, view -> startActivity(new Intent(this, PlayerActivity.class)));
+                    smallPlayerFragment.init(MainActivity.this, mediaController);
                     MainActivity.this.smallPlayerFragment = smallPlayerFragment;
                     showFragment(smallPlayerFragment);
                 }

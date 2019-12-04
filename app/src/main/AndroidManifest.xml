@@ -39,10 +39,8 @@
 
         <service
             android:name=".contexts.AndroidMediaService"
-            android:stopWithTask="true"
             android:enabled="true"
-            android:exported="false"
-            android:process=":remote">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
