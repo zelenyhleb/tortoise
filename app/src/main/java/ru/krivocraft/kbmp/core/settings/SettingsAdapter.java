@@ -69,8 +69,6 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         switch (key) {
             case KEY_THEME:
                 return getContext().getResources().getString(R.string.settings_theme);
-            case KEY_SORT_BY_ARTIST:
-                return getContext().getResources().getString(R.string.settings_sort_artist);
             case KEY_RECOGNIZE_NAMES:
                 return getContext().getResources().getString(R.string.settings_recognize);
             default:

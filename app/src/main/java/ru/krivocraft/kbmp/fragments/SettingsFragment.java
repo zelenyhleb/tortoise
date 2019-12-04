@@ -49,7 +49,7 @@ public class SettingsFragment extends BaseFragment {
     }
 
     private List<String> getSettings() {
-        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_SORT_BY_ARTIST, SettingsStorageManager.KEY_RECOGNIZE_NAMES);
+        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_RECOGNIZE_NAMES);
     }
 
     @Override

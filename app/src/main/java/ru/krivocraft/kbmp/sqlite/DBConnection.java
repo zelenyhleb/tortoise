@@ -322,19 +322,24 @@ public class DBConnection {
     }
 
     private List<TrackReference> getTracksForTrackList(String identifier) {
-        List<TrackReference> trackReferences = new ArrayList<>();
-        Cursor cursor = database.query(identifier, null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            int valueIndex = cursor.getColumnIndex("reference");
-            do {
-                int value = cursor.getInt(valueIndex);
+        try {
+            List<TrackReference> trackReferences = new ArrayList<>();
+            Cursor cursor = database.query(identifier, null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                int valueIndex = cursor.getColumnIndex("reference");
+                do {
+                    int value = cursor.getInt(valueIndex);
 
-                TrackReference reference = new TrackReference(value);
-                trackReferences.add(reference);
-            } while (cursor.moveToNext());
+                    TrackReference reference = new TrackReference(value);
+                    trackReferences.add(reference);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return trackReferences;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        cursor.close();
-        return trackReferences;
     }
 
     public static class DBHelper extends SQLiteOpenHelper {

@@ -76,14 +76,16 @@ public class TrackListFragment extends BaseFragment {
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            if (tracksAdapter != null)
+            if (tracksAdapter != null) {
                 tracksAdapter.notifyDataSetChanged();
+            }
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            if (tracksAdapter != null)
+            if (tracksAdapter != null) {
                 tracksAdapter.notifyDataSetChanged();
+            }
         }
     };
     private MediaControllerCompat mediaController;
@@ -99,6 +101,12 @@ public class TrackListFragment extends BaseFragment {
         this.mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.tracksStorageManager = new TracksStorageManager(context);
+
+        if (!showControls) {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
+            context.registerReceiver(trackListReceiver, filter);
+        }
     }
 
     @Override
@@ -124,7 +132,7 @@ public class TrackListFragment extends BaseFragment {
 
             final Activity context = getActivity();
             if (context != null) {
-                processPaths(context);
+                processPaths(context, trackList);
 
                 if (showControls) {
                     searchFrame.addTextChangedListener(new TextWatcher() {
@@ -155,10 +163,6 @@ public class TrackListFragment extends BaseFragment {
                             //Do nothing
                         }
                     });
-                } else {
-                    IntentFilter filter = new IntentFilter();
-                    filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
-                    context.registerReceiver(trackListReceiver, filter);
                 }
 
                 context.runOnUiThread(() -> {
@@ -167,30 +171,18 @@ public class TrackListFragment extends BaseFragment {
                     } else {
                         searchFrame.setHeight(0);
                     }
-                    recyclerView.setAdapter(tracksAdapter);
                     touchHelper.attachToRecyclerView(recyclerView);
                     progressBar.setVisibility(View.GONE);
                 });
             }
         }).start();
-
     }
 
-    public TrackList getTrackList() {
-        return trackList;
-    }
-
-    private void processPaths(Activity context) {
+    private synchronized void processPaths(Activity context, TrackList trackList) {
         if (this.touchHelper != null) {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        context.runOnUiThread(() -> {
-            this.recyclerView.setLayoutManager(layoutManager);
-            if (!showControls) {
-                layoutManager.scrollToPosition(getSelectedItem());
-            }
-        });
         this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
@@ -208,8 +200,16 @@ public class TrackListFragment extends BaseFragment {
             }
         });
 
-        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-        touchHelper = new ItemTouchHelper(callback);
+        context.runOnUiThread(() -> {
+            this.recyclerView.setLayoutManager(layoutManager);
+            this.recyclerView.setAdapter(tracksAdapter);
+            if (!showControls) {
+                layoutManager.scrollToPosition(getSelectedItem());
+            }
+            ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+            touchHelper = new ItemTouchHelper(callback);
+        });
+
     }
 
     private int getSelectedItem() {
@@ -225,23 +225,20 @@ public class TrackListFragment extends BaseFragment {
 
     public void setTrackList(TrackList trackList) {
         this.trackList = trackList;
-        Activity context = getActivity();
-        if (context != null) {
-            processPaths(context);
+        if (tracksAdapter != null) {
+            processPaths(getActivity(), trackList);
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        if (mediaController != null) {
-            mediaController.unregisterCallback(callback);
-        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mediaController.unregisterCallback(callback);
         if (!showControls) {
             Context context = getContext();
             if (context != null) {

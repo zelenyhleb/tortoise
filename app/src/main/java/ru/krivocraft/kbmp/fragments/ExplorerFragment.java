@@ -41,7 +41,6 @@ import java.util.List;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.TrackListEditorActivity;
 import ru.krivocraft.kbmp.core.TrackListsCompiler;
-import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TrackListsStorageManager;
 import ru.krivocraft.kbmp.core.track.TrackList;
 
@@ -60,11 +59,6 @@ public class ExplorerFragment extends BaseFragment {
         ExplorerFragment explorerFragment = new ExplorerFragment();
         explorerFragment.setListener(listener);
         return explorerFragment;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
     }
 
     @Nullable
@@ -137,6 +131,13 @@ public class ExplorerFragment extends BaseFragment {
                     tracksStorageManager.writeTrackList(trackList);
                 }
             }
+
+            for (TrackList trackList : tracksStorageManager.readAllTrackLists()) {
+                if (trackList.size() <= 1) {
+                    tracksStorageManager.removeTrackList(trackList);
+                }
+            }
+
             if (artistFragment != null) {
                 activity.runOnUiThread(artistFragment::invalidate);
             }
@@ -153,9 +154,7 @@ public class ExplorerFragment extends BaseFragment {
         if (context != null) {
             if (trackListsCompiler != null) {
                 trackListsCompiler.compileFavorites(this::onNewTrackLists);
-                if (getSettingsManager().getOption(SettingsStorageManager.KEY_SORT_BY_ARTIST, false)) {
-                    trackListsCompiler.compileByAuthors(this::onNewTrackLists);
-                }
+                trackListsCompiler.compileByAuthors(this::onNewTrackLists);
             }
         }
     }

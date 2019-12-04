@@ -50,7 +50,6 @@ import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.PlayerActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.playback.MediaService;
-import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
 import ru.krivocraft.kbmp.core.utils.Art;
 import ru.krivocraft.kbmp.core.utils.Milliseconds;
@@ -138,9 +137,7 @@ public class SmallPlayerFragment extends BaseFragment {
                     VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
                     int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor());
                     background.setFillColor(color);
-                    if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
-                        bar.setProgressTintList(ColorStateList.valueOf(color));
-                    }
+                    bar.setProgressTintList(ColorStateList.valueOf(color));
                 } else {
                     viewImage.setImageResource(R.drawable.ic_track_image_default);
                 }
