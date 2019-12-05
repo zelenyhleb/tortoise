@@ -42,7 +42,6 @@ import androidx.annotation.NonNull;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -73,6 +72,7 @@ public class SmallPlayerFragment extends BaseFragment {
             playbackState = state;
             trackProgress = (int) state.getPosition();
             refreshStateShowers();
+            invalidate();
         }
 
         @Override
@@ -89,11 +89,13 @@ public class SmallPlayerFragment extends BaseFragment {
             refreshStateShowers();
         }
     };
+    private MediaControllerCompat mediaController;
 
     public void init(Activity context, MediaControllerCompat mediaController) {
         this.transportControls = mediaController.getTransportControls();
 
-        mediaController.registerCallback(callback);
+        this.mediaController = mediaController;
+        this.mediaController.registerCallback(callback);
 
         this.metadata = mediaController.getMetadata();
         this.playbackState = mediaController.getPlaybackState();
@@ -223,8 +225,14 @@ public class SmallPlayerFragment extends BaseFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
+    public void onDetach() {
+        super.onDetach();
+
+        Context context = getContext();
+        if (context != null) {
+            context.unregisterReceiver(positionReceiver);
+        }
+        mediaController.unregisterCallback(callback);
+
     }
 }

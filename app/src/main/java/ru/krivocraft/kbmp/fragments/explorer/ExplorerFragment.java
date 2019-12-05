@@ -16,6 +16,7 @@
 
 package ru.krivocraft.kbmp.fragments.explorer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -54,6 +54,12 @@ public class ExplorerFragment extends BaseFragment {
         return explorerFragment;
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), context);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -63,15 +69,10 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), getContext());
         new Thread(() -> {
 
             FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
-
-            FragmentActivity activity = getActivity();
-            if (activity != null) {
-                configureAddButton(view, activity);
-            }
+            button.setOnClickListener(v -> showCreationDialog(v.getContext()));
 
             pager = view.findViewById(R.id.explorer_pager);
             pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -97,14 +98,15 @@ public class ExplorerFragment extends BaseFragment {
             });
 
             TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
-            invalidate();
 
+            Activity activity = getActivity();
             if (activity != null) {
                 activity.runOnUiThread(() -> {
                     view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
                     pager.setAdapter(adapter);
                     pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
                     tabLayout.setupWithViewPager(pager);
+                    invalidate();
                 });
             }
         }).start();
@@ -119,11 +121,6 @@ public class ExplorerFragment extends BaseFragment {
     @Override
     public void invalidate() {
         adapter.invalidate();
-    }
-
-    private void configureAddButton(View rootView, Context context) {
-        FloatingActionButton addTrackList = rootView.findViewById(R.id.add_track_list_button);
-        addTrackList.setOnClickListener(v -> showCreationDialog(context));
     }
 
     private void showCreationDialog(Context context) {

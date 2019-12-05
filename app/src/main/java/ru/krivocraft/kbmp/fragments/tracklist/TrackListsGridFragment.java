@@ -30,7 +30,6 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,14 +113,9 @@ public class TrackListsGridFragment extends BaseFragment {
     }
 
     private void redrawList(List<TrackList> trackLists) {
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activity.runOnUiThread(() -> {
-                adapter.clear();
-                adapter.addAll(trackLists);
-                adapter.notifyDataSetChanged();
-            });
-        }
+        adapter.clear();
+        adapter.addAll(trackLists);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
