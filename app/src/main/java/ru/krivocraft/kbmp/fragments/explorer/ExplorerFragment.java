@@ -45,9 +45,12 @@ public class ExplorerFragment extends BaseFragment {
     private ViewPager pager;
     private Explorer explorer;
 
-    public static ExplorerFragment newInstance(TrackListsGridFragment.OnItemClickListener listener) {
+    private TrackListsGridFragment.OnItemClickListener listener;
+
+    public static ExplorerFragment newInstance(TrackListsGridFragment.OnItemClickListener listener, Explorer explorer) {
         ExplorerFragment explorerFragment = new ExplorerFragment();
         explorerFragment.setListener(listener);
+        explorerFragment.setExplorer(explorer);
         return explorerFragment;
     }
 
@@ -60,10 +63,7 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        setExplorer(new Explorer(this::invalidate, view.getContext()));
-        initAdapter();
-
+        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), getContext());
         new Thread(() -> {
 
             FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
@@ -116,10 +116,6 @@ public class ExplorerFragment extends BaseFragment {
         explorer.compileTrackLists();
     }
 
-    private void initAdapter() {
-        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), getContext());
-    }
-
     @Override
     public void invalidate() {
         adapter.invalidate();
@@ -136,8 +132,6 @@ public class ExplorerFragment extends BaseFragment {
         intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, true);
         context.startActivity(intent);
     }
-
-    private TrackListsGridFragment.OnItemClickListener listener;
 
     private void setListener(TrackListsGridFragment.OnItemClickListener listener) {
         this.listener = listener;

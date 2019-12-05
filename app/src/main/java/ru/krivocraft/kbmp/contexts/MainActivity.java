@@ -41,6 +41,7 @@ import ru.krivocraft.kbmp.fragments.BaseFragment;
 import ru.krivocraft.kbmp.fragments.SettingsFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
 import ru.krivocraft.kbmp.fragments.TrackEditorFragment;
+import ru.krivocraft.kbmp.fragments.explorer.Explorer;
 import ru.krivocraft.kbmp.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.kbmp.fragments.tracklist.TrackListFragment;
 
@@ -78,6 +79,9 @@ public class MainActivity extends BaseActivity {
     };
 
     private BaseFragment currentFragment;
+    private Explorer explorer;
+
+    private TrackList cache;
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
@@ -97,7 +101,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private ExplorerFragment getExplorerFragment() {
-        return ExplorerFragment.newInstance(this::showTrackListFragment);
+        return ExplorerFragment.newInstance(this::showTrackListFragment, explorer);
     }
 
     private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
@@ -119,6 +123,8 @@ public class MainActivity extends BaseActivity {
     void init() {
         setContentView(R.layout.activity_tortoise);
         configureLayoutTransition();
+
+        explorer = new Explorer(this::invalidate, this);
 
         startService();
         registerPlayerControlReceiver();
@@ -150,6 +156,20 @@ public class MainActivity extends BaseActivity {
         registerReceiver(showPlayerReceiver, showPlayerFilter);
     }
 
+    private void invalidate() {
+        runOnUiThread(currentFragment::invalidate);
+    }
+
+    private void restoreState() {
+        if (viewState == STATE_TRACK_LIST) {
+            if (cache != null) {
+                showTrackListFragment(cache);
+                return;
+            }
+        }
+        showExplorerFragment();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_main, menu);
@@ -172,12 +192,13 @@ public class MainActivity extends BaseActivity {
 
     private void showTrackListFragment(TrackList trackList) {
         replaceFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST);
+        this.cache = trackList;
         showSmallPlayerFragment();
     }
 
     private void showSettingsFragment() {
         replaceFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
-        showSmallPlayerFragment();
+        hideFragment(smallPlayerFragment);
     }
 
     private void showTrackEditorFragment(TrackReference trackReference) {
@@ -196,10 +217,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (viewState == STATE_TRACK_LIST || viewState == STATE_SETTINGS) {
-            showExplorerFragment();
-        } else if (viewState == STATE_TRACK_EDITOR) {
+        if (viewState == STATE_TRACK_EDITOR) {
             currentFragment.onBackPressed();
+        } else if (viewState != STATE_EXPLORER) {
+            showExplorerFragment();
         } else {
             super.onBackPressed();
         }
@@ -212,14 +233,9 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        showExplorerFragment();
+        restoreState();
         showSmallPlayerFragment();
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
