@@ -207,21 +207,20 @@ public class DBConnection {
         return trackLists;
     }
 
-    public List<TrackList> getTrackLists(boolean sortByTag, boolean sortByAuthor) {
+    public List<TrackList> getCustom() {
+        return getFilteredTrackLists(TrackList.TRACK_LIST_CUSTOM);
+    }
+
+    public List<TrackList> getSortedByArtist() {
+        return getFilteredTrackLists(TrackList.TRACK_LIST_BY_AUTHOR);
+    }
+
+    private List<TrackList> getFilteredTrackLists(int filter) {
         List<TrackList> trackLists = new ArrayList<>();
 
-        StringBuilder selection = new StringBuilder();
-        if (!sortByAuthor) {
-            selection.append("type != " + TrackList.TRACK_LIST_BY_AUTHOR);
-        }
-        if (!sortByTag) {
-            if (!sortByAuthor) {
-                selection.append(" and ");
-            }
-            selection.append("type != " + TrackList.TRACK_LIST_BY_TAG);
-        }
-
-        Cursor cursor = database.query(TRACK_LISTS, null, selection.toString(), null, null, null, null);
+        Cursor cursor = database.query(TRACK_LISTS, null,
+                "type == " + filter,
+                null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex("id");
             int nameIndex = cursor.getColumnIndex("name");
@@ -290,19 +289,24 @@ public class DBConnection {
     }
 
     private List<TrackReference> getTracksForTrackList(String identifier) {
-        List<TrackReference> trackReferences = new ArrayList<>();
-        Cursor cursor = database.query(identifier, null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            int valueIndex = cursor.getColumnIndex("reference");
-            do {
-                int value = cursor.getInt(valueIndex);
+        try {
+            List<TrackReference> trackReferences = new ArrayList<>();
+            Cursor cursor = database.query(identifier, null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                int valueIndex = cursor.getColumnIndex("reference");
+                do {
+                    int value = cursor.getInt(valueIndex);
 
-                TrackReference reference = new TrackReference(value);
-                trackReferences.add(reference);
-            } while (cursor.moveToNext());
+                    TrackReference reference = new TrackReference(value);
+                    trackReferences.add(reference);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return trackReferences;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        cursor.close();
-        return trackReferences;
     }
 
     public static class DBHelper extends SQLiteOpenHelper {

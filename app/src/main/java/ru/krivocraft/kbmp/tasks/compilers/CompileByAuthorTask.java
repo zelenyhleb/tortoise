@@ -39,6 +39,23 @@ public class CompileByAuthorTask extends CompileTrackListsTask {
                 trackList.add(track);
             }
         }
+        String SINGLE_DISPLAY_NAME = "Single Tracks";
+        List<Track> singleTracks = new ArrayList<>();
+        List<String> tracksToRemove = new ArrayList<>();
+        for (Map.Entry<String, List<Track>> entry : playlistMap.entrySet()) {
+            List<Track> value = entry.getValue();
+            if (value.size() <= 1) {
+                //Get the only track contained in this list
+                singleTracks.add(value.get(0));
+                tracksToRemove.add(entry.getKey());
+            }
+        }
+
+        for (String key : tracksToRemove) {
+            playlistMap.remove(key);
+        }
+
+        playlistMap.put(SINGLE_DISPLAY_NAME, singleTracks);
         return playlistMap;
     }
 

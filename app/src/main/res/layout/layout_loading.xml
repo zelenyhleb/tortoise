@@ -15,25 +15,16 @@
   ~ 	    Nikifor Fedorov - whole development
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".contexts.SettingsActivity">
+    android:orientation="vertical">
 
-    <ListView
-        android:id="@+id/settings_list"
-        android:layout_above="@id/settings_version"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <TextView
-        android:id="@+id/settings_version"
-        android:layout_margin="8dp"
-        android:layout_alignParentBottom="true"
-        android:textAlignment="viewEnd"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_version"/>
+        android:layout_gravity="center" />
 
-</RelativeLayout>
+</FrameLayout>

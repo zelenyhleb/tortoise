@@ -32,9 +32,15 @@ public class TrackListsStorageManager {
     public static final String FAVORITES_DISPLAY_NAME = "Favorites";
 
     private final DBConnection database;
+    private final String filter;
 
-    public TrackListsStorageManager(@NonNull Context context) {
+    public final static String FILTER_CUSTOM = "custom";
+    public final static String FILTER_ARTIST = "artist";
+    public final static String FILTER_ALL = "all";
+
+    public TrackListsStorageManager(@NonNull Context context, String filter) {
         this.database = new DBConnection(context);
+        this.filter = filter;
     }
 
     public void updateTrackListData(TrackList trackList) {
@@ -66,11 +72,22 @@ public class TrackListsStorageManager {
     }
 
     public List<TrackList> readAllTrackLists() {
-        return database.getTrackLists();
+        switch (filter) {
+            case FILTER_CUSTOM:
+                return readCustom();
+            case FILTER_ARTIST:
+                return readSortedByArtist();
+            default:
+                return database.getTrackLists();
+        }
     }
 
-    public List<TrackList> readTrackLists(boolean sortByTag, boolean sortByAuthor) {
-        return database.getTrackLists(sortByTag, sortByAuthor);
+    public List<TrackList> readSortedByArtist() {
+        return database.getSortedByArtist();
+    }
+
+    public List<TrackList> readCustom() {
+        return database.getCustom();
     }
 
     public List<String> getExistingTrackListNames() {

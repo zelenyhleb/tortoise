@@ -33,6 +33,10 @@ import java.util.List;
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.storage.SettingsStorageManager;
 
+import static ru.krivocraft.kbmp.core.storage.SettingsStorageManager.KEY_RECOGNIZE_NAMES;
+import static ru.krivocraft.kbmp.core.storage.SettingsStorageManager.KEY_SORT_BY_ARTIST;
+import static ru.krivocraft.kbmp.core.storage.SettingsStorageManager.KEY_THEME;
+
 public class SettingsAdapter extends ArrayAdapter<String> {
 
     private List<String> objects;
@@ -50,26 +54,30 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         View itemView;
         if (convertView == null) {
             itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-            if (position == objects.indexOf(SettingsStorageManager.KEY_THEME)) {
-                TextView textView = itemView.findViewById(R.id.settings_text);
-                textView.setText(R.string.settings_theme);
-                Switch s = itemView.findViewById(R.id.settings_switch);
-                initSwitch(s, SettingsStorageManager.KEY_THEME, false);
-            } else if (position == objects.indexOf(SettingsStorageManager.KEY_SORT_BY_ARTIST)) {
-                Switch s = itemView.findViewById(R.id.settings_switch);
-                TextView textView = itemView.findViewById(R.id.settings_text);
-                initSwitch(s, SettingsStorageManager.KEY_SORT_BY_ARTIST, false);
-                textView.setText(R.string.settings_sort_artist);
-            } else if (position == objects.indexOf(SettingsStorageManager.KEY_RECOGNIZE_NAMES)) {
-                Switch s = itemView.findViewById(R.id.settings_switch);
-                TextView textView = itemView.findViewById(R.id.settings_text);
-                initSwitch(s, SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
-                textView.setText(R.string.settings_recognize);
-            }
+            String key = objects.get(position);
+            Switch s = itemView.findViewById(R.id.settings_switch);
+            TextView textView = itemView.findViewById(R.id.settings_text);
+            textView.setText(getDescription(key));
+            initSwitch(s, key, getDefaultValue(key));
         } else {
             itemView = convertView;
         }
         return itemView;
+    }
+
+    private String getDescription(String key) {
+        switch (key) {
+            case KEY_THEME:
+                return getContext().getResources().getString(R.string.settings_theme);
+            case KEY_RECOGNIZE_NAMES:
+                return getContext().getResources().getString(R.string.settings_recognize);
+            default:
+                return getContext().getResources().getString(R.string.settings_item_default);
+        }
+    }
+
+    private boolean getDefaultValue(String key) {
+        return key.equals(KEY_RECOGNIZE_NAMES);
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {
@@ -81,7 +89,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
             } else {
                 manager.putOption(key, true);
             }
-            if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(SettingsStorageManager.KEY_THEME)) {
+            if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(KEY_THEME)) {
                 Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });

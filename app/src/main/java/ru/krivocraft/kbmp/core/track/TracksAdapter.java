@@ -36,7 +36,6 @@ import java.util.Collections;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.contexts.MainActivity;
-import ru.krivocraft.kbmp.contexts.TrackEditorActivity;
 import ru.krivocraft.kbmp.core.ColorManager;
 import ru.krivocraft.kbmp.core.ItemTouchHelperAdapter;
 import ru.krivocraft.kbmp.core.playback.MediaService;
@@ -141,7 +140,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             more = itemView.findViewById(R.id.button_more);
             itemView.setOnClickListener(new OnClickListener());
             if (editingAllowed) {
-                more.setOnClickListener(v -> v.getContext().startActivity(new Intent(v.getContext(), TrackEditorActivity.class).putExtra(Track.EXTRA_TRACK, reference.toJson())));
+                more.setOnClickListener(v -> v.getContext().sendBroadcast(new Intent(MainActivity.ACTION_SHOW_TRACK_EDITOR).putExtra(Track.EXTRA_TRACK, reference.toJson())));
             } else {
                 more.setVisibility(View.INVISIBLE);
             }

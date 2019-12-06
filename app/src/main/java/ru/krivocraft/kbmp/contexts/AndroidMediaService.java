@@ -62,7 +62,7 @@ public class AndroidMediaService extends MediaBrowserServiceCompat {
     public int onStartCommand(Intent intent, int flags, int startId) {
         this.mediaService.handleCommand(intent);
         running = true;
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 }

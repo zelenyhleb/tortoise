@@ -28,27 +28,37 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import ru.krivocraft.kbmp.R;
 import ru.krivocraft.kbmp.core.OldStuffCollector;
+import ru.krivocraft.kbmp.core.track.Track;
 import ru.krivocraft.kbmp.core.track.TrackList;
-import ru.krivocraft.kbmp.fragments.ExplorerFragment;
+import ru.krivocraft.kbmp.core.track.TrackReference;
+import ru.krivocraft.kbmp.fragments.BaseFragment;
+import ru.krivocraft.kbmp.fragments.SettingsFragment;
 import ru.krivocraft.kbmp.fragments.SmallPlayerFragment;
-import ru.krivocraft.kbmp.fragments.TrackListFragment;
+import ru.krivocraft.kbmp.fragments.TrackEditorFragment;
+import ru.krivocraft.kbmp.fragments.explorer.Explorer;
+import ru.krivocraft.kbmp.fragments.explorer.ExplorerFragment;
+import ru.krivocraft.kbmp.fragments.tracklist.TrackListFragment;
 
 public class MainActivity extends BaseActivity {
+
 
     private SmallPlayerFragment smallPlayerFragment;
 
     private int viewState = 0;
     private static final int STATE_EXPLORER = 1;
     private static final int STATE_TRACK_LIST = 2;
+    private static final int STATE_SETTINGS = 3;
+    private static final int STATE_TRACK_EDITOR = 4;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
+    public static final String ACTION_SHOW_TRACK_EDITOR = "action_show_tracks_editor";
 
     private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
@@ -56,12 +66,22 @@ public class MainActivity extends BaseActivity {
             if (ACTION_SHOW_PLAYER.equals(intent.getAction())) {
                 showSmallPlayerFragment();
             } else if (ACTION_HIDE_PLAYER.equals(intent.getAction())) {
-                hideSmallPlayerFragment();
+                hideFragment(smallPlayerFragment);
             }
         }
     };
-    private TrackListFragment trackListFragment;
-    private ExplorerFragment explorerFragment;
+
+    private BroadcastReceiver showEditorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showTrackEditorFragment(TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
+        }
+    };
+
+    private BaseFragment currentFragment;
+    private Explorer explorer;
+
+    private TrackList cache;
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
@@ -71,21 +91,21 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
-        showExplorerFragment();
     }
 
-    @NonNull
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        trackListFragment = TrackListFragment.newInstance(trackList, true, this, mediaController);
+        TrackListFragment trackListFragment = TrackListFragment.newInstance(true, this, mediaController);
+        if (trackList != null)
+            trackListFragment.setTrackList(trackList);
         return trackListFragment;
     }
 
     private ExplorerFragment getExplorerFragment() {
-        if (explorerFragment == null) {
-            //ExplorerFragment is singleton, so we will reuse it, if it is possible
-            explorerFragment = ExplorerFragment.newInstance(this::showTrackListFragment);
-        }
-        return explorerFragment;
+        return ExplorerFragment.newInstance(this::showTrackListFragment, explorer);
+    }
+
+    private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
+        return TrackEditorFragment.newInstance(this::showExplorerFragment, reference);
     }
 
     @Override
@@ -104,13 +124,18 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_tortoise);
         configureLayoutTransition();
 
+        explorer = new Explorer(this::invalidate, this);
+
         startService();
         registerPlayerControlReceiver();
+
+        IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
+        registerReceiver(showEditorReceiver, filter);
     }
 
     @Override
     void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        //No update for new state in MainActivity
+        showSmallPlayerFragment();
     }
 
     private void configureLayoutTransition() {
@@ -131,6 +156,20 @@ public class MainActivity extends BaseActivity {
         registerReceiver(showPlayerReceiver, showPlayerFilter);
     }
 
+    private void invalidate() {
+        runOnUiThread(currentFragment::invalidate);
+    }
+
+    private void restoreState() {
+        if (viewState == STATE_TRACK_LIST) {
+            if (cache != null) {
+                showTrackListFragment(cache);
+                return;
+            }
+        }
+        showExplorerFragment();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_main, menu);
@@ -140,39 +179,47 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            showSettingsFragment();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void showExplorerFragment() {
-        removeTrackListFragment();
-        if (explorerFragment == null) {
-            addFragment(R.anim.fadeinshort, getExplorerFragment(), R.id.fragment_container);
-        } else {
-            showFragment(explorerFragment);
-        }
-        viewState = STATE_EXPLORER;
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle("Tortoise");
-        }
+        replaceFragment(getExplorerFragment(), "Tortoise", STATE_EXPLORER);
+        showSmallPlayerFragment();
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        hideExplorerFragment();
-        addFragment(R.anim.fadeinshort, getTrackListFragment(trackList), R.id.fragment_container);
-        viewState = STATE_TRACK_LIST;
+        replaceFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST);
+        this.cache = trackList;
+        showSmallPlayerFragment();
+    }
+
+    private void showSettingsFragment() {
+        replaceFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
+        hideFragment(smallPlayerFragment);
+    }
+
+    private void showTrackEditorFragment(TrackReference trackReference) {
+        replaceFragment(getTrackEditorFragment(trackReference), "Edit Metadata", STATE_TRACK_EDITOR);
+        hideFragment(smallPlayerFragment);
+    }
+
+    private void replaceFragment(BaseFragment fragment, String title, int boundState) {
+        replaceFragment(fragment);
+        viewState = boundState;
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
-            supportActionBar.setTitle(trackList.getDisplayName());
+            supportActionBar.setTitle(title);
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (viewState == STATE_TRACK_LIST) {
+        if (viewState == STATE_TRACK_EDITOR) {
+            currentFragment.onBackPressed();
+        } else if (viewState != STATE_EXPLORER) {
             showExplorerFragment();
         } else {
             super.onBackPressed();
@@ -188,69 +235,54 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        restoreState();
+        showSmallPlayerFragment();
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
         }
     }
 
-    private void hideExplorerFragment() {
-        hideFragment(explorerFragment);
-    }
-
-    private void removeTrackListFragment() {
-        removeFragment(trackListFragment);
-        trackListFragment = null;
-    }
-
     private void showSmallPlayerFragment() {
-        if (mediaController.getMetadata() != null) {
-            if (smallPlayerFragment == null) {
-                SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                smallPlayerFragment.init(MainActivity.this, mediaController);
-                MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                addFragment(R.anim.slideup, MainActivity.this.smallPlayerFragment, R.id.player_container);
-            } else {
-                this.smallPlayerFragment.invalidate();
+        if (mediaController != null)
+            if (mediaController.getMetadata() != null) {
+                if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
+                    SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+                    smallPlayerFragment.init(MainActivity.this, mediaController);
+                    MainActivity.this.smallPlayerFragment = smallPlayerFragment;
+                    showFragment(smallPlayerFragment);
+                }
             }
+    }
+
+
+    private void replaceFragment(BaseFragment fragment) {
+        if (fragment != null) {
+
+            FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort);
+
+            transaction.replace(R.id.fragment_container, fragment);
+
+            transaction.commitAllowingStateLoss();
+
+            currentFragment = fragment;
         }
     }
 
-    private void hideSmallPlayerFragment() {
-        hideFragment(smallPlayerFragment);
-        smallPlayerFragment = null;
-    }
+    private void showFragment(BaseFragment fragment) {
+        if (fragment != null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
 
+            transaction.replace(R.id.player_container, fragment);
 
-    private void addFragment(int animationIn, Fragment fragment, int container) {
-        if (fragment != null && !fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(animationIn, R.anim.slide_out_right)
-                    .add(container, fragment)
-                    .commitNowAllowingStateLoss();
-        }
-    }
-
-    private void showFragment(Fragment fragment) {
-        if (fragment != null && !fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .show(fragment)
-                    .commitNowAllowingStateLoss();
+            transaction.commitNowAllowingStateLoss();
         }
     }
 
     private void hideFragment(Fragment fragment) {
-        if (fragment != null && fragment.isVisible()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .hide(fragment)
-                    .commitNowAllowingStateLoss();
-        }
-    }
-
-    private void removeFragment(Fragment fragment) {
-        if (fragment != null && fragment.isVisible()) {
+        if (fragment != null && fragment.isAdded()) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(fragment)

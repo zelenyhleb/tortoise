@@ -352,7 +352,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     private void loop(ImageView button) {
         Context context = getContext();
         if (context != null) {
-            SharedPreferences preferences = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_PRIVATE);
+            SharedPreferences preferences = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_MULTI_PROCESS);
             SharedPreferences.Editor editor = preferences.edit();
             int loopState = preferences.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
             switch (loopState) {

@@ -157,6 +157,7 @@ public class TrackListEditorActivity extends BaseActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 changed.setDisplayName(s.toString());
+                changed.setIdentifier(TrackList.createIdentifier(s.toString()));
             }
         });
     }
@@ -263,7 +264,7 @@ public class TrackListEditorActivity extends BaseActivity {
 
         thumbnailStorageManager = new ThumbnailStorageManager();
         tracksStorageManager = new TracksStorageManager(this);
-        trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this);
+        trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL);
     }
 
     private void flagExisting(List<Track> trackStorage, List<TrackReference> trackReferences) {
@@ -336,6 +337,7 @@ public class TrackListEditorActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK
                 && requestCode == GALLERY_REQUEST_CODE
                 && data != null) {

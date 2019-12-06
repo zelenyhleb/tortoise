@@ -69,6 +69,10 @@ public class TrackList {
         return sb.toString();
     }
 
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
     public int shuffle(TrackReference currentTrack) {
         if (!isShuffled()) {
             shuffleCache = new ArrayList<>(tracksReferences);

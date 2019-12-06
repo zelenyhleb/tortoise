@@ -34,12 +34,21 @@ public abstract class BaseFragment extends Fragment {
     private SettingsStorageManager settingsManager;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         invalidate();
     }
 
     public abstract void invalidate();
+
+    public void onBackPressed() {
+        //This callback can be implemented by inheritors
+    }
 
     public SettingsStorageManager getSettingsManager() {
         return settingsManager;

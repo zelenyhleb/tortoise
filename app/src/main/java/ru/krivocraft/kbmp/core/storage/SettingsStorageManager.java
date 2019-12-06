@@ -26,6 +26,7 @@ public class SettingsStorageManager {
     public static final String KEY_CLEAR_CACHE = "clearCache";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
     public static final String KEY_OLD_TRACK_LISTS_EXIST = "oldExist";
+    public static final String KEY_THUMBNAILS_CLEARED = "thumbs";
 
     private final PreferencesManager preferencesManager;
 

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2019 Nikifor Fedorov
   ~     Licensed under the Apache License, Version 2.0 (the "License");
   ~     you may not use this file except in compliance with the License.
@@ -15,34 +16,26 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    tools:context=".fragments.tracklist.TrackListsGridFragment">
+
+    <GridView
+        android:id="@+id/playlists_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:numColumns="2"
+        />
 
     <ProgressBar
         android:id="@+id/explorer_progress"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/explorer_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/explorer_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </androidx.viewpager.widget.ViewPager>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_track_list_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="32dp"
-        android:src="@drawable/ic_add"
-        android:tint="@color/white" />
+        android:layout_height="wrap_content"/>
 
 </FrameLayout>

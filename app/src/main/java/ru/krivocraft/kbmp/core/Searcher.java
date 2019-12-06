@@ -34,13 +34,13 @@ public class Searcher {
 
     public Searcher(Context context) {
         this.tracksStorageManager = new TracksStorageManager(context);
-        this.trackListsStorageManager = new TrackListsStorageManager(context);
+        this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
     }
 
     public List<TrackReference> search(CharSequence string, List<TrackReference> input) {
         List<TrackReference> references = new ArrayList<>();
         List<Track> searched = tracksStorageManager.getTracks(input);
-        List<TrackList> trackLists = trackListsStorageManager.readTrackLists(false, false);
+        List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();
@@ -66,7 +66,7 @@ public class Searcher {
 
     public List<Track> searchInTracks(CharSequence string, List<Track> input) {
         List<Track> found = new ArrayList<>();
-        List<TrackList> trackLists = trackListsStorageManager.readTrackLists(false, false);
+        List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
         for (Track track : input) {
 
             String formattedName = track.getTitle().toLowerCase();

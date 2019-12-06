@@ -16,7 +16,6 @@
 
 package ru.krivocraft.kbmp.core.playback;
 
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -68,7 +67,7 @@ public class MediaService {
     private final MediaBrowserServiceCompat context;
     private final MediaSessionCompat mediaSession;
     private final MediaControllerCompat mediaController;
-    private final NotificationBuilder notificationBuilder;
+    private final NotificationManager notificationManager;
     private final TracksStorageManager tracksStorageManager;
     private final TrackListsStorageManager trackListsStorageManager;
 
@@ -83,11 +82,11 @@ public class MediaService {
         mediaSession.setActive(true);
 
         tracksStorageManager = new TracksStorageManager(context);
-        trackListsStorageManager = new TrackListsStorageManager(context);
+        trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
 
         mediaController = mediaSession.getController();
 
-        notificationBuilder = new NotificationBuilder(context);
+        notificationManager = new NotificationManager(context);
 
         playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
             @Override
@@ -134,14 +133,11 @@ public class MediaService {
 
 
     private void showNotification() {
-        Notification notification = notificationBuilder.getNotification(mediaSession);
-        if (notification != null) {
-            context.startForeground(NotificationBuilder.NOTIFY_ID, notification);
-        }
+        notificationManager.showNotification(mediaSession);
     }
 
     private void hideNotification() {
-        context.stopForeground(true);
+        notificationManager.dismissNotification();
     }
 
     private final BroadcastReceiver headsetReceiver = new BroadcastReceiver() {
@@ -228,13 +224,9 @@ public class MediaService {
     }
 
     private void stopPlayback() {
-        System.out.println(System.currentTimeMillis());
         playbackManager.stop();
-        System.out.println(System.currentTimeMillis());
         hideNotification();
-        System.out.println(System.currentTimeMillis());
         context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
-        System.out.println(System.currentTimeMillis());
     }
 
     private void playFromList(Intent intent) {
@@ -294,6 +286,7 @@ public class MediaService {
     }
 
     public void destroy() {
+        hideNotification();
 
         context.unregisterReceiver(headsetReceiver);
         context.unregisterReceiver(playlistReceiver);

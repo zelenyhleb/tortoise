@@ -42,7 +42,6 @@ import androidx.annotation.NonNull;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -73,6 +72,7 @@ public class SmallPlayerFragment extends BaseFragment {
             playbackState = state;
             trackProgress = (int) state.getPosition();
             refreshStateShowers();
+            invalidate();
         }
 
         @Override
@@ -89,11 +89,13 @@ public class SmallPlayerFragment extends BaseFragment {
             refreshStateShowers();
         }
     };
+    private MediaControllerCompat mediaController;
 
     public void init(Activity context, MediaControllerCompat mediaController) {
         this.transportControls = mediaController.getTransportControls();
 
-        mediaController.registerCallback(callback);
+        this.mediaController = mediaController;
+        this.mediaController.registerCallback(callback);
 
         this.metadata = mediaController.getMetadata();
         this.playbackState = mediaController.getPlaybackState();
@@ -113,11 +115,6 @@ public class SmallPlayerFragment extends BaseFragment {
 
     public void invalidate() {
         final Context context = getContext();
-        rootView.findViewById(R.id.text_container).setOnClickListener(v -> {
-            if (context != null) {
-                context.startActivity(new Intent(context, PlayerActivity.class));
-            }
-        });
 
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
@@ -128,9 +125,10 @@ public class SmallPlayerFragment extends BaseFragment {
         viewName.setText(getTrackTitle());
         viewName.setSelected(true);
 
-        Bitmap trackArt = new Art(getTrackPath()).bitmap()    ;
+        Bitmap trackArt = new Art(getTrackPath()).bitmap();
 
         if (context != null) {
+            rootView.findViewById(R.id.text_container).setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
             if (trackArt != null) {
                 viewImage.setImageBitmap(trackArt);
             } else {
@@ -139,7 +137,6 @@ public class SmallPlayerFragment extends BaseFragment {
                     VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
                     int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor());
                     background.setFillColor(color);
-
                     bar.setProgressTintList(ColorStateList.valueOf(color));
                 } else {
                     viewImage.setImageResource(R.drawable.ic_track_image_default);
@@ -228,8 +225,14 @@ public class SmallPlayerFragment extends BaseFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
+    public void onDetach() {
+        super.onDetach();
+
+        Context context = getContext();
+        if (context != null) {
+            context.unregisterReceiver(positionReceiver);
+        }
+        mediaController.unregisterCallback(callback);
+
     }
 }

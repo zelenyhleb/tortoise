@@ -18,9 +18,8 @@ package ru.krivocraft.kbmp.core.playback;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
+import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,10 +38,10 @@ import ru.krivocraft.kbmp.core.utils.Art;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class NotificationBuilder {
+public class NotificationManager {
 
-    static final int NOTIFY_ID = 124;
-    private Context context;
+    private static final int NOTIFY_ID = 124;
+    private Service context;
     private NotificationCompat.Action playAction;
     private NotificationCompat.Action pauseAction;
     private NotificationCompat.Action nextAction;
@@ -50,10 +49,12 @@ public class NotificationBuilder {
     private NotificationCompat.Action stopAction;
     private TracksStorageManager tracksStorageManager;
     private ColorManager colorManager;
+    private android.app.NotificationManager notificationManager;
 
 
-    public NotificationBuilder(Context context) {
+    public NotificationManager(Service context) {
         this.context = context;
+        notificationManager = (android.app.NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         this.tracksStorageManager = new TracksStorageManager(context);
         this.colorManager = new ColorManager(context);
@@ -74,7 +75,7 @@ public class NotificationBuilder {
                 MediaButtonReceiver.buildMediaButtonPendingIntent(context.getApplicationContext(), PlaybackStateCompat.ACTION_STOP));
     }
 
-    Notification getNotification(MediaSessionCompat mediaSession) {
+    public void showNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
             PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -84,7 +85,6 @@ public class NotificationBuilder {
             mediaStyle.setShowActionsInCompactView(1, 2, 3);
 
 
-            NotificationManager service = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
             String CHANNEL_ID = "channel_01";
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
@@ -94,9 +94,9 @@ public class NotificationBuilder {
                     .setContentText(mediaSession.getController().getMetadata().getDescription().getSubtitle())
                     .setContentIntent(contentIntent)
                     .setSound(null)
+                    .setCategory(Notification.CATEGORY_PROGRESS)
                     .setStyle(mediaStyle)
                     .setColorized(true)
-                    .setOngoing(true)
                     .setShowWhen(false)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
@@ -112,31 +112,36 @@ public class NotificationBuilder {
             }
 
             boolean playing = mediaSession.getController().getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING;
-            if (playing) {
-                notificationBuilder.addAction(pauseAction).setSmallIcon(R.drawable.ic_play);
-            } else {
-                notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause);
-            }
 
-            notificationBuilder.addAction(nextAction);
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 NotificationChannel channel =
                         new NotificationChannel(CHANNEL_ID,
-                                "Tortoise",
-                                NotificationManager.IMPORTANCE_DEFAULT);
+                                playing ? "Playing" : "Paused",
+                                android.app.NotificationManager.IMPORTANCE_DEFAULT);
 
-                channel.setImportance(NotificationManager.IMPORTANCE_LOW);
+                channel.setImportance(android.app.NotificationManager.IMPORTANCE_LOW);
                 channel.setDescription(playing ? "Playing" : "Paused");
                 notificationBuilder.setChannelId(CHANNEL_ID);
-                if (service != null) {
-                    service.createNotificationChannel(channel);
+                if (notificationManager != null) {
+                    notificationManager.createNotificationChannel(channel);
                 }
             }
 
-            return notificationBuilder.build();
+            if (playing) {
+                context.startForeground(NOTIFY_ID, notificationBuilder.addAction(pauseAction).setOngoing(true).setSmallIcon(R.drawable.ic_play).addAction(nextAction).build());
+            } else {
+                if (notificationManager != null) {
+                    context.stopForeground(false);
+                    notificationManager.notify(NOTIFY_ID, notificationBuilder.addAction(playAction).setSmallIcon(R.drawable.ic_pause).addAction(nextAction).build());
+                }
+            }
         }
-        return null;
+    }
+
+    public void dismissNotification() {
+        context.stopForeground(true);
+        notificationManager.cancelAll();
     }
 
 }
