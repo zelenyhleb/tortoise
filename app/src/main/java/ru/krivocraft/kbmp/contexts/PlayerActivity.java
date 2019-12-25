@@ -131,6 +131,12 @@ public class PlayerActivity extends BaseActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (largePlayerFragment != null) {

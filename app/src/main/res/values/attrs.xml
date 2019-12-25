@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2019 Nikifor Fedorov
   ~     Licensed under the Apache License, Version 2.0 (the "License");
   ~     you may not use this file except in compliance with the License.
@@ -19,6 +18,7 @@
     <declare-styleable name="TagView">
         <attr name="color" format="color" />
         <attr name="tag" format="string" />
+        <attr name="tabStyle" format="reference" />
     </declare-styleable>
 
 
