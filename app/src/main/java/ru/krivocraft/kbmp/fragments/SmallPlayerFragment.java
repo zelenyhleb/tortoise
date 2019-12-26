@@ -109,7 +109,6 @@ public class SmallPlayerFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         rootView = inflater.inflate(R.layout.fragment_player_small, container, false);
-        invalidate();
         return rootView;
     }
 
@@ -121,11 +120,11 @@ public class SmallPlayerFragment extends BaseFragment {
         final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
         final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
-        viewAuthor.setText(getTrackArtist());
-        viewName.setText(getTrackTitle());
+        viewAuthor.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+        viewName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
         viewName.setSelected(true);
 
-        Bitmap trackArt = new Art(getTrackPath()).bitmap();
+        Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
 
         if (context != null) {
             rootView.findViewById(R.id.text_container).setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
@@ -135,7 +134,7 @@ public class SmallPlayerFragment extends BaseFragment {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                     VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
                     VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-                    int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(getTrackPath())).getColor());
+                    int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).getColor());
                     background.setFillColor(color);
                     bar.setProgressTintList(ColorStateList.valueOf(color));
                 } else {
@@ -153,7 +152,7 @@ public class SmallPlayerFragment extends BaseFragment {
         previousCompositionButton.setOnClickListener(v -> transportControls.skipToPrevious());
         nextCompositionButton.setOnClickListener(v -> transportControls.skipToNext());
 
-        bar.setMax(new Milliseconds(getTrackDuration()).seconds());
+        bar.setMax(new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds());
         bar.setProgress(new Milliseconds(trackProgress).seconds());
 
         refreshStateShowers();
@@ -165,7 +164,7 @@ public class SmallPlayerFragment extends BaseFragment {
             bar.setProgress(new Milliseconds(trackProgress).seconds());
 
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
-            if (isTrackPlaying()) {
+            if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
                 playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
                 playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());
                 cancelCurrentTimer();
@@ -186,26 +185,6 @@ public class SmallPlayerFragment extends BaseFragment {
 
         Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
-    }
-
-    private String getTrackTitle() {
-        return metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-    }
-
-    private String getTrackArtist() {
-        return metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
-    }
-
-    private int getTrackDuration() {
-        return (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-    }
-
-    private String getTrackPath() {
-        return metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-    }
-
-    private boolean isTrackPlaying() {
-        return playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
     }
 
     private void startNewTimer(final ProgressBar bar) {

@@ -111,6 +111,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        explorer = new Explorer(this::invalidate, this);
+
         clearOld();
     }
 
@@ -123,8 +126,6 @@ public class MainActivity extends BaseActivity {
     void init() {
         setContentView(R.layout.activity_tortoise);
         configureLayoutTransition();
-
-        explorer = new Explorer(this::invalidate, this);
 
         startService();
         registerPlayerControlReceiver();
@@ -233,6 +234,11 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         restoreState();
@@ -264,7 +270,7 @@ public class MainActivity extends BaseActivity {
 
             transaction.replace(R.id.fragment_container, fragment);
 
-            transaction.commitAllowingStateLoss();
+            transaction.commitNowAllowingStateLoss();
 
             currentFragment = fragment;
         }
