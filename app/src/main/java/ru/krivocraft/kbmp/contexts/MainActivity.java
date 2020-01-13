@@ -245,6 +245,7 @@ public class MainActivity extends BaseActivity {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null) {
             smallPlayerFragment.requestPosition(this);
+            smallPlayerFragment.invalidate();
         }
     }
 

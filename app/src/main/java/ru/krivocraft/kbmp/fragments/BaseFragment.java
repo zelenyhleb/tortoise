@@ -38,12 +38,6 @@ public abstract class BaseFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        invalidate();
-    }
-
     public abstract void invalidate();
 
     public void onBackPressed() {

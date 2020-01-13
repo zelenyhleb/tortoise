@@ -71,13 +71,7 @@ import ru.krivocraft.kbmp.core.utils.Seconds;
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 
     private int tintColor = R.color.green700;
-    private ImageButton playPauseButton;
-    private TextView compositionNameTextView;
-    private TextView compositionAuthorTextView;
-    private TextView compositionProgressTextView;
-    private TextView compositionDurationTextView;
-    private SeekBar compositionProgressBar;
-    private ImageView trackImage;
+    private View rootView;
 
     private Handler mHandler;
     private Timer compositionProgressTimer;
@@ -177,9 +171,16 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         this.trackList = trackList;
 
         this.colorManager = new ColorManager(context);
+    }
 
-        registerTrackListReceiver(context);
-        requestPosition(context);
+    @Override
+    public void onResume() {
+        super.onResume();
+        Context context = getContext();
+        if (context != null) {
+            registerTrackListReceiver(context);
+            requestPosition(context);
+        }
     }
 
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
@@ -216,7 +217,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
                 }
             }, 1000, 1000);
         }
-        playPauseButton.setImageResource(R.drawable.ic_pause);
+        ImageButton button = rootView.findViewById(R.id.play_pause);
+        button.setImageResource(R.drawable.ic_pause);
     }
 
     private void stopUI() {
@@ -224,7 +226,8 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             compositionProgressTimer.cancel();
             compositionProgressTimer = null;
         }
-        playPauseButton.setImageResource(R.drawable.ic_play);
+        ImageButton button = rootView.findViewById(R.id.play_pause);
+        button.setImageResource(R.drawable.ic_play);
     }
 
     @Override
@@ -241,8 +244,10 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
     private void updateTextViews(int duration, int progress) {
         int estimated = duration - progress;
-        compositionProgressTextView.setText(new Seconds(progress).formatted());
-        compositionDurationTextView.setText(String.format("-%s", new Seconds(estimated).formatted()));
+        TextView progressText = rootView.findViewById(R.id.composition_progress);
+        progressText.setText(new Seconds(progress).formatted());
+        TextView estimatedText = rootView.findViewById(R.id.composition_duration);
+        estimatedText.setText(String.format("-%s", new Seconds(estimated).formatted()));
     }
 
     @Override
@@ -259,26 +264,26 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.fragment_player_large, container, false);
+    }
 
-        View rootView = inflater.inflate(R.layout.fragment_player_large, container, false);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        this.rootView = view;
 
-        playPauseButton = rootView.findViewById(R.id.play_pause);
-        compositionNameTextView = rootView.findViewById(R.id.composition_name);
-        compositionAuthorTextView = rootView.findViewById(R.id.composition_author);
-        compositionProgressTextView = rootView.findViewById(R.id.composition_progress);
-        compositionDurationTextView = rootView.findViewById(R.id.composition_duration);
-        compositionProgressBar = rootView.findViewById(R.id.composition_progress_bar);
-        trackImage = rootView.findViewById(R.id.track_image);
+        ImageView trackImage = view.findViewById(R.id.track_image);
         trackImage.setClipToOutline(true);
-        buttonLike = rootView.findViewById(R.id.button_like);
 
-        RelativeLayout playerLayout = rootView.findViewById(R.id.layout_player);
+        buttonLike = view.findViewById(R.id.button_like);
+
+        RelativeLayout playerLayout = view.findViewById(R.id.layout_player);
         playerLayout.getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
-        ImageButton previousTrack = rootView.findViewById(R.id.previous);
-        ImageButton nextTrack = rootView.findViewById(R.id.next);
-        loop = rootView.findViewById(R.id.player_loop);
-        shuffle = rootView.findViewById(R.id.player_shuffle);
+        ImageButton previousTrack = view.findViewById(R.id.previous);
+        ImageButton nextTrack = view.findViewById(R.id.next);
+        loop = view.findViewById(R.id.player_loop);
+        shuffle = view.findViewById(R.id.player_shuffle);
 
         previousTrack.setOnClickListener(v -> transportControls.skipToPrevious());
         nextTrack.setOnClickListener(v -> transportControls.skipToNext());
@@ -286,8 +291,6 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         loop.setOnClickListener(v -> loop(loop));
 
         refreshUI();
-
-        return rootView;
     }
 
     private void drawLikeButton(Context context, ImageButton buttonLike, Track track) {
@@ -377,59 +380,72 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
     }
 
     private void refreshUI() {
+        if (rootView != null) {
+            ImageView trackImage = rootView.findViewById(R.id.track_image);
+            SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
 
-        Context context = getContext();
-        Bitmap trackArt = new Art(getTrackPath()).bitmap();
-        Track track = tracksStorageManager.getTrack(reference);
-        if (context != null) {
-            if (trackArt != null) {
-                trackImage.setImageBitmap(trackArt);
-            } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                    VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
-                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+            Context context = getContext();
+            Bitmap trackArt = new Art(getTrackPath()).bitmap();
+            Track track = tracksStorageManager.getTrack(reference);
 
-                    int color = track.getColor();
-
-                    background.setFillColor(colorManager.getColor(color));
-                    tintColor = colorManager.getColorResource(color);
-                    drawLikeButton(context, buttonLike, track);
-
-                    compositionProgressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
-                    compositionProgressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+            if (context != null) {
+                if (trackArt != null) {
+                    trackImage.setImageBitmap(trackArt);
                 } else {
-                    trackImage.setImageResource(R.drawable.ic_track_image_default);
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                        VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
+                        VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+
+                        int color = track.getColor();
+
+                        background.setFillColor(colorManager.getColor(color));
+                        tintColor = colorManager.getColorResource(color);
+                        drawLikeButton(context, buttonLike, track);
+
+                        progressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                        progressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                    } else {
+                        trackImage.setImageResource(R.drawable.ic_track_image_default);
+                    }
                 }
+
+                buttonLike.setOnClickListener(v -> {
+                    swapLikeState(track);
+                    drawLikeButton(context, buttonLike, track);
+                });
+                drawLikeButton(context, buttonLike, track);
             }
 
-            buttonLike.setOnClickListener(v -> {
-                swapLikeState(track);
-                drawLikeButton(context, buttonLike, track);
-            });
-            drawLikeButton(context, buttonLike, track);
+            drawLoopButton(loop);
+            drawShuffleButton();
+
+            TextView title = rootView.findViewById(R.id.composition_name);
+            title.setText(getTrackTitle());
+            title.setSelected(true);
+
+            TextView author = rootView.findViewById(R.id.composition_author);
+            author.setText(getTrackArtist());
+
+            int duration = new Milliseconds(getTrackDuration()).seconds();
+            progressBar.setOnSeekBarChangeListener(this);
+            progressBar.setMax(duration);
+
+            updateStateShowers();
         }
-
-        drawLoopButton(loop);
-        drawShuffleButton();
-
-        compositionNameTextView.setText(getTrackTitle());
-        compositionNameTextView.setSelected(true);
-        compositionAuthorTextView.setText(getTrackArtist());
-
-        int duration = new Milliseconds(getTrackDuration()).seconds();
-        compositionProgressBar.setOnSeekBarChangeListener(this);
-        compositionProgressBar.setMax(duration);
-
-        updateStateShowers();
     }
 
     private void updateStateShowers() {
         int progress = new Milliseconds(trackProgress).seconds();
         int duration = new Milliseconds(getTrackDuration()).seconds();
 
-        compositionProgressTextView.setText(new Seconds(progress).formatted());
-        compositionDurationTextView.setText(new Seconds((duration - progress) / 1000).formatted());
-        compositionProgressBar.setProgress(progress);
+        TextView progressText = rootView.findViewById(R.id.composition_progress);
+        progressText.setText(new Seconds(progress).formatted());
+
+        TextView estimatedText = rootView.findViewById(R.id.composition_duration);
+        estimatedText.setText(new Seconds((duration - progress) / 1000).formatted());
+
+        SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
+        progressBar.setProgress(progress);
 
         if (isTrackPlaying()) {
             startUI();
@@ -437,7 +453,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             stopUI();
         }
 
-        playPauseButton.setOnClickListener(v -> {
+        rootView.findViewById(R.id.play_pause).setOnClickListener(v -> {
             if (isTrackPlaying()) {
                 transportControls.pause();
             } else {
@@ -457,21 +473,22 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
 
     private void updateBar() {
-        int progress = compositionProgressBar.getProgress();
-        if (progress <= compositionProgressBar.getMax()) {
-            compositionProgressBar.setProgress(progress + 1);
+        SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
+        int progress = progressBar.getProgress();
+        if (progress <= progressBar.getMax()) {
+            progressBar.setProgress(progress + 1);
         }
     }
 
     private void resetBar() {
-        compositionProgressBar.setProgress(0);
+        SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
+        progressBar.setProgress(0);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        super.onPause();
         Objects.requireNonNull(getContext()).unregisterReceiver(positionReceiver);
         Objects.requireNonNull(getContext()).unregisterReceiver(trackListReceiver);
     }
-
 }

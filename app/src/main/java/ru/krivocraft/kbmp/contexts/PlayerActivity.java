@@ -133,7 +133,6 @@ public class PlayerActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        finish();
     }
 
     @Override
@@ -158,7 +157,6 @@ public class PlayerActivity extends BaseActivity {
         createPlayerFragment();
         createTrackListFragment();
         pager.setAdapter(new PagerAdapter());
-        pager.invalidate();
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {

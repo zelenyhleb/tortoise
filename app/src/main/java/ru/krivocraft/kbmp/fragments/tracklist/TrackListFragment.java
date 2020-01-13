@@ -97,17 +97,24 @@ public class TrackListFragment extends BaseFragment {
         return trackListFragment;
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            if (!showControls) {
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
+                context.registerReceiver(trackListReceiver, filter);
+            }
+        }
+
+    }
+
     private void init(boolean showControls, Activity context, MediaControllerCompat mediaController) {
         this.mediaController = mediaController;
         this.mediaController.registerCallback(callback);
         this.showControls = showControls;
         this.tracksStorageManager = new TracksStorageManager(context);
-
-        if (!showControls) {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
-            context.registerReceiver(trackListReceiver, filter);
-        }
     }
 
     @Override
@@ -235,7 +242,6 @@ public class TrackListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaController.unregisterCallback(callback);
         if (!showControls) {
             Context context = getContext();
             if (context != null) {
@@ -245,6 +251,14 @@ public class TrackListFragment extends BaseFragment {
                     //Do nothing
                 }
             }
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (mediaController != null) {
+            mediaController.unregisterCallback(callback);
         }
     }
 }
