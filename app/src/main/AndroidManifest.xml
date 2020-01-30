@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.krivocraft.kbmp">
+    package="ru.krivocraft.tortoise">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -14,12 +14,12 @@
         android:supportsRtl="true"
         android:theme="@style/DarkTheme">
 
-        <activity android:name=".contexts.TrackListEditorActivity" />
+        <activity android:name="ru.krivocraft.tortoise.contexts.TrackListEditorActivity" />
         <activity
-            android:name=".contexts.PlayerActivity"
+            android:name="ru.krivocraft.tortoise.contexts.PlayerActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".contexts.MainActivity"
+            android:name="ru.krivocraft.tortoise.contexts.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
@@ -38,7 +38,7 @@
         </receiver>
 
         <service
-            android:name=".contexts.AndroidMediaService"
+            android:name="ru.krivocraft.tortoise.contexts.AndroidMediaService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
