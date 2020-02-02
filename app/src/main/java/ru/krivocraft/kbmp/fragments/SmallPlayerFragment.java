@@ -16,7 +16,6 @@
 
 package ru.krivocraft.kbmp.fragments;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +25,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,21 +56,21 @@ public class SmallPlayerFragment extends BaseFragment {
 
     private Timer progressBarTimer;
     private View rootView;
-    private MediaControllerCompat.TransportControls transportControls;
+    private boolean receiverRegistered;
+
+    private int trackProgress;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
 
-    private int trackProgress;
-
-    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+    private final PlayerUpdater updater = new PlayerUpdater() {
         @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+        public void onStateChanged(PlaybackStateCompat state) {
             playbackState = state;
             trackProgress = (int) state.getPosition();
-            refreshStateShowers();
+            showPlaybackStateChanges();
             invalidate();
         }
 
@@ -83,27 +81,19 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     };
 
+    private PlayerControlCallback controller;
+
     private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             trackProgress = intent.getIntExtra(MediaService.EXTRA_POSITION, 0);
-            refreshStateShowers();
+            showPlaybackStateChanges();
         }
     };
-    private MediaControllerCompat mediaController;
 
-    public void init(Activity context, MediaControllerCompat mediaController) {
-        this.transportControls = mediaController.getTransportControls();
-
-        this.mediaController = mediaController;
-        this.mediaController.registerCallback(callback);
-
-        this.metadata = mediaController.getMetadata();
-        this.playbackState = mediaController.getPlaybackState();
-        this.colorManager = new ColorManager(context);
-        this.tracksStorageManager = new TracksStorageManager(context);
-
-        requestPosition(context);
+    public void setInitialData(MediaMetadataCompat metadata, PlaybackStateCompat state) {
+        this.metadata = metadata;
+        this.playbackState = state;
     }
 
     @Override
@@ -116,6 +106,14 @@ public class SmallPlayerFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.rootView = view;
+
+        Context context = getContext();
+        if (context != null) {
+            this.colorManager = new ColorManager(context);
+            this.tracksStorageManager = new TracksStorageManager(context);
+            requestPosition(context);
+        }
+
     }
 
     public void invalidate() {
@@ -124,7 +122,6 @@ public class SmallPlayerFragment extends BaseFragment {
         final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
         final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
         final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
-        final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
 
         viewAuthor.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
         viewName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
@@ -133,7 +130,8 @@ public class SmallPlayerFragment extends BaseFragment {
         Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
 
         if (context != null) {
-            rootView.findViewById(R.id.text_container).setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
+            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
+            final View textContainer = rootView.findViewById(R.id.text_container);
             if (trackArt != null) {
                 viewImage.setImageBitmap(trackArt);
             } else {
@@ -150,21 +148,23 @@ public class SmallPlayerFragment extends BaseFragment {
             }
             viewImage.setClipToOutline(true);
             viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
+
+            textContainer.setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
         }
 
         ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
         ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
 
-        previousCompositionButton.setOnClickListener(v -> transportControls.skipToPrevious());
-        nextCompositionButton.setOnClickListener(v -> transportControls.skipToNext());
+        previousCompositionButton.setOnClickListener(v -> controller.onPrevious());
+        nextCompositionButton.setOnClickListener(v -> controller.onNext());
 
         bar.setMax(new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds());
         bar.setProgress(new Milliseconds(trackProgress).seconds());
 
-        refreshStateShowers();
+        showPlaybackStateChanges();
     }
 
-    private void refreshStateShowers() {
+    private void showPlaybackStateChanges() {
         if (rootView != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
             bar.setProgress(new Milliseconds(trackProgress).seconds());
@@ -172,12 +172,12 @@ public class SmallPlayerFragment extends BaseFragment {
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
             if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
                 playPauseCompositionButton.setImageResource(R.drawable.ic_pause);
-                playPauseCompositionButton.setOnClickListener(v -> transportControls.pause());
+                playPauseCompositionButton.setOnClickListener(v -> controller.onPause());
                 cancelCurrentTimer();
                 startNewTimer(bar);
             } else {
                 playPauseCompositionButton.setImageResource(R.drawable.ic_play);
-                playPauseCompositionButton.setOnClickListener(v -> transportControls.play());
+                playPauseCompositionButton.setOnClickListener(v -> controller.onPlay());
                 cancelCurrentTimer();
             }
         }
@@ -188,6 +188,7 @@ public class SmallPlayerFragment extends BaseFragment {
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_DATA);
         context.registerReceiver(positionReceiver, filter);
+        receiverRegistered = true;
 
         Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
         context.sendBroadcast(intent);
@@ -214,10 +215,33 @@ public class SmallPlayerFragment extends BaseFragment {
         super.onDetach();
 
         Context context = getContext();
-        if (context != null) {
+        if (context != null && receiverRegistered) {
             context.unregisterReceiver(positionReceiver);
+            receiverRegistered = false;
         }
-        mediaController.unregisterCallback(callback);
+    }
 
+    public PlayerUpdater getUpdater() {
+        return updater;
+    }
+
+    public void setController(PlayerControlCallback controller) {
+        this.controller = controller;
+    }
+
+    public interface PlayerUpdater {
+        void onStateChanged(PlaybackStateCompat state);
+
+        void onMetadataChanged(MediaMetadataCompat metadata);
+    }
+
+    public interface PlayerControlCallback {
+        void onPlay();
+
+        void onPause();
+
+        void onNext();
+
+        void onPrevious();
     }
 }

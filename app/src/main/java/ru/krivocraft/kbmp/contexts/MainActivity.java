@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +68,7 @@ public class MainActivity extends BaseActivity {
                 showSmallPlayerFragment();
             } else if (ACTION_HIDE_PLAYER.equals(intent.getAction())) {
                 hideFragment(smallPlayerFragment);
+                mediaController.unregisterCallback(callback);
             }
         }
     };
@@ -83,6 +85,18 @@ public class MainActivity extends BaseActivity {
 
     private TrackList cache;
 
+    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            smallPlayerFragment.getUpdater().onStateChanged(state);
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            smallPlayerFragment.getUpdater().onMetadataChanged(metadata);
+        }
+    };
+
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
         showSmallPlayerFragment();
@@ -91,6 +105,10 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
+        if (smallPlayerFragment != null) {
+            smallPlayerFragment.requestPosition(this);
+            smallPlayerFragment.invalidate();
+        }
     }
 
     private TrackListFragment getTrackListFragment(TrackList trackList) {
@@ -111,9 +129,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         explorer = new Explorer(this::invalidate, this);
-
         clearOld();
     }
 
@@ -199,7 +215,6 @@ public class MainActivity extends BaseActivity {
 
     private void showSettingsFragment() {
         replaceFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
-        hideFragment(smallPlayerFragment);
     }
 
     private void showTrackEditorFragment(TrackReference trackReference) {
@@ -229,8 +244,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        try {
+            mediaController.unregisterCallback(callback);
+        } catch (Exception e) {
+            //Already unregistered
+        }
+
         unregisterReceiver(showPlayerReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -242,11 +263,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         restoreState();
-        showSmallPlayerFragment();
-        if (smallPlayerFragment != null) {
-            smallPlayerFragment.requestPosition(this);
-            smallPlayerFragment.invalidate();
-        }
     }
 
     private void showSmallPlayerFragment() {
@@ -254,9 +270,31 @@ public class MainActivity extends BaseActivity {
             if (mediaController.getMetadata() != null) {
                 if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
                     SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                    smallPlayerFragment.init(MainActivity.this, mediaController);
+                    smallPlayerFragment.setController(new SmallPlayerFragment.PlayerControlCallback() {
+                        @Override
+                        public void onPlay() {
+                            mediaController.getTransportControls().play();
+                        }
+
+                        @Override
+                        public void onPause() {
+                            mediaController.getTransportControls().pause();
+                        }
+
+                        @Override
+                        public void onNext() {
+                            mediaController.getTransportControls().skipToNext();
+                        }
+
+                        @Override
+                        public void onPrevious() {
+                            mediaController.getTransportControls().skipToPrevious();
+                        }
+                    });
+                    smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());
                     MainActivity.this.smallPlayerFragment = smallPlayerFragment;
                     showFragment(smallPlayerFragment);
+                    mediaController.registerCallback(callback);
                 }
             }
     }
@@ -294,6 +332,7 @@ public class MainActivity extends BaseActivity {
                     .beginTransaction()
                     .remove(fragment)
                     .commitNowAllowingStateLoss();
+
         }
     }
 
