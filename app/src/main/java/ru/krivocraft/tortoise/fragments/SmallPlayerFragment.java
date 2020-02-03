@@ -16,10 +16,8 @@
 
 package ru.krivocraft.tortoise.fragments;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -41,7 +39,6 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.PlayerActivity;
 import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
 import ru.krivocraft.tortoise.core.utils.Milliseconds;
@@ -53,21 +50,12 @@ public class SmallPlayerFragment extends BaseFragment {
 
     private Timer progressBarTimer;
     private View rootView;
-    private boolean receiverRegistered;
 
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
     private PlayerControlCallback controller;
-
-    private BroadcastReceiver playbackStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            playbackState = intent.getParcelableExtra(MediaService.EXTRA_PLAYBACK_STATE);
-            showPlaybackStateChanges();
-        }
-    };
 
     public void setInitialData(MediaMetadataCompat metadata, PlaybackStateCompat state) {
         this.metadata = metadata;
@@ -99,7 +87,6 @@ public class SmallPlayerFragment extends BaseFragment {
         if (context != null) {
             this.colorManager = new ColorManager(context);
             this.tracksStorageManager = new TracksStorageManager(context);
-            requestPlaybackState(context);
         }
 
         //Initial data show when all views were already created
@@ -165,16 +152,6 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     }
 
-    public void requestPlaybackState(Context context) {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(MediaService.ACTION_RESULT_DATA);
-        context.registerReceiver(playbackStateReceiver, filter);
-        receiverRegistered = true;
-
-        Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
-        context.sendBroadcast(intent);
-    }
-
     private void startNewTimer(final ProgressBar bar) {
         progressBarTimer = new Timer();
         progressBarTimer.schedule(new TimerTask() {
@@ -189,16 +166,6 @@ public class SmallPlayerFragment extends BaseFragment {
         if (progressBarTimer != null) {
             progressBarTimer.cancel();
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        Context context = getContext();
-        if (context != null && receiverRegistered) {
-            context.unregisterReceiver(playbackStateReceiver);
-            receiverRegistered = false;
-        }
-        super.onDestroy();
     }
 
     public void setController(PlayerControlCallback controller) {

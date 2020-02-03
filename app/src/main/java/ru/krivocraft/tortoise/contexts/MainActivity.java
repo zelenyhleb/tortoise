@@ -102,10 +102,6 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
-        if (smallPlayerFragment != null) {
-            smallPlayerFragment.requestPlaybackState(this);
-            smallPlayerFragment.invalidate();
-        }
     }
 
     private TrackListFragment getTrackListFragment(TrackList trackList) {
