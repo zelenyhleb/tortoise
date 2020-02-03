@@ -45,11 +45,11 @@ public class MediaService {
 
     private static final String ACTION_REQUEST_STOP = "stop";
 
-    private static final String EXTRA_PLAYBACK_STATE = "playback_state";
     private static final String EXTRA_CURSOR = "cursor";
     private static final String EXTRA_METADATA = "metadata";
 
     public static final String EXTRA_POSITION = "position";
+    public static final String EXTRA_PLAYBACK_STATE = "playback_state";
     public static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
     public static final String ACTION_REQUEST_TRACK_LIST = "action_request_track_list";
 

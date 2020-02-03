@@ -38,7 +38,9 @@ public abstract class BaseFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    public abstract void invalidate();
+    public void invalidate() {
+
+    }
 
     public void onBackPressed() {
         //This callback can be implemented by inheritors

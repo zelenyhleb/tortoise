@@ -55,35 +55,16 @@ public class SmallPlayerFragment extends BaseFragment {
     private View rootView;
     private boolean receiverRegistered;
 
-    private int trackProgress;
-
     private MediaMetadataCompat metadata;
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
-
-    private final PlayerUpdater updater = new PlayerUpdater() {
-        @Override
-        public void onStateChanged(PlaybackStateCompat state) {
-            playbackState = state;
-            trackProgress = (int) state.getPosition();
-            showPlaybackStateChanges();
-            invalidate();
-        }
-
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            SmallPlayerFragment.this.metadata = metadata;
-            invalidate();
-        }
-    };
-
     private PlayerControlCallback controller;
 
-    private BroadcastReceiver positionReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver playbackStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            trackProgress = intent.getIntExtra(MediaService.EXTRA_POSITION, 0);
+            playbackState = intent.getParcelableExtra(MediaService.EXTRA_PLAYBACK_STATE);
             showPlaybackStateChanges();
         }
     };
@@ -91,6 +72,16 @@ public class SmallPlayerFragment extends BaseFragment {
     public void setInitialData(MediaMetadataCompat metadata, PlaybackStateCompat state) {
         this.metadata = metadata;
         this.playbackState = state;
+    }
+
+    public void updatePlaybackState(PlaybackStateCompat state) {
+        this.playbackState = state;
+        showPlaybackStateChanges();
+    }
+
+    public void updateMediaMetadata(MediaMetadataCompat metadata) {
+        this.metadata = metadata;
+        showMetadataChanges();
     }
 
     @Override
@@ -108,63 +99,18 @@ public class SmallPlayerFragment extends BaseFragment {
         if (context != null) {
             this.colorManager = new ColorManager(context);
             this.tracksStorageManager = new TracksStorageManager(context);
-            requestPosition(context);
+            requestPlaybackState(context);
         }
 
-    }
-
-    public void invalidate() {
-        final Context context = getContext();
-
-        final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-        final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
-        final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
-
-        viewAuthor.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
-        viewName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
-        viewName.setSelected(true);
-
-        Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
-
-        if (context != null) {
-            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
-            final View textContainer = rootView.findViewById(R.id.text_container);
-            if (trackArt != null) {
-                viewImage.setImageBitmap(trackArt);
-            } else {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                    VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
-                    VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-                    int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).getColor());
-                    background.setFillColor(color);
-                    bar.setProgressTintList(ColorStateList.valueOf(color));
-                } else {
-                    viewImage.setImageResource(R.drawable.ic_track_image_default);
-                }
-
-            }
-            viewImage.setClipToOutline(true);
-            viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
-
-            textContainer.setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
-        }
-
-        ImageButton previousCompositionButton = rootView.findViewById(R.id.fragment_button_previous);
-        ImageButton nextCompositionButton = rootView.findViewById(R.id.fragment_button_next);
-
-        previousCompositionButton.setOnClickListener(v -> controller.onPrevious());
-        nextCompositionButton.setOnClickListener(v -> controller.onNext());
-
-        bar.setMax(new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds());
-        bar.setProgress(new Milliseconds(trackProgress).seconds());
-
+        //Initial data show when all views were already created
+        showMetadataChanges();
         showPlaybackStateChanges();
     }
 
     private void showPlaybackStateChanges() {
         if (rootView != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
-            bar.setProgress(new Milliseconds(trackProgress).seconds());
+            bar.setProgress(new Milliseconds((int) playbackState.getPosition()).seconds());
 
             ImageButton playPauseCompositionButton = rootView.findViewById(R.id.fragment_button_playpause);
             if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
@@ -181,10 +127,48 @@ public class SmallPlayerFragment extends BaseFragment {
 
     }
 
-    public void requestPosition(Context context) {
+    private void showMetadataChanges() {
+        if (rootView != null) {
+            final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
+            final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
+            final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
+            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
+
+            bar.setMax(new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds());
+            viewAuthor.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+            viewName.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+            viewName.setSelected(true);
+
+            final Context context = getContext();
+            if (context != null) {
+                final View textContainer = rootView.findViewById(R.id.text_container);
+                final Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
+
+                textContainer.setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
+                if (trackArt != null) {
+                    viewImage.setImageBitmap(trackArt);
+                } else {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                        VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
+                        VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                        int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).getColor());
+                        background.setFillColor(color);
+                        bar.setProgressTintList(ColorStateList.valueOf(color));
+                    } else {
+                        viewImage.setImageResource(R.drawable.ic_track_image_default);
+                    }
+
+                }
+                viewImage.setClipToOutline(true);
+                viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));
+            }
+        }
+    }
+
+    public void requestPlaybackState(Context context) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_DATA);
-        context.registerReceiver(positionReceiver, filter);
+        context.registerReceiver(playbackStateReceiver, filter);
         receiverRegistered = true;
 
         Intent intent = new Intent(MediaService.ACTION_REQUEST_DATA);
@@ -208,18 +192,13 @@ public class SmallPlayerFragment extends BaseFragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-
+    public void onDestroy() {
         Context context = getContext();
         if (context != null && receiverRegistered) {
-            context.unregisterReceiver(positionReceiver);
+            context.unregisterReceiver(playbackStateReceiver);
             receiverRegistered = false;
         }
-    }
-
-    public PlayerUpdater getUpdater() {
-        return updater;
+        super.onDestroy();
     }
 
     public void setController(PlayerControlCallback controller) {

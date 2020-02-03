@@ -85,12 +85,12 @@ public class MainActivity extends BaseActivity {
     private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            smallPlayerFragment.getUpdater().onStateChanged(state);
+            smallPlayerFragment.updatePlaybackState(state);
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            smallPlayerFragment.getUpdater().onMetadataChanged(metadata);
+            smallPlayerFragment.updateMediaMetadata(metadata);
         }
     };
 
@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity {
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null) {
-            smallPlayerFragment.requestPosition(this);
+            smallPlayerFragment.requestPlaybackState(this);
             smallPlayerFragment.invalidate();
         }
     }
@@ -212,6 +212,7 @@ public class MainActivity extends BaseActivity {
 
     private void showSettingsFragment() {
         replaceFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
+        hideFragment(smallPlayerFragment);
     }
 
     private void showTrackEditorFragment(TrackReference trackReference) {
