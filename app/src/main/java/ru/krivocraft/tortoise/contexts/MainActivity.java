@@ -41,6 +41,8 @@ import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.fragments.*;
 import ru.krivocraft.tortoise.fragments.explorer.Explorer;
 import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
+import ru.krivocraft.tortoise.fragments.player.PlayerController;
+import ru.krivocraft.tortoise.fragments.player.SmallPlayerFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
 
 public class MainActivity extends BaseActivity {
@@ -264,7 +266,7 @@ public class MainActivity extends BaseActivity {
             if (mediaController.getMetadata() != null) {
                 if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
                     SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                    smallPlayerFragment.setController(new PlayerControlCallback() {
+                    smallPlayerFragment.setController(new PlayerController() {
                         @Override
                         public void onPlay() {
                             mediaController.getTransportControls().play();
@@ -283,6 +285,11 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public void onPrevious() {
                             mediaController.getTransportControls().skipToPrevious();
+                        }
+
+                        @Override
+                        public void onSeekTo(int position) {
+                            mediaController.getTransportControls().seekTo(position);
                         }
                     });
                     smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());

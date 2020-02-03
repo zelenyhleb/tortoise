@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,8 @@ import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.fragments.EqualizerFragment;
-import ru.krivocraft.tortoise.fragments.LargePlayerFragment;
+import ru.krivocraft.tortoise.fragments.player.LargePlayerFragment;
+import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
 
 public class PlayerActivity extends BaseActivity {
@@ -77,12 +79,12 @@ public class PlayerActivity extends BaseActivity {
 
     @Override
     void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        //Do nothing
+        largePlayerFragment.updatePlaybackState(newPlaybackState);
     }
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
-        //Do nothing
+        largePlayerFragment.updateMediaMetadata(newMetadata);
     }
 
     @Override
@@ -135,21 +137,40 @@ public class PlayerActivity extends BaseActivity {
         super.onPause();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (largePlayerFragment != null) {
-            largePlayerFragment.requestPosition(this);
-        }
-    }
-
     private void createTrackListFragment() {
         trackListFragment = TrackListFragment.newInstance(false, PlayerActivity.this, mediaController);
         trackListFragment.setTrackList(trackList);
     }
 
     private void createPlayerFragment() {
-        largePlayerFragment = LargePlayerFragment.newInstance(PlayerActivity.this, trackList, mediaController);
+        largePlayerFragment = LargePlayerFragment.newInstance();
+        largePlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState(), trackList);
+        largePlayerFragment.setController(new PlayerController() {
+            @Override
+            public void onPlay() {
+                mediaController.getTransportControls().play();
+            }
+
+            @Override
+            public void onPause() {
+                mediaController.getTransportControls().pause();
+            }
+
+            @Override
+            public void onNext() {
+                mediaController.getTransportControls().skipToNext();
+            }
+
+            @Override
+            public void onPrevious() {
+                mediaController.getTransportControls().skipToPrevious();
+            }
+
+            @Override
+            public void onSeekTo(int position) {
+                mediaController.getTransportControls().seekTo(position);
+            }
+        });
     }
 
     private void initPager() {

@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.fragments;
+package ru.krivocraft.tortoise.fragments.player;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,11 +42,12 @@ import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
 import ru.krivocraft.tortoise.core.utils.Milliseconds;
+import ru.krivocraft.tortoise.fragments.BaseFragment;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SmallPlayerFragment extends BaseFragment {
+public class SmallPlayerFragment extends BaseFragment implements PlayerFragment {
 
     private Timer progressBarTimer;
     private View rootView;
@@ -55,7 +56,7 @@ public class SmallPlayerFragment extends BaseFragment {
     private PlaybackStateCompat playbackState;
     private ColorManager colorManager;
     private TracksStorageManager tracksStorageManager;
-    private PlayerControlCallback controller;
+    private PlayerController controller;
 
     public void setInitialData(MediaMetadataCompat metadata, PlaybackStateCompat state) {
         this.metadata = metadata;
@@ -69,7 +70,7 @@ public class SmallPlayerFragment extends BaseFragment {
 
     public void updateMediaMetadata(MediaMetadataCompat metadata) {
         this.metadata = metadata;
-        showMetadataChanges();
+        showMediaMetadataChanges();
     }
 
     @Override
@@ -90,11 +91,11 @@ public class SmallPlayerFragment extends BaseFragment {
         }
 
         //Initial data show when all views were already created
-        showMetadataChanges();
+        showMediaMetadataChanges();
         showPlaybackStateChanges();
     }
 
-    private void showPlaybackStateChanges() {
+    public void showPlaybackStateChanges() {
         if (rootView != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
             bar.setProgress(new Milliseconds((int) playbackState.getPosition()).seconds());
@@ -114,7 +115,7 @@ public class SmallPlayerFragment extends BaseFragment {
 
     }
 
-    private void showMetadataChanges() {
+    public void showMediaMetadataChanges() {
         if (rootView != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
             final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
@@ -168,7 +169,7 @@ public class SmallPlayerFragment extends BaseFragment {
         }
     }
 
-    public void setController(PlayerControlCallback controller) {
+    public void setController(PlayerController controller) {
         this.controller = controller;
     }
 
