@@ -22,18 +22,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
@@ -127,14 +124,10 @@ public class PlayerActivity extends BaseActivity {
                     view.setBackgroundResource(R.drawable.background_light);
                 } else {
                     view.setBackgroundResource(R.drawable.background_dark);
+
                 }
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     private void createTrackListFragment() {

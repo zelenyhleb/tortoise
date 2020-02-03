@@ -15,13 +15,21 @@
   ~ 	    Nikifor Fedorov - whole development
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/equalizer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="8dp"
-    android:orientation="vertical"
-    android:focusable="true"
-    android:clickable="true">
+<LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/equalizer_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:clickable="true">
 
+    </LinearLayout>
 </LinearLayout>
