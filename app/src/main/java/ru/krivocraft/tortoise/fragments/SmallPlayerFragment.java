@@ -16,7 +16,6 @@
 
 package ru.krivocraft.tortoise.fragments;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +25,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,23 +34,20 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
+import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.contexts.PlayerActivity;
+import ru.krivocraft.tortoise.core.ColorManager;
+import ru.krivocraft.tortoise.core.playback.MediaService;
+import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
+import ru.krivocraft.tortoise.core.utils.Art;
+import ru.krivocraft.tortoise.core.utils.Milliseconds;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import ru.krivocraft.kbmp.R;
-import ru.krivocraft.kbmp.contexts.PlayerActivity;
-import ru.krivocraft.kbmp.core.ColorManager;
-import ru.krivocraft.kbmp.core.playback.MediaService;
-import ru.krivocraft.kbmp.core.storage.TracksStorageManager;
-import ru.krivocraft.kbmp.core.utils.Art;
-import ru.krivocraft.kbmp.core.utils.Milliseconds;
 
 public class SmallPlayerFragment extends BaseFragment {
 
@@ -231,5 +226,6 @@ public class SmallPlayerFragment extends BaseFragment {
         this.controller = controller;
     }
 
-    }
 }
+
+

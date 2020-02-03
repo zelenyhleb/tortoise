@@ -38,10 +38,7 @@ import ru.krivocraft.tortoise.core.OldStuffCollector;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
-import ru.krivocraft.tortoise.fragments.BaseFragment;
-import ru.krivocraft.tortoise.fragments.SettingsFragment;
-import ru.krivocraft.tortoise.fragments.SmallPlayerFragment;
-import ru.krivocraft.tortoise.fragments.TrackEditorFragment;
+import ru.krivocraft.tortoise.fragments.*;
 import ru.krivocraft.tortoise.fragments.explorer.Explorer;
 import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
@@ -270,7 +267,7 @@ public class MainActivity extends BaseActivity {
             if (mediaController.getMetadata() != null) {
                 if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
                     SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                    smallPlayerFragment.setController(new SmallPlayerFragment.PlayerControlCallback() {
+                    smallPlayerFragment.setController(new PlayerControlCallback() {
                         @Override
                         public void onPlay() {
                             mediaController.getTransportControls().play();
