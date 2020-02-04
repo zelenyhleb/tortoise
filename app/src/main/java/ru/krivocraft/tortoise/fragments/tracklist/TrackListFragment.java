@@ -179,7 +179,6 @@ public class TrackListFragment extends BaseFragment {
                     } else {
                         searchFrame.setHeight(0);
                     }
-                    touchHelper.attachToRecyclerView(recyclerView);
                     progressBar.setVisibility(View.GONE);
                 });
             }
@@ -217,6 +216,7 @@ public class TrackListFragment extends BaseFragment {
             }
             ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
             touchHelper = new ItemTouchHelper(callback);
+            touchHelper.attachToRecyclerView(recyclerView);
         });
 
     }
