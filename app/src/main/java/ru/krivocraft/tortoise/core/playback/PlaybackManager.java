@@ -325,9 +325,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 System.out.println("LOOP TRACKLIST");
                 break;
             case TrackList.NOT_LOOP:
-                if (getCursor() < getTrackList().size()) {
+                if (getCursor() < getTrackList().size() - 1) {
                     nextTrack();
                 } else {
+                    pause();
                     audioManager.abandonAudioFocus(focusChangeListener);
                 }
                 System.out.println("LOOP NONE");

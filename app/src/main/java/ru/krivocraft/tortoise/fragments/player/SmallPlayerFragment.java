@@ -96,7 +96,7 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     }
 
     public void showPlaybackStateChanges() {
-        if (rootView != null) {
+        if (rootView != null && playbackState != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
             bar.setProgress(new Milliseconds((int) playbackState.getPosition()).seconds());
 
@@ -116,7 +116,7 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     }
 
     public void showMediaMetadataChanges() {
-        if (rootView != null) {
+        if (rootView != null && metadata != null) {
             final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
             final TextView viewAuthor = rootView.findViewById(R.id.fragment_composition_author);
             final TextView viewName = rootView.findViewById(R.id.fragment_composition_name);
