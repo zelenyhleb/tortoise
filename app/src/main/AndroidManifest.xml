@@ -17,7 +17,6 @@
         <activity android:name="ru.krivocraft.tortoise.contexts.TrackListEditorActivity" />
         <activity
             android:name="ru.krivocraft.tortoise.contexts.PlayerActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name="ru.krivocraft.tortoise.contexts.MainActivity"

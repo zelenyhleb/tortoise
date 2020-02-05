@@ -262,42 +262,41 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showSmallPlayerFragment() {
-        if (mediaController != null)
-            if (mediaController.getMetadata() != null) {
-                if (smallPlayerFragment == null || !smallPlayerFragment.isVisible()) {
-                    SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-                    smallPlayerFragment.setController(new PlayerController() {
-                        @Override
-                        public void onPlay() {
-                            mediaController.getTransportControls().play();
-                        }
-
-                        @Override
-                        public void onPause() {
-                            mediaController.getTransportControls().pause();
-                        }
-
-                        @Override
-                        public void onNext() {
-                            mediaController.getTransportControls().skipToNext();
-                        }
-
-                        @Override
-                        public void onPrevious() {
-                            mediaController.getTransportControls().skipToPrevious();
-                        }
-
-                        @Override
-                        public void onSeekTo(int position) {
-                            mediaController.getTransportControls().seekTo(position);
-                        }
-                    });
-                    smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());
-                    MainActivity.this.smallPlayerFragment = smallPlayerFragment;
-                    showFragment(smallPlayerFragment);
-                    mediaController.registerCallback(callback);
+        if (mediaController != null && mediaController.getMetadata() != null
+                && (smallPlayerFragment == null || !smallPlayerFragment.isVisible())
+                && mediaController.getPlaybackState().getState() != PlaybackStateCompat.STATE_STOPPED) {
+            SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
+            smallPlayerFragment.setController(new PlayerController() {
+                @Override
+                public void onPlay() {
+                    mediaController.getTransportControls().play();
                 }
-            }
+
+                @Override
+                public void onPause() {
+                    mediaController.getTransportControls().pause();
+                }
+
+                @Override
+                public void onNext() {
+                    mediaController.getTransportControls().skipToNext();
+                }
+
+                @Override
+                public void onPrevious() {
+                    mediaController.getTransportControls().skipToPrevious();
+                }
+
+                @Override
+                public void onSeekTo(int position) {
+                    mediaController.getTransportControls().seekTo(position);
+                }
+            });
+            smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());
+            MainActivity.this.smallPlayerFragment = smallPlayerFragment;
+            showFragment(smallPlayerFragment);
+            mediaController.registerCallback(callback);
+        }
     }
 
 

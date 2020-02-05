@@ -93,6 +93,12 @@ public class MediaService {
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
                 showNotification();
+
+                if (stateCompat.getState() == PlaybackStateCompat.STATE_STOPPED) {
+                    hideNotification();
+                    context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
+                }
+
             }
 
             @Override
@@ -102,7 +108,7 @@ public class MediaService {
             }
         }, this::updateTrackList);
 
-        mediaSession.setCallback(new MediaSessionCallback(playbackManager, this::stopPlayback));
+        mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop));
 
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
@@ -195,7 +201,7 @@ public class MediaService {
                     playFromList(intent);
                     break;
                 case ACTION_REQUEST_STOP:
-                    stopPlayback();
+                    playbackManager.stop();
                     break;
                 case ACTION_SHUFFLE:
                     shuffle();
@@ -221,12 +227,6 @@ public class MediaService {
 
     private void shuffle() {
         playbackManager.shuffle();
-    }
-
-    private void stopPlayback() {
-        playbackManager.stop();
-        hideNotification();
-        context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
     }
 
     private void playFromList(Intent intent) {

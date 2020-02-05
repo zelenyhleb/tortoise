@@ -168,8 +168,6 @@ public class PlayerActivity extends BaseActivity {
 
     private void initPager() {
         pager = findViewById(R.id.pager_p);
-        createPlayerFragment();
-        createTrackListFragment();
         pager.setAdapter(new PagerAdapter());
     }
 
@@ -181,6 +179,8 @@ public class PlayerActivity extends BaseActivity {
             } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                 equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)), mediaController);
+                createPlayerFragment();
+                createTrackListFragment();
                 initPager();
             }
         }

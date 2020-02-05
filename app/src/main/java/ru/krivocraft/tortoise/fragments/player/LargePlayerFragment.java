@@ -321,31 +321,29 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
 
     @Override
     public void showPlaybackStateChanges() {
-        int progress = new Milliseconds((int) playbackState.getPosition()).seconds();
-        int duration = new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds();
+        if (rootView != null) {
+            int progress = new Milliseconds((int) playbackState.getPosition()).seconds();
+            int duration = new Milliseconds((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).seconds();
 
-        TextView progressText = rootView.findViewById(R.id.composition_progress);
-        progressText.setText(new Seconds(progress).formatted());
+            updateTextViews(duration, progress);
 
-        TextView estimatedText = rootView.findViewById(R.id.composition_duration);
-        estimatedText.setText(new Seconds((duration - progress) / 1000).formatted());
+            SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
+            progressBar.setProgress(progress);
 
-        SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
-        progressBar.setProgress(progress);
-
-        if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            startUI();
-        } else {
-            stopUI();
-        }
-
-        rootView.findViewById(R.id.play_pause).setOnClickListener(v -> {
             if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-                controller.onPause();
+                startUI();
             } else {
-                controller.onPlay();
+                stopUI();
             }
-        });
+
+            rootView.findViewById(R.id.play_pause).setOnClickListener(v -> {
+                if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    controller.onPause();
+                } else {
+                    controller.onPlay();
+                }
+            });
+        }
     }
 
     @Override

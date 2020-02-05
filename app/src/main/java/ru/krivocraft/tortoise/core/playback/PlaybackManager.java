@@ -81,6 +81,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playlistUpdateCallback = playlistUpdateCallback;
 
         this.player = new MediaPlayer();
+        this.trackList = TrackList.EMPTY;
 
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
@@ -116,7 +117,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void play() {
-        if (cursor >= 0) {
+        if (cursor >= 0 && getTracks().size() > 0) {
             TrackReference selectedReference = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
             Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
@@ -172,12 +173,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
-
         int cursor = index;
-        if (loopType == TrackList.LOOP_TRACK_LIST) {
-            cursor = replaceCursorIfOutOfBounds(index, cursor);
-        }
+        cursor = replaceCursorIfOutOfBounds(index, cursor);
 
         if (!cursorOutOfBounds(cursor)) {
             pause();
@@ -203,7 +200,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     private boolean cursorOutOfBounds(int cursor) {
-        return cursor < 0 || cursor > getTracks().size();
+        return cursor < 0 || cursor >= getTracks().size();
     }
 
     private void deselectCurrentTrack() {
@@ -250,6 +247,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             audioManager.abandonAudioFocus(focusChangeListener);
 
             deselectCurrentTrack();
+            cache = null;
 
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
@@ -328,8 +326,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 if (getCursor() < getTrackList().size() - 1) {
                     nextTrack();
                 } else {
-                    pause();
-                    audioManager.abandonAudioFocus(focusChangeListener);
+                    stop();
                 }
                 System.out.println("LOOP NONE");
                 break;
