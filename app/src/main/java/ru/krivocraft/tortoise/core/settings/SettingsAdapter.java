@@ -17,6 +17,8 @@
 package ru.krivocraft.tortoise.core.settings;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,8 +35,7 @@ import java.util.List;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 
-import static ru.krivocraft.tortoise.core.storage.SettingsStorageManager.KEY_RECOGNIZE_NAMES;
-import static ru.krivocraft.tortoise.core.storage.SettingsStorageManager.KEY_THEME;
+import static ru.krivocraft.tortoise.core.storage.SettingsStorageManager.*;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
@@ -51,15 +52,28 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View itemView;
-        if (convertView == null) {
-            itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-            String key = objects.get(position);
-            Switch s = itemView.findViewById(R.id.settings_switch);
-            TextView textView = itemView.findViewById(R.id.settings_text);
-            textView.setText(getDescription(key));
-            initSwitch(s, key, getDefaultValue(key));
+        if (position < 2) {
+            if (convertView == null) {
+                itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
+                String key = objects.get(position);
+                Switch s = itemView.findViewById(R.id.settings_switch);
+                TextView textView = itemView.findViewById(R.id.settings_text);
+                textView.setText(getDescription(key));
+                initSwitch(s, key, getDefaultValue(key));
+            } else {
+                itemView = convertView;
+            }
         } else {
-            itemView = convertView;
+            if (convertView == null) {
+                itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_label, null);
+                String key = objects.get(position);
+                View layout = itemView.findViewById(R.id.menu_item);
+                layout.setOnClickListener(view -> goToUrl(key));
+                TextView textView = itemView.findViewById(R.id.settings_text);
+                textView.setText(getDescription(key));
+            } else {
+                itemView = convertView;
+            }
         }
         return itemView;
     }
@@ -70,9 +84,19 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_theme);
             case KEY_RECOGNIZE_NAMES:
                 return getContext().getResources().getString(R.string.settings_recognize);
+            case KEY_WEBSITE:
+                return getContext().getResources().getString(R.string.settings_website);
+            case KEY_TELEGRAM:
+                return getContext().getResources().getString(R.string.settings_telegram);
             default:
                 return getContext().getResources().getString(R.string.settings_item_default);
         }
+    }
+
+    private void goToUrl(String url) {
+        Uri uriUrl = Uri.parse(url);
+        Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
+        getContext().startActivity(launchBrowser);
     }
 
     private boolean getDefaultValue(String key) {

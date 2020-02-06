@@ -42,4 +42,6 @@
     <string name="to_mono">To mono</string>
     <string name="settings_item_default">Включить или выключить эту хуйню блять</string>
     <string name="play_in_random_order">Play in random order</string>
+    <string name="settings_website">Our website</string>
+    <string name="settings_telegram">Our telegram</string>
 </resources>

@@ -23,6 +23,8 @@ public class SettingsStorageManager {
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_SORT_BY_ARTIST = "sortByArtist";
     public static final String KEY_SORT_BY_TAG = "sortByTag";
+    public static final String KEY_WEBSITE = "https://krivocraft.ru/";
+    public static final String KEY_TELEGRAM = "https://t.me/krivocraft/";
     public static final String KEY_CLEAR_CACHE = "clearCache";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
     public static final String KEY_OLD_TRACK_LISTS_EXIST = "oldExist";
