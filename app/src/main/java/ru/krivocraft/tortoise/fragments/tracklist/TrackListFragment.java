@@ -17,14 +17,7 @@
 package ru.krivocraft.tortoise.fragments.tracklist;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -32,89 +25,45 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ItemTouchHelperCallback;
 import ru.krivocraft.tortoise.core.Searcher;
-import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.core.track.TracksAdapter;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 
+import java.util.List;
+
 public class TrackListFragment extends BaseFragment {
 
     private TracksAdapter tracksAdapter;
     private ItemTouchHelper touchHelper;
-    private boolean showControls;
-
-    private TrackList trackList;
-
-    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-            if (trackList != null) {
-                setTrackList(trackList);
-            }
-        }
-    };
-
     private RecyclerView recyclerView;
-    private ProgressBar progressBar;
 
     private TracksStorageManager tracksStorageManager;
+    private TrackList trackList;
 
-    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            if (tracksAdapter != null) {
-                tracksAdapter.notifyDataSetChanged();
-            }
-        }
+    private boolean showControls;
 
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            if (tracksAdapter != null) {
-                tracksAdapter.notifyDataSetChanged();
-            }
-        }
-    };
-    private MediaControllerCompat mediaController;
-
-    public static TrackListFragment newInstance(boolean showControls, Activity context, MediaControllerCompat mediaController) {
-        TrackListFragment trackListFragment = new TrackListFragment();
-        trackListFragment.init(showControls, context, mediaController);
-        return trackListFragment;
+    public static TrackListFragment newInstance() {
+        return new TrackListFragment();
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof Activity) {
-            if (!showControls) {
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
-                context.registerReceiver(trackListReceiver, filter);
-            }
+    public void notifyTracksStateChanged() {
+        if (tracksAdapter != null) {
+            tracksAdapter.notifyDataSetChanged();
         }
-
     }
 
-    private void init(boolean showControls, Activity context, MediaControllerCompat mediaController) {
-        this.mediaController = mediaController;
-        this.mediaController.registerCallback(callback);
+    public void setShowControls(boolean showControls) {
         this.showControls = showControls;
-        this.tracksStorageManager = new TracksStorageManager(context);
     }
 
     @Override
@@ -133,60 +82,59 @@ public class TrackListFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        new Thread(() -> {
-            EditText searchFrame = view.findViewById(R.id.search_edit_text);
-            recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
-            progressBar = view.findViewById(R.id.track_list_progress);
+        EditText searchFrame = view.findViewById(R.id.search_edit_text);
+        recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
 
-            final Activity context = getActivity();
-            if (context != null) {
-                processPaths(context, trackList);
+        final Activity context = getActivity();
+        if (context != null) {
+            this.tracksStorageManager = new TracksStorageManager(context);
+            processPaths(context, trackList);
 
-                if (showControls) {
-                    searchFrame.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                            //Do nothing
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                            Searcher searcher = new Searcher(context);
-                            List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
-
-                            recyclerView.setAdapter(new TracksAdapter(
-                                    new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
-                                    context,
-                                    showControls,
-                                    true,
-                                    null
-                            ));
-                            if (s.length() == 0) {
-                                recyclerView.setAdapter(tracksAdapter);
-                            }
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable s) {
-                            //Do nothing
-                        }
-                    });
-                }
-
-                context.runOnUiThread(() -> {
-                    if (showControls) {
-                        searchFrame.setVisibility(View.VISIBLE);
-                    } else {
-                        searchFrame.setHeight(0);
+            if (showControls) {
+                searchFrame.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        //Do nothing
                     }
-                    progressBar.setVisibility(View.GONE);
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        Searcher searcher = new Searcher(context);
+                        List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
+
+                        recyclerView.setAdapter(new TracksAdapter(
+                                new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
+                                context,
+                                showControls,
+                                true,
+                                null
+                        ));
+                        if (s.length() == 0) {
+                            recyclerView.setAdapter(tracksAdapter);
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        //Do nothing
+                    }
                 });
             }
-        }).start();
+
+            if (showControls) {
+                searchFrame.setVisibility(View.VISIBLE);
+            } else {
+                searchFrame.setHeight(0);
+            }
+        }
 
     }
 
-    private synchronized void processPaths(Activity context, TrackList trackList) {
+    public TrackList getTrackList() {
+        return trackList;
+    }
+
+    private void processPaths(Activity context, TrackList trackList) {
         if (this.touchHelper != null) {
             this.touchHelper.attachToRecyclerView(null);
         }
@@ -198,7 +146,9 @@ public class TrackListFragment extends BaseFragment {
 
             if (firstPos >= 0) {
                 View firstView = layoutManager.findViewByPosition(firstPos);
-                offsetTop = layoutManager.getDecoratedTop(firstView) - layoutManager.getTopDecorationHeight(firstView);
+                if (firstView != null) {
+                    offsetTop = layoutManager.getDecoratedTop(firstView) - layoutManager.getTopDecorationHeight(firstView);
+                }
             }
 
             tracksAdapter.notifyItemMoved(from, to);
@@ -208,17 +158,14 @@ public class TrackListFragment extends BaseFragment {
             }
         });
 
-        context.runOnUiThread(() -> {
-            this.recyclerView.setLayoutManager(layoutManager);
-            this.recyclerView.setAdapter(tracksAdapter);
-            if (!showControls) {
-                layoutManager.scrollToPosition(getSelectedItem());
-            }
-            ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
-            touchHelper = new ItemTouchHelper(callback);
-            touchHelper.attachToRecyclerView(recyclerView);
-        });
+        this.recyclerView.setLayoutManager(layoutManager);
+        this.recyclerView.setAdapter(tracksAdapter);
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+        touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
 
+        tracksAdapter.notifyDataSetChanged();
+        layoutManager.scrollToPosition(getSelectedItem());
     }
 
     private int getSelectedItem() {
@@ -236,29 +183,6 @@ public class TrackListFragment extends BaseFragment {
         this.trackList = trackList;
         if (tracksAdapter != null) {
             processPaths(getActivity(), trackList);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (!showControls) {
-            Context context = getContext();
-            if (context != null) {
-                try {
-                    context.unregisterReceiver(trackListReceiver);
-                } catch (IllegalArgumentException e) {
-                    //Do nothing
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (mediaController != null) {
-            mediaController.unregisterCallback(callback);
         }
     }
 }

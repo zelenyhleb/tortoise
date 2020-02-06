@@ -67,6 +67,10 @@ public class PlayerActivity extends BaseActivity {
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
         filter.addAction(MainActivity.ACTION_HIDE_PLAYER);
         registerReceiver(receiver, filter);
+
+        IntentFilter trackListFilter = new IntentFilter();
+        trackListFilter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
+        registerReceiver(trackListReceiver, trackListFilter);
     }
 
     @Override
@@ -77,11 +81,13 @@ public class PlayerActivity extends BaseActivity {
     @Override
     void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
         largePlayerFragment.updatePlaybackState(newPlaybackState);
+        trackListFragment.notifyTracksStateChanged();
     }
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
         largePlayerFragment.updateMediaMetadata(newMetadata);
+        trackListFragment.notifyTracksStateChanged();
     }
 
     @Override
@@ -103,6 +109,16 @@ public class PlayerActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
+            if (trackList != null) {
+                trackListFragment.setTrackList(trackList);
+            }
+        }
+    };
 
     private void changeEqualizerState() {
         if (equalizerFragment != null) {
@@ -131,8 +147,9 @@ public class PlayerActivity extends BaseActivity {
     }
 
     private void createTrackListFragment() {
-        trackListFragment = TrackListFragment.newInstance(false, PlayerActivity.this, mediaController);
+        trackListFragment = TrackListFragment.newInstance();
         trackListFragment.setTrackList(trackList);
+        trackListFragment.setShowControls(false);
     }
 
     private void createPlayerFragment() {
@@ -190,6 +207,7 @@ public class PlayerActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        unregisterReceiver(trackListReceiver);
     }
 
     @Override

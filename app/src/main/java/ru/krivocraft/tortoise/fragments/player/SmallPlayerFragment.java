@@ -83,6 +83,8 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.rootView = view;
+        rootView.findViewById(R.id.fragment_button_next).setOnClickListener(view1 -> controller.onNext());
+        rootView.findViewById(R.id.fragment_button_previous).setOnClickListener(view1 -> controller.onPrevious());
 
         Context context = getContext();
         if (context != null) {

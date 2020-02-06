@@ -16,33 +16,28 @@
 
 package ru.krivocraft.tortoise.fragments.explorer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-
-import java.util.ArrayList;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListsGridFragment;
 
+import java.util.ArrayList;
+
 public class ExplorerFragment extends BaseFragment {
 
     private ExplorerPagerAdapter adapter;
-    private ViewPager pager;
     private Explorer explorer;
 
     private TrackListsGridFragment.OnItemClickListener listener;
@@ -54,12 +49,6 @@ public class ExplorerFragment extends BaseFragment {
         return explorerFragment;
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), context);
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,58 +58,55 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        new Thread(() -> {
+        FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
+        button.setOnClickListener(v -> showCreationDialog(v.getContext()));
 
-            FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
-            button.setOnClickListener(v -> showCreationDialog(v.getContext()));
-
-            pager = view.findViewById(R.id.explorer_pager);
-            pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    //Do nothing
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    getSettingsManager().putOption("endOnSorted", position > 0);
-                    if (position > 0) {
-                        button.hide();
-                    } else {
-                        button.show();
-                    }
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                    //Do nothing
-                }
-            });
-
-            TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
-
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.runOnUiThread(() -> {
-                    view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
-                    pager.setAdapter(adapter);
-                    pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
-                    tabLayout.setupWithViewPager(pager);
-                    invalidate();
-                });
+        ViewPager pager = view.findViewById(R.id.explorer_pager);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //Do nothing
             }
-        }).start();
+
+            @Override
+            public void onPageSelected(int position) {
+                getSettingsManager().putOption("endOnSorted", position > 0);
+                if (position > 0) {
+                    button.hide();
+                } else {
+                    button.show();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                //Do nothing
+            }
+        });
+
+        TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
+        Context activity = view.getContext();
+        if (activity != null) {
+            this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
+            pager.setAdapter(adapter);
+            pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
+            tabLayout.setupWithViewPager(pager);
+            invalidate();
+        }
+        explorer.compileTrackLists();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        explorer.compileTrackLists();
+
     }
 
     @Override
     public void invalidate() {
-        adapter.invalidate();
+        if (adapter != null) {
+            adapter.invalidate();
+        }
     }
 
     private void showCreationDialog(Context context) {

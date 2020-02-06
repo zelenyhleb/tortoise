@@ -25,7 +25,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListsGridFragment;
+
+import java.util.List;
 
 class ExplorerPagerAdapter extends FragmentPagerAdapter {
 
@@ -34,14 +37,10 @@ class ExplorerPagerAdapter extends FragmentPagerAdapter {
 
     ExplorerPagerAdapter(@NonNull FragmentManager fm,
                          TrackListsGridFragment.OnItemClickListener listener,
-                         TrackListsStorageManager tracksStorageManager, Context context) {
+                         List<TrackList> custom, List<TrackList> sorted, Context context) {
         super(fm);
-        this.customTrackLists =
-                TrackListsGridFragment.newInstance(listener,
-                        tracksStorageManager.readCustom(), context);
-        this.sortedTrackLists =
-                TrackListsGridFragment.newInstance(listener,
-                        tracksStorageManager.readSortedByArtist(), context);
+        this.customTrackLists = TrackListsGridFragment.newInstance(listener, custom, context);
+        this.sortedTrackLists = TrackListsGridFragment.newInstance(listener, sorted, context);
     }
 
     void invalidate() {

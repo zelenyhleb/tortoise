@@ -23,22 +23,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.OldStuffCollector;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
-import ru.krivocraft.tortoise.fragments.*;
+import ru.krivocraft.tortoise.fragments.BaseFragment;
+import ru.krivocraft.tortoise.fragments.SettingsFragment;
+import ru.krivocraft.tortoise.fragments.TrackEditorFragment;
 import ru.krivocraft.tortoise.fragments.explorer.Explorer;
 import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
@@ -49,12 +49,7 @@ public class MainActivity extends BaseActivity {
 
 
     private SmallPlayerFragment smallPlayerFragment;
-
-    private int viewState = 0;
-    private static final int STATE_EXPLORER = 1;
-    private static final int STATE_TRACK_LIST = 2;
-    private static final int STATE_SETTINGS = 3;
-    private static final int STATE_TRACK_EDITOR = 4;
+    private MenuItem settingsButton;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
@@ -67,7 +62,6 @@ public class MainActivity extends BaseActivity {
                 showSmallPlayerFragment();
             } else if (ACTION_HIDE_PLAYER.equals(intent.getAction())) {
                 hideFragment(smallPlayerFragment);
-                mediaController.unregisterCallback(callback);
             }
         }
     };
@@ -82,23 +76,24 @@ public class MainActivity extends BaseActivity {
     private BaseFragment currentFragment;
     private Explorer explorer;
 
-    private TrackList cache;
-
-    private MediaControllerCompat.Callback callback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            smallPlayerFragment.updatePlaybackState(state);
-        }
-
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            smallPlayerFragment.updateMediaMetadata(metadata);
-        }
-    };
-
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
         showSmallPlayerFragment();
+        if (smallPlayerFragment != null)
+            smallPlayerFragment.updateMediaMetadata(newMetadata);
+        if (currentFragment instanceof TrackListFragment) {
+            ((TrackListFragment) currentFragment).notifyTracksStateChanged();
+        }
+    }
+
+    @Override
+    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
+        showSmallPlayerFragment();
+        if (smallPlayerFragment != null)
+            smallPlayerFragment.updatePlaybackState(newPlaybackState);
+        if (currentFragment instanceof TrackListFragment) {
+            ((TrackListFragment) currentFragment).notifyTracksStateChanged();
+        }
     }
 
     @Override
@@ -107,9 +102,12 @@ public class MainActivity extends BaseActivity {
     }
 
     private TrackListFragment getTrackListFragment(TrackList trackList) {
-        TrackListFragment trackListFragment = TrackListFragment.newInstance(true, this, mediaController);
-        if (trackList != null)
+        TrackListFragment trackListFragment = TrackListFragment.newInstance();
+        if (trackList != null) {
+            trackListFragment.setTitle(trackList.getDisplayName());
             trackListFragment.setTrackList(trackList);
+            trackListFragment.setShowControls(true);
+        }
         return trackListFragment;
     }
 
@@ -143,11 +141,12 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);
-    }
 
-    @Override
-    void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        showSmallPlayerFragment();
+        if (currentFragment != null) {
+            restoreFragment();
+        } else {
+            showExplorerFragment();
+        }
     }
 
     private void configureLayoutTransition() {
@@ -172,19 +171,10 @@ public class MainActivity extends BaseActivity {
         runOnUiThread(currentFragment::invalidate);
     }
 
-    private void restoreState() {
-        if (viewState == STATE_TRACK_LIST) {
-            if (cache != null) {
-                showTrackListFragment(cache);
-                return;
-            }
-        }
-        showExplorerFragment();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_main, menu);
+        this.settingsButton = menu.findItem(R.id.action_settings);
         return true;
     }
 
@@ -198,67 +188,68 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showExplorerFragment() {
-        replaceFragment(getExplorerFragment(), "Tortoise", STATE_EXPLORER);
+        replaceFragment(getExplorerFragment());
         showSmallPlayerFragment();
     }
 
     private void showTrackListFragment(TrackList trackList) {
-        replaceFragment(getTrackListFragment(trackList), trackList.getDisplayName(), STATE_TRACK_LIST);
-        this.cache = trackList;
+        replaceFragment(getTrackListFragment(trackList));
         showSmallPlayerFragment();
     }
 
     private void showSettingsFragment() {
-        replaceFragment(SettingsFragment.newInstance(), "Settings", STATE_SETTINGS);
+        replaceFragment(SettingsFragment.newInstance());
         hideFragment(smallPlayerFragment);
     }
 
     private void showTrackEditorFragment(TrackReference trackReference) {
-        replaceFragment(getTrackEditorFragment(trackReference), "Edit Metadata", STATE_TRACK_EDITOR);
+        replaceFragment(getTrackEditorFragment(trackReference));
         hideFragment(smallPlayerFragment);
     }
 
-    private void replaceFragment(BaseFragment fragment, String title, int boundState) {
-        replaceFragment(fragment);
-        viewState = boundState;
+    private void replaceFragment(BaseFragment fragment) {
+        addFragment(fragment);
+        redrawActionBar(fragment);
+    }
+
+    private void redrawActionBar(BaseFragment fragment) {
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
-            supportActionBar.setTitle(title);
+            supportActionBar.setTitle(fragment.getTitle());
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (viewState == STATE_TRACK_EDITOR) {
-            currentFragment.onBackPressed();
-        } else if (viewState != STATE_EXPLORER) {
-            showExplorerFragment();
-        } else {
+        if (currentFragment instanceof ExplorerFragment) {
             super.onBackPressed();
+        } else {
+            if (currentFragment instanceof SettingsFragment) {
+                showSmallPlayerFragment();
+                showExplorerFragment();
+            } else if (currentFragment instanceof TrackListFragment) {
+                showExplorerFragment();
+            }
+        }
+        onFragmentChanged();
+    }
+
+    private void onFragmentChanged() {
+        redrawActionBar(currentFragment);
+        if (settingsButton != null) {
+            if (currentFragment instanceof SettingsFragment) {
+                settingsButton.setVisible(false);
+            } else {
+                settingsButton.setVisible(true);
+            }
         }
     }
 
     @Override
     protected void onDestroy() {
-        try {
-            mediaController.unregisterCallback(callback);
-        } catch (Exception e) {
-            //Already unregistered
-        }
-
+        unregisterReceiver(showEditorReceiver);
         unregisterReceiver(showPlayerReceiver);
         super.onDestroy();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        restoreState();
     }
 
     private void showSmallPlayerFragment() {
@@ -295,23 +286,37 @@ public class MainActivity extends BaseActivity {
             smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());
             MainActivity.this.smallPlayerFragment = smallPlayerFragment;
             showFragment(smallPlayerFragment);
-            mediaController.registerCallback(callback);
         }
     }
 
+    private void restoreFragment() {
+        if (currentFragment instanceof TrackListFragment) {
+            currentFragment = getTrackListFragment(((TrackListFragment) currentFragment).getTrackList());
+        }
 
-    private void replaceFragment(BaseFragment fragment) {
+        if (currentFragment instanceof ExplorerFragment) {
+            currentFragment = getExplorerFragment();
+        }
+
+        if (currentFragment instanceof SettingsFragment) {
+            currentFragment = SettingsFragment.newInstance();
+        }
+        addFragment(currentFragment);
+    }
+
+    private void addFragment(BaseFragment fragment) {
         if (fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
 
-            FragmentTransaction transaction = getSupportFragmentManager()
+            FragmentTransaction transaction = fragmentManager
                     .beginTransaction()
                     .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort);
-
             transaction.replace(R.id.fragment_container, fragment);
 
-            transaction.commitNowAllowingStateLoss();
+            transaction.commit();
 
-            currentFragment = fragment;
+            this.currentFragment = fragment;
+            onFragmentChanged();
         }
     }
 

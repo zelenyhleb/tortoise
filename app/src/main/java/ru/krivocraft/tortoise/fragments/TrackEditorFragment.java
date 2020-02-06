@@ -51,6 +51,7 @@ public class TrackEditorFragment extends BaseFragment {
 
     public static TrackEditorFragment newInstance(OnTaskCompletedListener listener, TrackReference reference) {
         TrackEditorFragment fragment = new TrackEditorFragment();
+        fragment.setTitle("Edit Metadata");
         fragment.setListener(listener);
         fragment.setReference(reference);
         return fragment;
