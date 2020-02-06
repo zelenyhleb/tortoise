@@ -17,6 +17,7 @@
 package ru.krivocraft.tortoise.fragments.tracklist;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,7 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -33,13 +34,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ItemTouchHelperCallback;
 import ru.krivocraft.tortoise.core.Searcher;
+import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
+import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.core.track.TracksAdapter;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 
 import java.util.List;
+import java.util.Random;
 
 public class TrackListFragment extends BaseFragment {
 
@@ -84,6 +88,7 @@ public class TrackListFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         EditText searchFrame = view.findViewById(R.id.search_edit_text);
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
+        RelativeLayout playRandomly = view.findViewById(R.id.play_random_button);
 
         final Activity context = getActivity();
         if (context != null) {
@@ -119,12 +124,18 @@ public class TrackListFragment extends BaseFragment {
                         //Do nothing
                     }
                 });
-            }
 
-            if (showControls) {
                 searchFrame.setVisibility(View.VISIBLE);
-            } else {
-                searchFrame.setHeight(0);
+                playRandomly.setVisibility(View.VISIBLE);
+                playRandomly.setOnClickListener(view1 -> {
+                    int randomTrack = new Random().nextInt(trackList.size() - 1);
+                    TrackReference reference = trackList.getTrackReferences().get(randomTrack);
+                    trackList.shuffle(reference);
+                    Intent serviceIntent = new Intent(MediaService.ACTION_PLAY_FROM_LIST);
+                    serviceIntent.putExtra(Track.EXTRA_TRACK, reference.toJson());
+                    serviceIntent.putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson());
+                    view1.getContext().sendBroadcast(serviceIntent);
+                });
             }
         }
 
