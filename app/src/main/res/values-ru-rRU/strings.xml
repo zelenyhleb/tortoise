@@ -22,4 +22,6 @@
     <string name="link_help">Помогите мне, я ничего не понимаю</string>
     <string name="show_hidden_tracks">Показывать скрытые треки</string>
     <string name="to_mono">Сводить в моно</string>
+    <string name="tab_title_custom">Пользовательские</string>
+    <string name="tab_title_sorted">Отсортированные</string>
 </resources>

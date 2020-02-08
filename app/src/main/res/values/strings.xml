@@ -42,4 +42,6 @@
     <string name="settings_telegram">Our telegram</string>
     <string name="show_hidden_tracks">Show hidden tracks</string>
     <string name="link_help">Help</string>
+    <string name="tab_title_custom">Custom</string>
+    <string name="tab_title_sorted">Sorted by artist</string>
 </resources>
