@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -44,7 +43,6 @@ public class TrackListsGridFragment extends BaseFragment {
     private TrackListsAdapter adapter;
     private OnItemClickListener listener;
 
-    private ProgressBar progressBar;
     private List<TrackList> trackLists;
 
     public static TrackListsGridFragment newInstance(OnItemClickListener listener, List<TrackList> trackLists, Context context) {
@@ -55,13 +53,6 @@ public class TrackListsGridFragment extends BaseFragment {
         return fragment;
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            drawTrackLists();
-        }
-    };
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_track_list_stack, container, false);
@@ -70,11 +61,9 @@ public class TrackListsGridFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.progressBar = view.findViewById(R.id.explorer_progress);
         Context context = getContext();
         if (context != null) {
             configureGridView(view, context);
-            context.registerReceiver(receiver, new IntentFilter(TracksProvider.ACTION_UPDATE_STORAGE));
         }
     }
 
@@ -111,38 +100,16 @@ public class TrackListsGridFragment extends BaseFragment {
         return true;
     }
 
-    private void drawTrackLists() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.GONE);
-        }
-        redrawList(trackLists);
-    }
-
-    private void redrawList(List<TrackList> trackLists) {
-//        adapter.clear();
-//        adapter.addAll(trackLists);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Context context = getContext();
-        if (context != null) {
-            context.unregisterReceiver(receiver);
-        }
-    }
-
-    public void invalidate() {
-        drawTrackLists();
-    }
-
     private void setListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
     public void setTrackLists(List<TrackList> trackLists) {
         this.trackLists = trackLists;
+        if (adapter != null) {
+            adapter.setList(trackLists);
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public interface OnItemClickListener {

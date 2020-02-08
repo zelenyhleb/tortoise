@@ -42,7 +42,7 @@ public class Explorer {
         updateTrackListSets();
     }
 
-    private void updateTrackListSets() {
+    public void updateTrackListSets() {
         this.customLists = tracksStorageManager.readCustom();
         this.sortedLists = tracksStorageManager.readSortedByArtist();
     }

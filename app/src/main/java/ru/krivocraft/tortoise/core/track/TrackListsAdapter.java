@@ -22,11 +22,12 @@ import java.util.List;
 
 public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.ViewHolder> {
 
-    private final List<TrackList> list;
     private final ThumbnailStorageManager thumbnailStorageManager;
     private final TracksStorageManager tracksStorageManager;
     private final OnClickListener listener;
     private final Context context;
+
+    private List<TrackList> list;
 
     public TrackListsAdapter(List<TrackList> list, Context context, OnClickListener listener) {
         this.list = list;
@@ -41,6 +42,10 @@ public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.Vi
             hideIgnored(list);
             notifyDataSetChanged();
         }
+    }
+
+    public void setList(List<TrackList> list) {
+        this.list = list;
     }
 
     private boolean showIgnored() {
