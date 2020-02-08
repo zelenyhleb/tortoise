@@ -48,7 +48,12 @@ public class SettingsFragment extends BaseFragment {
     }
 
     private List<String> getSettings() {
-        return Arrays.asList(SettingsStorageManager.KEY_THEME, SettingsStorageManager.KEY_RECOGNIZE_NAMES);
+        return Arrays.asList(SettingsStorageManager.KEY_THEME,
+                SettingsStorageManager.KEY_RECOGNIZE_NAMES,
+                SettingsStorageManager.KEY_SHOW_IGNORED,
+                SettingsStorageManager.KEY_WEBSITE,
+                SettingsStorageManager.KEY_TELEGRAM,
+                SettingsStorageManager.KEY_HELP);
     }
 
     @Override

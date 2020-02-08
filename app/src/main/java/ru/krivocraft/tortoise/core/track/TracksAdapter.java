@@ -29,34 +29,48 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
+import com.google.android.material.snackbar.Snackbar;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.MainActivity;
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.ItemTouchHelperAdapter;
 import ru.krivocraft.tortoise.core.playback.MediaService;
+import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.tasks.LoadArtTask;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private TrackList trackList;
     private Context context;
     private final boolean editingAllowed;
-    private final boolean temp;
     private TracksStorageManager tracksStorageManager;
     private AdapterListener listener;
     private ColorManager colorManager;
-
-    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp, AdapterListener listener) {
+    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean showIgnored, AdapterListener listener) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
-        this.temp = temp;
         this.tracksStorageManager = new TracksStorageManager(context);
         this.colorManager = new ColorManager(context);
         this.listener = listener;
         setHasStableIds(true);
+        if (!showIgnored) {
+            hideIgnored();
+        }
+    }
+
+    private void hideIgnored() {
+        List<TrackReference> ignored = new ArrayList<>();
+        for (TrackReference reference : this.trackList.getTrackReferences()) {
+            if (tracksStorageManager.getTrack(reference).isIgnored()) {
+                ignored.add(reference);
+            }
+        }
+        this.trackList.removeAll(ignored);
     }
 
     @NonNull
@@ -100,12 +114,34 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     }
 
     @Override
-    public void onDragCompleted() {
+    public void onClearView() {
         sendUpdate();
     }
 
+    @Override
+    public void onSwipe(RecyclerView.ViewHolder viewHolder) {
+        int position = (int) viewHolder.getItemId();
+        TrackReference item = new TrackReference(position);
+        trackList.remove(item);
+
+        if (editingAllowed && trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
+            //If current playlist is "all tracks", you can hide track by swiping
+            Track track = tracksStorageManager.getTrack(item);
+            track.setIgnored(true);
+            tracksStorageManager.updateTrack(track);
+            Snackbar.make(viewHolder.itemView, "Track won't be shown in your collection anymore (You can get it back by enabling \"show hidden\" feature)", Snackbar.LENGTH_SHORT).show();
+        } else {
+            if (editingAllowed) {
+                Snackbar.make(viewHolder.itemView, "Track removed from this playlist", Snackbar.LENGTH_SHORT).show();
+            }
+            sendUpdate();
+        }
+        notifyItemRemoved(position);
+        notifyDataSetChanged();
+    }
+
     private void sendUpdate() {
-        if (temp) {
+        if (!editingAllowed) {
             context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
         } else {
             context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));

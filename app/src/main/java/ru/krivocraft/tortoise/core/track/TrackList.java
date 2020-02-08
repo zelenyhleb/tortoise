@@ -43,6 +43,7 @@ public class TrackList {
     private List<TrackReference> tracksReferences;
 
     private List<TrackReference> shuffleCache;
+    public static TrackList EMPTY = new TrackList("EMPTY", new ArrayList<>(), TRACK_LIST_CUSTOM);
 
     public TrackList(String displayName, List<TrackReference> tracksReferences, int type, String identifier) {
         this.displayName = displayName;

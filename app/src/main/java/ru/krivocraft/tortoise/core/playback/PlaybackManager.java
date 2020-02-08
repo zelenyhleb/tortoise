@@ -27,6 +27,7 @@ import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
@@ -80,6 +81,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playlistUpdateCallback = playlistUpdateCallback;
 
         this.player = new MediaPlayer();
+        this.trackList = TrackList.EMPTY;
 
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         this.playerState = PlaybackStateCompat.STATE_NONE;
@@ -115,7 +117,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void play() {
-        if (cursor >= 0) {
+        if (cursor >= 0 && getTracks().size() > 0) {
             TrackReference selectedReference = getTracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
             Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
@@ -171,17 +173,17 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void newTrack(int index) {
-        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
-
         int cursor = index;
-        if (loopType == TrackList.LOOP_TRACK_LIST) {
-            cursor = replaceCursorIfOutOfBounds(index, cursor);
-        }
+        cursor = replaceCursorIfOutOfBounds(index, cursor);
 
         if (!cursorOutOfBounds(cursor)) {
             pause();
             deselectCurrentTrack();
             this.cursor = cursor;
+            if (!settings.getBoolean(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(getSelectedTrackReference()).isIgnored()) {
+                nextTrack();
+                return;
+            }
             selectCurrentTrack();
             playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getSelectedTrackReference()));
             play();
@@ -202,7 +204,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     private boolean cursorOutOfBounds(int cursor) {
-        return cursor < 0 || cursor > getTracks().size();
+        return cursor < 0 || cursor >= getTracks().size();
     }
 
     private void deselectCurrentTrack() {
@@ -249,6 +251,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             audioManager.abandonAudioFocus(focusChangeListener);
 
             deselectCurrentTrack();
+            cache = null;
 
             player.stop();
             playerState = PlaybackStateCompat.STATE_STOPPED;
@@ -324,10 +327,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 System.out.println("LOOP TRACKLIST");
                 break;
             case TrackList.NOT_LOOP:
-                if (getCursor() < getTrackList().size()) {
+                if (getCursor() < getTrackList().size() - 1) {
                     nextTrack();
                 } else {
-                    audioManager.abandonAudioFocus(focusChangeListener);
+                    stop();
+               
                 }
                 System.out.println("LOOP NONE");
                 break;

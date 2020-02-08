@@ -30,22 +30,15 @@ import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 public abstract class BaseFragment extends Fragment {
 
     private SettingsStorageManager settingsManager;
+    private String title = "Tortoise";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        invalidate();
-    }
-
-    public abstract void invalidate();
-
-    public void onBackPressed() {
-        //This callback can be implemented by inheritors
+    public void invalidate() {
+        //Do nothing. Method can be implemented by inheritors
     }
 
     public SettingsStorageManager getSettingsManager() {
@@ -65,5 +58,13 @@ public abstract class BaseFragment extends Fragment {
             }
         }
         return super.onCreateView(inflater, container, savedInstanceState);
+    }
+  
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

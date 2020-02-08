@@ -22,24 +22,25 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
+import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListsGridFragment;
+
+import java.util.List;
 
 class ExplorerPagerAdapter extends FragmentPagerAdapter {
 
     private final TrackListsGridFragment customTrackLists;
     private final TrackListsGridFragment sortedTrackLists;
+    private final Context context;
 
     ExplorerPagerAdapter(@NonNull FragmentManager fm,
                          TrackListsGridFragment.OnItemClickListener listener,
-                         TrackListsStorageManager tracksStorageManager, Context context) {
+                         List<TrackList> custom, List<TrackList> sorted, Context context) {
         super(fm);
-        this.customTrackLists =
-                TrackListsGridFragment.newInstance(listener,
-                        tracksStorageManager.readCustom(), context);
-        this.sortedTrackLists =
-                TrackListsGridFragment.newInstance(listener,
-                        tracksStorageManager.readSortedByArtist(), context);
+        this.customTrackLists = TrackListsGridFragment.newInstance(listener, custom, context);
+        this.sortedTrackLists = TrackListsGridFragment.newInstance(listener, sorted, context);
+        this.context = context;
     }
 
     void invalidate() {
@@ -66,9 +67,9 @@ class ExplorerPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         if (position == 0) {
-            return "Custom";
+            return context.getResources().getString(R.string.tab_title_custom);
         } else {
-            return "Sorted by artist";
+            return context.getResources().getString(R.string.tab_title_sorted);
         }
     }
 }

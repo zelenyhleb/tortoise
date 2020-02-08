@@ -15,34 +15,35 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
 
     <ProgressBar
-        android:id="@+id/explorer_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+            android:visibility="gone"
+            android:id="@+id/explorer_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/explorer_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            android:id="@+id/explorer_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <com.google.android.material.tabs.TabLayout
-            android:id="@+id/explorer_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+                android:id="@+id/explorer_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
     </androidx.viewpager.widget.ViewPager>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_track_list_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="32dp"
-        android:src="@drawable/ic_add"
-        android:tint="@color/white" />
+            android:id="@+id/add_track_list_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="32dp"
+            android:src="@drawable/ic_add"
+            android:tint="@color/white"/>
 
 </FrameLayout>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tortoise</string>
+    <string name="zerotime">00:00</string>
+    <string name="clear_database">Очистить данные</string>
+    <string name="unknown_artist">Неизвестный исполнитель</string>
+    <string name="unknown_track">Неизвестный трек</string>
+    <string name="apply">Принять</string>
+    <string name="unknown">неизвестно</string>
+    <string name="settings">Настройки</string>
+    <string name="equalizer">Эквалайзер</string>
+    <string name="track_list_name">Название плейлиста</string>
+    <string name="obtaining_tracks_data">Получение данных треков...</string>
+    <string name="settings_theme">Светлая тема (Beta)</string>
+    <string name="settings_recognize">Пытаться распознать метаданные из названий файлов</string>
+    <string name="settings_clear_cache_button">Очистить</string>
+    <string name="search">Поиск</string>
+    <string name="name">Название</string>
+    <string name="play_in_random_order">В случайном порядке</string>
+    <string name="settings_website">Сайт</string>
+    <string name="settings_telegram">Телеграм</string>
+    <string name="link_help">Помогите мне, я ничего не понимаю</string>
+    <string name="show_hidden_tracks">Показывать скрытые треки</string>
+    <string name="to_mono">Сводить в моно</string>
+    <string name="tab_title_custom">Пользовательские</string>
+    <string name="tab_title_sorted">Отсортированные</string>
+</resources>

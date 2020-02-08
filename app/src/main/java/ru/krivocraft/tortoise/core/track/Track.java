@@ -33,6 +33,7 @@ public class Track {
     private boolean playing = false;
     private boolean liked = false;
     private boolean checkedInList = false;
+    private boolean ignored = false;
 
     private String title;
     private String artist;
@@ -58,11 +59,12 @@ public class Track {
         }
     }
 
-    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color) {
+    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color, boolean ignored) {
         this(duration, artist, title, path, color);
         this.liked = liked;
         this.selected = selected;
         this.playing = playing;
+        this.ignored = ignored;
     }
 
     public MediaMetadataCompat getAsMediaMetadata() {
@@ -104,6 +106,10 @@ public class Track {
 
     public void setCheckedInList(boolean checkedInList) {
         this.checkedInList = checkedInList;
+    }
+
+    public void setIgnored(boolean ignored) {
+        this.ignored = ignored;
     }
 
     @Override
@@ -159,5 +165,9 @@ public class Track {
 
     public int getColor() {
         return color;
+    }
+
+    public boolean isIgnored() {
+        return ignored;
     }
 }

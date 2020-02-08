@@ -16,7 +16,6 @@
 
 package ru.krivocraft.tortoise.fragments.explorer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,22 +38,13 @@ import java.util.ArrayList;
 public class ExplorerFragment extends BaseFragment {
 
     private ExplorerPagerAdapter adapter;
-    private ViewPager pager;
+
     private Explorer explorer;
 
     private TrackListsGridFragment.OnItemClickListener listener;
 
-    public static ExplorerFragment newInstance(TrackListsGridFragment.OnItemClickListener listener, Explorer explorer) {
-        ExplorerFragment explorerFragment = new ExplorerFragment();
-        explorerFragment.setListener(listener);
-        explorerFragment.setExplorer(explorer);
-        return explorerFragment;
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getTracksStorageManager(), context);
+    public static ExplorerFragment newInstance() {
+        return new ExplorerFragment();
     }
 
     @Nullable
@@ -66,58 +56,49 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        new Thread(() -> {
+        FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
+        button.setOnClickListener(v -> showCreationDialog(v.getContext()));
 
-            FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
-            button.setOnClickListener(v -> showCreationDialog(v.getContext()));
-
-            pager = view.findViewById(R.id.explorer_pager);
-            pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    //Do nothing
-                }
-
-                @Override
-                public void onPageSelected(int position) {
-                    getSettingsManager().putOption("endOnSorted", position > 0);
-                    if (position > 0) {
-                        button.hide();
-                    } else {
-                        button.show();
-                    }
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                    //Do nothing
-                }
-            });
-
-            TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
-
-            Activity activity = getActivity();
-            if (activity != null) {
-                activity.runOnUiThread(() -> {
-                    view.findViewById(R.id.explorer_progress).setVisibility(View.GONE);
-                    pager.setAdapter(adapter);
-                    pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
-                    tabLayout.setupWithViewPager(pager);
-                    invalidate();
-                });
+        ViewPager pager = view.findViewById(R.id.explorer_pager);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //Do nothing
             }
-        }).start();
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        explorer.compileTrackLists();
+            @Override
+            public void onPageSelected(int position) {
+                getSettingsManager().putOption("endOnSorted", position > 0);
+                if (position > 0) {
+                    button.hide();
+                } else {
+                    button.show();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                //Do nothing
+            }
+        });
+
+        TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
+        Context activity = view.getContext();
+        if (activity != null && explorer != null) {
+            this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
+            pager.setAdapter(adapter);
+            pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
+            tabLayout.setupWithViewPager(pager);
+            invalidate();
+            explorer.compileTrackLists();
+        }
     }
 
     @Override
     public void invalidate() {
-        adapter.invalidate();
+        if (adapter != null) {
+            adapter.invalidate();
+        }
     }
 
     private void showCreationDialog(Context context) {
@@ -127,11 +108,11 @@ public class ExplorerFragment extends BaseFragment {
         context.startActivity(intent);
     }
 
-    private void setListener(TrackListsGridFragment.OnItemClickListener listener) {
+    public void setListener(TrackListsGridFragment.OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    private void setExplorer(Explorer explorer) {
+    public void setExplorer(Explorer explorer) {
         this.explorer = explorer;
     }
 }

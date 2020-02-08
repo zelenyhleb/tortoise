@@ -16,28 +16,29 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/fragment_playlist_picture"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_margin="16dp"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/layout_bg"
-        android:src="@drawable/ic_icon" />
+            android:id="@+id/fragment_playlist_picture"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_margin="16dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/layout_bg"
+            android:src="@drawable/ic_icon"/>
 
     <TextView
-        android:id="@+id/fragment_playlist_name"
-        android:layout_width="128dp"
-        android:layout_margin="16dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_playlist_picture"
-        android:layout_centerHorizontal="true"
-        android:singleLine="true"
-        android:textAlignment="center" />
+            android:id="@+id/fragment_playlist_name"
+            android:layout_width="128dp"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fragment_playlist_picture"
+            android:layout_centerHorizontal="true"
+            android:singleLine="true"
+            android:textAlignment="center"/>
 
 
 </RelativeLayout>

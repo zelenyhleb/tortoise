@@ -18,6 +18,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@color/transparent"/>
     <stroke android:width="3dp" android:color="@color/transparent" />
-    <corners android:radius="5dp"/>
+    <corners android:radius="10dp"/>
     <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp" />
 </shape>

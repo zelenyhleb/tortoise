@@ -43,11 +43,11 @@ public class MediaService {
 
     private static final String ACTION_REQUEST_STOP = "stop";
 
-    private static final String EXTRA_PLAYBACK_STATE = "playback_state";
     private static final String EXTRA_CURSOR = "cursor";
     private static final String EXTRA_METADATA = "metadata";
 
     public static final String EXTRA_POSITION = "position";
+    public static final String EXTRA_PLAYBACK_STATE = "playback_state";
     public static final String ACTION_UPDATE_TRACK_LIST = "action_update_track_list";
     public static final String ACTION_REQUEST_TRACK_LIST = "action_request_track_list";
 
@@ -91,6 +91,12 @@ public class MediaService {
             public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
                 mediaSession.setPlaybackState(stateCompat);
                 showNotification();
+
+                if (stateCompat.getState() == PlaybackStateCompat.STATE_STOPPED) {
+                    hideNotification();
+                    context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
+                }
+
             }
 
             @Override
@@ -100,7 +106,7 @@ public class MediaService {
             }
         }, this::updateTrackList);
 
-        mediaSession.setCallback(new MediaSessionCallback(playbackManager, this::stopPlayback));
+        mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop));
 
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
@@ -193,7 +199,7 @@ public class MediaService {
                     playFromList(intent);
                     break;
                 case ACTION_REQUEST_STOP:
-                    stopPlayback();
+                    playbackManager.stop();
                     break;
                 case ACTION_SHUFFLE:
                     shuffle();
@@ -207,7 +213,7 @@ public class MediaService {
                     if (trackListEdited.equals(playbackManager.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
-                    trackListsStorageManager.updateTrackListData(trackListEdited);
+                    trackListsStorageManager.updateTrackListContent(trackListEdited);
                     context.sendBroadcast(new Intent(TracksProvider.ACTION_UPDATE_STORAGE));
                     break;
                 default:
@@ -219,12 +225,6 @@ public class MediaService {
 
     private void shuffle() {
         playbackManager.shuffle();
-    }
-
-    private void stopPlayback() {
-        playbackManager.stop();
-        hideNotification();
-        context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
     }
 
     private void playFromList(Intent intent) {

@@ -38,7 +38,8 @@ import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.fragments.EqualizerFragment;
-import ru.krivocraft.tortoise.fragments.LargePlayerFragment;
+import ru.krivocraft.tortoise.fragments.player.LargePlayerFragment;
+import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
 
 public class PlayerActivity extends BaseActivity {
@@ -66,6 +67,9 @@ public class PlayerActivity extends BaseActivity {
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
         filter.addAction(MainActivity.ACTION_HIDE_PLAYER);
         registerReceiver(receiver, filter);
+        IntentFilter trackListFilter = new IntentFilter();
+        trackListFilter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
+        registerReceiver(trackListReceiver, trackListFilter);
     }
 
     @Override
@@ -75,12 +79,14 @@ public class PlayerActivity extends BaseActivity {
 
     @Override
     void onPlaybackStateChanged(PlaybackStateCompat newPlaybackState) {
-        //Do nothing
+        largePlayerFragment.updatePlaybackState(newPlaybackState);
+        trackListFragment.notifyTracksStateChanged();
     }
 
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
-        //Do nothing
+        largePlayerFragment.updateMediaMetadata(newMetadata);
+        trackListFragment.notifyTracksStateChanged();
     }
 
     @Override
@@ -103,6 +109,15 @@ public class PlayerActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
+            if (trackList != null) {
+                trackListFragment.setTrackList(trackList);
+            }
+        }
+    };
     private void changeEqualizerState() {
         if (equalizerFragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager()
@@ -128,35 +143,47 @@ public class PlayerActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (largePlayerFragment != null) {
-            largePlayerFragment.requestPosition(this);
-        }
-    }
-
     private void createTrackListFragment() {
-        trackListFragment = TrackListFragment.newInstance(false, PlayerActivity.this, mediaController);
+        trackListFragment = TrackListFragment.newInstance();
         trackListFragment.setTrackList(trackList);
+        trackListFragment.setShowControls(false);
     }
 
     private void createPlayerFragment() {
-        largePlayerFragment = LargePlayerFragment.newInstance(PlayerActivity.this, trackList, mediaController);
+        largePlayerFragment = LargePlayerFragment.newInstance();
+        largePlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState(), trackList);
+        largePlayerFragment.setController(new PlayerController() {
+            @Override
+            public void onPlay() {
+                mediaController.getTransportControls().play();
+            }
+
+            @Override
+            public void onPause() {
+                mediaController.getTransportControls().pause();
+            }
+
+            @Override
+            public void onNext() {
+                mediaController.getTransportControls().skipToNext();
+            }
+
+            @Override
+            public void onPrevious() {
+                mediaController.getTransportControls().skipToPrevious();
+            }
+
+            @Override
+            public void onSeekTo(int position) {
+                mediaController.getTransportControls().seekTo(position);
+            }
+        });
+
     }
 
     private void initPager() {
         pager = findViewById(R.id.pager_p);
-        createPlayerFragment();
-        createTrackListFragment();
         pager.setAdapter(new PagerAdapter());
-        pager.invalidate();
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -167,6 +194,8 @@ public class PlayerActivity extends BaseActivity {
             } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                 equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)), mediaController);
+                createPlayerFragment();
+                createTrackListFragment();
                 initPager();
             }
         }
@@ -176,6 +205,7 @@ public class PlayerActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        unregisterReceiver(trackListReceiver);
     }
 
     @Override

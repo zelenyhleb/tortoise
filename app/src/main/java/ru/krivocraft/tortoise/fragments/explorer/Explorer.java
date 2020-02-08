@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.core.TrackListsCompiler;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class Explorer {
@@ -29,17 +29,25 @@ public class Explorer {
     private final TrackListsStorageManager tracksStorageManager;
     private final TrackListsCompiler trackListsCompiler;
     private final OnTrackListsCompiledListener listener;
-
+    private List<TrackList> customLists = new ArrayList<>();
+    private List<TrackList> sortedLists = new ArrayList<>();
     public Explorer(OnTrackListsCompiledListener listener, @NonNull Context context) {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.trackListsCompiler = new TrackListsCompiler(context);
+
+        updateTrackListSets();
     }
 
+    public void updateTrackListSets() {
+        this.customLists = tracksStorageManager.readCustom();
+        this.sortedLists = tracksStorageManager.readSortedByArtist();
+    }
 
     private void onNewTrackLists(List<TrackList> trackLists) {
         for (TrackList trackList : trackLists) {
             if (tracksStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
+                tracksStorageManager.clearTrackList(trackList.getIdentifier());
                 tracksStorageManager.updateTrackListContent(trackList);
             } else {
                 tracksStorageManager.writeTrackList(trackList);
@@ -52,16 +60,21 @@ public class Explorer {
             }
         }
 
+        updateTrackListSets();
         listener.onTrackListsCompiled();
     }
 
-    public void compileTrackLists() {
+    void compileTrackLists() {
         trackListsCompiler.compileFavorites(this::onNewTrackLists);
         trackListsCompiler.compileByAuthors(this::onNewTrackLists);
     }
+  
+    List<TrackList> getCustomLists() {
+        return customLists;
+    }
 
-    public TrackListsStorageManager getTracksStorageManager() {
-        return tracksStorageManager;
+    List<TrackList> getSortedLists() {
+        return sortedLists;
     }
 
     public interface OnTrackListsCompiledListener {

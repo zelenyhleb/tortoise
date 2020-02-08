@@ -182,12 +182,17 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mediaController.unregisterCallback(callback);
+    protected void onPause() {
+        super.onPause();
         if (mediaBrowser != null) {
             mediaBrowser.disconnect();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaController.unregisterCallback(callback);
         unregisterReceiver(interfaceRecolorReceiver);
     }
 
