@@ -25,8 +25,14 @@ Awesome music player with great future written for android with Java.
   - Custom pictures for playlists
   - Editing playlists by dragging items
   - Basic Equalizer
-  - Beautiful interface coloring
   - Some other small pleasant features
+  
+## Installation
+
+  1. Download [latest release](https://github.com/zelenyhleb/tortoise/releases/latest) .apk file. 
+  2. Run it on your android phone.
+  3. ??????
+  4. PROFIT
 
 ## Requirements
 
