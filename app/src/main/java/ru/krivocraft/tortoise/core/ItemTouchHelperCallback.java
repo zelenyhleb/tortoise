@@ -23,15 +23,17 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private ItemTouchHelperAdapter adapter;
+    private final boolean isSwipeEnabled;
 
-    public ItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
+    public ItemTouchHelperCallback(ItemTouchHelperAdapter adapter, boolean isSwipeEnabled) {
         this.adapter = adapter;
+        this.isSwipeEnabled = isSwipeEnabled;
     }
 
     @Override
     public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
         int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        int swipeFlags = ItemTouchHelper.LEFT;
         return makeMovementFlags(dragFlags, swipeFlags);
     }
 
@@ -44,12 +46,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-        adapter.onDragCompleted();
+        adapter.onClearView();
     }
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        //Do nothing (No swipe provided by business logic)
+        adapter.onSwipe(viewHolder);
     }
 
     @Override
@@ -59,6 +61,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean isItemViewSwipeEnabled() {
-        return false;
+        return isSwipeEnabled;
     }
 }

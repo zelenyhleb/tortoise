@@ -112,7 +112,6 @@ public class TrackListFragment extends BaseFragment {
                                 new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
                                 context,
                                 showControls,
-                                true,
                                 getShowHidden(), null
                         ));
                         if (s.length() == 0) {
@@ -158,7 +157,7 @@ public class TrackListFragment extends BaseFragment {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, getShowHidden(), (from, to) -> {
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, getShowHidden(), (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
             int offsetTop = 0;
@@ -179,7 +178,13 @@ public class TrackListFragment extends BaseFragment {
 
         this.recyclerView.setLayoutManager(layoutManager);
         this.recyclerView.setAdapter(tracksAdapter);
-        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter);
+
+        //Swipe will be enabled if:
+        //It is a temp playlist in large player fragment
+        //It is custom playlist in explorer
+        boolean isSwipeEnabled = !showControls || trackList.getType() == TrackList.TRACK_LIST_CUSTOM;
+
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(tracksAdapter, isSwipeEnabled);
         touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(recyclerView);
 

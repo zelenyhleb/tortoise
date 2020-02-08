@@ -16,10 +16,14 @@
 
 package ru.krivocraft.tortoise.core;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 public interface ItemTouchHelperAdapter {
 
     boolean onItemMove(int fromPosition, int toPosition);
 
-    void onDragCompleted();
+    void onClearView();
+
+    void onSwipe(RecyclerView.ViewHolder position);
 
 }
