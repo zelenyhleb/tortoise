@@ -16,10 +16,8 @@
 
 package ru.krivocraft.tortoise.fragments.tracklist;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +31,6 @@ import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackListsAdapter;
-import ru.krivocraft.tortoise.core.track.TracksProvider;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 
 import java.util.List;
@@ -90,14 +87,13 @@ public class TrackListsGridFragment extends BaseFragment {
         gridView.setAdapter(adapter);
     }
 
-    private boolean showEditor(Context context, TrackList itemAtPosition) {
+    private void showEditor(Context context, TrackList itemAtPosition) {
         if (!(itemAtPosition.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(TrackListsStorageManager.FAVORITES_DISPLAY_NAME))) {
             Intent intent = new Intent(context, TrackListEditorActivity.class);
             intent.putExtra(TrackList.EXTRA_TRACK_LIST, itemAtPosition.toJson());
             intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, false);
             context.startActivity(intent);
         }
-        return true;
     }
 
     private void setListener(OnItemClickListener listener) {

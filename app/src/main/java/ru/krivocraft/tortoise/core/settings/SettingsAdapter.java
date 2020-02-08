@@ -88,6 +88,8 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_telegram);
             case KEY_SHOW_IGNORED:
                 return getContext().getResources().getString(R.string.show_hidden_tracks);
+            case KEY_HELP:
+                return getContext().getResources().getString(R.string.link_help);
             default:
                 return getContext().getResources().getString(R.string.settings_item_default);
         }

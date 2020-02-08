@@ -52,7 +52,8 @@ public class SettingsFragment extends BaseFragment {
                 SettingsStorageManager.KEY_RECOGNIZE_NAMES,
                 SettingsStorageManager.KEY_SHOW_IGNORED,
                 SettingsStorageManager.KEY_WEBSITE,
-                SettingsStorageManager.KEY_TELEGRAM);
+                SettingsStorageManager.KEY_TELEGRAM,
+                SettingsStorageManager.KEY_HELP);
     }
 
     @Override
