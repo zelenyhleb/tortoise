@@ -16,9 +16,9 @@
 
 package ru.krivocraft.tortoise.tasks;
 
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.track.TrackList;
+
+import java.util.List;
 
 public interface OnTrackListsReadCallback {
     void onTrackListsRead(List<TrackList> trackLists);

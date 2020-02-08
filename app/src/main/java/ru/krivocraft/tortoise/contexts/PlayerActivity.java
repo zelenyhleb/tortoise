@@ -26,13 +26,11 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;

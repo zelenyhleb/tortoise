@@ -18,7 +18,6 @@ package ru.krivocraft.tortoise.tasks;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.utils.Art;
 

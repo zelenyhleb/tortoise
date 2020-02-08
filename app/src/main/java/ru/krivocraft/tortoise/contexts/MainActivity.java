@@ -27,11 +27,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.OldStuffCollector;
 import ru.krivocraft.tortoise.core.track.Track;

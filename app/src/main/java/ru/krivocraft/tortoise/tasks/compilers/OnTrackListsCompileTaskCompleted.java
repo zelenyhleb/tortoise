@@ -16,10 +16,10 @@
 
 package ru.krivocraft.tortoise.tasks.compilers;
 
+import ru.krivocraft.tortoise.core.track.Track;
+
 import java.util.List;
 import java.util.Map;
-
-import ru.krivocraft.tortoise.core.track.Track;
 
 public interface OnTrackListsCompileTaskCompleted {
     void onTrackListsCompiled(Map<String, List<Track>> trackLists);

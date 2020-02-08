@@ -27,13 +27,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
@@ -41,6 +36,9 @@ import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackListAdapter;
 import ru.krivocraft.tortoise.core.track.TracksProvider;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrackListsGridFragment extends BaseFragment {
 

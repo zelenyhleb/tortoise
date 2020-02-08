@@ -33,16 +33,15 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EqualizerFragment extends BaseFragment {
 

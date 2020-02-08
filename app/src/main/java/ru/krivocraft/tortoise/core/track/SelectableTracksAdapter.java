@@ -24,13 +24,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import ru.krivocraft.tortoise.R;
 
 import java.util.List;
-
-import ru.krivocraft.tortoise.R;
 
 public class SelectableTracksAdapter extends ArrayAdapter<Track> {
 

@@ -25,17 +25,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.storage.ThumbnailStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.tasks.GetAlbumArtTask;
+
+import java.io.IOException;
+import java.util.List;
 
 public class TrackListAdapter extends ArrayAdapter<TrackList> {
 

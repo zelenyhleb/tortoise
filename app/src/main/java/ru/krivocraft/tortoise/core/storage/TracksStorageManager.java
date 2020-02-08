@@ -17,15 +17,13 @@
 package ru.krivocraft.tortoise.core.storage;
 
 import android.content.Context;
-
 import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TracksStorageManager {
 

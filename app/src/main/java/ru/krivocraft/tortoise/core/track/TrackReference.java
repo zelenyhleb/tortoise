@@ -17,7 +17,6 @@
 package ru.krivocraft.tortoise.core.track;
 
 import androidx.annotation.NonNull;
-
 import com.google.gson.Gson;
 
 import java.util.Objects;

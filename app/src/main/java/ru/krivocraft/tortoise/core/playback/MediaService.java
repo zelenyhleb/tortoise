@@ -24,12 +24,8 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.session.MediaButtonReceiver;
-
-import java.util.Objects;
-
 import ru.krivocraft.tortoise.contexts.MainActivity;
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
@@ -38,6 +34,8 @@ import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.core.track.TracksProvider;
+
+import java.util.Objects;
 
 import static android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY;
 

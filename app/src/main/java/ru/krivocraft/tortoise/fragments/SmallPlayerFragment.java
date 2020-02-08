@@ -36,15 +36,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.PlayerActivity;
 import ru.krivocraft.tortoise.core.ColorManager;
@@ -52,6 +46,9 @@ import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
 import ru.krivocraft.tortoise.core.utils.Milliseconds;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SmallPlayerFragment extends BaseFragment {
 

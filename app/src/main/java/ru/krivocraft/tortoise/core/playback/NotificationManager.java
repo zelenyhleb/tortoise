@@ -26,10 +26,8 @@ import android.graphics.BitmapFactory;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.PlayerActivity;
 import ru.krivocraft.tortoise.core.ColorManager;

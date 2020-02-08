@@ -16,9 +16,9 @@
 
 package ru.krivocraft.tortoise.tasks;
 
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.track.Track;
+
+import java.util.List;
 
 public interface OnStorageUpdateCallback {
     void onStorageUpdate(List<Track> tracks);

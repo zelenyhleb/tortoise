@@ -19,14 +19,12 @@ package ru.krivocraft.tortoise.contexts;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
+import ru.krivocraft.tortoise.core.playback.MediaService;
 
 import java.util.List;
-
-import ru.krivocraft.tortoise.core.playback.MediaService;
 
 public class AndroidMediaService extends MediaBrowserServiceCompat {
 

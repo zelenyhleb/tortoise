@@ -18,13 +18,12 @@ package ru.krivocraft.tortoise.tasks;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReadTrackListsTask extends AsyncTask<Void, Integer, List<TrackList>> {
 

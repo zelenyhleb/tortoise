@@ -32,15 +32,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ItemTouchHelperCallback;
 import ru.krivocraft.tortoise.core.Searcher;
@@ -50,6 +46,8 @@ import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.core.track.TracksAdapter;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
+
+import java.util.List;
 
 public class TrackListFragment extends BaseFragment {
 

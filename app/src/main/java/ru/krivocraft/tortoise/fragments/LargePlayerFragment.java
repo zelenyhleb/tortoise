@@ -18,43 +18,24 @@ package ru.krivocraft.tortoise.fragments;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.os.*;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
-
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
-
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.playback.MediaService;
@@ -67,6 +48,10 @@ import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.core.utils.Art;
 import ru.krivocraft.tortoise.core.utils.Milliseconds;
 import ru.krivocraft.tortoise.core.utils.Seconds;
+
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
 

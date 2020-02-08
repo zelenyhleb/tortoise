@@ -18,7 +18,6 @@ package ru.krivocraft.tortoise.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 

@@ -23,21 +23,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-
-import java.util.ArrayList;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListsGridFragment;
+
+import java.util.ArrayList;
 
 public class ExplorerFragment extends BaseFragment {
 
