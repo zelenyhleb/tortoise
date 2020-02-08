@@ -39,6 +39,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.Searcher;
@@ -167,9 +168,12 @@ public class TrackListEditorActivity extends BaseActivity {
         apply.setOnClickListener(v -> {
             if (checkTrackList(changed.size(), changed.getDisplayName(), TrackListEditorActivity.this)) {
                 if (!creation) {
-                    trackListsStorageManager.clearTrackList(changed.getIdentifier());
-                    trackListsStorageManager.updateTrackListData(changed);
-                    trackListsStorageManager.updateTrackListContent(changed);
+                    if (!Objects.equals(changed.getDisplayName(), source.getDisplayName())) {
+                        trackListsStorageManager.removeTrackList(source);
+                        trackListsStorageManager.writeTrackList(changed);
+                    } else {
+                        trackListsStorageManager.updateTrackListContent(changed);
+                    }
                 } else {
                     trackListsStorageManager.writeTrackList(new TrackList(changed.getDisplayName(), changed.getTrackReferences(), changed.getType()));
                 }
@@ -307,7 +311,7 @@ public class TrackListEditorActivity extends BaseActivity {
     private void replaceThumbnail() {
         try {
             thumbnailStorageManager.replaceThumbnail(source.getIdentifier(), changed.getIdentifier());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

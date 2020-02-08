@@ -68,7 +68,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_label, null);
                 String key = objects.get(position);
                 View layout = itemView.findViewById(R.id.menu_item);
-                layout.setOnClickListener(view -> goToUrl(key));
+                layout.setOnClickListener(view -> openURL(key));
                 TextView textView = itemView.findViewById(R.id.settings_text);
                 textView.setText(getDescription(key));
             } else {
@@ -93,7 +93,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         }
     }
 
-    private void goToUrl(String url) {
+    private void openURL(String url) {
         Uri uriUrl = Uri.parse(url);
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
         getContext().startActivity(launchBrowser);

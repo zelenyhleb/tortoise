@@ -42,11 +42,8 @@ public class ExplorerFragment extends BaseFragment {
 
     private TrackListsGridFragment.OnItemClickListener listener;
 
-    public static ExplorerFragment newInstance(TrackListsGridFragment.OnItemClickListener listener, Explorer explorer) {
-        ExplorerFragment explorerFragment = new ExplorerFragment();
-        explorerFragment.setListener(listener);
-        explorerFragment.setExplorer(explorer);
-        return explorerFragment;
+    public static ExplorerFragment newInstance() {
+        return new ExplorerFragment();
     }
 
     @Nullable
@@ -86,14 +83,14 @@ public class ExplorerFragment extends BaseFragment {
 
         TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
         Context activity = view.getContext();
-        if (activity != null) {
+        if (activity != null && explorer != null) {
             this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
             pager.setAdapter(adapter);
             pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
             tabLayout.setupWithViewPager(pager);
             invalidate();
+            explorer.compileTrackLists();
         }
-        explorer.compileTrackLists();
     }
 
     @Override
@@ -116,11 +113,11 @@ public class ExplorerFragment extends BaseFragment {
         context.startActivity(intent);
     }
 
-    private void setListener(TrackListsGridFragment.OnItemClickListener listener) {
+    public void setListener(TrackListsGridFragment.OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    private void setExplorer(Explorer explorer) {
+    public void setExplorer(Explorer explorer) {
         this.explorer = explorer;
     }
 }

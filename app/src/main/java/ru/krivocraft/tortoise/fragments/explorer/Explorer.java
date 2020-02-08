@@ -53,6 +53,7 @@ public class Explorer {
     private void onNewTrackLists(List<TrackList> trackLists) {
         for (TrackList trackList : trackLists) {
             if (tracksStorageManager.getExistingTrackListNames().contains(trackList.getDisplayName())) {
+                tracksStorageManager.clearTrackList(trackList.getIdentifier());
                 tracksStorageManager.updateTrackListContent(trackList);
             } else {
                 tracksStorageManager.writeTrackList(trackList);

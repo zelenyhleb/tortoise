@@ -112,7 +112,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private ExplorerFragment getExplorerFragment() {
-        return ExplorerFragment.newInstance(this::showTrackListFragment, explorer);
+        ExplorerFragment explorerFragment = ExplorerFragment.newInstance();
+        explorerFragment.setExplorer(explorer);
+        explorerFragment.setListener(this::showTrackListFragment);
+        return explorerFragment;
     }
 
     private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
@@ -122,7 +125,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        explorer = new Explorer(this::invalidate, this);
         clearOld();
     }
 
@@ -138,6 +140,8 @@ public class MainActivity extends BaseActivity {
 
         startService();
         registerPlayerControlReceiver();
+
+        explorer = new Explorer(this::invalidate, this);
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);

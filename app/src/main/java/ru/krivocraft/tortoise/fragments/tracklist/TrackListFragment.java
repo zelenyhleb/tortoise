@@ -128,13 +128,20 @@ public class TrackListFragment extends BaseFragment {
                 searchFrame.setVisibility(View.VISIBLE);
                 playRandomly.setVisibility(View.VISIBLE);
                 playRandomly.setOnClickListener(view1 -> {
-                    int randomTrack = new Random().nextInt(trackList.size() - 1);
-                    TrackReference reference = trackList.getTrackReferences().get(randomTrack);
-                    trackList.shuffle(reference);
-                    Intent serviceIntent = new Intent(MediaService.ACTION_PLAY_FROM_LIST);
-                    serviceIntent.putExtra(Track.EXTRA_TRACK, reference.toJson());
-                    serviceIntent.putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson());
-                    view1.getContext().sendBroadcast(serviceIntent);
+                    if (trackList.size() > 0) {
+                        TrackReference reference;
+                        if (trackList.size() > 1) {
+                            int randomTrack = new Random().nextInt(trackList.size() - 1);
+                            reference = trackList.getTrackReferences().get(randomTrack);
+                            trackList.shuffle(reference);
+                        } else {
+                            reference = trackList.get(0);
+                        }
+                        Intent serviceIntent = new Intent(MediaService.ACTION_PLAY_FROM_LIST);
+                        serviceIntent.putExtra(Track.EXTRA_TRACK, reference.toJson());
+                        serviceIntent.putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson());
+                        view1.getContext().sendBroadcast(serviceIntent);
+                    }
                 });
             }
         }
