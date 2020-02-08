@@ -17,11 +17,10 @@
 package ru.krivocraft.tortoise.tasks.compilers;
 
 import android.os.AsyncTask;
+import ru.krivocraft.tortoise.core.track.Track;
 
 import java.util.List;
 import java.util.Map;
-
-import ru.krivocraft.tortoise.core.track.Track;
 
 public abstract class CompileTrackListsTask extends AsyncTask<Track, Integer, Map<String, List<Track>>> {
 

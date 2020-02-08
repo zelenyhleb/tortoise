@@ -17,16 +17,13 @@
 package ru.krivocraft.tortoise.fragments.explorer;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
+import ru.krivocraft.tortoise.core.TrackListsCompiler;
+import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.track.TrackList;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.krivocraft.tortoise.core.TrackListsCompiler;
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
-import ru.krivocraft.tortoise.core.track.Track;
-import ru.krivocraft.tortoise.core.track.TrackList;
 
 public class Explorer {
 

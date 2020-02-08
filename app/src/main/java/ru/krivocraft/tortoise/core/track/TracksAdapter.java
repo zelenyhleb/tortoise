@@ -25,17 +25,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.MainActivity;
 import ru.krivocraft.tortoise.core.ColorManager;
@@ -43,6 +36,10 @@ import ru.krivocraft.tortoise.core.ItemTouchHelperAdapter;
 import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.tasks.LoadArtTask;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private TrackList trackList;

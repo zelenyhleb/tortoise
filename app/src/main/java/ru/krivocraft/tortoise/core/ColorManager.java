@@ -18,14 +18,12 @@ package ru.krivocraft.tortoise.core;
 
 import android.content.Context;
 import android.graphics.Color;
-
 import androidx.core.content.res.ResourcesCompat;
+import ru.krivocraft.tortoise.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import ru.krivocraft.tortoise.R;
 
 public class ColorManager {
 

@@ -16,13 +16,13 @@
 
 package ru.krivocraft.tortoise.tasks.compilers;
 
+import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.track.Track;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
-import ru.krivocraft.tortoise.core.track.Track;
 
 public class CompileFavoritesTask extends CompileTrackListsTask {
 

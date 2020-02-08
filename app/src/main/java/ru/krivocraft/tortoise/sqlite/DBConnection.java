@@ -21,17 +21,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBConnection {
     private static final String TRACKS = "tracks";

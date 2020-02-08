@@ -18,11 +18,6 @@ package ru.krivocraft.tortoise.core;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
@@ -30,6 +25,10 @@ import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.tasks.compilers.CompileByAuthorTask;
 import ru.krivocraft.tortoise.tasks.compilers.CompileFavoritesTask;
 import ru.krivocraft.tortoise.tasks.compilers.CompileTrackListsTask;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class TrackListsCompiler {
     private final TracksStorageManager tracksStorageManager;

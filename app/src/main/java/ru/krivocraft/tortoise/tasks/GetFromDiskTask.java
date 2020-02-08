@@ -21,12 +21,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import ru.krivocraft.tortoise.core.ColorManager;
+import ru.krivocraft.tortoise.core.track.Track;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.track.Track;
 
 public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 

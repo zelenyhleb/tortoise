@@ -22,13 +22,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-
-import java.util.Arrays;
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.settings.SettingsAdapter;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class SettingsFragment extends BaseFragment {
 

@@ -23,14 +23,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-
 import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.TextChangeSolver;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;

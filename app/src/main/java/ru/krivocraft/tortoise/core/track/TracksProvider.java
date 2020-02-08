@@ -19,15 +19,14 @@ package ru.krivocraft.tortoise.core.track;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.tasks.GetFromDiskTask;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TracksProvider {
 

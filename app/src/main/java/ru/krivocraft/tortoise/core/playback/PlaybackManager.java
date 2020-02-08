@@ -25,11 +25,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
@@ -37,6 +32,10 @@ import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 

@@ -17,15 +17,14 @@
 package ru.krivocraft.tortoise.core;
 
 import android.content.Context;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Searcher {
 

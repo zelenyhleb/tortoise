@@ -26,14 +26,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.util.List;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
+
+import java.util.List;
 
 import static ru.krivocraft.tortoise.core.storage.SettingsStorageManager.*;
 

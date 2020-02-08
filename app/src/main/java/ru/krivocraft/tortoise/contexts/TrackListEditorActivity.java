@@ -27,20 +27,10 @@ import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
-
+import android.widget.*;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.Searcher;
 import ru.krivocraft.tortoise.core.TextChangeSolver;
@@ -51,6 +41,10 @@ import ru.krivocraft.tortoise.core.track.SelectableTracksAdapter;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 public class TrackListEditorActivity extends BaseActivity {
 

@@ -17,7 +17,6 @@
 package ru.krivocraft.tortoise.core.storage;
 
 import android.media.audiofx.Equalizer;
-
 import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
 
 public class EqualizerStorageManager {
