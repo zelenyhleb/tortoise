@@ -24,38 +24,35 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ProgressBar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
-import ru.krivocraft.tortoise.core.track.TrackListAdapter;
+import ru.krivocraft.tortoise.core.track.TrackListsAdapter;
 import ru.krivocraft.tortoise.core.track.TracksProvider;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 
+import java.util.List;
+
 public class TrackListsGridFragment extends BaseFragment {
 
-    private TrackListAdapter adapter;
+    private TrackListsAdapter adapter;
     private OnItemClickListener listener;
 
     private ProgressBar progressBar;
     private List<TrackList> trackLists;
 
     public static TrackListsGridFragment newInstance(OnItemClickListener listener, List<TrackList> trackLists, Context context) {
-        TrackListsGridFragment explorerFragment = new TrackListsGridFragment();
-        explorerFragment.createAdapter(context);
-        explorerFragment.setListener(listener);
-        explorerFragment.setTrackLists(trackLists);
-        return explorerFragment;
+        TrackListsGridFragment fragment = new TrackListsGridFragment();
+        fragment.setListener(listener);
+        fragment.setTrackLists(trackLists);
+        fragment.createAdapter(context);
+        return fragment;
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -83,19 +80,28 @@ public class TrackListsGridFragment extends BaseFragment {
 
     private void createAdapter(Context context) {
         if (adapter == null) {
-            adapter = new TrackListAdapter(new ArrayList<>(), context);
+            TrackListsAdapter.OnClickListener listener = new TrackListsAdapter.OnClickListener() {
+                @Override
+                public void onClick(TrackList trackList) {
+                    TrackListsGridFragment.this.listener.onItemClick(trackList);
+                }
+
+                @Override
+                public void onLongClick(TrackList trackList) {
+                    showEditor(context, trackList);
+                }
+            };
+            adapter = new TrackListsAdapter(trackLists, context, listener);
         }
     }
 
     private void configureGridView(View rootView, Context context) {
-        GridView gridView = rootView.findViewById(R.id.playlists_grid);
+        RecyclerView gridView = rootView.findViewById(R.id.playlists_grid);
+        gridView.setLayoutManager(new GridLayoutManager(context, 2));
         gridView.setAdapter(adapter);
-        gridView.setOnItemClickListener((parent, view, position, id) -> listener.onItemClick((TrackList) parent.getItemAtPosition(position)));
-        gridView.setOnItemLongClickListener((parent, view, position, id) -> showEditor(context, parent, position));
     }
 
-    private boolean showEditor(Context context, AdapterView<?> parent, int position) {
-        TrackList itemAtPosition = (TrackList) parent.getItemAtPosition(position);
+    private boolean showEditor(Context context, TrackList itemAtPosition) {
         if (!(itemAtPosition.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(TrackListsStorageManager.FAVORITES_DISPLAY_NAME))) {
             Intent intent = new Intent(context, TrackListEditorActivity.class);
             intent.putExtra(TrackList.EXTRA_TRACK_LIST, itemAtPosition.toJson());
@@ -113,8 +119,8 @@ public class TrackListsGridFragment extends BaseFragment {
     }
 
     private void redrawList(List<TrackList> trackLists) {
-        adapter.clear();
-        adapter.addAll(trackLists);
+//        adapter.clear();
+//        adapter.addAll(trackLists);
         adapter.notifyDataSetChanged();
     }
 

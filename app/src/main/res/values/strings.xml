@@ -44,4 +44,5 @@
     <string name="play_in_random_order">Play in random order</string>
     <string name="settings_website">Our website</string>
     <string name="settings_telegram">Our telegram</string>
+    <string name="show_hidden_tracks">Show hidden tracks</string>
 </resources>

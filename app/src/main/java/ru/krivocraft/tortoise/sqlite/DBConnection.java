@@ -53,6 +53,7 @@ public class DBConnection {
         values.put("liked", track.isLiked() ? 1 : 0);
         values.put("color", track.getColor());
         values.put("selected", track.isSelected() ? 1 : 0);
+        values.put("ignored", track.isIgnored() ? 1: 0);
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
         database.insert(TRACKS, null, values);
@@ -67,6 +68,7 @@ public class DBConnection {
         values.put("color", track.getColor());
         values.put("playing", track.isPlaying() ? 1 : 0);
         values.put("liked", track.isLiked() ? 1 : 0);
+        values.put("ignored", track.isIgnored() ? 1: 0);
         values.put("selected", track.isSelected() ? 1 : 0);
         database.update(TRACKS, values, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
     }
@@ -93,8 +95,9 @@ public class DBConnection {
             boolean liked = cursor.getInt(cursor.getColumnIndex("liked")) == 1;
             boolean selected = cursor.getInt(cursor.getColumnIndex("selected")) == 1;
             boolean playing = cursor.getInt(cursor.getColumnIndex("playing")) == 1;
+            boolean ignored = cursor.getInt(cursor.getColumnIndex("ignored")) == 1;
 
-            track = new Track(duration, artist, title, path, liked, selected, playing, color);
+            track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored);
         }
         cursor.close();
         return track;
@@ -168,6 +171,7 @@ public class DBConnection {
             int likedIndex = cursor.getColumnIndex("liked");
             int selectedIndex = cursor.getColumnIndex("selected");
             int playingIndex = cursor.getColumnIndex("playing");
+            int ignoredIndex = cursor.getColumnIndex("ignored");
             do {
                 long duration = cursor.getLong(durationIndex);
                 String artist = cursor.getString(artistIndex);
@@ -176,9 +180,10 @@ public class DBConnection {
                 boolean liked = cursor.getInt(likedIndex) == 1;
                 boolean selected = cursor.getInt(selectedIndex) == 1;
                 boolean playing = cursor.getInt(playingIndex) == 1;
+                boolean ignored = cursor.getInt(ignoredIndex) == 1;
                 int color = cursor.getInt(colorIndex);
 
-                Track track = new Track(duration, artist, title, path, liked, selected, playing, color);
+                Track track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored);
                 tracks.add(track);
             } while (cursor.moveToNext());
         }
@@ -239,7 +244,7 @@ public class DBConnection {
         return trackLists;
     }
 
-    public TrackList getTrackList(String identifier) {
+    private TrackList getTrackList(String identifier) {
         TrackList trackList = null;
         Cursor cursor = database.query(TRACK_LISTS, null, "id = ?", new String[]{identifier}, null, null, null);
         if (cursor.moveToFirst()) {
@@ -314,7 +319,7 @@ public class DBConnection {
         private final ColorManager colorManager;
 
         DBHelper(@Nullable Context context) {
-            super(context, "tracks", null, 2);
+            super(context, "tracks", null, 3);
             this.colorManager = new ColorManager(context);
         }
 
@@ -347,11 +352,20 @@ public class DBConnection {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            try {
-                db.execSQL("SELECT color FROM " + TRACKS);
-            } catch (Exception e) {
-                db.execSQL("alter table " + TRACKS + " add column color integer default " + ColorManager.GREEN);
-                generateColors(db);
+            if (oldVersion == 1) {
+                try {
+                    db.execSQL("SELECT color FROM " + TRACKS);
+                } catch (Exception e) {
+                    db.execSQL("alter table " + TRACKS + " add column color integer default " + ColorManager.GREEN);
+                    generateColors(db);
+                }
+            }
+            if (newVersion == 3) {
+                try {
+                    db.execSQL("SELECT ignored FROM " + TRACKS);
+                } catch (Exception e) {
+                    db.execSQL("alter table " + TRACKS + " add column ignored integer default 0");
+                }
             }
         }
 
@@ -372,6 +386,7 @@ public class DBConnection {
                 int likedIndex = cursor.getColumnIndex("liked");
                 int selectedIndex = cursor.getColumnIndex("selected");
                 int playingIndex = cursor.getColumnIndex("playing");
+                int ignoredIndex = cursor.getColumnIndex("ignored");
                 do {
                     long duration = cursor.getLong(durationIndex);
                     String artist = cursor.getString(artistIndex);
@@ -380,9 +395,10 @@ public class DBConnection {
                     boolean liked = cursor.getInt(likedIndex) == 1;
                     boolean selected = cursor.getInt(selectedIndex) == 1;
                     boolean playing = cursor.getInt(playingIndex) == 1;
+                    boolean ignored = cursor.getInt(ignoredIndex) == 1;
                     int color = cursor.getInt(colorIndex);
 
-                    Track track = new Track(duration, artist, title, path, liked, selected, playing, color);
+                    Track track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored);
                     updateColor(db, track);
                 } while (cursor.moveToNext());
             }

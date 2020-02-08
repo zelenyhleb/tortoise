@@ -35,6 +35,7 @@ import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ItemTouchHelperCallback;
 import ru.krivocraft.tortoise.core.Searcher;
 import ru.krivocraft.tortoise.core.playback.MediaService;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
@@ -112,7 +113,7 @@ public class TrackListFragment extends BaseFragment {
                                 context,
                                 showControls,
                                 true,
-                                null
+                                getShowHidden(), null
                         ));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
@@ -157,7 +158,7 @@ public class TrackListFragment extends BaseFragment {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, (from, to) -> {
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, !showControls, getShowHidden(), (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
             int offsetTop = 0;
@@ -184,6 +185,10 @@ public class TrackListFragment extends BaseFragment {
 
         tracksAdapter.notifyDataSetChanged();
         layoutManager.scrollToPosition(getSelectedItem());
+    }
+
+    private boolean getShowHidden() {
+        return getSettingsManager().getOption(SettingsStorageManager.KEY_SHOW_IGNORED, false);
     }
 
     private int getSelectedItem() {

@@ -23,8 +23,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -69,9 +71,11 @@ public class TrackEditorFragment extends BaseFragment {
 
         EditText title = rootView.findViewById(R.id.metadata_editor_title_edit);
         EditText artist = rootView.findViewById(R.id.metadata_editor_artist_edit);
+        Switch ignored = rootView.findViewById(R.id.metadata_editor_ignored_edit);
 
         title.setText(changed.getTitle());
         artist.setText(changed.getArtist());
+        ignored.setChecked(changed.isIgnored());
 
         Button cancel = rootView.findViewById(R.id.metadata_editor_button_cancel);
         cancel.setOnClickListener(v -> showNotSavedPrompt());
@@ -91,6 +95,8 @@ public class TrackEditorFragment extends BaseFragment {
 
             listener.onComplete();
         });
+
+        ignored.setOnCheckedChangeListener((compoundButton, b) -> changed.setIgnored(b));
 
         title.addTextChangedListener(new TextChangeSolver() {
             @Override

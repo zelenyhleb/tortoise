@@ -32,6 +32,7 @@ import java.util.List;
 
 import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
@@ -180,6 +181,10 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
             pause();
             deselectCurrentTrack();
             this.cursor = cursor;
+            if (!settings.getBoolean(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(getSelectedTrackReference()).isIgnored()) {
+                nextTrack();
+                return;
+            }
             selectCurrentTrack();
             playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getSelectedTrackReference()));
             play();

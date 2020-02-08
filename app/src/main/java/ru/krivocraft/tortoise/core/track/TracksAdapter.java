@@ -32,7 +32,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.MainActivity;
@@ -51,7 +53,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private AdapterListener listener;
     private ColorManager colorManager;
 
-    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp, AdapterListener listener) {
+    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean temp, boolean showIgnored, AdapterListener listener) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
@@ -60,6 +62,19 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         this.colorManager = new ColorManager(context);
         this.listener = listener;
         setHasStableIds(true);
+        if (!showIgnored) {
+            hideIgnored();
+        }
+    }
+
+    private void hideIgnored() {
+        List<TrackReference> ignored = new ArrayList<>();
+        for (TrackReference reference : this.trackList.getTrackReferences()) {
+            if (tracksStorageManager.getTrack(reference).isIgnored()) {
+                ignored.add(reference);
+            }
+        }
+        this.trackList.removeAll(ignored);
     }
 
     @NonNull

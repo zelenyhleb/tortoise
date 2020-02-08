@@ -233,6 +233,8 @@ public class MainActivity extends BaseActivity {
                 showExplorerFragment();
             } else if (currentFragment instanceof TrackListFragment) {
                 showExplorerFragment();
+            } else if (currentFragment instanceof TrackEditorFragment) {
+                ((TrackEditorFragment) currentFragment).onBackPressed();
             }
         }
         onFragmentChanged();
