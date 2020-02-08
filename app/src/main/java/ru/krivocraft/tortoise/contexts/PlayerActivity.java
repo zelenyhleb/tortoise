@@ -67,7 +67,6 @@ public class PlayerActivity extends BaseActivity {
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
         filter.addAction(MainActivity.ACTION_HIDE_PLAYER);
         registerReceiver(receiver, filter);
-
         IntentFilter trackListFilter = new IntentFilter();
         trackListFilter.addAction(MediaService.ACTION_UPDATE_TRACK_LIST);
         registerReceiver(trackListReceiver, trackListFilter);
@@ -119,7 +118,6 @@ public class PlayerActivity extends BaseActivity {
             }
         }
     };
-
     private void changeEqualizerState() {
         if (equalizerFragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager()
@@ -140,7 +138,6 @@ public class PlayerActivity extends BaseActivity {
                     view.setBackgroundResource(R.drawable.background_light);
                 } else {
                     view.setBackgroundResource(R.drawable.background_dark);
-
                 }
             }
         }
@@ -181,6 +178,7 @@ public class PlayerActivity extends BaseActivity {
                 mediaController.getTransportControls().seekTo(position);
             }
         });
+
     }
 
     private void initPager() {

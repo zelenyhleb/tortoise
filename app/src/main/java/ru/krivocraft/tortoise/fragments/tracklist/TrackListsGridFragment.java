@@ -15,7 +15,6 @@
  */
 
 package ru.krivocraft.tortoise.fragments.tracklist;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,11 +31,9 @@ import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackListsAdapter;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
-
 import java.util.List;
 
 public class TrackListsGridFragment extends BaseFragment {
-
     private TrackListsAdapter adapter;
     private OnItemClickListener listener;
 
@@ -49,7 +46,7 @@ public class TrackListsGridFragment extends BaseFragment {
         fragment.createAdapter(context);
         return fragment;
     }
-
+  
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_track_list_stack, container, false);

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 public class ExplorerFragment extends BaseFragment {
 
     private ExplorerPagerAdapter adapter;
+
     private Explorer explorer;
 
     private TrackListsGridFragment.OnItemClickListener listener;
@@ -91,12 +92,6 @@ public class ExplorerFragment extends BaseFragment {
             invalidate();
             explorer.compileTrackLists();
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
     }
 
     @Override

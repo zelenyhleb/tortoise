@@ -331,6 +331,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                     nextTrack();
                 } else {
                     stop();
+               
                 }
                 System.out.println("LOOP NONE");
                 break;

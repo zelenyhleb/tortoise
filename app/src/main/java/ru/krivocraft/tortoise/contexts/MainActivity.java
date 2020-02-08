@@ -75,7 +75,6 @@ public class MainActivity extends BaseActivity {
 
     private BaseFragment currentFragment;
     private Explorer explorer;
-
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
         showSmallPlayerFragment();
@@ -140,7 +139,7 @@ public class MainActivity extends BaseActivity {
 
         startService();
         registerPlayerControlReceiver();
-
+      
         explorer = new Explorer(this::invalidate, this);
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
@@ -174,7 +173,7 @@ public class MainActivity extends BaseActivity {
     private void invalidate() {
         runOnUiThread(currentFragment::invalidate);
     }
-
+  
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_main, menu);
@@ -344,7 +343,6 @@ public class MainActivity extends BaseActivity {
                     .beginTransaction()
                     .remove(fragment)
                     .commitNowAllowingStateLoss();
-
         }
     }
 

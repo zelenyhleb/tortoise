@@ -62,5 +62,6 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean isItemViewSwipeEnabled() {
         return isSwipeEnabled;
+
     }
 }

@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.core.TrackListsCompiler;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +29,8 @@ public class Explorer {
     private final TrackListsStorageManager tracksStorageManager;
     private final TrackListsCompiler trackListsCompiler;
     private final OnTrackListsCompiledListener listener;
-
     private List<TrackList> customLists = new ArrayList<>();
     private List<TrackList> sortedLists = new ArrayList<>();
-
     public Explorer(OnTrackListsCompiledListener listener, @NonNull Context context) {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
@@ -71,7 +68,7 @@ public class Explorer {
         trackListsCompiler.compileFavorites(this::onNewTrackLists);
         trackListsCompiler.compileByAuthors(this::onNewTrackLists);
     }
-
+  
     List<TrackList> getCustomLists() {
         return customLists;
     }

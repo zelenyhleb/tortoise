@@ -59,7 +59,7 @@ public abstract class BaseFragment extends Fragment {
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }
-
+  
     public void setTitle(String title) {
         this.title = title;
     }

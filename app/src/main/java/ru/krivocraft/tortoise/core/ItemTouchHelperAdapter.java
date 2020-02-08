@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public interface ItemTouchHelperAdapter {
 
     boolean onItemMove(int fromPosition, int toPosition);
-
+  
     void onClearView();
 
     void onSwipe(RecyclerView.ViewHolder position);

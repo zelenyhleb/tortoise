@@ -94,7 +94,6 @@ public class TrackEditorFragment extends BaseFragment {
         });
 
         ignored.setOnCheckedChangeListener((compoundButton, b) -> changed.setIgnored(b));
-
         title.addTextChangedListener(new TextChangeSolver() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {

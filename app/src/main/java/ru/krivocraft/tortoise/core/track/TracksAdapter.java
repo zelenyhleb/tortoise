@@ -50,7 +50,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private TracksStorageManager tracksStorageManager;
     private AdapterListener listener;
     private ColorManager colorManager;
-
     public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean showIgnored, AdapterListener listener) {
         this.trackList = trackList;
         this.context = context;

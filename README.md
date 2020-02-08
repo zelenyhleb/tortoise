@@ -4,8 +4,8 @@ Tortoise
 <img src="http://www.krivocraft.ru/icon.png" height="256px"/>
 
 [![Build Status](https://travis-ci.org/zelenyhleb/tortoise.svg?branch=develop)](https://travis-ci.org/zelenyhleb/tortoise)
-[![Release](https://img.shields.io/badge/Release-Latest%200.3.5-informational.svg)](https://github.com/zelenyhleb/tortoise/releases/latest)
 [![Hits-of-Code](https://hitsofcode.com/github/zelenyhleb/tortoise)](https://hitsofcode.com/view/github/zelenyhleb/tortoise)
+[![Release](https://img.shields.io/badge/Release-Latest%200.3.7-informational.svg)](https://github.com/zelenyhleb/tortoise/releases/latest)
 ![Hex.pm](https://img.shields.io/hexpm/l/tortoise)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8b89073eb0a40f6b8cb43f6580db473)](https://www.codacy.com/manual/zelenyhleb/tortoise?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zelenyhleb/tortoise&amp;utm_campaign=Badge_Grade)
 
