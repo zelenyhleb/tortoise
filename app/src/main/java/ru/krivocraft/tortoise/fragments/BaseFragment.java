@@ -38,7 +38,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void invalidate() {
-
+        //Do nothing. Method can be implemented by inheritors
     }
 
     public SettingsStorageManager getSettingsManager() {
