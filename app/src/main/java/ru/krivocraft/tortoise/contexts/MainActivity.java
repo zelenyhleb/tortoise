@@ -85,6 +85,10 @@ public class MainActivity extends BaseActivity {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null)
             smallPlayerFragment.updateMediaMetadata(newMetadata);
+        recolorInterface(newMetadata);
+    }
+
+    private void recolorInterface(MediaMetadataCompat newMetadata) {
         if (currentFragment instanceof TrackListFragment) {
             TrackListFragment currentFragment = (TrackListFragment) this.currentFragment;
             Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
@@ -111,6 +115,7 @@ public class MainActivity extends BaseActivity {
     @Override
     void onMediaBrowserConnected() {
         showSmallPlayerFragment();
+        recolorInterface(mediaController.getMetadata());
     }
 
     private TrackListFragment getTrackListFragment(TrackList trackList) {
