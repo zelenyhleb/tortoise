@@ -42,6 +42,9 @@ public class ExplorerFragment extends BaseFragment {
     private Explorer explorer;
 
     private TrackListsGridFragment.OnItemClickListener listener;
+    private FloatingActionButton button;
+    private int tintColor;
+    private TabLayout tabLayout;
 
     public static ExplorerFragment newInstance() {
         return new ExplorerFragment();
@@ -54,10 +57,23 @@ public class ExplorerFragment extends BaseFragment {
         return inflater.inflate(R.layout.fragment_explorer, container, false);
     }
 
+    public void changeColor(int colorResource) {
+        if (button != null) {
+            button.setBackgroundTintList(getContext().getResources().getColorStateList(colorResource));
+        }
+        if (tabLayout != null) {
+            tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(colorResource));
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        FloatingActionButton button = view.findViewById(R.id.add_track_list_button);
+        button = view.findViewById(R.id.add_track_list_button);
         button.setOnClickListener(v -> showCreationDialog(v.getContext()));
+
+        tabLayout = view.findViewById(R.id.explorer_tabs);
+
+        changeColor(tintColor);
 
         ViewPager pager = view.findViewById(R.id.explorer_pager);
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -82,7 +98,6 @@ public class ExplorerFragment extends BaseFragment {
             }
         });
 
-        TabLayout tabLayout = view.findViewById(R.id.explorer_tabs);
         Context activity = view.getContext();
         if (activity != null && explorer != null) {
             this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
@@ -114,5 +129,9 @@ public class ExplorerFragment extends BaseFragment {
 
     public void setExplorer(Explorer explorer) {
         this.explorer = explorer;
+    }
+
+    public void setTintColor(int tintColor) {
+        this.tintColor = tintColor;
     }
 }

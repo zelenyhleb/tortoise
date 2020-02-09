@@ -91,6 +91,11 @@ public class MainActivity extends BaseActivity {
             currentFragment.notifyTracksStateChanged();
             currentFragment.changeColor(colorManager.getColorResource(track.getColor()));
         }
+        if (currentFragment instanceof ExplorerFragment) {
+            ExplorerFragment fragment = (ExplorerFragment) this.currentFragment;
+            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+            fragment.changeColor(colorManager.getColorResource(track.getColor()));
+        }
     }
 
     @Override
@@ -129,6 +134,13 @@ public class MainActivity extends BaseActivity {
         ExplorerFragment explorerFragment = ExplorerFragment.newInstance();
         explorerFragment.setExplorer(explorer);
         explorerFragment.setListener(this::showTrackListFragment);
+        try {
+            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(mediaController.getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+            explorerFragment.setTintColor(colorManager.getColorResource(track.getColor()));
+        } catch (NullPointerException e) {
+            //Metadata is null
+            explorerFragment.setTintColor(R.color.green700);
+        }
         return explorerFragment;
     }
 
