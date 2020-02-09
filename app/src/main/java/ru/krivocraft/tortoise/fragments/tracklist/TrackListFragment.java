@@ -98,7 +98,10 @@ public class TrackListFragment extends BaseFragment {
         EditText searchFrame = view.findViewById(R.id.search_edit_text);
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
         playRandomly = view.findViewById(R.id.play_random_button);
-        changeColor(tintColor);
+
+        if (showControls) {
+            changeColor(tintColor);
+        }
 
         final Activity context = getActivity();
         if (context != null) {
