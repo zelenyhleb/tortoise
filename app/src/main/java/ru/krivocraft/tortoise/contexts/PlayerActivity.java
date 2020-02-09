@@ -32,8 +32,10 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
+import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
@@ -118,6 +120,7 @@ public class PlayerActivity extends BaseActivity {
             }
         }
     };
+
     private void changeEqualizerState() {
         if (equalizerFragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager()

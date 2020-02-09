@@ -32,7 +32,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.OldStuffCollector;
+import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
@@ -75,13 +77,19 @@ public class MainActivity extends BaseActivity {
 
     private BaseFragment currentFragment;
     private Explorer explorer;
+    private TracksStorageManager tracksStorageManager;
+    private ColorManager colorManager;
+
     @Override
     void onMetadataChanged(MediaMetadataCompat newMetadata) {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null)
             smallPlayerFragment.updateMediaMetadata(newMetadata);
         if (currentFragment instanceof TrackListFragment) {
-            ((TrackListFragment) currentFragment).notifyTracksStateChanged();
+            TrackListFragment currentFragment = (TrackListFragment) this.currentFragment;
+            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+            currentFragment.notifyTracksStateChanged();
+            currentFragment.changeColor(colorManager.getColorResource(track.getColor()));
         }
     }
 
@@ -105,6 +113,13 @@ public class MainActivity extends BaseActivity {
         if (trackList != null) {
             trackListFragment.setTitle(trackList.getDisplayName());
             trackListFragment.setTrackList(trackList);
+            try {
+                Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(mediaController.getMetadata().getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+                trackListFragment.setTintColor(colorManager.getColorResource(track.getColor()));
+            } catch (NullPointerException e) {
+                //Metadata is null
+                trackListFragment.setTintColor(R.color.green700);
+            }
             trackListFragment.setShowControls(true);
         }
         return trackListFragment;
@@ -139,8 +154,10 @@ public class MainActivity extends BaseActivity {
 
         startService();
         registerPlayerControlReceiver();
-      
+
         explorer = new Explorer(this::invalidate, this);
+        tracksStorageManager = new TracksStorageManager(this);
+        colorManager = new ColorManager(this);
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);
@@ -173,7 +190,7 @@ public class MainActivity extends BaseActivity {
     private void invalidate() {
         runOnUiThread(currentFragment::invalidate);
     }
-  
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_main, menu);

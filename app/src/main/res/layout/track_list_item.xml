@@ -23,8 +23,8 @@
 
     <ImageButton
         android:id="@+id/button_more"
-        android:layout_width="48dp"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:padding="15dp"
@@ -70,15 +70,17 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_centerInParent="true"
-            android:background="@drawable/layout_bg" />
+            android:background="@drawable/layout_bg">
 
+        </ImageView>
         <ImageView
-            android:id="@+id/item_track_state"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_centerInParent="true"
-            android:layout_margin="14dp"
-            android:background="@null" />
+                android:id="@+id/item_track_state"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_centerInParent="true"
+                android:layout_margin="18dp"
+                android:background="@null" />
+
 
     </RelativeLayout>
 

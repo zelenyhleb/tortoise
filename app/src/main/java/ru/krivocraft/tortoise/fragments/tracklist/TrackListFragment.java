@@ -24,8 +24,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -56,6 +56,8 @@ public class TrackListFragment extends BaseFragment {
     private TrackList trackList;
 
     private boolean showControls;
+    private Button playRandomly;
+    private int tintColor;
 
     public static TrackListFragment newInstance() {
         return new TrackListFragment();
@@ -84,12 +86,19 @@ public class TrackListFragment extends BaseFragment {
         return inflater.inflate(R.layout.fragment_tracklist, container, false);
     }
 
+    public void changeColor(int color) {
+        if (playRandomly != null) {
+            playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(color));
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         EditText searchFrame = view.findViewById(R.id.search_edit_text);
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
-        RelativeLayout playRandomly = view.findViewById(R.id.play_random_button);
+        playRandomly = view.findViewById(R.id.play_random_button);
+        changeColor(tintColor);
 
         final Activity context = getActivity();
         if (context != null) {
@@ -212,5 +221,9 @@ public class TrackListFragment extends BaseFragment {
         if (tracksAdapter != null) {
             processPaths(getActivity(), trackList);
         }
+    }
+
+    public void setTintColor(int tintColor) {
+        this.tintColor = tintColor;
     }
 }
