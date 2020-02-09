@@ -331,6 +331,7 @@ public class DBConnection {
                     + "title text,"
                     + "color integer,"
                     + "artist text,"
+                    + "ignored integer,"
                     + "duration long,"
                     + "path text);");
             db.execSQL("create table if not exists " + TRACK_LISTS + " ("

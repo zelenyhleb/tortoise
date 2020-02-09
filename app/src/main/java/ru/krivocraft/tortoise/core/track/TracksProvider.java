@@ -76,8 +76,7 @@ public class TracksProvider {
     }
 
     private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, List<Track> readTracks) {
-        for (int i = 0; i < readTracks.size(); i++) {
-            Track track = readTracks.get(i);
+        for (Track track : readTracks) {
             TrackReference reference = new TrackReference(track);
 
             if (!existingTracks.contains(track)) {
@@ -89,8 +88,7 @@ public class TracksProvider {
 
     private void removeNonExistingTracksFromStorage(List<Track> existingTracks, List<Track> readTracks) {
         List<TrackReference> removedReferences = new ArrayList<>();
-        for (int i = 0; i < existingTracks.size(); i++) {
-            Track track = existingTracks.get(i);
+        for (Track track : existingTracks) {
             TrackReference reference = new TrackReference(track);
 
             if (!readTracks.contains(track)) {
