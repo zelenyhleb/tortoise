@@ -200,7 +200,7 @@ public class TrackListEditorActivity extends BaseActivity {
     }
 
     private void initList() {
-        List<Track> trackStorage = tracksStorageManager.getTrackStorage();
+        List<Track> trackStorage = tracksStorageManager.getTracks(trackListsStorageManager.getAllTracks().getTrackReferences());
         List<TrackReference> trackReferences = changed.getTrackReferences();
         flagExisting(trackStorage, trackReferences);
 

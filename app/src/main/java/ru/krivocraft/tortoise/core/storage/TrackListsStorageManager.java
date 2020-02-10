@@ -41,10 +41,6 @@ public class TrackListsStorageManager {
         this.filter = filter;
     }
 
-    public void updateTrackListData(TrackList trackList) {
-        database.updateTrackListData(trackList);
-    }
-
     public void updateTrackListContent(TrackList trackList) {
         database.updateTrackListContent(trackList);
     }
@@ -59,6 +55,10 @@ public class TrackListsStorageManager {
 
     public void removeTracks(TrackList trackList, List<TrackReference> references) {
         database.removeTracks(trackList, references);
+    }
+
+    public TrackList getAllTracks(){
+        return database.getAllTracks();
     }
 
     public void writeTrackList(TrackList trackList) {

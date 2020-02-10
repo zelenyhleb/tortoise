@@ -127,14 +127,6 @@ public class Track {
         return Objects.hash(getArtist(), getTitle(), getPath());
     }
 
-    public String toJson() {
-        return new Gson().toJson(this);
-    }
-
-    public static Track fromJson(String json) {
-        return new Gson().fromJson(json, Track.class);
-    }
-
     public String getArtist() {
         return artist;
     }

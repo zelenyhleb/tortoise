@@ -58,19 +58,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         this.colorManager = new ColorManager(context);
         this.listener = listener;
         setHasStableIds(true);
-        if (!showIgnored) {
-            hideIgnored();
-        }
-    }
-
-    private void hideIgnored() {
-        List<TrackReference> ignored = new ArrayList<>();
-        for (TrackReference reference : this.trackList.getTrackReferences()) {
-            if (tracksStorageManager.getTrack(reference).isIgnored()) {
-                ignored.add(reference);
-            }
-        }
-        this.trackList.removeAll(ignored);
     }
 
     @NonNull
