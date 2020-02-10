@@ -10,15 +10,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.storage.PreferencesManager;
-import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.storage.ThumbnailStorageManager;
-import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
+import ru.krivocraft.tortoise.core.storage.*;
 import ru.krivocraft.tortoise.tasks.GetAlbumArtTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.ViewHolder> {
 
@@ -110,8 +108,14 @@ public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.Vi
             this.tracksStorageManager = tracksStorageManager;
             itemView.setOnClickListener(view -> listener.onClick(trackList));
             itemView.setOnLongClickListener(view -> {
-                listener.onLongClick(trackList);
-                return true;
+                if (trackList.getType() == TrackList.TRACK_LIST_CUSTOM
+                        && !Objects.equals(trackList.getDisplayName(), TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)
+                        && !Objects.equals(trackList.getDisplayName(), TrackListsStorageManager.FAVORITES_DISPLAY_NAME)) {
+                    listener.onLongClick(trackList);
+                    return true;
+                } else {
+                    return false;
+                }
             });
         }
 
