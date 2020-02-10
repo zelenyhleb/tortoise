@@ -307,6 +307,9 @@ public class DBConnection {
                     } else {
                         if (settings.getOption(SettingsStorageManager.KEY_SHOW_IGNORED, false)) {
                             trackReferences.add(reference);
+                            System.out.println("adding ignored track " + getTrack(reference).getTitle());
+                        } else {
+                            System.out.println("not adding ignored");
                         }
                     }
                 } while (cursor.moveToNext());
