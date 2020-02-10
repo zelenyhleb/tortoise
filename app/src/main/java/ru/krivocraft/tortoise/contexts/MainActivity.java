@@ -176,9 +176,17 @@ public class MainActivity extends BaseActivity {
         startService();
         registerPlayerControlReceiver();
 
-        explorer = new Explorer(this::invalidate, this);
-        tracksStorageManager = new TracksStorageManager(this);
-        colorManager = new ColorManager(this);
+        if (explorer == null) {
+            explorer = new Explorer(this::invalidate, this);
+        }
+
+        if (tracksStorageManager == null) {
+            tracksStorageManager = new TracksStorageManager(this);
+        }
+
+        if (colorManager == null) {
+            colorManager = new ColorManager(this);
+        }
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);

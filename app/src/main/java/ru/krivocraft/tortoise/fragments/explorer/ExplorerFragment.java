@@ -80,7 +80,9 @@ public class ExplorerFragment extends BaseFragment {
             tabLayout.setTabTextColors(R.color.black, R.color.black);
         }
 
-        changeColor(tintColor);
+        if (tintColor != 0) {
+            changeColor(tintColor);
+        }
 
         pager = view.findViewById(R.id.explorer_pager);
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
