@@ -100,7 +100,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         Intent launchBrowser = new Intent(Intent.ACTION_VIEW, uriUrl);
         getContext().startActivity(launchBrowser);
     }
-  
+
     private boolean getDefaultValue(String key) {
         return key.equals(KEY_RECOGNIZE_NAMES);
     }

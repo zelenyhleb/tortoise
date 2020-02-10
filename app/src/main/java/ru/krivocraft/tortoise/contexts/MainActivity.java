@@ -283,6 +283,10 @@ public class MainActivity extends BaseActivity {
                 settingsButton.setVisible(true);
             }
         }
+
+        if (explorer != null) {
+            explorer.updateTrackListSets();
+        }
     }
 
     @Override
