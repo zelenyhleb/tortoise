@@ -26,7 +26,7 @@
         android:id="@+id/fragment_button_previous"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_progressbar"
+        android:layout_below="@id/fragment_progressbar_frame"
         android:layout_alignTop="@id/text_container"
         android:layout_alignBottom="@id/text_container"
         android:layout_margin="8dp"
@@ -63,7 +63,7 @@
         android:id="@+id/fragment_track_image"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_below="@id/fragment_progressbar"
+        android:layout_below="@id/fragment_progressbar_frame"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
@@ -74,7 +74,7 @@
         android:id="@+id/text_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_progressbar"
+        android:layout_below="@id/fragment_progressbar_frame"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:layout_toStartOf="@id/fragment_button_previous"
@@ -105,12 +105,19 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/fragment_progressbar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:background="@null" />
+    <FrameLayout
+            android:id="@+id/fragment_progressbar_frame"
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="4dp">
+        <ProgressBar
+                android:layout_gravity="center"
+                android:maxHeight="4dp"
+                android:id="@+id/fragment_progressbar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null" />
+    </FrameLayout>
 
 </RelativeLayout>

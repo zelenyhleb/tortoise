@@ -27,7 +27,6 @@ public class TrackList {
 
     public static final int TRACK_LIST_CUSTOM = 91;
     public static final int TRACK_LIST_BY_AUTHOR = 92;
-    public static final int TRACK_LIST_BY_TAG = 93;
 
     public static final String LOOP_TYPE = "loop_type";
     public static final int LOOP_TRACK = 122;
@@ -35,6 +34,7 @@ public class TrackList {
     public static final int NOT_LOOP = 124;
 
     private static final String TABLE_PREFIX = "l";
+
     private String displayName;
     private boolean shuffled = false;
     private final int type;

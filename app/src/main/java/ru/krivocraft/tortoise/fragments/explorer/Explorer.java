@@ -16,11 +16,15 @@
 
 package ru.krivocraft.tortoise.fragments.explorer;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.core.TrackListsCompiler;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +35,7 @@ public class Explorer {
     private final OnTrackListsCompiledListener listener;
     private List<TrackList> customLists = new ArrayList<>();
     private List<TrackList> sortedLists = new ArrayList<>();
+
     public Explorer(OnTrackListsCompiledListener listener, @NonNull Context context) {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);

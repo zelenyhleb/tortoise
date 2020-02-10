@@ -1,21 +1,5 @@
-<!--
-  ~ Copyright (c) 2019 Nikifor Fedorov
-  ~     Licensed under the Apache License, Version 2.0 (the "License");
-  ~     you may not use this file except in compliance with the License.
-  ~     You may obtain a copy of the License at
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~     Unless required by applicable law or agreed to in writing, software
-  ~     distributed under the License is distributed on an "AS IS" BASIS,
-  ~     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~     See the License for the specific language governing permissions and
-  ~     limitations under the License.
-  ~     SPDX-License-Identifier: Apache-2.0
-  ~     Contributors:
-  ~ 	    Nikifor Fedorov - whole development
-  -->
-
-<vector android:height="24dp" android:viewportHeight="400"
-    android:viewportWidth="433.32" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="#fff" android:pathData="M233.32,0a199.32,199.32 0,0 0,-138.83 56l28.28,28.28a160,160 0,1 1,-39.27 171.92h46.4l-65,-112.5 -65,112.5L41.32,256.2C65.67,339.32 142.4,400 233.32,400c110.46,0 200,-89.54 200,-200S343.78,0 233.32,0Z"/>
-    <path android:fillColor="#fff" android:pathData="M433.32,400L416.76,400L416.76,337.59A57.09,57.09 0,0 1,395.32 350.14v-15a47.89,47.89 0,0 0,14.09 -8,30.56 30.56,0 0,0 10.43,-13.82L433.32,313.32Z"/>
+<vector android:height="24dp" android:viewportHeight="512"
+    android:viewportWidth="828" android:width="38dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FFFFFF" android:pathData="M444.2,152v220h-48.4V198.5h-17.6V152H444.2z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M714.6,33.5H129.4c-37,0 -67.4,30.3 -67.4,67.4v57.5c0,1.9 1.5,3.4 3.4,3.4h73.3c1.9,0 3.4,-1.5 3.4,-3.4v-1.5c0,-23.8 19.5,-43.4 43.4,-43.4h473.3c23.8,0 43.4,19.5 43.4,43.4v198.3c0,23.8 -19.5,43.4 -43.4,43.4H185.4c-23.8,0 -43.4,-19.5 -43.4,-43.4v-9.5c0,-1.9 1.5,-3.4 3.4,-3.4h0.7c7.9,0 13.4,-7.9 10.6,-15.3L113,209.2c-3.7,-9.9 -17.6,-9.9 -21.3,0L48,327c-2.7,7.4 2.7,15.3 10.6,15.3h0c1.9,0 3.4,1.5 3.4,3.4v12.8v52.6c0,37 30.3,67.4 67.4,67.4h585.3c37,0 67.4,-30.3 67.4,-67.4V100.9C782,63.8 751.7,33.5 714.6,33.5z"/>
 </vector>

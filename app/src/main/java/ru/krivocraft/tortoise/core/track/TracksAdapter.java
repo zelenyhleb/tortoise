@@ -39,9 +39,7 @@ import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.tasks.LoadArtTask;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private TrackList trackList;
@@ -50,7 +48,8 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     private TracksStorageManager tracksStorageManager;
     private AdapterListener listener;
     private ColorManager colorManager;
-    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, boolean showIgnored, AdapterListener listener) {
+
+    public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, AdapterListener listener) {
         this.trackList = trackList;
         this.context = context;
         this.editingAllowed = editingAllowed;
@@ -58,19 +57,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         this.colorManager = new ColorManager(context);
         this.listener = listener;
         setHasStableIds(true);
-        if (!showIgnored) {
-            hideIgnored();
-        }
-    }
-
-    private void hideIgnored() {
-        List<TrackReference> ignored = new ArrayList<>();
-        for (TrackReference reference : this.trackList.getTrackReferences()) {
-            if (tracksStorageManager.getTrack(reference).isIgnored()) {
-                ignored.add(reference);
-            }
-        }
-        this.trackList.removeAll(ignored);
     }
 
     @NonNull
@@ -144,7 +130,9 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         if (!editingAllowed) {
             context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
         } else {
-            context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
+            if (!trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
+                context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 import ru.krivocraft.tortoise.core.ColorManager;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
@@ -36,9 +37,11 @@ public class DBConnection {
     private static final String TRACK_LISTS = "track_lists";
     private static final String ALL_TRACKS = TrackList.createIdentifier(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME);
     private SQLiteDatabase database;
+    private SettingsStorageManager settings;
 
     public DBConnection(Context context) {
         this.database = new DBHelper(context).getWritableDatabase();
+        this.settings = new SettingsStorageManager(context);
         removeDuplicatedTrackLists();
     }
 
@@ -51,7 +54,7 @@ public class DBConnection {
         values.put("liked", track.isLiked() ? 1 : 0);
         values.put("color", track.getColor());
         values.put("selected", track.isSelected() ? 1 : 0);
-        values.put("ignored", track.isIgnored() ? 1: 0);
+        values.put("ignored", track.isIgnored() ? 1 : 0);
         values.put("artist", track.getArtist());
         values.put("path", track.getPath());
         database.insert(TRACKS, null, values);
@@ -66,7 +69,7 @@ public class DBConnection {
         values.put("color", track.getColor());
         values.put("playing", track.isPlaying() ? 1 : 0);
         values.put("liked", track.isLiked() ? 1 : 0);
-        values.put("ignored", track.isIgnored() ? 1: 0);
+        values.put("ignored", track.isIgnored() ? 1 : 0);
         values.put("selected", track.isSelected() ? 1 : 0);
         database.update(TRACKS, values, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
     }
@@ -138,14 +141,12 @@ public class DBConnection {
         }
     }
 
-    public void clearTrackList(String trackList) {
-        database.delete(trackList, "1", null);
+    public TrackList getAllTracks() {
+        return getTrackList(ALL_TRACKS);
     }
 
-    public void updateTrackListData(TrackList trackList) {
-        ContentValues values = new ContentValues();
-        values.put("name", trackList.getDisplayName());
-        database.update(TRACK_LISTS, values, "id = ?", new String[]{trackList.getIdentifier()});
+    public void clearTrackList(String trackList) {
+        database.delete(trackList, "1", null);
     }
 
     public void updateTrackListContent(TrackList trackList) {
@@ -301,7 +302,16 @@ public class DBConnection {
                     int value = cursor.getInt(valueIndex);
 
                     TrackReference reference = new TrackReference(value);
-                    trackReferences.add(reference);
+                    if (!getTrack(reference).isIgnored()) {
+                        trackReferences.add(reference);
+                    } else {
+                        if (settings.getOption(SettingsStorageManager.KEY_SHOW_IGNORED, false)) {
+                            trackReferences.add(reference);
+                            System.out.println("adding ignored track " + getTrack(reference).getTitle());
+                        } else {
+                            System.out.println("not adding ignored");
+                        }
+                    }
                 } while (cursor.moveToNext());
             }
             cursor.close();

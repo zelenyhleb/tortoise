@@ -18,7 +18,6 @@ package ru.krivocraft.tortoise.core.track;
 
 import android.support.v4.media.MediaMetadataCompat;
 import androidx.annotation.NonNull;
-import com.google.gson.Gson;
 
 import java.util.Objects;
 
@@ -125,14 +124,6 @@ public class Track {
     @Override
     public int hashCode() {
         return Objects.hash(getArtist(), getTitle(), getPath());
-    }
-
-    public String toJson() {
-        return new Gson().toJson(this);
-    }
-
-    public static Track fromJson(String json) {
-        return new Gson().fromJson(json, Track.class);
     }
 
     public String getArtist() {

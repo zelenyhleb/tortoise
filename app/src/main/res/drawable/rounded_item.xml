@@ -8,7 +8,7 @@
                     android:left="22dp"
                     android:right="22dp" />
             <size android:height="44dp" />
-            <solid android:color="@color/lightGrey" />
+            <solid android:color="@color/grey700" />
         </shape>
     </item>
 </ripple>

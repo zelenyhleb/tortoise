@@ -24,7 +24,7 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
     <color name="red">#C62828</color>
-    <color name="lightGrey">#111111</color>
+    <color name="lightGrey">#e0e0e0</color>
 
     <!--    Material 700 colors-->
     <color name="red700">#d32f2f</color>

@@ -98,7 +98,14 @@ public class TrackListFragment extends BaseFragment {
         EditText searchFrame = view.findViewById(R.id.search_edit_text);
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
         playRandomly = view.findViewById(R.id.play_random_button);
-        changeColor(tintColor);
+
+        if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
+            searchFrame.setBackgroundTintList(view.getContext().getResources().getColorStateList(R.color.lightGrey));
+        }
+
+        if (showControls) {
+            changeColor(tintColor);
+        }
 
         final Activity context = getActivity();
         if (context != null) {
@@ -121,7 +128,7 @@ public class TrackListFragment extends BaseFragment {
                                 new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
                                 context,
                                 showControls,
-                                getShowHidden(), null
+                                null
                         ));
                         if (s.length() == 0) {
                             recyclerView.setAdapter(tracksAdapter);
@@ -166,7 +173,7 @@ public class TrackListFragment extends BaseFragment {
             this.touchHelper.attachToRecyclerView(null);
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, getShowHidden(), (from, to) -> {
+        this.tracksAdapter = new TracksAdapter(trackList, context, showControls, (from, to) -> {
             // Some ancient magic below
             int firstPos = layoutManager.findFirstCompletelyVisibleItemPosition();
             int offsetTop = 0;

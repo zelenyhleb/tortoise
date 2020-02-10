@@ -15,6 +15,7 @@
  */
 
 package ru.krivocraft.tortoise.fragments.tracklist;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,10 +28,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackListsAdapter;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
+
 import java.util.List;
 
 public class TrackListsGridFragment extends BaseFragment {
@@ -46,7 +47,7 @@ public class TrackListsGridFragment extends BaseFragment {
         fragment.createAdapter(context);
         return fragment;
     }
-  
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_track_list_stack, container, false);
@@ -85,12 +86,10 @@ public class TrackListsGridFragment extends BaseFragment {
     }
 
     private void showEditor(Context context, TrackList itemAtPosition) {
-        if (!(itemAtPosition.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME) || itemAtPosition.getDisplayName().equals(TrackListsStorageManager.FAVORITES_DISPLAY_NAME))) {
-            Intent intent = new Intent(context, TrackListEditorActivity.class);
-            intent.putExtra(TrackList.EXTRA_TRACK_LIST, itemAtPosition.toJson());
-            intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, false);
-            context.startActivity(intent);
-        }
+        Intent intent = new Intent(context, TrackListEditorActivity.class);
+        intent.putExtra(TrackList.EXTRA_TRACK_LIST, itemAtPosition.toJson());
+        intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, false);
+        context.startActivity(intent);
     }
 
     private void setListener(OnItemClickListener listener) {
