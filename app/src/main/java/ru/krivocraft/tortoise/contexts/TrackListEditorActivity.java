@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.Searcher;
 import ru.krivocraft.tortoise.core.TextChangeSolver;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.ThumbnailStorageManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
@@ -67,6 +68,7 @@ public class TrackListEditorActivity extends BaseActivity {
     private final String TYPE_IMAGE = "image/*";
     private final String[] MIME_TYPES = new String[]{"image/jpeg", "image/png"};
     private TrackListsStorageManager trackListsStorageManager;
+    private SettingsStorageManager settingsStorageManager;
     private ListView listView;
     private SelectableTracksAdapter adapter;
 
@@ -143,6 +145,9 @@ public class TrackListEditorActivity extends BaseActivity {
                 }
             }
         });
+        if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+            search.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
+        }
     }
 
     private void initTitleEditor() {
@@ -155,6 +160,9 @@ public class TrackListEditorActivity extends BaseActivity {
                 changed.setIdentifier(TrackList.createIdentifier(s.toString()));
             }
         });
+        if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+            title.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
+        }
     }
 
     private void initApplyButton() {
@@ -218,7 +226,7 @@ public class TrackListEditorActivity extends BaseActivity {
         if (selectedBitmap != null) {
             this.art.setImageBitmap(selectedBitmap);
         } else {
-            this.art.setImageDrawable(getDrawable(R.drawable.ic_icon));
+            this.art.setImageDrawable(getDrawable(R.drawable.ic_track_image_default));
         }
     }
 
@@ -261,6 +269,7 @@ public class TrackListEditorActivity extends BaseActivity {
         art.setClipToOutline(true);
 
         thumbnailStorageManager = new ThumbnailStorageManager();
+        settingsStorageManager = new SettingsStorageManager(this);
         tracksStorageManager = new TracksStorageManager(this);
         trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL);
     }
