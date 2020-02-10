@@ -35,21 +35,11 @@ public class Explorer {
     private final OnTrackListsCompiledListener listener;
     private List<TrackList> customLists = new ArrayList<>();
     private List<TrackList> sortedLists = new ArrayList<>();
-    public static final String ACTION_READ_PLAYLISTS = "readPlaylists";
-
 
     public Explorer(OnTrackListsCompiledListener listener, @NonNull Context context) {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.trackListsCompiler = new TrackListsCompiler(context);
-
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                updateTrackListSets();
-            }
-        };
-        context.registerReceiver(receiver, new IntentFilter(ACTION_READ_PLAYLISTS));
 
         updateTrackListSets();
     }

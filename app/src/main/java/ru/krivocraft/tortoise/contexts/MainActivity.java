@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -46,6 +47,9 @@ import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.player.SmallPlayerFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
@@ -285,7 +289,7 @@ public class MainActivity extends BaseActivity {
         }
 
         if (explorer != null) {
-            explorer.updateTrackListSets();
+            AsyncTask.execute(() -> explorer.updateTrackListSets());
         }
     }
 
@@ -355,9 +359,10 @@ public class MainActivity extends BaseActivity {
             FragmentTransaction transaction = fragmentManager
                     .beginTransaction()
                     .setCustomAnimations(R.anim.fadeinshort, R.anim.fadeoutshort);
+
             transaction.replace(R.id.fragment_container, fragment);
 
-            transaction.commit();
+            transaction.commitNow();
 
             this.currentFragment = fragment;
             onFragmentChanged();
