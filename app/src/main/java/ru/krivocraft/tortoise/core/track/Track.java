@@ -18,7 +18,6 @@ package ru.krivocraft.tortoise.core.track;
 
 import android.support.v4.media.MediaMetadataCompat;
 import androidx.annotation.NonNull;
-import com.google.gson.Gson;
 
 import java.util.Objects;
 
