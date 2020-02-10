@@ -53,6 +53,10 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
+    <style name="TabsLight" parent="Base.Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@color/black</item>
+    </style>
+
     <style name="ImageButtonLight" parent="Widget.AppCompat.ImageButton">
         <item name="android:tint">@color/black</item>
     </style>

@@ -99,6 +99,10 @@ public class TrackListFragment extends BaseFragment {
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
         playRandomly = view.findViewById(R.id.play_random_button);
 
+        if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
+            searchFrame.setBackgroundTintList(view.getContext().getResources().getColorStateList(R.color.lightGrey));
+        }
+
         if (showControls) {
             changeColor(tintColor);
         }

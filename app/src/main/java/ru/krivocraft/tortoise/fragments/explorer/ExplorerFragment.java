@@ -29,6 +29,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.contexts.TrackListEditorActivity;
+import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListsGridFragment;
@@ -72,6 +73,10 @@ public class ExplorerFragment extends BaseFragment {
         button.setOnClickListener(v -> showCreationDialog(v.getContext()));
 
         tabLayout = view.findViewById(R.id.explorer_tabs);
+
+        if (getSettingsManager().getOption(SettingsStorageManager.KEY_THEME, false)) {
+            tabLayout.setTabTextColors(R.color.black, R.color.black);
+        }
 
         changeColor(tintColor);
 
