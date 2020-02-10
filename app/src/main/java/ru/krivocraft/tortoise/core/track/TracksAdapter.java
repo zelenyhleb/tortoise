@@ -122,6 +122,15 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
             }
             sendUpdate();
         }
+
+        if (tracksStorageManager.getTrack(item).isSelected()) {
+            if (tracksStorageManager.getTrack(item).isPlaying()) {
+                context.sendBroadcast(new Intent(MediaService.ACTION_NEXT_TRACK));
+            } else {
+                context.sendBroadcast(new Intent(MediaService.ACTION_REQUEST_STOP));
+            }
+        }
+
         notifyItemRemoved(position);
         notifyDataSetChanged();
     }

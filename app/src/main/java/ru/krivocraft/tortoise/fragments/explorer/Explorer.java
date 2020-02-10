@@ -16,10 +16,8 @@
 
 package ru.krivocraft.tortoise.fragments.explorer;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.core.TrackListsCompiler;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
@@ -40,13 +38,18 @@ public class Explorer {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.trackListsCompiler = new TrackListsCompiler(context);
-
-        updateTrackListSets();
+        updateTrackListSets(listener);
+        System.out.println("created");
     }
 
-    public void updateTrackListSets() {
+    private void requestUpdate() {
+        AsyncTask.execute(() -> updateTrackListSets(listener));
+    }
+
+    private void updateTrackListSets(OnTrackListsCompiledListener listener) {
         this.customLists = tracksStorageManager.readCustom();
         this.sortedLists = tracksStorageManager.readSortedByArtist();
+        listener.onTrackListsCompiled();
     }
 
     private void onNewTrackLists(List<TrackList> trackLists) {
@@ -65,15 +68,14 @@ public class Explorer {
             }
         }
 
-        updateTrackListSets();
-        listener.onTrackListsCompiled();
+        requestUpdate();
     }
 
     void compileTrackLists() {
         trackListsCompiler.compileFavorites(this::onNewTrackLists);
         trackListsCompiler.compileByAuthors(this::onNewTrackLists);
     }
-  
+
     List<TrackList> getCustomLists() {
         return customLists;
     }
@@ -85,4 +87,5 @@ public class Explorer {
     public interface OnTrackListsCompiledListener {
         void onTrackListsCompiled();
     }
+
 }

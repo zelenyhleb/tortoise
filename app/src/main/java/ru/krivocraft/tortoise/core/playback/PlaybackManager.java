@@ -238,6 +238,36 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         return cursor;
     }
 
+    void proceed() {
+        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
+        switch (loopType) {
+            case TrackList.LOOP_TRACK:
+                newTrack(getCursor());
+                System.out.println("LOOP TRACK");
+                break;
+            case TrackList.LOOP_TRACK_LIST:
+                if (getCursor() + 1 < getTrackList().size()) {
+                    nextTrack();
+                } else {
+                    newTrack(0);
+                }
+                System.out.println("LOOP TRACKLIST");
+                break;
+            case TrackList.NOT_LOOP:
+                if (getCursor() < getTrackList().size() - 1) {
+                    nextTrack();
+                } else {
+                    stop();
+
+                }
+                System.out.println("LOOP NONE");
+                break;
+            default:
+                System.out.println("DEFAULT");
+                break;
+        }
+    }
+
     void nextTrack() {
         newTrack(cursor + 1);
     }
@@ -312,33 +342,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        int loopType = settings.getInt(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
-        switch (loopType) {
-            case TrackList.LOOP_TRACK:
-                newTrack(getCursor());
-                System.out.println("LOOP TRACK");
-                break;
-            case TrackList.LOOP_TRACK_LIST:
-                if (getCursor() + 1 < getTrackList().size()) {
-                    nextTrack();
-                } else {
-                    newTrack(0);
-                }
-                System.out.println("LOOP TRACKLIST");
-                break;
-            case TrackList.NOT_LOOP:
-                if (getCursor() < getTrackList().size() - 1) {
-                    nextTrack();
-                } else {
-                    stop();
-               
-                }
-                System.out.println("LOOP NONE");
-                break;
-            default:
-                System.out.println("DEFAULT");
-                break;
-        }
+        proceed();
     }
 
     private void setVolume(float volume) {

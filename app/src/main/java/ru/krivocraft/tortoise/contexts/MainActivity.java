@@ -176,9 +176,17 @@ public class MainActivity extends BaseActivity {
         startService();
         registerPlayerControlReceiver();
 
-        explorer = new Explorer(this::invalidate, this);
-        tracksStorageManager = new TracksStorageManager(this);
-        colorManager = new ColorManager(this);
+        if (explorer == null) {
+            explorer = new Explorer(this::invalidate, this);
+        }
+
+        if (tracksStorageManager == null) {
+            tracksStorageManager = new TracksStorageManager(this);
+        }
+
+        if (colorManager == null) {
+            colorManager = new ColorManager(this);
+        }
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);
@@ -209,7 +217,9 @@ public class MainActivity extends BaseActivity {
     }
 
     private void invalidate() {
-        runOnUiThread(currentFragment::invalidate);
+        if (currentFragment != null) {
+            runOnUiThread(currentFragment::invalidate);
+        }
     }
 
     @Override
@@ -269,7 +279,6 @@ public class MainActivity extends BaseActivity {
                 showSmallPlayerFragment();
                 showExplorerFragment();
             } else if (currentFragment instanceof TrackListFragment) {
-                explorer.updateTrackListSets();
                 showExplorerFragment();
             } else if (currentFragment instanceof TrackEditorFragment) {
                 ((TrackEditorFragment) currentFragment).onBackPressed();
@@ -286,10 +295,6 @@ public class MainActivity extends BaseActivity {
             } else {
                 settingsButton.setVisible(true);
             }
-        }
-
-        if (explorer != null) {
-            AsyncTask.execute(() -> explorer.updateTrackListSets());
         }
     }
 

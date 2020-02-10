@@ -41,7 +41,6 @@ import static android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY;
 
 public class MediaService {
 
-    private static final String ACTION_REQUEST_STOP = "stop";
 
     private static final String EXTRA_CURSOR = "cursor";
     private static final String EXTRA_METADATA = "metadata";
@@ -53,11 +52,14 @@ public class MediaService {
 
     public static final String ACTION_RESULT_TRACK_LIST = "result_track_list";
     public static final String ACTION_RESULT_DATA = "result_position";
+    public static final String ACTION_REQUEST_STOP = "stop";
     public static final String ACTION_REQUEST_DATA = "request_position";
     public static final String ACTION_EDIT_TRACK_LIST = "edit_track_list";
     public static final String ACTION_PLAY_FROM_LIST = "play_from_list";
     public static final String ACTION_EDIT_PLAYING_TRACK_LIST = "edit_current_track_list";
     public static final String ACTION_SHUFFLE = "shuffle";
+    public static final String ACTION_NEXT_TRACK = "nextTrack";
+
 
     private static final int HEADSET_STATE_PLUG_IN = 1;
     private static final int HEADSET_STATE_PLUG_OUT = 0;
@@ -127,6 +129,7 @@ public class MediaService {
         playlistFilter.addAction(ACTION_EDIT_PLAYING_TRACK_LIST);
         playlistFilter.addAction(ACTION_EDIT_TRACK_LIST);
         playlistFilter.addAction(ACTION_PLAY_FROM_LIST);
+        playlistFilter.addAction(ACTION_NEXT_TRACK);
         context.registerReceiver(playlistReceiver, playlistFilter);
 
         IntentFilter colorFilter = new IntentFilter();
@@ -215,6 +218,9 @@ public class MediaService {
                     }
                     trackListsStorageManager.updateTrackListContent(trackListEdited);
                     context.sendBroadcast(new Intent(TracksProvider.ACTION_UPDATE_STORAGE));
+                    break;
+                case ACTION_NEXT_TRACK:
+                    playbackManager.proceed();
                     break;
                 default:
                     //Do nothing
