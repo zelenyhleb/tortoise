@@ -49,6 +49,8 @@ public class PlayerActivity extends BaseActivity {
     private ViewPager pager;
 
     private TrackList trackList;
+
+    //This two fields are needed to handle ui updates.
     private LargePlayerFragment largePlayerFragment;
     private TrackListFragment trackListFragment;
 
@@ -144,13 +146,14 @@ public class PlayerActivity extends BaseActivity {
         }
     }
 
-    private void createTrackListFragment() {
+    private TrackListFragment createTrackListFragment() {
         trackListFragment = TrackListFragment.newInstance();
         trackListFragment.setTrackList(trackList);
         trackListFragment.setShowControls(false);
+        return trackListFragment;
     }
 
-    private void createPlayerFragment() {
+    private LargePlayerFragment createPlayerFragment() {
         largePlayerFragment = LargePlayerFragment.newInstance();
         largePlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState(), trackList);
         largePlayerFragment.setController(new PlayerController() {
@@ -179,7 +182,7 @@ public class PlayerActivity extends BaseActivity {
                 mediaController.getTransportControls().seekTo(position);
             }
         });
-
+        return largePlayerFragment;
     }
 
     private void initPager() {
@@ -195,8 +198,6 @@ public class PlayerActivity extends BaseActivity {
             } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
                 equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)), mediaController);
-                createPlayerFragment();
-                createTrackListFragment();
                 initPager();
             }
         }
@@ -234,23 +235,23 @@ public class PlayerActivity extends BaseActivity {
             return 2;
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int i) {
             if (i == INDEX_FRAGMENT_PLAYER) {
                 return getPlayerPage();
-            } else if (i == INDEX_FRAGMENT_PLAYLIST) {
+            } else {
                 return getTrackListPage();
             }
-            return null;
         }
 
         @NonNull
         private LargePlayerFragment getPlayerPage() {
-            return largePlayerFragment;
+            return createPlayerFragment();
         }
 
         private TrackListFragment getTrackListPage() {
-            return trackListFragment;
+            return createTrackListFragment();
         }
 
     }
