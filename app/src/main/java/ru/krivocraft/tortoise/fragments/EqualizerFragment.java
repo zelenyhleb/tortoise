@@ -59,7 +59,7 @@ public class EqualizerFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_equalizer, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_equalizer, container, false);
         linearLayout = rootView.findViewById(R.id.equalizer_layout);
         return rootView;
     }
