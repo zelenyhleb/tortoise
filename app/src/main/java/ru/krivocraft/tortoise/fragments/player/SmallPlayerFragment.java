@@ -74,6 +74,23 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     }
 
     @Override
+    public void changeColors(int color) {
+        final Context context = getContext();
+        if (context != null && rootView != null) {
+            final ImageView viewImage = rootView.findViewById(R.id.fragment_track_image);
+            final ProgressBar bar = rootView.findViewById(R.id.fragment_progressbar);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
+                VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+                background.setFillColor(color);
+                bar.setProgressTintList(ColorStateList.valueOf(color));
+            } else {
+                viewImage.setImageResource(R.drawable.ic_track_image_default);
+            }
+        }
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_player_small, container, false);
@@ -138,16 +155,8 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
                 if (trackArt != null) {
                     viewImage.setImageBitmap(trackArt);
                 } else {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                        VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, viewImage);
-                        VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-                        int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).getColor());
-                        background.setFillColor(color);
-                        bar.setProgressTintList(ColorStateList.valueOf(color));
-                    } else {
-                        viewImage.setImageResource(R.drawable.ic_track_image_default);
-                    }
-
+                    int color = colorManager.getColor(tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).getColor());
+                    changeColors(color);
                 }
                 viewImage.setClipToOutline(true);
                 viewImage.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fadeinshort));

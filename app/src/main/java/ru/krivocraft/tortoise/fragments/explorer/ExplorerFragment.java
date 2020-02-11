@@ -60,15 +60,6 @@ public class ExplorerFragment extends BaseFragment {
         return inflater.inflate(R.layout.fragment_explorer, container, false);
     }
 
-    public void changeColor(int colorResource) {
-        if (button != null) {
-            button.setBackgroundTintList(getContext().getResources().getColorStateList(colorResource));
-        }
-        if (tabLayout != null) {
-            tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(colorResource));
-        }
-    }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         button = view.findViewById(R.id.add_track_list_button);
@@ -81,7 +72,12 @@ public class ExplorerFragment extends BaseFragment {
         }
 
         if (tintColor != 0) {
-            changeColor(tintColor);
+            if (button != null) {
+                button.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
+            }
+            if (tabLayout != null) {
+                tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(tintColor));
+            }
         }
 
         pager = view.findViewById(R.id.explorer_pager);
@@ -125,6 +121,16 @@ public class ExplorerFragment extends BaseFragment {
             this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
             pager.setAdapter(adapter);
             pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
+        }
+    }
+
+    @Override
+    public void changeColors(int color) {
+        if (button != null) {
+            button.setBackgroundTintList(getContext().getResources().getColorStateList(color));
+        }
+        if (tabLayout != null) {
+            tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(color));
         }
     }
 

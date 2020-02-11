@@ -81,15 +81,16 @@ public class TrackListFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_tracklist, container, false);
-    }
-
-    public void changeColor(int color) {
+    public void changeColors(int color) {
         if (playRandomly != null) {
             playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(color));
         }
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.fragment_tracklist, container, false);
     }
 
     @Override
@@ -104,7 +105,9 @@ public class TrackListFragment extends BaseFragment {
         }
 
         if (showControls) {
-            changeColor(tintColor);
+            if (playRandomly != null) {
+                playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
+            }
         }
 
         final Activity context = getActivity();

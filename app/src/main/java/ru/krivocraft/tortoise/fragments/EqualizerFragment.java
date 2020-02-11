@@ -81,10 +81,8 @@ public class EqualizerFragment extends BaseFragment {
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
-            for (SeekBar seekBar : controls) {
-                seekBar.getProgressDrawable().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
-                seekBar.getThumb().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
-            }
+            int color = colorManager.getColor(track.getColor());
+            changeColors(color);
             EqualizerFragment.this.track = track;
         }
     };
@@ -102,6 +100,14 @@ public class EqualizerFragment extends BaseFragment {
     @Override
     public void invalidate() {
         //do nothing
+    }
+
+    @Override
+    public void changeColors(int color) {
+        for (SeekBar seekBar : controls) {
+            seekBar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+            seekBar.getThumb().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        }
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -149,8 +155,6 @@ public class EqualizerFragment extends BaseFragment {
                 bar.setLayoutParams(layoutParams);
                 bar.setMax(maxEQLevel - minEQLevel);
                 bar.setProgress(bandLevel - minEQLevel);
-                bar.getProgressDrawable().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
-                bar.getThumb().setColorFilter(colorManager.getColor(track.getColor()), PorterDuff.Mode.SRC_ATOP);
 
                 bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -178,6 +182,7 @@ public class EqualizerFragment extends BaseFragment {
 
                 linearLayout.addView(row);
             }
+            changeColors(colorManager.getColor(track.getColor()));
 
         }
     };

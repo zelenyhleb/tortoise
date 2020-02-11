@@ -49,6 +49,11 @@ public class TrackListsGridFragment extends BaseFragment {
     }
 
     @Override
+    public void changeColors(int color) {
+        //Do nothing
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_track_list_stack, container, false);
     }

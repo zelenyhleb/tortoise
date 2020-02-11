@@ -38,7 +38,12 @@ public class TrackEditorFragment extends BaseFragment {
 
     @Override
     public void invalidate() {
+        //Do nothing yet
+    }
 
+    @Override
+    public void changeColors(int color) {
+        //Do nothing yet
     }
 
     private Track source;

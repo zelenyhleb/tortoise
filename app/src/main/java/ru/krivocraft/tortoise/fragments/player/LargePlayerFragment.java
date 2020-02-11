@@ -147,6 +147,27 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
         //Do nothing
     }
 
+    @Override
+    public void changeColors(int color) {
+        Context context = getContext();
+        ImageView trackImage = rootView.findViewById(R.id.track_image);
+        SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
+        if (context != null && rootView != null) {
+            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
+
+            progressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+            progressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+
+            VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
+            VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
+
+
+            background.setFillColor(colorManager.getColor(color));
+            drawLikeButton(context, buttonLike, track);
+        }
+
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -353,26 +374,19 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             ImageView trackImage = rootView.findViewById(R.id.track_image);
             SeekBar progressBar = rootView.findViewById(R.id.composition_progress_bar);
 
-            Context context = getContext();
             Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
+            Context context = getContext();
             Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
 
             if (context != null) {
                 if (trackArt != null) {
                     trackImage.setImageBitmap(trackArt);
                 } else {
+                    int color = track.getColor();
+                    tintColor = colorManager.getColorResource(color);
+
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                        VectorChildFinder finder = new VectorChildFinder(context, R.drawable.ic_track_image_default, trackImage);
-                        VectorDrawableCompat.VFullPath background = finder.findPathByName("background");
-
-                        int color = track.getColor();
-
-                        background.setFillColor(colorManager.getColor(color));
-                        tintColor = colorManager.getColorResource(color);
-                        drawLikeButton(context, buttonLike, track);
-
-                        progressBar.getProgressDrawable().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
-                        progressBar.getThumb().setColorFilter(colorManager.getColor(color), PorterDuff.Mode.SRC_ATOP);
+                        changeColors(color);
                     } else {
                         trackImage.setImageResource(R.drawable.ic_track_image_default);
                     }

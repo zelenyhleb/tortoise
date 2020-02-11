@@ -21,7 +21,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -47,9 +46,6 @@ import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.player.SmallPlayerFragment;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
@@ -93,17 +89,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void recolorInterface(MediaMetadataCompat newMetadata) {
-        if (currentFragment instanceof TrackListFragment) {
-            TrackListFragment currentFragment = (TrackListFragment) this.currentFragment;
-            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
-            currentFragment.notifyTracksStateChanged();
-            currentFragment.changeColor(colorManager.getColorResource(track.getColor()));
-        }
-        if (currentFragment instanceof ExplorerFragment) {
-            ExplorerFragment fragment = (ExplorerFragment) this.currentFragment;
-            Track track = tracksStorageManager.getTrack(tracksStorageManager.getReference(newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)));
-            fragment.changeColor(colorManager.getColorResource(track.getColor()));
-        }
+        String path = newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
+        TrackReference reference = tracksStorageManager.getReference(path);
+        Track track = tracksStorageManager.getTrack(reference);
+        currentFragment.changeColors(colorManager.getColorResource(track.getColor()));
     }
 
     @Override

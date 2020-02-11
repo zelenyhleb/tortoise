@@ -41,6 +41,8 @@ public abstract class BaseFragment extends Fragment {
         //Do nothing. Method can be implemented by inheritors
     }
 
+    public abstract void changeColors(int color);
+
     public SettingsStorageManager getSettingsManager() {
         return settingsManager;
     }
@@ -59,7 +61,7 @@ public abstract class BaseFragment extends Fragment {
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }
-  
+
     public void setTitle(String title) {
         this.title = title;
     }
