@@ -37,7 +37,7 @@ import ru.krivocraft.tortoise.core.ItemTouchHelperAdapter;
 import ru.krivocraft.tortoise.core.playback.MediaService;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
-import ru.krivocraft.tortoise.tasks.LoadArtTask;
+import ru.krivocraft.tortoise.sorting.LoadArtTask;
 
 import java.util.Collections;
 

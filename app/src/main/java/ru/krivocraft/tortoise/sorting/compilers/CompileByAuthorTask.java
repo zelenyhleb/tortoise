@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.tasks.compilers;
+package ru.krivocraft.tortoise.sorting.compilers;
 
 import ru.krivocraft.tortoise.core.track.Track;
 

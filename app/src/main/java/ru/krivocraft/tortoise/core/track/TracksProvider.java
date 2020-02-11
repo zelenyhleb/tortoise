@@ -23,7 +23,7 @@ import ru.krivocraft.tortoise.core.ColorManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
-import ru.krivocraft.tortoise.tasks.GetFromDiskTask;
+import ru.krivocraft.tortoise.sorting.GetFromDiskTask;
 
 import java.util.ArrayList;
 import java.util.List;

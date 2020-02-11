@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.storage.*;
-import ru.krivocraft.tortoise.tasks.GetAlbumArtTask;
+import ru.krivocraft.tortoise.sorting.GetAlbumArtTask;
 
 import java.io.IOException;
 import java.util.ArrayList;

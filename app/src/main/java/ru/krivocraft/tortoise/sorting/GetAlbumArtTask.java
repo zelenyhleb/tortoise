@@ -14,32 +14,35 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.tasks;
+package ru.krivocraft.tortoise.sorting;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.utils.Art;
 
-public class LoadArtTask extends AsyncTask<String, Void, Bitmap> {
+public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {
 
-    private BitmapDecoderCallback callback;
+    private OnAlbumArtAcquiredCallback callback;
+
+    public GetAlbumArtTask(OnAlbumArtAcquiredCallback callback) {
+        this.callback = callback;
+    }
 
     @Override
-    protected Bitmap doInBackground(String... strings) {
-        return new Art(strings[0]).bitmap();
+    protected Bitmap doInBackground(Track... tracks) {
+        for (Track track : tracks) {
+            Bitmap bitmap = new Art(track.getPath()).bitmap();
+            if (bitmap != null) {
+                return bitmap;
+            }
+        }
+        return null;
     }
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
-        callback.onBitmapDecoded(bitmap);
-    }
-
-    public void setCallback(BitmapDecoderCallback callback) {
-        this.callback = callback;
-    }
-
-    public interface BitmapDecoderCallback {
-        void onBitmapDecoded(Bitmap bitmap);
+        callback.onAlbumArtAcquired(bitmap);
     }
 }

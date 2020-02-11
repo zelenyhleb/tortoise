@@ -21,7 +21,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.Menu;
@@ -33,7 +32,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.OldStuffCollector;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
@@ -144,17 +142,6 @@ public class MainActivity extends BaseActivity {
 
     private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
         return TrackEditorFragment.newInstance(this::showExplorerFragment, reference);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        clearOld();
-    }
-
-    private void clearOld() {
-        OldStuffCollector collector = new OldStuffCollector(this);
-        collector.execute();
     }
 
     @Override

@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.tasks;
+package ru.krivocraft.tortoise.sorting;
 
 import android.graphics.Bitmap;
 

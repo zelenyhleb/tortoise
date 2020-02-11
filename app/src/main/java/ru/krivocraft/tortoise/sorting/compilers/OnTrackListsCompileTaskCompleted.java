@@ -14,12 +14,13 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.tasks;
+package ru.krivocraft.tortoise.sorting.compilers;
 
 import ru.krivocraft.tortoise.core.track.Track;
 
 import java.util.List;
+import java.util.Map;
 
-public interface OnStorageUpdateCallback {
-    void onStorageUpdate(List<Track> tracks);
+public interface OnTrackListsCompileTaskCompleted {
+    void onTrackListsCompiled(Map<String, List<Track>> trackLists);
 }

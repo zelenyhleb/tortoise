@@ -19,7 +19,7 @@ package ru.krivocraft.tortoise.fragments.explorer;
 import android.content.Context;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
-import ru.krivocraft.tortoise.core.TrackListsCompiler;
+import ru.krivocraft.tortoise.sorting.TrackListsCompiler;
 import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.track.TrackList;
 
