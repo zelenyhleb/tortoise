@@ -38,7 +38,6 @@ import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.fragments.settings.SettingsFragment;
-import ru.krivocraft.tortoise.fragments.TrackEditorFragment;
 import ru.krivocraft.tortoise.fragments.explorer.Explorer;
 import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
@@ -140,10 +139,6 @@ public class MainActivity extends BaseActivity {
         return explorerFragment;
     }
 
-    private TrackEditorFragment getTrackEditorFragment(TrackReference reference) {
-        return TrackEditorFragment.newInstance(this::showExplorerFragment, reference);
-    }
-
     @Override
     void init() {
         setContentView(R.layout.activity_tortoise);
@@ -230,8 +225,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showTrackEditorFragment(TrackReference trackReference) {
-        replaceFragment(getTrackEditorFragment(trackReference));
-        hideFragment(smallPlayerFragment);
+        startActivity(new Intent(this, TrackEditorActivity.class).putExtra(TrackEditorActivity.EXTRA_TRACK, trackReference.toJson()));
     }
 
     private void replaceFragment(BaseFragment fragment) {
@@ -256,8 +250,6 @@ public class MainActivity extends BaseActivity {
                 showExplorerFragment();
             } else if (currentFragment instanceof TrackListFragment) {
                 showExplorerFragment();
-            } else if (currentFragment instanceof TrackEditorFragment) {
-                ((TrackEditorFragment) currentFragment).onBackPressed();
             }
         }
         onFragmentChanged();
