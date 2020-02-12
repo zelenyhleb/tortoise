@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.fragments;
+package ru.krivocraft.tortoise.fragments.settings;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.settings.SettingsAdapter;
+import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 
 import java.util.Arrays;

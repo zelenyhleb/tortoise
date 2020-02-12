@@ -25,7 +25,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
-import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
+import ru.krivocraft.tortoise.fragments.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;

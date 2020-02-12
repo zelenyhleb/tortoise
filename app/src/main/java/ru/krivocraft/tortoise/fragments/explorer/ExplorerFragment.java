@@ -109,7 +109,6 @@ public class ExplorerFragment extends BaseFragment {
             pager.setAdapter(adapter);
             pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
             tabLayout.setupWithViewPager(pager);
-            explorer.compileTrackLists();
         }
     }
 

@@ -37,7 +37,7 @@ import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
-import ru.krivocraft.tortoise.fragments.EqualizerFragment;
+import ru.krivocraft.tortoise.fragments.audiofx.EqualizerFragment;
 import ru.krivocraft.tortoise.fragments.player.LargePlayerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;

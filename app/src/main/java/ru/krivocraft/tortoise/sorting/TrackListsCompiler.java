@@ -27,6 +27,7 @@ import ru.krivocraft.tortoise.sorting.compilers.CompileByAuthorTask;
 import ru.krivocraft.tortoise.sorting.compilers.CompileFavoritesTask;
 import ru.krivocraft.tortoise.sorting.compilers.CompileTrackListsTask;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +41,19 @@ public class TrackListsCompiler {
         this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
     }
 
-    public void compileByAuthors(OnTrackListsCompiledCallback callback) {
+    public void compileAll(OnTrackListsCompiledCallback callback) {
+        List<TrackList> compiled = new ArrayList<>();
+        compileFavorites(compiled::addAll);
+        compileByAuthors(compiled::addAll);
+        callback.onTrackListsCompiled(compiled);
+    }
+
+    private void compileByAuthors(OnTrackListsCompiledCallback callback) {
         CompileByAuthorTask task = new CompileByAuthorTask();
         compile(task, TrackList.TRACK_LIST_BY_AUTHOR, callback);
     }
 
-    public void compileFavorites(OnTrackListsCompiledCallback callback) {
+    private void compileFavorites(OnTrackListsCompiledCallback callback) {
         try {
             trackListsStorageManager.clearTrackList(TrackList.createIdentifier(TrackListsStorageManager.FAVORITES_DISPLAY_NAME));
         } catch (SQLiteException e) {

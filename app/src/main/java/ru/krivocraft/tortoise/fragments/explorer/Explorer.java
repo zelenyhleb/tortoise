@@ -39,11 +39,12 @@ public class Explorer {
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.trackListsCompiler = new TrackListsCompiler(context);
         updateTrackListSets(listener);
+        requestUpdate();
         System.out.println("created");
     }
 
     private void requestUpdate() {
-        AsyncTask.execute(() -> updateTrackListSets(listener));
+        AsyncTask.execute(this::compileTrackLists);
     }
 
     private void updateTrackListSets(OnTrackListsCompiledListener listener) {
@@ -67,13 +68,11 @@ public class Explorer {
                 tracksStorageManager.removeTrackList(trackList);
             }
         }
-
-        requestUpdate();
+        updateTrackListSets(listener);
     }
 
-    void compileTrackLists() {
-        trackListsCompiler.compileFavorites(this::onNewTrackLists);
-        trackListsCompiler.compileByAuthors(this::onNewTrackLists);
+    private void compileTrackLists() {
+        trackListsCompiler.compileAll(this::onNewTrackLists);
     }
 
     List<TrackList> getCustomLists() {

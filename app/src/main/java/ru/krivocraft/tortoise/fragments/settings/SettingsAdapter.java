@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.core.settings;
+package ru.krivocraft.tortoise.fragments.settings;
 
 import android.app.Activity;
 import android.content.Intent;

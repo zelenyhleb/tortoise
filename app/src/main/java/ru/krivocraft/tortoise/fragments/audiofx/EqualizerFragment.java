@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.fragments;
+package ru.krivocraft.tortoise.fragments.audiofx;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -35,7 +35,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.audiofx.EqualizerManager;
+import ru.krivocraft.tortoise.fragments.BaseFragment;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
 import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackReference;

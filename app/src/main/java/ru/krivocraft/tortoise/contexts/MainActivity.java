@@ -37,7 +37,7 @@ import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
 import ru.krivocraft.tortoise.core.track.TrackReference;
 import ru.krivocraft.tortoise.fragments.BaseFragment;
-import ru.krivocraft.tortoise.fragments.SettingsFragment;
+import ru.krivocraft.tortoise.fragments.settings.SettingsFragment;
 import ru.krivocraft.tortoise.fragments.TrackEditorFragment;
 import ru.krivocraft.tortoise.fragments.explorer.Explorer;
 import ru.krivocraft.tortoise.fragments.explorer.ExplorerFragment;

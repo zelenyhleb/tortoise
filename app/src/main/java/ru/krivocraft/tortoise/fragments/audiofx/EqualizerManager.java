@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.core.audiofx;
+package ru.krivocraft.tortoise.fragments.audiofx;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
