@@ -125,11 +125,14 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void changeColors(int color) {
-        if (button != null) {
-            button.setBackgroundTintList(getContext().getResources().getColorStateList(color));
-        }
-        if (tabLayout != null) {
-            tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(color));
+        Context context = getContext();
+        if (context != null) {
+            if (button != null) {
+                button.setBackgroundTintList(context.getResources().getColorStateList(color));
+            }
+            if (tabLayout != null) {
+                tabLayout.setSelectedTabIndicatorColor(context.getResources().getColor(color));
+            }
         }
     }
 

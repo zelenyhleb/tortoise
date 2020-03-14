@@ -25,7 +25,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
-import ru.krivocraft.tortoise.fragments.audiofx.EqualizerManager;
 import ru.krivocraft.tortoise.core.storage.PreferencesManager;
 import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
@@ -44,7 +43,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private final MediaPlayer player;
 
     private final TracksStorageManager tracksStorageManager;
-    private final EqualizerManager equalizerManager;
 
     private int playerState;
 
@@ -87,7 +85,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
         this.settings = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_MULTI_PROCESS);
-        this.equalizerManager = new EqualizerManager(player.getAudioSessionId(), context);
         updatePlaybackState();
         restoreAll();
     }
@@ -350,8 +347,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void destroy() {
-        equalizerManager.destroy();
-
         audioManager.abandonAudioFocus(focusChangeListener);
         player.release();
     }

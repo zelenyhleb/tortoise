@@ -23,21 +23,13 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.playback.MediaService;
-import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.track.Track;
 import ru.krivocraft.tortoise.core.track.TrackList;
-import ru.krivocraft.tortoise.core.track.TrackReference;
-import ru.krivocraft.tortoise.fragments.audiofx.EqualizerFragment;
 import ru.krivocraft.tortoise.fragments.player.LargePlayerFragment;
 import ru.krivocraft.tortoise.fragments.player.PlayerController;
 import ru.krivocraft.tortoise.fragments.tracklist.TrackListFragment;
@@ -54,16 +46,10 @@ public class PlayerActivity extends BaseActivity {
     private LargePlayerFragment largePlayerFragment;
     private TrackListFragment trackListFragment;
 
-    private boolean equalizerShown = false;
-    private EqualizerFragment equalizerFragment;
-    private SettingsStorageManager settingsStorageManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-
-        settingsStorageManager = new SettingsStorageManager(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(MediaService.ACTION_RESULT_TRACK_LIST);
@@ -96,21 +82,6 @@ public class PlayerActivity extends BaseActivity {
         sendBroadcast(new Intent(MediaService.ACTION_REQUEST_TRACK_LIST));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_player, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_equalizer) {
-            changeEqualizerState();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private BroadcastReceiver trackListReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -120,31 +91,6 @@ public class PlayerActivity extends BaseActivity {
             }
         }
     };
-
-    private void changeEqualizerState() {
-        if (equalizerFragment != null) {
-            FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(R.anim.slideup, R.anim.fadeoutshort);
-            if (!equalizerShown) {
-                transaction.add(R.id.player_container, equalizerFragment);
-            } else {
-                transaction.remove(equalizerFragment);
-            }
-            equalizerShown = !equalizerShown;
-
-            transaction.commitNowAllowingStateLoss();
-
-            View view = equalizerFragment.getView();
-            if (view != null) {
-                if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
-                    view.setBackgroundResource(R.drawable.background_light);
-                } else {
-                    view.setBackgroundResource(R.drawable.background_dark);
-                }
-            }
-        }
-    }
 
     private TrackListFragment createTrackListFragment() {
         trackListFragment = TrackListFragment.newInstance();
@@ -197,7 +143,6 @@ public class PlayerActivity extends BaseActivity {
                 finish();
             } else if (MediaService.ACTION_RESULT_TRACK_LIST.equals(intent.getAction())) {
                 PlayerActivity.this.trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-                equalizerFragment = EqualizerFragment.newInstance(PlayerActivity.this, TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)), mediaController);
                 initPager();
             }
         }
@@ -212,14 +157,10 @@ public class PlayerActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (equalizerShown) {
-            changeEqualizerState();
+        if (pager.getCurrentItem() == INDEX_FRAGMENT_PLAYLIST) {
+            pager.setCurrentItem(INDEX_FRAGMENT_PLAYER);
         } else {
-            if (pager.getCurrentItem() == INDEX_FRAGMENT_PLAYLIST) {
-                pager.setCurrentItem(INDEX_FRAGMENT_PLAYER);
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
     }
 
