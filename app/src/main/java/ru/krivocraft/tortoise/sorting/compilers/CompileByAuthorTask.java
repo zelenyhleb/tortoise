@@ -16,7 +16,7 @@
 
 package ru.krivocraft.tortoise.sorting.compilers;
 
-import ru.krivocraft.tortoise.core.track.Track;
+import ru.krivocraft.tortoise.core.model.Track;
 
 import java.util.ArrayList;
 import java.util.HashMap;

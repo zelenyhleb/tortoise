@@ -22,12 +22,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
-import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
-import ru.krivocraft.tortoise.core.track.Track;
-import ru.krivocraft.tortoise.core.track.TrackList;
-import ru.krivocraft.tortoise.core.track.TrackReference;
+import ru.krivocraft.tortoise.thumbnail.Colors;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
+import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.core.model.TrackList;
+import ru.krivocraft.tortoise.core.model.TrackReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public class DBConnection {
     }
 
     public Track getTrack(TrackReference trackReference) {
-        Track track = new Track(0, "", "", "", ColorManager.GREEN);
+        Track track = new Track(0, "", "", "", Colors.GREEN);
         Cursor cursor = database.query(TRACKS, null, "id = ?", new String[]{trackReference.toString()}, null, null, null);
         if (cursor.moveToFirst()) {
 
@@ -324,11 +324,11 @@ public class DBConnection {
 
     public static class DBHelper extends SQLiteOpenHelper {
 
-        private final ColorManager colorManager;
+        private final Colors colors;
 
         DBHelper(@Nullable Context context) {
             super(context, "tracks", null, 3);
-            this.colorManager = new ColorManager(context);
+            this.colors = new Colors(context);
         }
 
         @Override
@@ -365,7 +365,7 @@ public class DBConnection {
                 try {
                     db.execSQL("SELECT color FROM " + TRACKS);
                 } catch (Exception e) {
-                    db.execSQL("alter table " + TRACKS + " add column color integer default " + ColorManager.GREEN);
+                    db.execSQL("alter table " + TRACKS + " add column color integer default " + Colors.GREEN);
                     generateColors(db);
                 }
             }
@@ -380,7 +380,7 @@ public class DBConnection {
 
         private void updateColor(SQLiteDatabase database, Track track) {
             ContentValues values = new ContentValues();
-            values.put("color", colorManager.getRandomColor());
+            values.put("color", colors.getRandomColor());
             database.update(TRACKS, values, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
         }
 

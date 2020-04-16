@@ -17,7 +17,7 @@
 package ru.krivocraft.tortoise.sorting.compilers;
 
 import android.os.AsyncTask;
-import ru.krivocraft.tortoise.core.track.Track;
+import ru.krivocraft.tortoise.core.model.Track;
 
 import java.util.List;
 import java.util.Map;

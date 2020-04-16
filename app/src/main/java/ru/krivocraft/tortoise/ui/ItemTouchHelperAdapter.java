@@ -14,12 +14,16 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting;
+package ru.krivocraft.tortoise.ui;
 
-import ru.krivocraft.tortoise.core.model.Track;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
+public interface ItemTouchHelperAdapter {
 
-public interface OnStorageUpdateCallback {
-    void onStorageUpdate(List<Track> tracks);
+    boolean onItemMove(int fromPosition, int toPosition);
+  
+    void onClearView();
+
+    void onSwipe(RecyclerView.ViewHolder position);
+
 }

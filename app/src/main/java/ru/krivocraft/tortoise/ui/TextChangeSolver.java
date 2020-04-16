@@ -14,12 +14,23 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting;
+package ru.krivocraft.tortoise.ui;
 
-import ru.krivocraft.tortoise.core.model.Track;
+import android.text.Editable;
+import android.text.TextWatcher;
 
-import java.util.List;
+/*
+ *  Class that allows not to leave blank implementations in the code of EditText TextWatcher
+ */
+public abstract class TextChangeSolver implements TextWatcher {
 
-public interface OnStorageUpdateCallback {
-    void onStorageUpdate(List<Track> tracks);
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        //Nothing
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        //Nothing
+    }
 }

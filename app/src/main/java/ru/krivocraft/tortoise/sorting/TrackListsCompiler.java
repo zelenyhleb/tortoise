@@ -18,11 +18,10 @@ package ru.krivocraft.tortoise.sorting;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
-import ru.krivocraft.tortoise.core.OnTrackListsCompiledCallback;
-import ru.krivocraft.tortoise.core.storage.TrackListsStorageManager;
-import ru.krivocraft.tortoise.core.storage.TracksStorageManager;
-import ru.krivocraft.tortoise.core.track.Track;
-import ru.krivocraft.tortoise.core.track.TrackList;
+import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.sorting.compilers.CompileByAuthorTask;
 import ru.krivocraft.tortoise.sorting.compilers.CompileFavoritesTask;
 import ru.krivocraft.tortoise.sorting.compilers.CompileTrackListsTask;

@@ -18,7 +18,7 @@ package ru.krivocraft.tortoise.sorting;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import ru.krivocraft.tortoise.core.track.Track;
+import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.utils.Art;
 
 public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {

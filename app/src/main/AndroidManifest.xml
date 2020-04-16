@@ -14,14 +14,14 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/DarkTheme">
-        <activity android:name=".contexts.TrackEditorActivity">
+        <activity android:name=".core.editors.TrackEditorActivity">
         </activity>
-        <activity android:name=".contexts.TrackListEditorActivity"/>
+        <activity android:name=".core.editors.TrackListEditorActivity"/>
         <activity
-                android:name=".contexts.PlayerActivity"
+                android:name=".core.PlayerActivity"
                 android:screenOrientation="portrait"/>
         <activity
-                android:name=".contexts.MainActivity"
+                android:name=".core.MainActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/SplashTheme">
@@ -40,7 +40,7 @@
         </receiver>
 
         <service
-                android:name=".contexts.AndroidMediaService"
+                android:name=".core.player.AndroidMediaService"
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>

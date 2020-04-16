@@ -16,10 +16,10 @@
 
 package ru.krivocraft.tortoise.sorting;
 
-import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.core.model.TrackList;
 
 import java.util.List;
 
-public interface OnStorageUpdateCallback {
-    void onStorageUpdate(List<Track> tracks);
+public interface OnTrackListsCompiledCallback {
+    void onTrackListsCompiled(List<TrackList> trackLists);
 }

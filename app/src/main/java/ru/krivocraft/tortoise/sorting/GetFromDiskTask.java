@@ -21,8 +21,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import ru.krivocraft.tortoise.core.ColorManager;
-import ru.krivocraft.tortoise.core.track.Track;
+import ru.krivocraft.tortoise.thumbnail.Colors;
+import ru.krivocraft.tortoise.core.model.Track;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,19 +31,19 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
     private ContentResolver contentResolver;
     private OnStorageUpdateCallback callback;
-    private ColorManager colorManager;
+    private Colors colors;
     private boolean recognize;
 
-    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback, ColorManager colorManager) {
+    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback, Colors colors) {
         this.contentResolver = contentResolver;
         this.recognize = recognize;
         this.callback = callback;
-        this.colorManager = colorManager;
+        this.colors = colors;
     }
 
     @Override
     protected List<Track> doInBackground(Void... voids) {
-        return search(contentResolver, recognize);
+        return search(contentResolver);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
         callback.onStorageUpdate(tracks);
     }
 
-    private List<Track> search(ContentResolver contentResolver, boolean recognize) {
+    private List<Track> search(ContentResolver contentResolver) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] projection = {
                 MediaStore.Audio.Media.DATA,
@@ -60,7 +60,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION
         };
-        final String sortOrder = MediaStore.Audio.AudioColumns.DATA + " COLLATE LOCALIZED ASC";
+        final String sortOrder = MediaStore.Audio.AudioColumns.DATE_MODIFIED + " COLLATE LOCALIZED ASC";
         List<Track> storage = new ArrayList<>();
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -90,7 +90,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3") && duration > 0) {
-                    storage.add(new Track(duration, artist, title, path, colorManager.getRandomColor()));
+                    storage.add(new Track(duration, artist, title, path, colors.getRandomColor()));
                 }
             }
             cursor.close();

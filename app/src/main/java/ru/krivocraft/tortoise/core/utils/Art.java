@@ -40,7 +40,6 @@ public class Art {
         try {
             retriever.setDataSource(path);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
             return null;
         }
         return retriever.getEmbeddedPicture();
