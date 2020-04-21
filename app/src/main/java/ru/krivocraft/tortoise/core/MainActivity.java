@@ -49,7 +49,6 @@ import ru.krivocraft.tortoise.thumbnail.Colors;
 
 public class MainActivity extends BaseActivity {
 
-
     private SmallPlayerFragment smallPlayerFragment;
     private MenuItem settingsButton;
 
@@ -57,7 +56,7 @@ public class MainActivity extends BaseActivity {
     public static final String ACTION_SHOW_PLAYER = "action_show_player";
     public static final String ACTION_SHOW_TRACK_EDITOR = "action_show_tracks_editor";
 
-    private BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver showPlayerReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ACTION_SHOW_PLAYER.equals(intent.getAction())) {
@@ -68,7 +67,7 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    private BroadcastReceiver showEditorReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver showEditorReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             showTrackEditorFragment(TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
@@ -137,6 +136,16 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onMediaBrowserConnected() {
+        if (getIntent().getBooleanExtra(ACTION_SHOW_PLAYER, false)) {
+            showPlayerHostFragment();
+        } else {
+            if (currentFragment != null) {
+                restoreFragment();
+            } else {
+                showExplorerFragment();
+            }
+        }
+
         showSmallPlayerFragment();
         recolorInterface(mediaController.getMetadata());
     }
@@ -200,14 +209,6 @@ public class MainActivity extends BaseActivity {
 
         IntentFilter filter = new IntentFilter(ACTION_SHOW_TRACK_EDITOR);
         registerReceiver(showEditorReceiver, filter);
-
-        if (currentFragment != null) {
-            restoreFragment();
-        } else {
-            showExplorerFragment();
-        }
-
-        System.out.println(Environment.getExternalStorageDirectory().getAbsolutePath());
     }
 
     private void configureLayoutTransition() {

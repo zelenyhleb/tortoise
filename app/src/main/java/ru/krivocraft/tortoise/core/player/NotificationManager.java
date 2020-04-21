@@ -76,7 +76,10 @@ public class NotificationManager {
 
     public void showNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                    new Intent(context, MainActivity.class)
+                            .putExtra(MainActivity.ACTION_SHOW_PLAYER, true)
+                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT);
 
             androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());

@@ -49,7 +49,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private final PlayerStateCallback playerStateCallback;
     private final PlaylistUpdateCallback playlistUpdateCallback;
 
-    private AudioManager.OnAudioFocusChangeListener focusChangeListener = focusChange -> {
+    private final AudioManager.OnAudioFocusChangeListener focusChangeListener = focusChange -> {
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS:
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
