@@ -30,7 +30,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.PlayerActivity;
+import ru.krivocraft.tortoise.core.MainActivity;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
@@ -76,7 +76,7 @@ public class NotificationManager {
 
     public void showNotification(MediaSessionCompat mediaSession) {
         if (mediaSession.getController().getMetadata() != null) {
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), PendingIntent.FLAG_CANCEL_CURRENT);
 
             androidx.media.app.NotificationCompat.MediaStyle mediaStyle = new androidx.media.app.NotificationCompat.MediaStyle();
             mediaStyle.setMediaSession(mediaSession.getSessionToken());

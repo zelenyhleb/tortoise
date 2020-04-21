@@ -17,7 +17,6 @@
 package ru.krivocraft.tortoise.core.player.views;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -37,7 +36,6 @@ import androidx.annotation.Nullable;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.PlayerActivity;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
@@ -57,6 +55,7 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     private Colors colors;
     private TracksStorageManager tracksStorageManager;
     private PlayerController controller;
+    private View.OnClickListener listener;
 
     public void setInitialData(MediaMetadataCompat metadata, PlaybackStateCompat state) {
         this.metadata = metadata;
@@ -151,7 +150,7 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
                 final View textContainer = rootView.findViewById(R.id.text_container);
                 final Bitmap trackArt = new Art(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)).bitmap();
 
-                textContainer.setOnClickListener(v -> context.startActivity(new Intent(context, PlayerActivity.class)));
+                textContainer.setOnClickListener(listener);
                 if (trackArt != null) {
                     viewImage.setImageBitmap(trackArt);
                 } else {
@@ -184,6 +183,9 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
         this.controller = controller;
     }
 
+    public void setListener(View.OnClickListener listener) {
+        this.listener = listener;
+    }
 }
 
 

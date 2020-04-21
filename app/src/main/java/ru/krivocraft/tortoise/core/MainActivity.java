@@ -33,18 +33,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.editors.TrackEditorActivity;
-import ru.krivocraft.tortoise.core.player.AndroidMediaService;
-import ru.krivocraft.tortoise.thumbnail.Colors;
-import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.core.explorer.Explorer;
+import ru.krivocraft.tortoise.core.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
-import ru.krivocraft.tortoise.core.settings.SettingsFragment;
-import ru.krivocraft.tortoise.core.explorer.Explorer;
-import ru.krivocraft.tortoise.core.explorer.ExplorerFragment;
+import ru.krivocraft.tortoise.core.player.AndroidMediaService;
 import ru.krivocraft.tortoise.core.player.views.PlayerController;
+import ru.krivocraft.tortoise.core.player.views.PlayerHostFragment;
 import ru.krivocraft.tortoise.core.player.views.SmallPlayerFragment;
+import ru.krivocraft.tortoise.core.settings.SettingsFragment;
 import ru.krivocraft.tortoise.core.tracklist.TrackListFragment;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 public class MainActivity extends BaseActivity {
 
@@ -78,12 +79,40 @@ public class MainActivity extends BaseActivity {
     private Explorer explorer;
     private TracksStorageManager tracksStorageManager;
     private Colors colors;
+    private final PlayerController defaultPlayerController = new PlayerController() {
+        @Override
+        public void onPlay() {
+            mediaController.getTransportControls().play();
+        }
+
+        @Override
+        public void onPause() {
+            mediaController.getTransportControls().pause();
+        }
+
+        @Override
+        public void onNext() {
+            mediaController.getTransportControls().skipToNext();
+        }
+
+        @Override
+        public void onPrevious() {
+            mediaController.getTransportControls().skipToPrevious();
+        }
+
+        @Override
+        public void onSeekTo(int position) {
+            mediaController.getTransportControls().seekTo(position);
+        }
+    };
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat newMetadata) {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null)
             smallPlayerFragment.updateMediaMetadata(newMetadata);
+        if (currentFragment != null)
+            currentFragment.onMetadataChanged(newMetadata);
         recolorInterface(newMetadata);
     }
 
@@ -99,6 +128,8 @@ public class MainActivity extends BaseActivity {
         showSmallPlayerFragment();
         if (smallPlayerFragment != null)
             smallPlayerFragment.updatePlaybackState(newPlaybackState);
+        if (currentFragment != null)
+            currentFragment.onPlaybackStateChanged(newPlaybackState);
         if (currentFragment instanceof TrackListFragment) {
             ((TrackListFragment) currentFragment).notifyTracksStateChanged();
         }
@@ -108,6 +139,12 @@ public class MainActivity extends BaseActivity {
     public void onMediaBrowserConnected() {
         showSmallPlayerFragment();
         recolorInterface(mediaController.getMetadata());
+    }
+
+    private PlayerHostFragment getPlayerHostFragment() {
+        PlayerHostFragment playerHostFragment = PlayerHostFragment.newInstance();
+        playerHostFragment.setInitialData(TrackList.EMPTY, defaultPlayerController, mediaController.getMetadata(), mediaController.getPlaybackState());
+        return playerHostFragment;
     }
 
     private TrackListFragment getTrackListFragment(TrackList trackList) {
@@ -228,6 +265,11 @@ public class MainActivity extends BaseActivity {
         hideFragment(smallPlayerFragment);
     }
 
+    private void showPlayerHostFragment() {
+        replaceFragment(getPlayerHostFragment());
+        hideFragment(smallPlayerFragment);
+    }
+
     private void showTrackEditorFragment(TrackReference trackReference) {
         startActivity(new Intent(this, TrackEditorActivity.class).putExtra(TrackEditorActivity.EXTRA_TRACK, trackReference.toJson()));
     }
@@ -249,12 +291,7 @@ public class MainActivity extends BaseActivity {
         if (currentFragment instanceof ExplorerFragment) {
             super.onBackPressed();
         } else {
-            if (currentFragment instanceof SettingsFragment) {
-                showSmallPlayerFragment();
-                showExplorerFragment();
-            } else if (currentFragment instanceof TrackListFragment) {
-                showExplorerFragment();
-            }
+            showExplorerFragment();
         }
         onFragmentChanged();
     }
@@ -282,34 +319,11 @@ public class MainActivity extends BaseActivity {
     private void showSmallPlayerFragment() {
         if (mediaController != null && mediaController.getMetadata() != null
                 && (smallPlayerFragment == null || !smallPlayerFragment.isVisible())
-                && mediaController.getPlaybackState().getState() != PlaybackStateCompat.STATE_STOPPED) {
+                && mediaController.getPlaybackState().getState() != PlaybackStateCompat.STATE_STOPPED
+                && !(currentFragment instanceof SettingsFragment) && !(currentFragment instanceof PlayerHostFragment)) {
             SmallPlayerFragment smallPlayerFragment = new SmallPlayerFragment();
-            smallPlayerFragment.setController(new PlayerController() {
-                @Override
-                public void onPlay() {
-                    mediaController.getTransportControls().play();
-                }
-
-                @Override
-                public void onPause() {
-                    mediaController.getTransportControls().pause();
-                }
-
-                @Override
-                public void onNext() {
-                    mediaController.getTransportControls().skipToNext();
-                }
-
-                @Override
-                public void onPrevious() {
-                    mediaController.getTransportControls().skipToPrevious();
-                }
-
-                @Override
-                public void onSeekTo(int position) {
-                    mediaController.getTransportControls().seekTo(position);
-                }
-            });
+            smallPlayerFragment.setListener(v -> showPlayerHostFragment());
+            smallPlayerFragment.setController(defaultPlayerController);
             smallPlayerFragment.setInitialData(mediaController.getMetadata(), mediaController.getPlaybackState());
             MainActivity.this.smallPlayerFragment = smallPlayerFragment;
             showFragment(smallPlayerFragment);
@@ -327,6 +341,9 @@ public class MainActivity extends BaseActivity {
 
         if (currentFragment instanceof SettingsFragment) {
             currentFragment = SettingsFragment.newInstance();
+        }
+        if (currentFragment instanceof PlayerHostFragment) {
+            currentFragment = getPlayerHostFragment();
         }
         addFragment(currentFragment);
     }

@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -226,8 +227,9 @@ public class TrackListFragment extends BaseFragment {
 
     public void setTrackList(TrackList trackList) {
         this.trackList = trackList;
-        if (tracksAdapter != null) {
-            processPaths(getActivity(), trackList);
+        FragmentActivity activity = getActivity();
+        if (tracksAdapter != null && activity != null) {
+            processPaths(activity, trackList);
         }
     }
 

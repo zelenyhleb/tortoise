@@ -18,6 +18,8 @@ package ru.krivocraft.tortoise.core;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +44,14 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public abstract void changeColors(int color);
+
+    public void onMetadataChanged(MediaMetadataCompat metadata) {
+
+    }
+
+    public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
+
+    }
 
     public SettingsStorageManager getSettingsManager() {
         return settingsManager;

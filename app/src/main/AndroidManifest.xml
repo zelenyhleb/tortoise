@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="ru.krivocraft.tortoise">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -18,13 +19,11 @@
         </activity>
         <activity android:name=".core.editors.TrackListEditorActivity"/>
         <activity
-                android:name=".core.PlayerActivity"
-                android:screenOrientation="portrait"/>
-        <activity
                 android:name=".core.MainActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
-                android:theme="@style/SplashTheme">
+                android:theme="@style/SplashTheme"
+                tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW"/>
