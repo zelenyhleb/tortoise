@@ -22,12 +22,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
-import ru.krivocraft.tortoise.thumbnail.Colors;
-import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.util.ArrayList;
 import java.util.List;

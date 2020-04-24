@@ -27,9 +27,9 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.core.BaseFragment;
 import ru.krivocraft.tortoise.core.editors.TrackListEditorActivity;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.BaseFragment;
 
 import java.util.List;
 

@@ -10,10 +10,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.ui.TextChangeSolver;
-import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.ui.TextChangeSolver;
 
 public class TrackEditorActivity extends AppCompatActivity {
 

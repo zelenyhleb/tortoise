@@ -29,10 +29,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.editors.TrackListEditorActivity;
-import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.BaseFragment;
+import ru.krivocraft.tortoise.core.editors.TrackListEditorActivity;
+import ru.krivocraft.tortoise.core.model.TrackList;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 
 import java.util.ArrayList;
 

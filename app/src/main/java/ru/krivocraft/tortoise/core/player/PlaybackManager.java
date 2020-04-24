@@ -26,11 +26,11 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 import ru.krivocraft.tortoise.core.PreferencesManager;
-import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

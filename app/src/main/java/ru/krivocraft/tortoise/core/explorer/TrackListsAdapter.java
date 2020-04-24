@@ -10,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.thumbnail.ThumbnailStorageManager;
 import ru.krivocraft.tortoise.core.PreferencesManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
@@ -18,6 +17,7 @@ import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.sorting.GetAlbumArtTask;
+import ru.krivocraft.tortoise.thumbnail.ThumbnailStorageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

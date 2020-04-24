@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
+import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.tracklist.TracksProvider;
 import ru.krivocraft.tortoise.sorting.TrackListsCompiler;
-import ru.krivocraft.tortoise.core.model.TrackList;
 
 import java.util.ArrayList;
 import java.util.List;

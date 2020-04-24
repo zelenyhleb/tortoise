@@ -27,13 +27,13 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.session.MediaButtonReceiver;
 import ru.krivocraft.tortoise.core.MainActivity;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
-import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.tracklist.TracksProvider;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.util.Objects;
 

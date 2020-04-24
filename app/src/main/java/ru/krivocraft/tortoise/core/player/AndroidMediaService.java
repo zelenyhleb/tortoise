@@ -22,7 +22,6 @@ import android.support.v4.media.MediaBrowserCompat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
-import ru.krivocraft.tortoise.core.player.MediaService;
 
 import java.util.List;
 

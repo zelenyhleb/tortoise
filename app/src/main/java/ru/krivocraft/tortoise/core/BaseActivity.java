@@ -36,9 +36,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.player.AndroidMediaService;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 

@@ -32,14 +32,14 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 import com.google.android.material.snackbar.Snackbar;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.MainActivity;
-import ru.krivocraft.tortoise.thumbnail.Colors;
+import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
-import ru.krivocraft.tortoise.ui.ItemTouchHelperAdapter;
 import ru.krivocraft.tortoise.core.player.MediaService;
-import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.sorting.LoadArtTask;
+import ru.krivocraft.tortoise.thumbnail.Colors;
+import ru.krivocraft.tortoise.ui.ItemTouchHelperAdapter;
 
 import java.util.Collections;
 

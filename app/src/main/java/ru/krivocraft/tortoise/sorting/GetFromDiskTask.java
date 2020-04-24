@@ -21,8 +21,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -36,11 +36,11 @@ import androidx.annotation.Nullable;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.thumbnail.Colors;
+import ru.krivocraft.tortoise.core.BaseFragment;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
 import ru.krivocraft.tortoise.core.utils.Milliseconds;
-import ru.krivocraft.tortoise.core.BaseFragment;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.util.Timer;
 import java.util.TimerTask;

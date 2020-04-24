@@ -31,9 +31,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.MainActivity;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.utils.Art;
+import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
