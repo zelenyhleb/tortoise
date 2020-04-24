@@ -38,27 +38,23 @@ public class TracksProvider {
     public static final String ACTION_UPDATE_STORAGE = "action_update_storage";
 
     private final Context context;
-    private ContentResolver contentResolver;
+    private final ContentResolver contentResolver;
 
-    private TrackListsStorageManager trackListsStorageManager;
-    private TracksStorageManager tracksStorageManager;
-
-    private boolean recognize;
+    private final TrackListsStorageManager trackListsStorageManager;
+    private final TracksStorageManager tracksStorageManager;
+    private final SettingsStorageManager settings;
 
     public TracksProvider(Context context) {
         this.contentResolver = context.getContentResolver();
         this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.tracksStorageManager = new TracksStorageManager(context);
-
-        SettingsStorageManager settingsManager = new SettingsStorageManager(context);
-        this.recognize = settingsManager.getOption(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
-
+        this.settings = new SettingsStorageManager(context);
         this.context = context;
     }
 
     public void search() {
         requestRescan();
-        new GetFromDiskTask(contentResolver, recognize, this::manageStorage, new Colors(context)).execute();
+        new GetFromDiskTask(contentResolver, settings.getOption(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true), this::manageStorage, new Colors(context)).execute();
     }
 
     private void requestRescan() {

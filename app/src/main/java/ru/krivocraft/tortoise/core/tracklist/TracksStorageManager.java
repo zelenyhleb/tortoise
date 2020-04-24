@@ -38,8 +38,8 @@ public class TracksStorageManager {
     }
 
     public void updateTrackStorage(List<Track> tracks) {
-        for (int i = 0; i < tracks.size(); i++) {
-            updateTrack(tracks.get(i));
+        for (Track track : tracks) {
+            updateTrack(track);
         }
     }
 

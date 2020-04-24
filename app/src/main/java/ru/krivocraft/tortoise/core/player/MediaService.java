@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -75,18 +76,9 @@ public class MediaService {
 
     public MediaService(MediaBrowserServiceCompat context) {
         this.context = context;
-        mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
-        context.setSessionToken(mediaSession.getSessionToken());
-
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
-        mediaSession.setActive(true);
-
+        notificationManager = new NotificationManager(context);
         tracksStorageManager = new TracksStorageManager(context);
         trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
-
-        mediaController = mediaSession.getController();
-
-        notificationManager = new NotificationManager(context);
 
         playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
             @Override
@@ -108,34 +100,36 @@ public class MediaService {
             }
         }, this::updateTrackList);
 
+
+        mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        mediaSession.setActive(true);
         mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop));
+
+        context.setSessionToken(mediaSession.getSessionToken());
+        mediaController = mediaSession.getController();
 
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
 
-        IntentFilter headsetFilter = new IntentFilter();
-        headsetFilter.addAction(Intent.ACTION_HEADSET_PLUG);
-        headsetFilter.addAction(ACTION_AUDIO_BECOMING_NOISY);
-        context.registerReceiver(headsetReceiver, headsetFilter);
+        initReceivers();
+    }
 
-        IntentFilter positionFilter = new IntentFilter();
-        positionFilter.addAction(ACTION_REQUEST_DATA);
-        positionFilter.addAction(ACTION_REQUEST_TRACK_LIST);
-        context.registerReceiver(requestDataReceiver, positionFilter);
+    private void initReceivers() {
+        registerReceiver(headsetReceiver, Intent.ACTION_HEADSET_PLUG, ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(requestDataReceiver, ACTION_REQUEST_DATA, ACTION_REQUEST_TRACK_LIST);
+        registerReceiver(playlistReceiver, ACTION_REQUEST_STOP, ACTION_SHUFFLE,
+                ACTION_EDIT_PLAYING_TRACK_LIST, ACTION_EDIT_TRACK_LIST,
+                ACTION_PLAY_FROM_LIST, ACTION_NEXT_TRACK);
+        registerReceiver(colorRequestReceiver, Colors.ACTION_REQUEST_COLOR);
+    }
 
-        IntentFilter playlistFilter = new IntentFilter();
-        playlistFilter.addAction(ACTION_REQUEST_STOP);
-        playlistFilter.addAction(ACTION_SHUFFLE);
-        playlistFilter.addAction(ACTION_EDIT_PLAYING_TRACK_LIST);
-        playlistFilter.addAction(ACTION_EDIT_TRACK_LIST);
-        playlistFilter.addAction(ACTION_PLAY_FROM_LIST);
-        playlistFilter.addAction(ACTION_NEXT_TRACK);
-        context.registerReceiver(playlistReceiver, playlistFilter);
-
-        IntentFilter colorFilter = new IntentFilter();
-        colorFilter.addAction(Colors.ACTION_REQUEST_COLOR);
-        context.registerReceiver(colorRequestReceiver, colorFilter);
-
+    private void registerReceiver(BroadcastReceiver receiver, String... actions) {
+        IntentFilter filter = new IntentFilter();
+        for (String action : actions) {
+            filter.addAction(action);
+        }
+        context.registerReceiver(receiver, filter);
     }
 
 
@@ -258,7 +252,7 @@ public class MediaService {
         }
     }
 
-    private BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             TrackReference currentTrack = playbackManager.getSelectedTrackReference();

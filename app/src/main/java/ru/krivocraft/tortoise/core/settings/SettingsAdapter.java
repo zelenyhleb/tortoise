@@ -36,8 +36,8 @@ import static ru.krivocraft.tortoise.core.settings.SettingsStorageManager.*;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
-    private List<String> objects;
-    private SettingsStorageManager manager;
+    private final List<String> objects;
+    private final SettingsStorageManager manager;
 
     public SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
@@ -108,11 +108,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         boolean option = manager.getOption(key, defaultValue);
         s.setChecked(option);
         s.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (option) {
-                manager.putOption(key, false);
-            } else {
-                manager.putOption(key, true);
-            }
+            manager.putOption(key, !option);
             if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(KEY_THEME)) {
                 Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }

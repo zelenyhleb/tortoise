@@ -27,8 +27,6 @@ public class SettingsStorageManager {
     public static final String KEY_HELP = "https://github.com/zelenyhleb/tortoise/wiki/Usage";
     public static final String KEY_SHOW_IGNORED = "showIgnored";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
-    public static final String KEY_OLD_TRACK_LISTS_EXIST = "oldExist";
-    public static final String KEY_THUMBNAILS_CLEARED = "thumbs";
 
     private final PreferencesManager preferencesManager;
 
