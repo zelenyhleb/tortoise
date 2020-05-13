@@ -65,6 +65,6 @@ public abstract class SeekTask<T> extends AsyncTask<Void, Integer, List<Track>> 
             }
         }
 
-        return new Track(duration, artist, title, path, color);
+        return new Track(duration, artist, title, path, color, 0);
     }
 }

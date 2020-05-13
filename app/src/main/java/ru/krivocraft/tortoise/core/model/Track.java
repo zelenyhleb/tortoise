@@ -40,8 +40,9 @@ public class Track {
     private long duration;
     private int identifier;
     private int color;
+    private int rating;
 
-    public Track(long duration, String artist, String title, @NonNull String path, int color) {
+    public Track(long duration, String artist, String title, @NonNull String path, int color, int rating) {
         this.duration = duration;
         this.artist = artist;
         this.title = title;
@@ -49,6 +50,7 @@ public class Track {
         this.color = color;
 
         this.identifier = path.hashCode();
+        this.rating = rating;
 
         if ("<unknown>".equals(artist)) {
             this.artist = UNKNOWN_ARTIST;
@@ -58,8 +60,8 @@ public class Track {
         }
     }
 
-    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color, boolean ignored) {
-        this(duration, artist, title, path, color);
+    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color, boolean ignored, int rating) {
+        this(duration, artist, title, path, color, rating);
         this.liked = liked;
         this.selected = selected;
         this.playing = playing;
@@ -160,5 +162,13 @@ public class Track {
 
     public boolean isIgnored() {
         return ignored;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

@@ -300,11 +300,7 @@ public class MainActivity extends BaseActivity {
     private void onFragmentChanged() {
         redrawActionBar(currentFragment);
         if (settingsButton != null) {
-            if (currentFragment instanceof SettingsFragment) {
-                settingsButton.setVisible(false);
-            } else {
-                settingsButton.setVisible(true);
-            }
+            settingsButton.setVisible(!(currentFragment instanceof SettingsFragment));
         }
     }
 
