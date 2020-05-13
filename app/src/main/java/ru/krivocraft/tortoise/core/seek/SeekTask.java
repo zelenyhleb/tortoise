@@ -1,29 +1,29 @@
-package ru.krivocraft.tortoise.core.tracklist;
+package ru.krivocraft.tortoise.core.seek;
 
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
-import android.os.Environment;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.sorting.OnStorageUpdateCallback;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
-public class SearchFileSystemTask extends AsyncTask<Void, Integer, List<Track>> {
+public abstract class SeekTask<T> extends AsyncTask<Void, Integer, List<Track>> {
 
-    private final OnStorageUpdateCallback callback;
-    private final boolean recognize;
+    protected final OnStorageUpdateCallback callback;
+    protected final boolean recognize;
+    protected final T seekBase;
 
-    public SearchFileSystemTask(OnStorageUpdateCallback callback, boolean recognize) {
+    public SeekTask(OnStorageUpdateCallback callback, boolean recognize, T seekBase) {
         this.callback = callback;
         this.recognize = recognize;
+        this.seekBase = seekBase;
     }
 
     @Override
     protected List<Track> doInBackground(Void... voids) {
-        return search(Environment.getExternalStorageDirectory());
+        return seek(seekBase);
     }
 
     @Override
@@ -32,26 +32,9 @@ public class SearchFileSystemTask extends AsyncTask<Void, Integer, List<Track>> 
         callback.onStorageUpdate(tracks);
     }
 
-    private List<Track> search(File directory) {
-        List<Track> tracks = new LinkedList<>();
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    tracks.addAll(search(file));
-                } else {
-                    if (file.getPath().endsWith(".mp3")) {
-                        tracks.add(fromFile(file));
-                    }
-                }
-            }
-        } else {
-            System.out.println("search failed");
-        }
-        return tracks;
-    }
+    public abstract List<Track> seek(T t);
 
-    private Track fromFile(File file) {
+    protected Track fromFile(File file) {
         System.out.println(file.getPath());
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(file.getAbsolutePath());
