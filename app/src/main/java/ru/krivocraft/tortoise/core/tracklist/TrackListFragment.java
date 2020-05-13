@@ -210,10 +210,6 @@ public class TrackListFragment extends BaseFragment {
         layoutManager.scrollToPosition(getSelectedItem());
     }
 
-    private boolean getShowHidden() {
-        return getSettingsManager().getOption(SettingsStorageManager.KEY_SHOW_IGNORED, false);
-    }
-
     private int getSelectedItem() {
         if (trackList != null) {
             for (TrackReference reference : trackList.getTrackReferences()) {

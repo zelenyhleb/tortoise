@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting;
+package ru.krivocraft.tortoise.core.tracklist;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -22,23 +22,22 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.sorting.OnStorageUpdateCallback;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
+public class SearchContentDatabaseTask extends AsyncTask<Void, Integer, List<Track>> {
 
-    private ContentResolver contentResolver;
-    private OnStorageUpdateCallback callback;
-    private Colors colors;
-    private boolean recognize;
+    private final ContentResolver contentResolver;
+    private final OnStorageUpdateCallback callback;
+    private final boolean recognize;
 
-    public GetFromDiskTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback, Colors colors) {
+    public SearchContentDatabaseTask(ContentResolver contentResolver, boolean recognize, OnStorageUpdateCallback callback) {
         this.contentResolver = contentResolver;
         this.recognize = recognize;
         this.callback = callback;
-        this.colors = colors;
     }
 
     @Override
@@ -90,7 +89,7 @@ public class GetFromDiskTask extends AsyncTask<Void, Integer, List<Track>> {
 
                 cursor.moveToNext();
                 if (path != null && path.endsWith(".mp3") && duration > 0) {
-                    storage.add(new Track(duration, artist, title, path, colors.getRandomColor()));
+                    storage.add(new Track(duration, artist, title, path, Colors.getRandomColor()));
                 }
             }
             cursor.close();

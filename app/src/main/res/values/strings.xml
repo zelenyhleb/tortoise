@@ -39,6 +39,7 @@
     <string name="settings_item_default" translatable="false">Включить или выключить эту хуйню блять</string>
     <string name="play_in_random_order">Play in random order</string>
     <string name="settings_website">Our website</string>
+    <string name="settings_alternative_seek">Use alternative seek method (use it if you have your tracks stored on the SD card)</string>
     <string name="settings_telegram">Our telegram</string>
     <string name="show_hidden_tracks">Show hidden tracks</string>
     <string name="link_help">Help</string>

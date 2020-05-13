@@ -25,6 +25,7 @@ public class SettingsStorageManager {
     public static final String KEY_WEBSITE = "https://krivocraft.ru/";
     public static final String KEY_TELEGRAM = "https://t.me/krivocraft/";
     public static final String KEY_HELP = "https://github.com/zelenyhleb/tortoise/wiki/Usage";
+    public static final String KEY_ALTERNATIVE_SEEK = "alternativeSeek";
     public static final String KEY_SHOW_IGNORED = "showIgnored";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
 

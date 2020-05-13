@@ -240,7 +240,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         switch (loopType) {
             case TrackList.LOOP_TRACK:
                 newTrack(getCursor());
-                System.out.println("LOOP TRACK");
                 break;
             case TrackList.LOOP_TRACK_LIST:
                 if (getCursor() + 1 < getTrackList().size()) {
@@ -248,7 +247,6 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 } else {
                     newTrack(0);
                 }
-                System.out.println("LOOP TRACKLIST");
                 break;
             case TrackList.NOT_LOOP:
                 if (getCursor() < getTrackList().size() - 1) {
@@ -257,10 +255,8 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                     stop();
 
                 }
-                System.out.println("LOOP NONE");
                 break;
             default:
-                System.out.println("DEFAULT");
                 break;
         }
     }

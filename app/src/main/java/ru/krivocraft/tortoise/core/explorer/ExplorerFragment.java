@@ -16,7 +16,6 @@
 
 package ru.krivocraft.tortoise.core.explorer;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,7 +45,6 @@ public class ExplorerFragment extends BaseFragment {
     private FloatingActionButton button;
     private int tintColor;
     private TabLayout tabLayout;
-    private ViewPager pager;
 
     public static ExplorerFragment newInstance() {
         return new ExplorerFragment();
@@ -79,7 +77,7 @@ public class ExplorerFragment extends BaseFragment {
             }
         }
 
-        pager = view.findViewById(R.id.explorer_pager);
+        ViewPager pager = view.findViewById(R.id.explorer_pager);
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -113,12 +111,7 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void invalidate() {
-        Activity activity = getActivity();
-        if (activity != null) {
-            this.adapter = new ExplorerPagerAdapter(getChildFragmentManager(), listener, explorer.getCustomLists(), explorer.getSortedLists(), activity);
-            pager.setAdapter(adapter);
-            pager.setCurrentItem(getSettingsManager().getOption("endOnSorted", false) ? 1 : 0);
-        }
+        this.adapter.setTrackLists(explorer.getCustomLists(), explorer.getSortedLists());
     }
 
     @Override

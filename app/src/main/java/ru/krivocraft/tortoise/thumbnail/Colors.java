@@ -28,7 +28,6 @@ import java.util.Random;
 public class Colors {
 
     private final Context context;
-    private final Random random;
     private final List<Integer> availableColors;
 
     public static final int RED = 0;
@@ -54,14 +53,13 @@ public class Colors {
 
     public Colors(Context context) {
         this.context = context;
-        this.random = new Random();
         this.availableColors = new ArrayList<>();
 
         fillAvailableColors();
     }
 
-    public int getRandomColor() {
-        return random.nextInt(16);
+    public static int getRandomColor() {
+        return new Random().nextInt(16);
     }
 
     public int getColor(int color) {

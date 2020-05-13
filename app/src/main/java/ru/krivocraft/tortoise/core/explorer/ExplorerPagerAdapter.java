@@ -42,6 +42,11 @@ class ExplorerPagerAdapter extends FragmentPagerAdapter {
         this.context = context;
     }
 
+    public final void setTrackLists(List<TrackList> custom, List<TrackList> sorted) {
+        customTrackLists.setTrackLists(custom);
+        sortedTrackLists.setTrackLists(sorted);
+    }
+
     @NonNull
     @Override
     public Fragment getItem(int position) {

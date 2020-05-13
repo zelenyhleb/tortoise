@@ -44,12 +44,12 @@ import ru.krivocraft.tortoise.ui.ItemTouchHelperAdapter;
 import java.util.Collections;
 
 public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder> implements ItemTouchHelperAdapter {
-    private TrackList trackList;
-    private Context context;
+    private final TrackList trackList;
+    private final Context context;
     private final boolean editingAllowed;
-    private TracksStorageManager tracksStorageManager;
-    private AdapterListener listener;
-    private Colors colors;
+    private final TracksStorageManager tracksStorageManager;
+    private final AdapterListener listener;
+    private final Colors colors;
 
     public TracksAdapter(TrackList trackList, Context context, boolean editingAllowed, AdapterListener listener) {
         this.trackList = trackList;

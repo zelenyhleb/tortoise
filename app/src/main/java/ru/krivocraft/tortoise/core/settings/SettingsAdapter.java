@@ -49,7 +49,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View itemView;
-        if (position < 3) {
+        if (position < 4) {
             if (convertView == null) {
                 itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 String key = objects.get(position);
@@ -81,6 +81,8 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_theme);
             case KEY_RECOGNIZE_NAMES:
                 return getContext().getResources().getString(R.string.settings_recognize);
+            case KEY_ALTERNATIVE_SEEK:
+                return getContext().getResources().getString(R.string.settings_alternative_seek);
             case KEY_WEBSITE:
                 return getContext().getResources().getString(R.string.settings_website);
             case KEY_TELEGRAM:

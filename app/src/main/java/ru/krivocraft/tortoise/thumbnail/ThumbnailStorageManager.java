@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public class ThumbnailStorageManager {
 
-    private String rootDir;
+    private final String rootDir;
     private final String dataDir;
 
     public ThumbnailStorageManager() {

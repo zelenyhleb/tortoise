@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.BaseFragment;
 
@@ -35,7 +36,7 @@ public class SettingsFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         ListView listView = rootView.findViewById(R.id.settings_list);
         List<String> settings = getSettings();
@@ -50,6 +51,7 @@ public class SettingsFragment extends BaseFragment {
         return Arrays.asList(SettingsStorageManager.KEY_THEME,
                 SettingsStorageManager.KEY_RECOGNIZE_NAMES,
                 SettingsStorageManager.KEY_SHOW_IGNORED,
+                SettingsStorageManager.KEY_ALTERNATIVE_SEEK,
                 SettingsStorageManager.KEY_WEBSITE,
                 SettingsStorageManager.KEY_TELEGRAM,
                 SettingsStorageManager.KEY_HELP);

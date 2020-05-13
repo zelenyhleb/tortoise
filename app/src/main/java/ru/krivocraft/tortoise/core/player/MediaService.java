@@ -20,7 +20,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -79,6 +78,9 @@ public class MediaService {
         notificationManager = new NotificationManager(context);
         tracksStorageManager = new TracksStorageManager(context);
         trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
+        mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        mediaSession.setActive(true);
 
         playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
             @Override
@@ -99,11 +101,6 @@ public class MediaService {
                 showNotification();
             }
         }, this::updateTrackList);
-
-
-        mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
-        mediaSession.setActive(true);
         mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop));
 
         context.setSessionToken(mediaSession.getSessionToken());

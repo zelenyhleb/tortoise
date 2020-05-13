@@ -16,20 +16,14 @@
 
 package ru.krivocraft.tortoise.core.tracklist;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Environment;
 import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.sorting.GetFromDiskTask;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +32,12 @@ public class TracksProvider {
     public static final String ACTION_UPDATE_STORAGE = "action_update_storage";
 
     private final Context context;
-    private final ContentResolver contentResolver;
 
     private final TrackListsStorageManager trackListsStorageManager;
     private final TracksStorageManager tracksStorageManager;
     private final SettingsStorageManager settings;
 
     public TracksProvider(Context context) {
-        this.contentResolver = context.getContentResolver();
         this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
         this.tracksStorageManager = new TracksStorageManager(context);
         this.settings = new SettingsStorageManager(context);
@@ -53,16 +45,12 @@ public class TracksProvider {
     }
 
     public void search() {
-        requestRescan();
-        new GetFromDiskTask(contentResolver, settings.getOption(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true), this::manageStorage, new Colors(context)).execute();
-    }
-
-    private void requestRescan() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File("file://" + Environment.getExternalStorageDirectory());
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        context.sendBroadcast(mediaScanIntent);
+        boolean recognize = settings.getOption(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
+        if (settings.getOption(SettingsStorageManager.KEY_ALTERNATIVE_SEEK, false)) {
+            new SearchContentDatabaseTask(context.getContentResolver(), recognize, this::manageStorage).execute();
+        } else {
+            new SearchFileSystemTask(this::manageStorage, recognize).execute();
+        }
     }
 
     private void manageStorage(List<Track> tracks) {

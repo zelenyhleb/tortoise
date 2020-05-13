@@ -49,6 +49,7 @@ import ru.krivocraft.tortoise.thumbnail.Colors;
 public class MainActivity extends BaseActivity {
 
     private SmallPlayerFragment smallPlayerFragment;
+
     private MenuItem settingsButton;
 
     public static final String ACTION_HIDE_PLAYER = "action_hide_player";
@@ -311,7 +312,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         unregisterReceiver(showEditorReceiver);
         unregisterReceiver(showPlayerReceiver);
-
         explorer.unregisterReceiver(this);
         super.onDestroy();
     }

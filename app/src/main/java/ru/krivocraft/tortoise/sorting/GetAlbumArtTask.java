@@ -23,7 +23,7 @@ import ru.krivocraft.tortoise.core.utils.Art;
 
 public class GetAlbumArtTask extends AsyncTask<Track, Integer, Bitmap> {
 
-    private OnAlbumArtAcquiredCallback callback;
+    private final OnAlbumArtAcquiredCallback callback;
 
     public GetAlbumArtTask(OnAlbumArtAcquiredCallback callback) {
         this.callback = callback;

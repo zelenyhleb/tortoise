@@ -46,11 +46,11 @@ public abstract class BaseFragment extends Fragment {
     public abstract void changeColors(int color);
 
     public void onMetadataChanged(MediaMetadataCompat metadata) {
-
+        //Empty overridable method that can be implemented or not
     }
 
     public void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-
+        //Empty overridable method that can be implemented or not
     }
 
     public SettingsStorageManager getSettingsManager() {
