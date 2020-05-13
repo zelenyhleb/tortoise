@@ -18,6 +18,7 @@ package ru.krivocraft.tortoise.core.model;
 
 import androidx.annotation.NonNull;
 import com.google.gson.Gson;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 
 import java.util.*;
 
@@ -69,17 +70,12 @@ public class TrackList {
         this.identifier = identifier;
     }
 
-    public int shuffle(TrackReference currentTrack) {
+    public int shuffle(Shuffle shuffle, TrackReference currentTrack) {
         if (!isShuffled()) {
             shuffleCache = new ArrayList<>(tracksReferences);
-            tracksReferences.remove(currentTrack);
 
-            Collections.shuffle(tracksReferences);
+            tracksReferences = shuffle.shuffle(this, currentTrack);
 
-            List<TrackReference> shuffled = new ArrayList<>();
-            shuffled.add(currentTrack);
-            shuffled.addAll(tracksReferences);
-            tracksReferences = shuffled;
             setShuffled(true);
             return 0;
         } else {

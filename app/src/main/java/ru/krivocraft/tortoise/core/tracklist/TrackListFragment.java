@@ -38,6 +38,7 @@ import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.player.MediaService;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.search.Searcher;
 import ru.krivocraft.tortoise.ui.ItemTouchHelperCallback;
@@ -151,7 +152,7 @@ public class TrackListFragment extends BaseFragment {
                         if (trackList.size() > 1) {
                             int randomTrack = new Random().nextInt(trackList.size() - 1);
                             reference = trackList.getTrackReferences().get(randomTrack);
-                            trackList.shuffle(reference);
+                            trackList.shuffle(new Shuffle(tracksStorageManager), reference);
                         } else {
                             reference = trackList.get(0);
                         }

@@ -29,6 +29,7 @@ import ru.krivocraft.tortoise.core.PreferencesManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
@@ -227,7 +228,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void shuffle() {
-        cursor = trackList.shuffle(getSelectedTrackReference());
+        cursor = trackList.shuffle(new Shuffle(tracksStorageManager), getSelectedTrackReference());
         playlistUpdateCallback.onPlaylistUpdated(trackList);
     }
 
