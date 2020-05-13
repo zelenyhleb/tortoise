@@ -72,6 +72,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     private TrackReference cache;
 
     private TrackList trackList;
+    private final SettingsStorageManager settingsStorageManager;
 
     private int cursor = 0;
 
@@ -88,6 +89,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
         this.settings = context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_MULTI_PROCESS);
         updatePlaybackState();
         restoreAll();
+        settingsStorageManager = new SettingsStorageManager(context);
     }
 
     private void requestAudioFocus() {
@@ -228,7 +230,7 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
     }
 
     void shuffle() {
-        cursor = trackList.shuffle(new Shuffle(tracksStorageManager), getSelectedTrackReference());
+        cursor = trackList.shuffle(new Shuffle(tracksStorageManager, settingsStorageManager), getSelectedTrackReference());
         playlistUpdateCallback.onPlaylistUpdated(trackList);
     }
 

@@ -152,7 +152,7 @@ public class TrackListFragment extends BaseFragment {
                         if (trackList.size() > 1) {
                             int randomTrack = new Random().nextInt(trackList.size() - 1);
                             reference = trackList.getTrackReferences().get(randomTrack);
-                            trackList.shuffle(new Shuffle(tracksStorageManager), reference);
+                            trackList.shuffle(new Shuffle(tracksStorageManager, new SettingsStorageManager(context)), reference);
                         } else {
                             reference = trackList.get(0);
                         }
