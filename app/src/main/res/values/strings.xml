@@ -29,7 +29,7 @@
     <string name="equalizer">Equalizer</string>
     <string name="track_list_name">Playlist name</string>
     <string name="obtaining_tracks_data">Obtaining tracks data…</string>
-    <string name="app_version" translatable="false">Tortoise v0.3.8</string>
+    <string name="app_version" translatable="false">Tortoise v0.4.0</string>
     <string name="settings_theme">Light theme (Beta)</string>
     <string name="settings_recognize">Try to parse track names for tracks with no metadata</string>
     <string name="settings_clear_cache_button">CLEAR</string>
