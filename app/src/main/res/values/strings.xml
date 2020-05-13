@@ -41,6 +41,7 @@
     <string name="settings_website">Our website</string>
     <string name="settings_alternative_seek">Use alternative seek method (use it if you have your tracks stored on the SD card)</string>
     <string name="settings_telegram">Our telegram</string>
+    <string name="settings_smart_shuffle">Smart shuffle based on your actions</string>
     <string name="show_hidden_tracks">Show hidden tracks</string>
     <string name="link_help">Help</string>
     <string name="tab_title_custom">Custom</string>

@@ -49,7 +49,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View itemView;
-        if (position < 4) {
+        if (position < 5) {
             if (convertView == null) {
                 itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 String key = objects.get(position);
@@ -83,6 +83,8 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_recognize);
             case KEY_ALTERNATIVE_SEEK:
                 return getContext().getResources().getString(R.string.settings_alternative_seek);
+            case KEY_SMART_SHUFFLE:
+                return getContext().getResources().getString(R.string.settings_smart_shuffle);
             case KEY_WEBSITE:
                 return getContext().getResources().getString(R.string.settings_website);
             case KEY_TELEGRAM:
@@ -103,7 +105,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     }
 
     private boolean getDefaultValue(String key) {
-        return key.equals(KEY_RECOGNIZE_NAMES);
+        return key.equals(KEY_RECOGNIZE_NAMES) || key.equals(KEY_SMART_SHUFFLE);
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {

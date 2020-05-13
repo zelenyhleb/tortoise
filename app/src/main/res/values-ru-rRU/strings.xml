@@ -25,4 +25,5 @@
     <string name="tab_title_custom">Пользовательские</string>
     <string name="tab_title_sorted">Отсортированные</string>
     <string name="settings_alternative_seek">Альтернативный метод поиска (для треков на SD-карте)</string>
+    <string name="settings_smart_shuffle">Умное перемешивание с учётом ваших предпочтений</string>
 </resources>
