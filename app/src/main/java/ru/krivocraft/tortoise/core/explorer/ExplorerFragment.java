@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
@@ -30,10 +31,16 @@ import com.google.android.material.tabs.TabLayout;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.BaseFragment;
 import ru.krivocraft.tortoise.core.editors.TrackListEditorActivity;
+import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
+import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.player.MediaService;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ExplorerFragment extends BaseFragment {
 
@@ -42,7 +49,8 @@ public class ExplorerFragment extends BaseFragment {
     private Explorer explorer;
 
     private TrackListsGridFragment.OnItemClickListener listener;
-    private FloatingActionButton button;
+    private FloatingActionButton addButton;
+    private FloatingActionButton playButton;
     private int tintColor;
     private TabLayout tabLayout;
 
@@ -59,8 +67,11 @@ public class ExplorerFragment extends BaseFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        button = view.findViewById(R.id.add_track_list_button);
-        button.setOnClickListener(v -> showCreationDialog(v.getContext()));
+        addButton = view.findViewById(R.id.add_track_list_button);
+        addButton.setOnClickListener(v -> showCreationDialog(v.getContext()));
+
+        playButton = view.findViewById(R.id.play_all_button);
+        playButton.setOnClickListener(v -> playAll(v.getContext()));
 
         tabLayout = view.findViewById(R.id.explorer_tabs);
 
@@ -69,8 +80,11 @@ public class ExplorerFragment extends BaseFragment {
         }
 
         if (tintColor != 0) {
-            if (button != null) {
-                button.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
+            if (addButton != null) {
+                addButton.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
+            }
+            if (playButton != null) {
+                playButton.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
             }
             if (tabLayout != null) {
                 tabLayout.setSelectedTabIndicatorColor(getContext().getResources().getColor(tintColor));
@@ -87,11 +101,15 @@ public class ExplorerFragment extends BaseFragment {
             @Override
             public void onPageSelected(int position) {
                 getSettingsManager().putOption("endOnSorted", position > 0);
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) playButton.getLayoutParams();
                 if (position > 0) {
-                    button.hide();
+                    addButton.hide();
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
                 } else {
-                    button.show();
+                    addButton.show();
+                    params.removeRule(RelativeLayout.ALIGN_PARENT_END);
                 }
+                playButton.setLayoutParams(params);
             }
 
             @Override
@@ -118,8 +136,11 @@ public class ExplorerFragment extends BaseFragment {
     public void changeColors(int color) {
         Context context = getContext();
         if (context != null) {
-            if (button != null) {
-                button.setBackgroundTintList(context.getResources().getColorStateList(color));
+            if (addButton != null) {
+                addButton.setBackgroundTintList(context.getResources().getColorStateList(color));
+            }
+            if (playButton != null) {
+                playButton.setBackgroundTintList(getContext().getResources().getColorStateList(color));
             }
             if (tabLayout != null) {
                 tabLayout.setSelectedTabIndicatorColor(context.getResources().getColor(color));
@@ -132,6 +153,24 @@ public class ExplorerFragment extends BaseFragment {
         intent.putExtra(TrackList.EXTRA_TRACK_LIST, new TrackList("", new ArrayList<>(), TrackList.TRACK_LIST_CUSTOM).toJson());
         intent.putExtra(TrackListEditorActivity.EXTRA_CREATION, true);
         context.startActivity(intent);
+    }
+
+    private void playAll(Context context) {
+        TrackList trackList = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL).getAllTracks();
+        if (trackList.size() > 0) {
+            TrackReference reference;
+            if (trackList.size() > 1) {
+                int randomTrack = new Random().nextInt(trackList.size() - 1);
+                reference = trackList.getTrackReferences().get(randomTrack);
+                trackList.shuffle(new Shuffle(new TracksStorageManager(context), new SettingsStorageManager(context)), reference);
+            } else {
+                reference = trackList.get(0);
+            }
+            Intent serviceIntent = new Intent(MediaService.ACTION_PLAY_FROM_LIST);
+            serviceIntent.putExtra(Track.EXTRA_TRACK, reference.toJson());
+            serviceIntent.putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson());
+            context.sendBroadcast(serviceIntent);
+        }
     }
 
     public void setListener(TrackListsGridFragment.OnItemClickListener listener) {

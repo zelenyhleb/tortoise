@@ -23,7 +23,7 @@ public class FileSystemSeek extends SeekTask<File> {
                     tracks.addAll(seek(file));
                 } else {
                     if (file.getPath().endsWith(".mp3")) {
-                        tracks.add(fromFile(file));
+                        tracks.add(retrieveTrack.from(file));
                     }
                 }
             }

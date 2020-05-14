@@ -22,10 +22,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.sorting.OnStorageUpdateCallback;
-import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -63,7 +61,7 @@ public class ContentResolverSeek extends SeekTask<ContentResolver> {
     private List<Track> tracks(List<String> paths) {
         List<Track> tracks = new LinkedList<>();
         for (String path : paths) {
-            tracks.add(fromFile(new File(path)));
+            tracks.add(retrieveTrack.from(new File(path)));
         }
         return tracks;
     }
