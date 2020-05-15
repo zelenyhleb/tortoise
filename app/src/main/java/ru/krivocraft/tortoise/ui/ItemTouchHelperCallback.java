@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-    private ItemTouchHelperAdapter adapter;
+    private final ItemTouchHelperAdapter adapter;
     private final boolean isSwipeEnabled;
 
     public ItemTouchHelperCallback(ItemTouchHelperAdapter adapter, boolean isSwipeEnabled) {

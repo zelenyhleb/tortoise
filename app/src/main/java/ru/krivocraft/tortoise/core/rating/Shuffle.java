@@ -6,10 +6,7 @@ import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Shuffle {
 
@@ -41,9 +38,10 @@ public class Shuffle {
         List<Track> shuffled = new ArrayList<>();
 
         List<Integer> pool = new ArrayList<>();
-        for (Track track : tracks) {
-            for (int i = 0; i <= track.getRating(); i++) {
-                pool.add(tracks.indexOf(track));
+        int min = Math.abs(Collections.min(ratings(tracks))) + 1;
+        for (Track element : tracks) {
+            for (int i = 0; i < element.getRating() + min; i++) {
+                pool.add(tracks.indexOf(element));
             }
         }
 
@@ -53,6 +51,14 @@ public class Shuffle {
             pool.removeAll(Collections.singleton(index));
         }
         return tracksStorageManager.getReferences(shuffled);
+    }
+
+    private List<Integer> ratings(List<Track> tracks) {
+        List<Integer> ratings = new ArrayList<>();
+        for (Track track : tracks) {
+            ratings.add(track.getRating());
+        }
+        return ratings;
     }
 
     private List<TrackReference> smartShuffle(TrackList trackList) {

@@ -17,15 +17,18 @@
 package ru.krivocraft.tortoise.core.player;
 
 import android.support.v4.media.session.MediaSessionCompat;
+import ru.krivocraft.tortoise.core.rating.Rating;
 
 public class MediaSessionCallback extends MediaSessionCompat.Callback {
 
     private final PlaybackManager playbackManager;
     private final OnStopCallback onStopCallback;
+    private final Rating rating;
 
-    public MediaSessionCallback(PlaybackManager playbackManager, OnStopCallback onStopCallback) {
+    public MediaSessionCallback(PlaybackManager playbackManager, OnStopCallback onStopCallback, Rating rating) {
         this.playbackManager = playbackManager;
         this.onStopCallback = onStopCallback;
+        this.rating = rating;
     }
 
     @Override
@@ -40,11 +43,13 @@ public class MediaSessionCallback extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToNext() {
+        rating.rate(playbackManager.getSelectedTrackReference(), -1);
         playbackManager.nextTrack();
     }
 
     @Override
     public void onSkipToPrevious() {
+        rating.rate(playbackManager.getSelectedTrackReference(), -1);
         playbackManager.previousTrack();
     }
 

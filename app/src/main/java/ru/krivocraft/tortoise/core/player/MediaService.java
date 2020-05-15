@@ -31,6 +31,8 @@ import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.rating.Rating;
+import ru.krivocraft.tortoise.core.rating.RatingImpl;
 import ru.krivocraft.tortoise.core.tracklist.TracksProvider;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.thumbnail.Colors;
@@ -70,6 +72,7 @@ public class MediaService {
     private final NotificationManager notificationManager;
     private final TracksStorageManager tracksStorageManager;
     private final TrackListsStorageManager trackListsStorageManager;
+    private final Rating rating;
 
     private final PlaybackManager playbackManager;
 
@@ -78,6 +81,8 @@ public class MediaService {
         notificationManager = new NotificationManager(context);
         tracksStorageManager = new TracksStorageManager(context);
         trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
+        rating = new RatingImpl(tracksStorageManager);
+
         mediaSession = new MediaSessionCompat(context, PlaybackManager.class.getSimpleName());
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
         mediaSession.setActive(true);
@@ -101,13 +106,15 @@ public class MediaService {
                 showNotification();
             }
         }, this::updateTrackList);
-        mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop));
+
+        mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop, rating));
 
         context.setSessionToken(mediaSession.getSessionToken());
         mediaController = mediaSession.getController();
 
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
+
 
         initReceivers();
     }
@@ -227,6 +234,8 @@ public class MediaService {
     private void playFromList(Intent intent) {
         TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
         TrackReference reference = TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK));
+
+        rating.rate(reference, 1);
 
         if (!trackList.equals(playbackManager.getTrackList())) {
             playbackManager.setTrackList(trackList, true);

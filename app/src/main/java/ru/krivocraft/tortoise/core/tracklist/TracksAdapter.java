@@ -18,6 +18,7 @@ package ru.krivocraft.tortoise.core.tracklist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,8 @@ import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.player.MediaService;
+import ru.krivocraft.tortoise.core.rating.Rating;
+import ru.krivocraft.tortoise.core.rating.RatingImpl;
 import ru.krivocraft.tortoise.sorting.LoadArtTask;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.ui.ItemTouchHelperAdapter;
@@ -94,11 +97,35 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     public boolean onItemMove(int fromPosition, int toPosition) {
         Collections.swap(trackList.getTrackReferences(), fromPosition, toPosition);
 
+        rate(toPosition);
+
         if (listener != null) {
             listener.maintainRecyclerViewPosition(fromPosition, toPosition);
         }
 
         return true;
+    }
+
+    private void rate(int toPosition) {
+        AsyncTask.execute(() -> {
+            TrackReference playing = null;
+            for (TrackReference reference : trackList.getTrackReferences()) {
+                if (tracksStorageManager.getTrack(reference).isPlaying()) {
+                    playing = reference;
+                    break;
+                }
+            }
+            if (playing != null) {
+                Rating rating = new RatingImpl(tracksStorageManager);
+                if (toPosition == trackList.indexOf(playing) + 1) {
+                    rating.rate(trackList.get(toPosition), 1);
+                } else if (toPosition > trackList.indexOf(playing)) {
+                    rating.rate(trackList.get(toPosition), 1);
+                } else {
+                    rating.rate(trackList.get(toPosition), -1);
+                }
+            }
+        });
     }
 
     @Override

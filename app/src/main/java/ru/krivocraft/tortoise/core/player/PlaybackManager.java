@@ -322,7 +322,11 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
 
     private void updatePlaybackState() {
         if (playerStateCallback != null) {
-            long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_STOP;
+            long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                    PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID |
+                    PlaybackStateCompat.ACTION_SEEK_TO |
+                    PlaybackStateCompat.ACTION_STOP;
 
             if (playerState == PlaybackStateCompat.STATE_PLAYING) {
                 availableActions |= PlaybackStateCompat.ACTION_PAUSE;
@@ -330,8 +334,9 @@ class PlaybackManager implements MediaPlayer.OnCompletionListener, MediaPlayer.O
                 availableActions |= PlaybackStateCompat.ACTION_PLAY;
             }
 
-            PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
-            builder.setActions(availableActions).setState(playerState, getCurrentStreamPosition(), 1, SystemClock.elapsedRealtime());
+            PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
+                    .setActions(availableActions)
+                    .setState(playerState, getCurrentStreamPosition(), 1, SystemClock.elapsedRealtime());
             playerStateCallback.onPlaybackStateChanged(builder.build());
         }
     }
