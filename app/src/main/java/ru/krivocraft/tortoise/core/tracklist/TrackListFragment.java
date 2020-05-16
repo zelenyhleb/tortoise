@@ -104,10 +104,8 @@ public class TrackListFragment extends BaseFragment {
             searchFrame.setBackgroundTintList(view.getContext().getResources().getColorStateList(R.color.lightGrey));
         }
 
-        if (showControls) {
-            if (playRandomly != null) {
-                playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
-            }
+        if (showControls && playRandomly != null) {
+            playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));
         }
 
         final Activity context = getActivity();

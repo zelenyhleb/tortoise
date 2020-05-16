@@ -31,7 +31,7 @@ public class PlayerHostFragment extends BaseFragment {
 
     @Override
     public void changeColors(int color) {
-
+        // Host fragment has no ui to recolor
     }
 
     public static PlayerHostFragment newInstance() {

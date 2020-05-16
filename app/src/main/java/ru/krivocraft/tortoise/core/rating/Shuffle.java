@@ -6,7 +6,10 @@ import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class Shuffle {
 

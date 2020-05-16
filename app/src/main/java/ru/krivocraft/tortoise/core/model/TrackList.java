@@ -20,7 +20,10 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 public class TrackList {
 
