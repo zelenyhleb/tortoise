@@ -28,7 +28,7 @@
             android:layout_margin="16dp"
             android:layout_centerHorizontal="true"
             android:background="@drawable/layout_bg"
-            android:src="@drawable/ic_icon"/>
+            android:src="@drawable/ic_track_image_default"/>
 
     <TextView
             android:id="@+id/fragment_playlist_name"

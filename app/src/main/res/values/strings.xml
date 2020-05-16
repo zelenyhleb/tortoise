@@ -29,7 +29,7 @@
     <string name="equalizer">Equalizer</string>
     <string name="track_list_name">Playlist name</string>
     <string name="obtaining_tracks_data">Obtaining tracks data…</string>
-    <string name="app_version" translatable="false">Tortoise v0.3.7</string>
+    <string name="app_version" translatable="false">Tortoise v0.4.0</string>
     <string name="settings_theme">Light theme (Beta)</string>
     <string name="settings_recognize">Try to parse track names for tracks with no metadata</string>
     <string name="settings_clear_cache_button">CLEAR</string>
@@ -39,7 +39,9 @@
     <string name="settings_item_default" translatable="false">Включить или выключить эту хуйню блять</string>
     <string name="play_in_random_order">Play in random order</string>
     <string name="settings_website">Our website</string>
+    <string name="settings_alternative_seek">Use alternative seek method (use it if you have your tracks stored on the SD card)</string>
     <string name="settings_telegram">Our telegram</string>
+    <string name="settings_smart_shuffle">Smart shuffle based on your actions</string>
     <string name="show_hidden_tracks">Show hidden tracks</string>
     <string name="link_help">Help</string>
     <string name="tab_title_custom">Custom</string>

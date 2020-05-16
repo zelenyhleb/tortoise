@@ -19,16 +19,14 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context=".fragments.tracklist.TrackListsGridFragment">
+             tools:context=".core.explorer.TrackListsGridFragment">
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/playlists_grid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
             android:numColumns="2"
     />
 

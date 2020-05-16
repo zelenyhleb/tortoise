@@ -29,16 +29,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ru.krivocraft.tortoise.R;
-import ru.krivocraft.tortoise.core.storage.SettingsStorageManager;
 
 import java.util.List;
 
-import static ru.krivocraft.tortoise.core.storage.SettingsStorageManager.*;
+import static ru.krivocraft.tortoise.core.settings.SettingsStorageManager.*;
 
 public class SettingsAdapter extends ArrayAdapter<String> {
 
-    private List<String> objects;
-    private SettingsStorageManager manager;
+    private final List<String> objects;
+    private final SettingsStorageManager manager;
 
     public SettingsAdapter(@NonNull Activity context, List<String> objects) {
         super(context, R.layout.settings_item_toggle, objects);
@@ -50,7 +49,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View itemView;
-        if (position < 3) {
+        if (position < 5) {
             if (convertView == null) {
                 itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
                 String key = objects.get(position);
@@ -82,6 +81,10 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_theme);
             case KEY_RECOGNIZE_NAMES:
                 return getContext().getResources().getString(R.string.settings_recognize);
+            case KEY_ALTERNATIVE_SEEK:
+                return getContext().getResources().getString(R.string.settings_alternative_seek);
+            case KEY_SMART_SHUFFLE:
+                return getContext().getResources().getString(R.string.settings_smart_shuffle);
             case KEY_WEBSITE:
                 return getContext().getResources().getString(R.string.settings_website);
             case KEY_TELEGRAM:
@@ -102,18 +105,14 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     }
 
     private boolean getDefaultValue(String key) {
-        return key.equals(KEY_RECOGNIZE_NAMES);
+        return key.equals(KEY_RECOGNIZE_NAMES) || key.equals(KEY_SMART_SHUFFLE);
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {
         boolean option = manager.getOption(key, defaultValue);
         s.setChecked(option);
         s.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (option) {
-                manager.putOption(key, false);
-            } else {
-                manager.putOption(key, true);
-            }
+            manager.putOption(key, !option);
             if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(KEY_THEME)) {
                 Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
