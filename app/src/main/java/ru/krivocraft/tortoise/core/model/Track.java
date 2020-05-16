@@ -17,7 +17,8 @@
 package ru.krivocraft.tortoise.core.model;
 
 import android.support.v4.media.MediaMetadataCompat;
-import androidx.annotation.NonNull;
+import ru.krivocraft.tortoise.core.model.track.TrackMeta;
+import ru.krivocraft.tortoise.core.model.track.TrackPlayingState;
 
 import java.util.Objects;
 
@@ -25,64 +26,46 @@ public class Track {
 
     public static final String EXTRA_TRACK = "path";
 
-    private static final String UNKNOWN_ARTIST = "Unknown Artist";
-    private static final String UNKNOWN_COMPOSITION = "Unknown Track";
-
     private boolean selected = false;
     private boolean playing = false;
     private boolean liked = false;
     private boolean checkedInList = false;
     private boolean ignored = false;
+    private TrackMeta trackMeta;
 
-    private String title;
-    private String artist;
-    private String path;
-    private long duration;
-    private int identifier;
-    private int color;
+    private final int identifier;
     private int rating;
 
-    public Track(long duration, String artist, String title, @NonNull String path, int color, int rating) {
-        this.duration = duration;
-        this.artist = artist;
-        this.title = title;
-        this.path = path;
-        this.color = color;
+    public Track(TrackMeta trackMeta, int rating) {
+        this.trackMeta = trackMeta;
 
-        this.identifier = path.hashCode();
+        this.identifier = trackMeta.getPath().hashCode();
         this.rating = rating;
-
-        if ("<unknown>".equals(artist)) {
-            this.artist = UNKNOWN_ARTIST;
-        }
-        if ("<unknown>".equals(title)) {
-            this.title = UNKNOWN_COMPOSITION;
-        }
     }
 
-    public Track(long duration, String artist, String title, String path, boolean liked, boolean selected, boolean playing, int color, boolean ignored, int rating) {
-        this(duration, artist, title, path, color, rating);
+    public Track(TrackMeta trackMeta, TrackPlayingState playingState, boolean liked, boolean ignored, int rating) {
+        this(trackMeta, rating);
         this.liked = liked;
-        this.selected = selected;
-        this.playing = playing;
+        this.selected = playingState.isSelected();
+        this.playing = playingState.isPlaying();
         this.ignored = ignored;
     }
 
     public MediaMetadataCompat getAsMediaMetadata() {
         return new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getArtist())
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, getTitle())
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, getPath())
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, getDuration())
                 .build();
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.trackMeta = new TrackMeta(title, getArtist(), getPath(), getDuration(), getColor());
     }
 
     public void setArtist(String artist) {
-        this.artist = artist;
+        this.trackMeta = new TrackMeta(getTitle(), artist, getPath(), getDuration(), getColor());
     }
 
     public boolean isSelected() {
@@ -129,15 +112,15 @@ public class Track {
     }
 
     public String getArtist() {
-        return artist;
+        return trackMeta.getArtist();
     }
 
     public String getTitle() {
-        return title;
+        return trackMeta.getTitle();
     }
 
     public String getPath() {
-        return path;
+        return trackMeta.getPath();
     }
 
     public boolean isLiked() {
@@ -153,11 +136,11 @@ public class Track {
     }
 
     public long getDuration() {
-        return duration;
+        return trackMeta.getDuration();
     }
 
     public int getColor() {
-        return color;
+        return trackMeta.getColor();
     }
 
     public boolean isIgnored() {

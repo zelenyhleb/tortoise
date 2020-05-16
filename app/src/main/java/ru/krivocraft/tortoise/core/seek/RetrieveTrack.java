@@ -2,6 +2,7 @@ package ru.krivocraft.tortoise.core.seek;
 
 import android.media.MediaMetadataRetriever;
 import ru.krivocraft.tortoise.core.model.Track;
+import ru.krivocraft.tortoise.core.model.track.TrackMeta;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 
 import java.io.File;
@@ -9,6 +10,9 @@ import java.io.File;
 public class RetrieveTrack {
     private final MediaMetadataRetriever retriever;
     private final boolean recognize;
+
+    private static final String UNKNOWN_ARTIST = "Unknown Artist";
+    private static final String UNKNOWN_COMPOSITION = "Unknown Track";
 
     public RetrieveTrack(boolean recognize) {
         this.recognize = recognize;
@@ -42,6 +46,12 @@ public class RetrieveTrack {
                 artist = "<unknown>";
             }
         }
-        return new Track(duration, artist, title, path, color, 0);
+        if ("<unknown>".equals(artist)) {
+            artist = UNKNOWN_ARTIST;
+        }
+        if ("<unknown>".equals(title)) {
+            title = UNKNOWN_COMPOSITION;
+        }
+        return new Track(new TrackMeta(title, artist, path, duration, color), 0);
     }
 }
