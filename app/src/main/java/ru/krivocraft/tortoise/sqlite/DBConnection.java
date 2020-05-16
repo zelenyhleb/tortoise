@@ -26,6 +26,8 @@ import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.model.track.TrackMeta;
+import ru.krivocraft.tortoise.core.model.track.TrackPlayingState;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 
@@ -87,7 +89,7 @@ public class DBConnection {
     }
 
     public Track getTrack(TrackReference trackReference) {
-        Track track = new Track(0, "", "", "", Colors.GREEN, 0);
+        Track track = new Track(new TrackMeta("", "", "", 0, Colors.GREEN), 0);
         Cursor cursor = database.query(TRACKS, null, "id = ?", new String[]{trackReference.toString()}, null, null, null);
         if (cursor.moveToFirst()) {
 
@@ -102,7 +104,7 @@ public class DBConnection {
             boolean playing = cursor.getInt(cursor.getColumnIndex("playing")) == 1;
             boolean ignored = cursor.getInt(cursor.getColumnIndex("ignored")) == 1;
 
-            track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored, rating);
+            track = new Track(new TrackMeta(title, artist, path, duration, color), new TrackPlayingState(selected, playing), liked, ignored, rating);
         }
         cursor.close();
         return track;
@@ -188,7 +190,7 @@ public class DBConnection {
                 int color = cursor.getInt(colorIndex);
                 int rating = cursor.getInt(ratingIndex);
 
-                Track track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored, rating);
+                Track track = new Track(new TrackMeta(title, artist, path, duration, color), new TrackPlayingState(selected, playing), liked, ignored, rating);
                 tracks.add(track);
             } while (cursor.moveToNext());
         }
@@ -417,7 +419,7 @@ public class DBConnection {
                     boolean ignored = cursor.getInt(ignoredIndex) == 1;
                     int color = cursor.getInt(colorIndex);
 
-                    Track track = new Track(duration, artist, title, path, liked, selected, playing, color, ignored, rating);
+                    Track track = new Track(new TrackMeta(title, artist, path, duration, color), new TrackPlayingState(selected, playing), liked, ignored, rating);
                     updateColor(db, track);
                 } while (cursor.moveToNext());
             }
