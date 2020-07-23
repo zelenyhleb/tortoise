@@ -39,18 +39,15 @@ public class RetrieveTrack {
                     if (meta.length > 1) {
                         artist = meta[0];
                         title = meta[1];
+                    } else {
+                        title = fileName;
+                        artist = UNKNOWN_ARTIST;
                     }
                 }
             } else {
                 title = fileName;
-                artist = "<unknown>";
+                artist = UNKNOWN_ARTIST;
             }
-        }
-        if ("<unknown>".equals(artist)) {
-            artist = UNKNOWN_ARTIST;
-        }
-        if ("<unknown>".equals(title)) {
-            title = UNKNOWN_COMPOSITION;
         }
         return new Track(new TrackMeta(title, artist, path, duration, color), 0);
     }
