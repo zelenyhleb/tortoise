@@ -18,6 +18,7 @@ package ru.krivocraft.tortoise.core.tracklist;
 
 import android.content.Context;
 import org.apache.commons.collections4.CollectionUtils;
+import ru.krivocraft.tortoise.core.data.TracksProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
@@ -25,7 +26,7 @@ import ru.krivocraft.tortoise.sqlite.DBConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TracksStorageManager {
+public class TracksStorageManager implements TracksProvider {
 
     private final DBConnection database;
 

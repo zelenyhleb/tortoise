@@ -29,6 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ru.krivocraft.tortoise.R;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
                 return getContext().getResources().getString(R.string.settings_recognize);
             case KEY_ALTERNATIVE_SEEK:
                 return getContext().getResources().getString(R.string.settings_alternative_seek);
-            case KEY_SMART_SHUFFLE:
+            case Shuffle.KEY_SMART_SHUFFLE:
                 return getContext().getResources().getString(R.string.settings_smart_shuffle);
             case KEY_WEBSITE:
                 return getContext().getResources().getString(R.string.settings_website);
@@ -105,7 +106,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     }
 
     private boolean getDefaultValue(String key) {
-        return key.equals(KEY_RECOGNIZE_NAMES) || key.equals(KEY_SMART_SHUFFLE);
+        return key.equals(KEY_RECOGNIZE_NAMES) || key.equals(Shuffle.KEY_SMART_SHUFFLE);
     }
 
     private void initSwitch(Switch s, String key, boolean defaultValue) {

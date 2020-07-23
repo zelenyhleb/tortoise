@@ -25,6 +25,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.BaseFragment;
+import ru.krivocraft.tortoise.core.rating.Shuffle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +53,7 @@ public class SettingsFragment extends BaseFragment {
                 SettingsStorageManager.KEY_RECOGNIZE_NAMES,
                 SettingsStorageManager.KEY_SHOW_IGNORED,
                 SettingsStorageManager.KEY_ALTERNATIVE_SEEK,
-                SettingsStorageManager.KEY_SMART_SHUFFLE,
+                Shuffle.KEY_SMART_SHUFFLE,
                 SettingsStorageManager.KEY_WEBSITE,
                 SettingsStorageManager.KEY_TELEGRAM,
                 SettingsStorageManager.KEY_HELP);

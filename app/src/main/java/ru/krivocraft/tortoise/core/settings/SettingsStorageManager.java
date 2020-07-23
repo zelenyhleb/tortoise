@@ -18,8 +18,9 @@ package ru.krivocraft.tortoise.core.settings;
 
 import android.content.Context;
 import ru.krivocraft.tortoise.core.PreferencesManager;
+import ru.krivocraft.tortoise.core.data.SettingsProvider;
 
-public class SettingsStorageManager {
+public class SettingsStorageManager implements SettingsProvider {
 
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_WEBSITE = "https://krivocraft.ru/";
@@ -27,7 +28,6 @@ public class SettingsStorageManager {
     public static final String KEY_HELP = "https://github.com/zelenyhleb/tortoise/wiki/Usage";
     public static final String KEY_ALTERNATIVE_SEEK = "alternativeSeek";
     public static final String KEY_SHOW_IGNORED = "showIgnored";
-    public static final String KEY_SMART_SHUFFLE = "smartShuffle";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
 
     private final PreferencesManager preferencesManager;
