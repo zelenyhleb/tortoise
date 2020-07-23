@@ -34,13 +34,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.BaseFragment;
+import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.search.Searcher;
+import ru.krivocraft.tortoise.core.search.Searcher;
 import ru.krivocraft.tortoise.ui.ItemTouchHelperCallback;
 
 import java.util.List;
@@ -122,7 +123,7 @@ public class TrackListFragment extends BaseFragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        Searcher searcher = new Searcher(context);
+                        Searcher searcher = new Searcher(tracksStorageManager, new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL));
                         List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
                         recyclerView.setAdapter(new TracksAdapter(

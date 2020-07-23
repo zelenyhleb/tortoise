@@ -14,14 +14,14 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.core.seek;
+package ru.krivocraft.tortoise.seek;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import ru.krivocraft.tortoise.core.model.Track;
-import ru.krivocraft.tortoise.sorting.OnStorageUpdateCallback;
+import ru.krivocraft.tortoise.core.sorting.OnStorageUpdateCallback;
 
 import java.io.File;
 import java.util.LinkedList;

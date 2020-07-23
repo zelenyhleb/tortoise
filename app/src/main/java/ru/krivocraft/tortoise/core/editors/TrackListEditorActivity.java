@@ -40,7 +40,7 @@ import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.SelectableTracksAdapter;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
-import ru.krivocraft.tortoise.search.Searcher;
+import ru.krivocraft.tortoise.core.search.Searcher;
 import ru.krivocraft.tortoise.thumbnail.ThumbnailStorageManager;
 import ru.krivocraft.tortoise.ui.TextChangeSolver;
 
@@ -138,7 +138,7 @@ public class TrackListEditorActivity extends BaseActivity {
         search.addTextChangedListener(new TextChangeSolver() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Searcher searcher = new Searcher(TrackListEditorActivity.this);
+                Searcher searcher = new Searcher(new TracksStorageManager(TrackListEditorActivity.this), new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL));
                 List<Track> found = searcher.searchInTracks(s, tracksStorageManager.getTrackStorage());
                 listView.setAdapter(new SelectableTracksAdapter(found, TrackListEditorActivity.this));
                 if (s.length() < 1) {

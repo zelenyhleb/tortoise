@@ -33,14 +33,13 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 import com.google.android.material.snackbar.Snackbar;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.MainActivity;
-import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Rating;
 import ru.krivocraft.tortoise.core.rating.RatingImpl;
-import ru.krivocraft.tortoise.sorting.LoadArtTask;
+import ru.krivocraft.tortoise.core.sorting.LoadArtTask;
 import ru.krivocraft.tortoise.thumbnail.Colors;
 import ru.krivocraft.tortoise.ui.ItemTouchHelperAdapter;
 
@@ -139,7 +138,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         TrackReference item = new TrackReference(position);
         trackList.remove(item);
 
-        if (editingAllowed && trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
+        if (editingAllowed && trackList.getDisplayName().equals(TrackList.STORAGE_TRACKS_DISPLAY_NAME)) {
             //If current playlist is "all tracks", you can hide track by swiping
             Track track = tracksStorageManager.getTrack(item);
             track.setIgnored(true);
@@ -168,7 +167,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         if (!editingAllowed) {
             context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_PLAYING_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
         } else {
-            if (!trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
+            if (!trackList.getDisplayName().equals(TrackList.STORAGE_TRACKS_DISPLAY_NAME)) {
                 context.sendBroadcast(new Intent(MediaService.ACTION_EDIT_TRACK_LIST).putExtra(TrackList.EXTRA_TRACK_LIST, trackList.toJson()));
             }
         }

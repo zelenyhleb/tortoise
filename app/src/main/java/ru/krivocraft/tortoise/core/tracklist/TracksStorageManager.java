@@ -21,6 +21,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import ru.krivocraft.tortoise.core.data.TracksProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class TracksStorageManager implements TracksProvider {
     private final DBConnection database;
 
     public TracksStorageManager(Context context) {
-        this.database = new DBConnection(context);
+        this.database = new DBConnection(context, new SettingsStorageManager(context));
     }
 
     public List<Track> getTrackStorage() {

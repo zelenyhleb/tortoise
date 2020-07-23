@@ -18,16 +18,15 @@ package ru.krivocraft.tortoise.core.explorer;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import ru.krivocraft.tortoise.core.data.TrackListsProvider;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
 
 import java.util.List;
 
-public class TrackListsStorageManager {
-
-    public static final String STORAGE_TRACKS_DISPLAY_NAME = "All tracks";
-    public static final String FAVORITES_DISPLAY_NAME = "Favorites";
+public class TrackListsStorageManager implements TrackListsProvider {
 
     private final DBConnection database;
     private final String filter;
@@ -37,7 +36,7 @@ public class TrackListsStorageManager {
     public final static String FILTER_ALL = "all";
 
     public TrackListsStorageManager(@NonNull Context context, String filter) {
-        this.database = new DBConnection(context);
+        this.database = new DBConnection(context, new SettingsStorageManager(context));
         this.filter = filter;
     }
 

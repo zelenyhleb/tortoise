@@ -36,6 +36,8 @@ public class TrackList {
     public static final int LOOP_TRACK = 122;
     public static final int LOOP_TRACK_LIST = 123;
     public static final int NOT_LOOP = 124;
+    public static final String STORAGE_TRACKS_DISPLAY_NAME = "All tracks";
+    public static final String FAVORITES_DISPLAY_NAME = "Favorites";
 
     private static final String TABLE_PREFIX = "l";
 

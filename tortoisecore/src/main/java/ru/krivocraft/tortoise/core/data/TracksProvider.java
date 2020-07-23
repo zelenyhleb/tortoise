@@ -14,4 +14,6 @@ public interface TracksProvider {
     Track getTrack(TrackReference reference);
 
     void updateTrack(Track track);
+
+    List<Track> getTrackStorage();
 }

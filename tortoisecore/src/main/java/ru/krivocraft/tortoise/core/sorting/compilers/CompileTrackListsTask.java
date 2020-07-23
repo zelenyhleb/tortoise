@@ -14,7 +14,7 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting.compilers;
+package ru.krivocraft.tortoise.core.sorting.compilers;
 
 import android.os.AsyncTask;
 import ru.krivocraft.tortoise.core.model.Track;

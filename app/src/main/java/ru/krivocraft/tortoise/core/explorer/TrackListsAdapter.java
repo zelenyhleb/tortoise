@@ -16,7 +16,7 @@ import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
-import ru.krivocraft.tortoise.sorting.GetAlbumArtTask;
+import ru.krivocraft.tortoise.core.sorting.GetAlbumArtTask;
 import ru.krivocraft.tortoise.thumbnail.ThumbnailStorageManager;
 
 import java.io.IOException;
@@ -115,8 +115,8 @@ public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.Vi
             itemView.setOnClickListener(view -> listener.onClick(trackList));
             itemView.setOnLongClickListener(view -> {
                 if (trackList.getType() == TrackList.TRACK_LIST_CUSTOM
-                        && !Objects.equals(trackList.getDisplayName(), TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)
-                        && !Objects.equals(trackList.getDisplayName(), TrackListsStorageManager.FAVORITES_DISPLAY_NAME)) {
+                        && !Objects.equals(trackList.getDisplayName(), TrackList.STORAGE_TRACKS_DISPLAY_NAME)
+                        && !Objects.equals(trackList.getDisplayName(), TrackList.FAVORITES_DISPLAY_NAME)) {
                     listener.onLongClick(trackList);
                     return true;
                 } else {

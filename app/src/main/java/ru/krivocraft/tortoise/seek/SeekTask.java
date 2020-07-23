@@ -1,8 +1,8 @@
-package ru.krivocraft.tortoise.core.seek;
+package ru.krivocraft.tortoise.seek;
 
 import android.os.AsyncTask;
 import ru.krivocraft.tortoise.core.model.Track;
-import ru.krivocraft.tortoise.sorting.OnStorageUpdateCallback;
+import ru.krivocraft.tortoise.core.sorting.OnStorageUpdateCallback;
 
 import java.util.List;
 

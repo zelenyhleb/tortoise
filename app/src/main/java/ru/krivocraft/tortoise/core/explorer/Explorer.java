@@ -24,7 +24,8 @@ import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.tracklist.TracksProvider;
-import ru.krivocraft.tortoise.sorting.TrackListsCompiler;
+import ru.krivocraft.tortoise.core.sorting.TrackListsCompiler;
+import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Explorer {
     public Explorer(OnTrackListsCompiledListener listener, @NonNull Context context) {
         this.listener = listener;
         this.tracksStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
-        this.trackListsCompiler = new TrackListsCompiler(context);
+        this.trackListsCompiler = new TrackListsCompiler(new TracksStorageManager(context));
         updateTrackListSets(listener);
         context.registerReceiver(receiver, new IntentFilter(TracksProvider.ACTION_UPDATE_STORAGE));
     }

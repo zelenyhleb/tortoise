@@ -14,32 +14,31 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.search;
+package ru.krivocraft.tortoise.core.search;
 
-import android.content.Context;
-import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.data.TrackListsProvider;
+import ru.krivocraft.tortoise.core.data.TracksProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
-import ru.krivocraft.tortoise.core.tracklist.TracksStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Searcher {
 
-    private final TracksStorageManager tracksStorageManager;
-    private final TrackListsStorageManager trackListsStorageManager;
+    private final TracksProvider tracksProvider;
+    private final TrackListsProvider trackListsProvider;
 
-    public Searcher(Context context) {
-        this.tracksStorageManager = new TracksStorageManager(context);
-        this.trackListsStorageManager = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL);
+    public Searcher(TracksProvider tracksProvider, TrackListsProvider trackListsProvider) {
+        this.tracksProvider = tracksProvider;
+        this.trackListsProvider = trackListsProvider;
     }
 
     public List<TrackReference> search(CharSequence string, List<TrackReference> input) {
         List<TrackReference> references = new ArrayList<>();
-        List<Track> searched = tracksStorageManager.getTracks(input);
-        List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
+        List<Track> searched = tracksProvider.getTracks(input);
+        List<TrackList> trackLists = trackListsProvider.readAllTrackLists();
         for (Track track : searched) {
 
             String formattedName = track.getTitle().toLowerCase();
@@ -65,7 +64,7 @@ public class Searcher {
 
     public List<Track> searchInTracks(CharSequence string, List<Track> input) {
         List<Track> found = new ArrayList<>();
-        List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
+        List<TrackList> trackLists = trackListsProvider.readAllTrackLists();
         for (Track track : input) {
 
             String formattedName = track.getTitle().toLowerCase();
@@ -79,7 +78,7 @@ public class Searcher {
         for (TrackList trackList : trackLists) {
             if (trackList.getDisplayName().contains(string)) {
                 for (TrackReference trackReference : trackList.getTrackReferences()) {
-                    Track track = tracksStorageManager.getTrack(trackReference);
+                    Track track = tracksProvider.getTrack(trackReference);
                     if (!found.contains(track)) {
                         found.add(track);
                     }

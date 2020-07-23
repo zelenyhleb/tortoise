@@ -23,8 +23,8 @@ import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
-import ru.krivocraft.tortoise.core.seek.ContentResolverSeek;
-import ru.krivocraft.tortoise.core.seek.FileSystemSeek;
+import ru.krivocraft.tortoise.seek.ContentResolverSeek;
+import ru.krivocraft.tortoise.seek.FileSystemSeek;
 import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class TracksProvider {
     }
 
     private void writeRootTrackList(List<TrackReference> allTracks) {
-        TrackList trackList = new TrackList(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME, allTracks, TrackList.TRACK_LIST_CUSTOM);
+        TrackList trackList = new TrackList(TrackList.STORAGE_TRACKS_DISPLAY_NAME, allTracks, TrackList.TRACK_LIST_CUSTOM);
         trackListsStorageManager.updateRootTrackList(trackList);
     }
 
@@ -109,7 +109,7 @@ public class TracksProvider {
     }
 
     private void removeTrackListIfEmpty(TrackList trackList) {
-        if (trackList.size() == 0 && !trackList.getDisplayName().equals(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME)) {
+        if (trackList.size() == 0 && !trackList.getDisplayName().equals(TrackList.STORAGE_TRACKS_DISPLAY_NAME)) {
             trackListsStorageManager.removeTrackList(trackList);
         }
     }

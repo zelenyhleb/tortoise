@@ -14,30 +14,12 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting.compilers;
+package ru.krivocraft.tortoise.core.sorting;
 
-import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class CompileFavoritesTask extends CompileTrackListsTask {
-
-    @Override
-    protected Map<String, List<Track>> doInBackground(Track... source) {
-        Map<String, List<Track>> trackLists = new HashMap<>();
-        List<Track> favorites = new ArrayList<>();
-        for (Track track : source) {
-            if (track.isLiked()) {
-                favorites.add(track);
-            }
-        }
-        if (favorites.size() > 0) {
-            trackLists.put(TrackListsStorageManager.FAVORITES_DISPLAY_NAME, favorites);
-        }
-        return trackLists;
-    }
+public interface OnStorageUpdateCallback {
+    void onStorageUpdate(List<Track> tracks);
 }

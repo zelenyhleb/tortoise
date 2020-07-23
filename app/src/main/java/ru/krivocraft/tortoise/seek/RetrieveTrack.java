@@ -1,4 +1,4 @@
-package ru.krivocraft.tortoise.core.seek;
+package ru.krivocraft.tortoise.seek;
 
 import android.media.MediaMetadataRetriever;
 import ru.krivocraft.tortoise.core.model.Track;

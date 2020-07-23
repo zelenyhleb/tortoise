@@ -14,10 +14,13 @@
  * 	    Nikifor Fedorov - whole development
  */
 
-package ru.krivocraft.tortoise.sorting;
+package ru.krivocraft.tortoise.core.sorting.compilers;
 
-import android.graphics.Bitmap;
+import ru.krivocraft.tortoise.core.model.Track;
 
-public interface OnAlbumArtAcquiredCallback {
-    void onAlbumArtAcquired(Bitmap bitmap);
+import java.util.List;
+import java.util.Map;
+
+public interface OnTrackListsCompileTaskCompleted {
+    void onTrackListsCompiled(Map<String, List<Track>> trackLists);
 }

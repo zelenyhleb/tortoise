@@ -22,7 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
-import ru.krivocraft.tortoise.core.explorer.TrackListsStorageManager;
+import ru.krivocraft.tortoise.core.data.SettingsProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
@@ -37,14 +37,14 @@ import java.util.List;
 public class DBConnection {
     private static final String TRACKS = "tracks";
     private static final String TRACK_LISTS = "track_lists";
-    private static final String ALL_TRACKS = TrackList.createIdentifier(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME);
+    private static final String ALL_TRACKS = TrackList.createIdentifier(TrackList.STORAGE_TRACKS_DISPLAY_NAME);
 
     private final SQLiteDatabase database;
-    private final SettingsStorageManager settings;
+    private final SettingsProvider settings;
 
-    public DBConnection(Context context) {
+    public DBConnection(Context context, SettingsProvider settings) {
         this.database = new DBHelper(context).getWritableDatabase();
-        this.settings = new SettingsStorageManager(context);
+        this.settings = settings;
         removeDuplicatedTrackLists();
     }
 
@@ -359,8 +359,8 @@ public class DBConnection {
                     + "reference integer);");
 
             ContentValues values = new ContentValues();
-            values.put("id", TrackList.createIdentifier(TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME));
-            values.put("name", TrackListsStorageManager.STORAGE_TRACKS_DISPLAY_NAME);
+            values.put("id", TrackList.createIdentifier(TrackList.STORAGE_TRACKS_DISPLAY_NAME));
+            values.put("name", TrackList.STORAGE_TRACKS_DISPLAY_NAME);
             values.put("type", TrackList.TRACK_LIST_CUSTOM);
             db.insert(TRACK_LISTS, null, values);
         }
