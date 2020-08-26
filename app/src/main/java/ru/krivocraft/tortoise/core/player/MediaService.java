@@ -74,7 +74,7 @@ public class MediaService {
     private final TrackListsStorageManager trackListsStorageManager;
     private final Rating rating;
 
-    private final PlaybackManager playbackManager;
+    private final PlaybackManager playback;
 
     public MediaService(MediaBrowserServiceCompat context) {
         this.context = context;
@@ -87,27 +87,11 @@ public class MediaService {
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
         mediaSession.setActive(true);
 
-        playbackManager = new PlaybackManager(context, new PlaybackManager.PlayerStateCallback() {
-            @Override
-            public void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
-                mediaSession.setPlaybackState(stateCompat);
-                showNotification();
+        playback = new PlaybackManager(context,
+                new PlayerStateCallback(this::onPlaybackStateChanged, this::onTrackChanged),
+                this::updateTrackList);
 
-                if (stateCompat.getState() == PlaybackStateCompat.STATE_STOPPED) {
-                    hideNotification();
-                    context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
-                }
-
-            }
-
-            @Override
-            public void onTrackChanged(Track track) {
-                mediaSession.setMetadata(track.getAsMediaMetadata());
-                showNotification();
-            }
-        }, this::updateTrackList);
-
-        mediaSession.setCallback(new MediaSessionCallback(playbackManager, playbackManager::stop, rating));
+        mediaSession.setCallback(new MediaSessionCallback(playback, playback::stop, rating));
 
         context.setSessionToken(mediaSession.getSessionToken());
         mediaController = mediaSession.getController();
@@ -117,6 +101,25 @@ public class MediaService {
 
 
         initReceivers();
+    }
+
+    private void onTrackChanged(Track track) {
+        mediaSession.setMetadata(track.getAsMediaMetadata());
+        showNotification();
+    }
+
+    private void onPlaybackStateChanged(PlaybackStateCompat stateCompat) {
+        mediaSession.setPlaybackState(stateCompat);
+        showNotification();
+
+        if (stateCompat.getState() == PlaybackStateCompat.STATE_STOPPED) {
+            onStop();
+        }
+    }
+
+    private void onStop() {
+        hideNotification();
+        context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
     }
 
     private void initReceivers() {
@@ -153,7 +156,7 @@ public class MediaService {
                 //The feature is replaying audio when user plugs headphones back
                 switch (intent.getIntExtra("state", -1)) {
                     case HEADSET_STATE_PLUG_IN:
-                        if (playbackManager.getSelectedTrackReference() != null) {
+                        if (playback.getSelectedTrackReference() != null) {
                             mediaSession.getController().getTransportControls().play();
                         }
                         break;
@@ -177,15 +180,15 @@ public class MediaService {
         public void onReceive(Context context, Intent intent) {
             if (ACTION_REQUEST_DATA.equals(intent.getAction())) {
                 Intent result = new Intent(ACTION_RESULT_DATA);
-                result.putExtra(EXTRA_POSITION, playbackManager.getCurrentStreamPosition());
+                result.putExtra(EXTRA_POSITION, playback.getCurrentStreamPosition());
                 result.putExtra(EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
                 result.putExtra(EXTRA_METADATA, mediaSession.getController().getMetadata());
                 context.sendBroadcast(result);
             } else {
                 Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
-                result.putExtra(TrackList.EXTRA_TRACK_LIST, playbackManager.getTrackList().toJson());
-                result.putExtra(Track.EXTRA_TRACK, playbackManager.getSelectedTrackReference().toJson());
-                result.putExtra(EXTRA_CURSOR, playbackManager.getCursor());
+                result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.getTrackList().toJson());
+                result.putExtra(Track.EXTRA_TRACK, playback.getSelectedTrackReference().toJson());
+                result.putExtra(EXTRA_CURSOR, playback.getCursor());
                 context.sendBroadcast(result);
             }
         }
@@ -200,7 +203,7 @@ public class MediaService {
                     playFromList(intent);
                     break;
                 case ACTION_REQUEST_STOP:
-                    playbackManager.stop();
+                    playback.stop();
                     break;
                 case ACTION_SHUFFLE:
                     shuffle();
@@ -211,14 +214,14 @@ public class MediaService {
                     break;
                 case ACTION_EDIT_TRACK_LIST:
                     TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-                    if (trackListEdited.equals(playbackManager.getTrackList())) {
+                    if (trackListEdited.equals(playback.getTrackList())) {
                         notifyPlaybackManager(trackListEdited);
                     }
                     trackListsStorageManager.updateTrackListContent(trackListEdited);
                     context.sendBroadcast(new Intent(TracksProvider.ACTION_UPDATE_STORAGE));
                     break;
                 case ACTION_NEXT_TRACK:
-                    playbackManager.proceed();
+                    playback.proceed();
                     break;
                 default:
                     //Do nothing
@@ -228,7 +231,7 @@ public class MediaService {
     };
 
     private void shuffle() {
-        playbackManager.shuffle();
+        playback.shuffle();
     }
 
     private void playFromList(Intent intent) {
@@ -237,23 +240,23 @@ public class MediaService {
 
         rating.rate(reference, 1);
 
-        if (!trackList.equals(playbackManager.getTrackList())) {
-            playbackManager.setTrackList(trackList, true);
+        if (!trackList.equals(playback.getTrackList())) {
+            playback.setTrackList(trackList, true);
         }
 
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
-            mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(reference));
+            mediaController.getTransportControls().skipToQueueItem(playback.getTrackList().indexOf(reference));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playbackManager.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playback.getTrackList())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
-                playbackManager.setCursor(playbackManager.getTrackList().indexOf(reference));
+                playback.setCursor(playback.getTrackList().indexOf(reference));
             } else {
-                mediaController.getTransportControls().skipToQueueItem(playbackManager.getTrackList().indexOf(reference));
+                mediaController.getTransportControls().skipToQueueItem(playback.getTrackList().indexOf(reference));
             }
         }
     }
@@ -261,7 +264,7 @@ public class MediaService {
     private final BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            TrackReference currentTrack = playbackManager.getSelectedTrackReference();
+            TrackReference currentTrack = playback.getSelectedTrackReference();
             int color = -1;
             if (currentTrack != null) {
                 Track track = tracksStorageManager.getTrack(currentTrack);
@@ -280,9 +283,9 @@ public class MediaService {
     }
 
     private void notifyPlaybackManager(TrackList in) {
-        TrackReference reference = playbackManager.getSelectedTrackReference();
-        playbackManager.setTrackList(in, false);
-        playbackManager.setCursor(in.indexOf(reference));
+        TrackReference reference = playback.getSelectedTrackReference();
+        playback.setTrackList(in, false);
+        playback.setCursor(in.indexOf(reference));
     }
 
     public void handleCommand(Intent intent) {
@@ -297,6 +300,6 @@ public class MediaService {
         context.unregisterReceiver(requestDataReceiver);
         context.unregisterReceiver(colorRequestReceiver);
 
-        playbackManager.destroy();
+        playback.destroy();
     }
 }

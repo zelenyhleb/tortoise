@@ -21,46 +21,46 @@ import ru.krivocraft.tortoise.core.rating.Rating;
 
 public class MediaSessionCallback extends MediaSessionCompat.Callback {
 
-    private final PlaybackManager playbackManager;
+    private final PlaybackManager playback;
     private final OnStopCallback onStopCallback;
     private final Rating rating;
 
-    public MediaSessionCallback(PlaybackManager playbackManager, OnStopCallback onStopCallback, Rating rating) {
-        this.playbackManager = playbackManager;
+    public MediaSessionCallback(PlaybackManager playback, OnStopCallback onStopCallback, Rating rating) {
+        this.playback = playback;
         this.onStopCallback = onStopCallback;
         this.rating = rating;
     }
 
     @Override
     public void onPlay() {
-        playbackManager.play();
+        playback.play();
     }
 
     @Override
     public void onPause() {
-        playbackManager.pause();
+        playback.pause();
     }
 
     @Override
     public void onSkipToNext() {
-        rating.rate(playbackManager.getSelectedTrackReference(), -1);
-        playbackManager.nextTrack();
+        rating.rate(playback.getSelectedTrackReference(), -1);
+        playback.nextTrack();
     }
 
     @Override
     public void onSkipToPrevious() {
-        rating.rate(playbackManager.getSelectedTrackReference(), -1);
-        playbackManager.previousTrack();
+        rating.rate(playback.getSelectedTrackReference(), -1);
+        playback.previousTrack();
     }
 
     @Override
     public void onSeekTo(long pos) {
-        playbackManager.seekTo((int) pos);
+        playback.seekTo((int) pos);
     }
 
     @Override
     public void onSkipToQueueItem(long id) {
-        playbackManager.newTrack((int) id);
+        playback.newTrack((int) id);
     }
 
     @Override

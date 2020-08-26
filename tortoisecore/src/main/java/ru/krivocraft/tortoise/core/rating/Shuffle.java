@@ -1,5 +1,7 @@
 package ru.krivocraft.tortoise.core.rating;
 
+import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
+import ru.krivocraft.tortoise.core.api.settings.Settings;
 import ru.krivocraft.tortoise.core.data.SettingsProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
@@ -14,11 +16,11 @@ import java.util.Random;
 public class Shuffle {
 
     private final TracksProvider tracksStorageManager;
-    private final SettingsProvider settings;
+    private final ReadOnlySettings settings;
 
     public static final String KEY_SMART_SHUFFLE = "smartShuffle";
 
-    public Shuffle(TracksProvider tracksStorageManager, SettingsProvider settings) {
+    public Shuffle(TracksProvider tracksStorageManager, ReadOnlySettings settings) {
         this.tracksStorageManager = tracksStorageManager;
         this.settings = settings;
     }
@@ -26,7 +28,7 @@ public class Shuffle {
     public List<TrackReference> shuffle(TrackList trackList, TrackReference firstTrack) {
         trackList.getTrackReferences().remove(firstTrack);
         List<TrackReference> references =
-                settings.getOption(KEY_SMART_SHUFFLE, true) ?
+                settings.read(KEY_SMART_SHUFFLE, true) ?
                         smartShuffle(trackList) : basicShuffle(trackList);
         references.add(0, firstTrack);
         return references;
