@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,13 +11,15 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.model;
 
 import androidx.annotation.NonNull;
 import com.google.gson.Gson;
+import ru.krivocraft.tortoise.core.api.Playback;
+import ru.krivocraft.tortoise.core.api.Playlist;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-public class TrackList {
+public class TrackList implements Playlist {
 
     public static final String EXTRA_TRACK_LIST = "track_list_extra";
 
@@ -49,7 +51,7 @@ public class TrackList {
     private List<TrackReference> tracksReferences;
 
     private List<TrackReference> shuffleCache;
-    public static TrackList EMPTY = new TrackList("EMPTY", new ArrayList<TrackReference>(), TRACK_LIST_CUSTOM);
+    public static TrackList EMPTY = new TrackList("EMPTY", new ArrayList<>(), TRACK_LIST_CUSTOM);
 
     public TrackList(String displayName, List<TrackReference> tracksReferences, int type, String identifier) {
         this.displayName = displayName;
@@ -167,4 +169,8 @@ public class TrackList {
         return Objects.hash(displayName, type, tracksReferences);
     }
 
+    @Override
+    public List<Playback.Metadata> tracks() {
+        return null;
+    }
 }

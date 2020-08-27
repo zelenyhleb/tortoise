@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.model;
@@ -39,15 +39,15 @@ public class Track {
     public Track(TrackMeta trackMeta, int rating) {
         this.trackMeta = trackMeta;
 
-        this.identifier = trackMeta.getPath().hashCode();
+        this.identifier = trackMeta.path().hashCode();
         this.rating = rating;
     }
 
     public Track(TrackMeta trackMeta, TrackPlayingState playingState, boolean liked, boolean ignored, int rating) {
         this(trackMeta, rating);
         this.liked = liked;
-        this.selected = playingState.isSelected();
-        this.playing = playingState.isPlaying();
+        this.selected = playingState.selected();
+        this.playing = playingState.playing();
         this.ignored = ignored;
     }
 
@@ -61,11 +61,11 @@ public class Track {
     }
 
     public void setTitle(String title) {
-        this.trackMeta = new TrackMeta(title, getArtist(), getPath(), getDuration(), getColor());
+        this.trackMeta = new TrackMeta(title, getArtist(), getPath(), (int) getDuration(), getColor());
     }
 
     public void setArtist(String artist) {
-        this.trackMeta = new TrackMeta(getTitle(), artist, getPath(), getDuration(), getColor());
+        this.trackMeta = new TrackMeta(getTitle(), artist, getPath(), (int) getDuration(), getColor());
     }
 
     public boolean isSelected() {
@@ -112,15 +112,15 @@ public class Track {
     }
 
     public String getArtist() {
-        return trackMeta.getArtist();
+        return trackMeta.artist();
     }
 
     public String getTitle() {
-        return trackMeta.getTitle();
+        return trackMeta.title();
     }
 
     public String getPath() {
-        return trackMeta.getPath();
+        return trackMeta.path();
     }
 
     public boolean isLiked() {
@@ -136,11 +136,11 @@ public class Track {
     }
 
     public long getDuration() {
-        return trackMeta.getDuration();
+        return trackMeta.duration();
     }
 
     public int getColor() {
-        return trackMeta.getColor();
+        return trackMeta.color();
     }
 
     public boolean isIgnored() {

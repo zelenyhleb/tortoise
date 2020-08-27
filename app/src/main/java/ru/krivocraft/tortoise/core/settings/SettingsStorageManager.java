@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,16 +11,14 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.settings;
 
-import android.content.Context;
-import ru.krivocraft.tortoise.core.PreferencesManager;
-import ru.krivocraft.tortoise.core.data.SettingsProvider;
+import ru.krivocraft.tortoise.core.api.settings.WriteableSettings;
 
-public class SettingsStorageManager implements SettingsProvider {
+public class SettingsStorageManager {
 
     public static final String KEY_THEME = "useAlternativeTheme";
     public static final String KEY_WEBSITE = "https://krivocraft.ru/";
@@ -30,17 +28,17 @@ public class SettingsStorageManager implements SettingsProvider {
     public static final String KEY_SHOW_IGNORED = "showIgnored";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
 
-    private final PreferencesManager preferencesManager;
+    private final WriteableSettings settings;
 
-    public SettingsStorageManager(Context context) {
-        this.preferencesManager = new PreferencesManager(context, PreferencesManager.STORAGE_SETTINGS);
+    public SettingsStorageManager(WriteableSettings settings) {
+        this.settings = settings;
     }
 
-    public boolean getOption(String key, boolean defValue) {
-        return preferencesManager.readBoolean(key, defValue);
+    public boolean get(String key, boolean defValue) {
+        return settings.read(key, defValue);
     }
 
-    public void putOption(String key, boolean value) {
-        preferencesManager.writeBoolean(key, value);
+    public void put(String key, boolean value) {
+        settings.write(key, value);
     }
 }

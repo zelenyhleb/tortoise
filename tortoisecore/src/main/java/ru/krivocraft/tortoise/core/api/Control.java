@@ -14,28 +14,18 @@
  *         Nikifor Fedorov and others
  */
 
-package ru.krivocraft.tortoise.core.base;
+package ru.krivocraft.tortoise.core.api;
 
-import ru.krivocraft.tortoise.core.api.Playback;
+public interface Control {
 
-public class BasePlaybackState implements Playback.State {
+    void play();
 
-    private final boolean playing;
-    private final boolean selected;
+    void pause();
 
-    public BasePlaybackState(boolean playing, boolean selected) {
-        this.playing = playing;
-        this.selected = selected;
-    }
+    void next();
 
-    @Override
-    public boolean playing() {
-        return playing;
-    }
+    void previous();
 
-    @Override
-    public boolean selected() {
-        return selected;
-    }
+    void seek(int position);
 
 }

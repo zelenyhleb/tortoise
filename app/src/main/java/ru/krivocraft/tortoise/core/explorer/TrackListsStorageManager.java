@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,17 +11,19 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.explorer;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import ru.krivocraft.tortoise.core.PreferencesManager;
+import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
+import ru.krivocraft.tortoise.core.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.data.TrackListsProvider;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
-import ru.krivocraft.tortoise.core.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.sqlite.DBConnection;
 
 import java.util.List;
@@ -36,7 +38,9 @@ public class TrackListsStorageManager implements TrackListsProvider {
     public final static String FILTER_ALL = "all";
 
     public TrackListsStorageManager(@NonNull Context context, String filter) {
-        this.database = new DBConnection(context, new SettingsStorageManager(context));
+        ReadOnlySettings settings = new SharedPreferencesSettings(
+                context.getSharedPreferences(PreferencesManager.STORAGE_SETTINGS, Context.MODE_PRIVATE));
+        this.database = new DBConnection(context, settings);
         this.filter = filter;
     }
 
@@ -56,7 +60,7 @@ public class TrackListsStorageManager implements TrackListsProvider {
         database.removeTracks(trackList, references);
     }
 
-    public TrackList getAllTracks(){
+    public TrackList getAllTracks() {
         return database.getAllTracks();
     }
 

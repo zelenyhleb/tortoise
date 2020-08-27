@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.sqlite;
@@ -22,7 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
-import ru.krivocraft.tortoise.core.data.SettingsProvider;
+import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.model.TrackReference;
@@ -40,9 +40,9 @@ public class DBConnection {
     private static final String ALL_TRACKS = TrackList.createIdentifier(TrackList.STORAGE_TRACKS_DISPLAY_NAME);
 
     private final SQLiteDatabase database;
-    private final SettingsProvider settings;
+    private final ReadOnlySettings settings;
 
-    public DBConnection(Context context, SettingsProvider settings) {
+    public DBConnection(Context context, ReadOnlySettings settings) {
         this.database = new DBHelper(context).getWritableDatabase();
         this.settings = settings;
         removeDuplicatedTrackLists();
@@ -93,7 +93,7 @@ public class DBConnection {
         Cursor cursor = database.query(TRACKS, null, "id = ?", new String[]{trackReference.toString()}, null, null, null);
         if (cursor.moveToFirst()) {
 
-            long duration = cursor.getLong(cursor.getColumnIndex("duration"));
+            int duration = cursor.getInt(cursor.getColumnIndex("duration"));
             String artist = cursor.getString(cursor.getColumnIndex("artist"));
             String title = cursor.getString(cursor.getColumnIndex("title"));
             String path = cursor.getString(cursor.getColumnIndex("path"));
@@ -179,7 +179,7 @@ public class DBConnection {
             int playingIndex = cursor.getColumnIndex("playing");
             int ignoredIndex = cursor.getColumnIndex("ignored");
             do {
-                long duration = cursor.getLong(durationIndex);
+                int duration = cursor.getInt(durationIndex);
                 String artist = cursor.getString(artistIndex);
                 String title = cursor.getString(titleIndex);
                 String path = cursor.getString(pathIndex);
@@ -313,7 +313,7 @@ public class DBConnection {
                     if (!getTrack(reference).isIgnored()) {
                         trackReferences.add(reference);
                     } else {
-                        if (settings.getOption(SettingsStorageManager.KEY_SHOW_IGNORED, false)) {
+                        if (settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false)) {
                             trackReferences.add(reference);
                             System.out.println("adding ignored track " + getTrack(reference).getTitle());
                         } else {
@@ -408,7 +408,7 @@ public class DBConnection {
                 int playingIndex = cursor.getColumnIndex("playing");
                 int ignoredIndex = cursor.getColumnIndex("ignored");
                 do {
-                    long duration = cursor.getLong(durationIndex);
+                    int duration = cursor.getInt(durationIndex);
                     String artist = cursor.getString(artistIndex);
                     String title = cursor.getString(titleIndex);
                     String path = cursor.getString(pathIndex);

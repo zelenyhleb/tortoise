@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.player;
@@ -186,7 +186,7 @@ public class MediaService {
                 context.sendBroadcast(result);
             } else {
                 Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
-                result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.getTrackList().toJson());
+                result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.getPlaylist().toJson());
                 result.putExtra(Track.EXTRA_TRACK, playback.getSelectedTrackReference().toJson());
                 result.putExtra(EXTRA_CURSOR, playback.getCursor());
                 context.sendBroadcast(result);
@@ -214,7 +214,7 @@ public class MediaService {
                     break;
                 case ACTION_EDIT_TRACK_LIST:
                     TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-                    if (trackListEdited.equals(playback.getTrackList())) {
+                    if (trackListEdited.equals(playback.getPlaylist())) {
                         notifyPlaybackManager(trackListEdited);
                     }
                     trackListsStorageManager.updateTrackListContent(trackListEdited);
@@ -240,23 +240,23 @@ public class MediaService {
 
         rating.rate(reference, 1);
 
-        if (!trackList.equals(playback.getTrackList())) {
+        if (!trackList.equals(playback.getPlaylist())) {
             playback.setTrackList(trackList, true);
         }
 
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
-            mediaController.getTransportControls().skipToQueueItem(playback.getTrackList().indexOf(reference));
+            mediaController.getTransportControls().skipToQueueItem(playback.getPlaylist().indexOf(reference));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playback.getTrackList())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playback.getPlaylist())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
-                playback.setCursor(playback.getTrackList().indexOf(reference));
+                playback.setCursor(playback.getPlaylist().indexOf(reference));
             } else {
-                mediaController.getTransportControls().skipToQueueItem(playback.getTrackList().indexOf(reference));
+                mediaController.getTransportControls().skipToQueueItem(playback.getPlaylist().indexOf(reference));
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.editors;
@@ -146,7 +146,7 @@ public class TrackListEditorActivity extends BaseActivity {
                 }
             }
         });
-        if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+        if (settingsStorageManager.get(SettingsStorageManager.KEY_THEME, false)) {
             search.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
         }
     }
@@ -161,7 +161,7 @@ public class TrackListEditorActivity extends BaseActivity {
                 changed.setIdentifier(TrackList.createIdentifier(s.toString()));
             }
         });
-        if (settingsStorageManager.getOption(SettingsStorageManager.KEY_THEME, false)) {
+        if (settingsStorageManager.get(SettingsStorageManager.KEY_THEME, false)) {
             title.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
         }
     }
