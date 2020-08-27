@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nikifor Fedorov
+ * Copyright (c) 2020 Nikifor Fedorov
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
  *     You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  *     limitations under the License.
  *     SPDX-License-Identifier: Apache-2.0
  *     Contributors:
- * 	    Nikifor Fedorov - whole development
+ *         Nikifor Fedorov and others
  */
 
 package ru.krivocraft.tortoise.core.tracklist;
