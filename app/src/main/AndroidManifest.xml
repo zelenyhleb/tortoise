@@ -31,11 +31,11 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/DarkTheme">
-        <activity android:name=".core.editors.TrackEditorActivity">
+        <activity android:name=".android.editors.TrackEditorActivity">
         </activity>
-        <activity android:name=".core.editors.TrackListEditorActivity"/>
+        <activity android:name=".android.editors.TrackListEditorActivity"/>
         <activity
-                android:name=".core.MainActivity"
+                android:name=".android.MainActivity"
                 android:launchMode="singleTask"
                 android:screenOrientation="portrait"
                 android:theme="@style/SplashTheme"
@@ -55,7 +55,7 @@
         </receiver>
 
         <service
-                android:name=".core.player.AndroidMediaService"
+                android:name=".android.player.AndroidMediaService"
                 android:enabled="true"
                 android:exported="false">
             <intent-filter>

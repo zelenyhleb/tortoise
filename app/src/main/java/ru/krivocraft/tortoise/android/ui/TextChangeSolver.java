@@ -14,5 +14,23 @@
  *         Nikifor Fedorov and others
  */
 
-include ':app'
-include ':tortoise.core'
+package ru.krivocraft.tortoise.android.ui;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+
+/*
+ *  Class that allows not to leave blank implementations in the code of EditText TextWatcher
+ */
+public abstract class TextChangeSolver implements TextWatcher {
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        //Nothing
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        //Nothing
+    }
+}
