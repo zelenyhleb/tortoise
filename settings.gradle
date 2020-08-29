@@ -15,4 +15,4 @@
  */
 
 include ':app'
-include ':tortoise.core'
+include ':core'
