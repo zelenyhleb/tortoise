@@ -37,7 +37,6 @@ import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.android.tracklist.SelectableTracksAdapter;
 import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
@@ -203,16 +202,16 @@ public class TrackListEditorActivity extends BaseActivity {
 
     private void initList() {
         List<Track> trackStorage = tracksStorageManager.getTracks(trackListsStorageManager.getAllTracks().getTrackReferences());
-        List<TrackReference> trackReferences = changed.getTrackReferences();
-        flagExisting(trackStorage, trackReferences);
+        List<Track.Reference> references = changed.getTrackReferences();
+        flagExisting(trackStorage, references);
 
         adapter = new SelectableTracksAdapter(trackStorage, this);
         listView = findViewById(R.id.track_list_editor_list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Track item = (Track) parent.getItemAtPosition(position);
-            TrackReference reference = new TrackReference(item);
-            if (trackReferences.contains(reference)) {
+            Track.Reference reference = new Track.Reference(item);
+            if (references.contains(reference)) {
                 item.setCheckedInList(false);
                 changed.remove(reference);
             } else {
@@ -276,9 +275,9 @@ public class TrackListEditorActivity extends BaseActivity {
         trackListsStorageManager = new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL);
     }
 
-    private void flagExisting(List<Track> trackStorage, List<TrackReference> trackReferences) {
+    private void flagExisting(List<Track> trackStorage, List<Track.Reference> references) {
         for (Track track : trackStorage) {
-            if (trackReferences.contains(new TrackReference(track))) {
+            if (references.contains(new Track.Reference(track))) {
                 track.setCheckedInList(true);
                 tracksStorageManager.updateTrack(track);
             }

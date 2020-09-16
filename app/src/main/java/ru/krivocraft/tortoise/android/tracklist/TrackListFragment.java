@@ -38,7 +38,6 @@ import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
@@ -125,7 +124,7 @@ public class TrackListFragment extends BaseFragment {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         Searcher searcher = new Searcher(tracksStorageManager, new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL));
-                        List<TrackReference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
+                        List<Track.Reference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
 
                         recyclerView.setAdapter(new TracksAdapter(
                                 new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
@@ -148,7 +147,7 @@ public class TrackListFragment extends BaseFragment {
                 playRandomly.setVisibility(View.VISIBLE);
                 playRandomly.setOnClickListener(view1 -> {
                     if (trackList.size() > 0) {
-                        TrackReference reference;
+                        Track.Reference reference;
                         if (trackList.size() > 1) {
                             int randomTrack = new Random().nextInt(trackList.size() - 1);
                             reference = trackList.getTrackReferences().get(randomTrack);
@@ -213,7 +212,7 @@ public class TrackListFragment extends BaseFragment {
 
     private int getSelectedItem() {
         if (trackList != null) {
-            for (TrackReference reference : trackList.getTrackReferences()) {
+            for (Track.Reference reference : trackList.getTrackReferences()) {
                 if (tracksStorageManager.getTrack(reference).isSelected()) {
                     return trackList.getTrackReferences().indexOf(reference);
                 }

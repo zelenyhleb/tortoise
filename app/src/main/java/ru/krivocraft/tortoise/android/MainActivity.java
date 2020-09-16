@@ -36,7 +36,6 @@ import ru.krivocraft.tortoise.android.explorer.Explorer;
 import ru.krivocraft.tortoise.android.explorer.ExplorerFragment;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.player.AndroidMediaService;
 import ru.krivocraft.tortoise.android.player.views.PlayerHostFragment;
 import ru.krivocraft.tortoise.android.player.views.SmallPlayerFragment;
@@ -69,7 +68,7 @@ public class MainActivity extends BaseActivity {
     private final BroadcastReceiver showEditorReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            showTrackEditorFragment(TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
+            showTrackEditorFragment(Track.Reference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK)));
         }
     };
 
@@ -90,7 +89,7 @@ public class MainActivity extends BaseActivity {
 
     private void recolorInterface(MediaMetadataCompat newMetadata) {
         String path = newMetadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI);
-        TrackReference reference = tracksStorageManager.getReference(path);
+        Track.Reference reference = tracksStorageManager.getReference(path);
         Track track = tracksStorageManager.getTrack(reference);
         currentFragment.changeColors(colors.getColorResource(track.getColor()));
     }
@@ -244,8 +243,8 @@ public class MainActivity extends BaseActivity {
         hideFragment(smallPlayerFragment);
     }
 
-    private void showTrackEditorFragment(TrackReference trackReference) {
-        startActivity(new Intent(this, TrackEditorActivity.class).putExtra(TrackEditorActivity.EXTRA_TRACK, trackReference.toJson()));
+    private void showTrackEditorFragment(Track.Reference reference) {
+        startActivity(new Intent(this, TrackEditorActivity.class).putExtra(TrackEditorActivity.EXTRA_TRACK, reference.toJson()));
     }
 
     private void replaceFragment(BaseFragment fragment) {

@@ -35,7 +35,6 @@ import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.MainActivity;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Rating;
 import ru.krivocraft.tortoise.core.rating.RatingImpl;
@@ -107,8 +106,8 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
 
     private void rate(int toPosition) {
         AsyncTask.execute(() -> {
-            TrackReference playing = null;
-            for (TrackReference reference : trackList.getTrackReferences()) {
+            Track.Reference playing = null;
+            for (Track.Reference reference : trackList.getTrackReferences()) {
                 if (tracksStorageManager.getTrack(reference).isPlaying()) {
                     playing = reference;
                     break;
@@ -135,7 +134,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
     @Override
     public void onSwipe(RecyclerView.ViewHolder viewHolder) {
         int position = (int) viewHolder.getItemId();
-        TrackReference item = new TrackReference(position);
+        Track.Reference item = new Track.Reference(position);
         trackList.remove(item);
 
         if (editingAllowed && trackList.getDisplayName().equals(TrackList.STORAGE_TRACKS_DISPLAY_NAME)) {
@@ -183,7 +182,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
         ImageView art;
         ImageView state;
         Track track;
-        TrackReference reference;
+        Track.Reference reference;
         TrackList trackList;
         ImageButton more;
         Colors colors;
@@ -233,7 +232,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.ViewHolder
                     }
                 }
             });
-            loadArtTask.execute(track.getPath());
+            loadArtTask.execute(track.path());
         }
 
         private class OnClickListener implements View.OnClickListener {

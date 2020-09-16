@@ -18,12 +18,10 @@ package ru.krivocraft.tortoise.android.tracklist;
 
 import android.content.Context;
 import org.apache.commons.collections4.CollectionUtils;
-import ru.krivocraft.tortoise.android.PreferencesManager;
 import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.data.TracksProvider;
 import ru.krivocraft.tortoise.core.model.Track;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.sqlite.DBConnection;
 
 import java.util.ArrayList;
@@ -48,9 +46,9 @@ public class TracksStorageManager implements TracksProvider {
         }
     }
 
-    public List<Track> getTracks(List<TrackReference> references) {
+    public List<Track> getTracks(List<Track.Reference> references) {
         List<Track> tracks = new ArrayList<>();
-        for (TrackReference reference : references) {
+        for (Track.Reference reference : references) {
             tracks.add(getTrack(reference));
         }
         return tracks;
@@ -68,21 +66,21 @@ public class TracksStorageManager implements TracksProvider {
         database.removeTrack(track);
     }
 
-    public TrackReference getReference(String path) {
+    public Track.Reference getReference(String path) {
         List<Track> trackStorage = getTrackStorage();
-        List<String> paths = new ArrayList<>(CollectionUtils.collect(trackStorage, Track::getPath));
-        return new TrackReference(trackStorage.get(paths.indexOf(path)));
+        List<String> paths = new ArrayList<>(CollectionUtils.collect(trackStorage, Track::path));
+        return new Track.Reference(trackStorage.get(paths.indexOf(path)));
     }
 
-    public List<TrackReference> getReferences(List<Track> tracks) {
-        List<TrackReference> references = new ArrayList<>();
+    public List<Track.Reference> getReferences(List<Track> tracks) {
+        List<Track.Reference> references = new ArrayList<>();
         for (Track track : tracks) {
-            references.add(getReference(track.getPath()));
+            references.add(getReference(track.path()));
         }
         return references;
     }
 
-    public Track getTrack(TrackReference reference) {
+    public Track getTrack(Track.Reference reference) {
         return database.getTrack(reference);
     }
 }

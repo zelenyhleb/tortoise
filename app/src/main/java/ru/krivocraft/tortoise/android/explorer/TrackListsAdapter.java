@@ -29,7 +29,6 @@ import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.PreferencesManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.sorting.GetAlbumArtTask;
@@ -83,7 +82,7 @@ public class TrackListsAdapter extends RecyclerView.Adapter<TrackListsAdapter.Vi
     }
 
     private boolean isHidden(TrackList trackList) {
-        for (TrackReference reference : trackList.getTrackReferences()) {
+        for (Track.Reference reference : trackList.getTrackReferences()) {
             if (!tracksStorageManager.getTrack(reference).isIgnored()) {
                 return false;
             }

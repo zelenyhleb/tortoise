@@ -21,4 +21,5 @@ import java.util.List;
 public interface Playlist {
 
     List<Playback.Metadata> tracks();
+
 }

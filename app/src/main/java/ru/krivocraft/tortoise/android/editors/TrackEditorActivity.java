@@ -27,7 +27,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.core.model.Track;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.android.ui.TextChangeSolver;
 
@@ -35,7 +34,7 @@ public class TrackEditorActivity extends AppCompatActivity {
 
     private Track source;
     private Track changed;
-    private TrackReference reference;
+    private Track.Reference reference;
     public static final String EXTRA_TRACK = "track";
     private TracksStorageManager tracksStorageManager;
 
@@ -48,7 +47,7 @@ public class TrackEditorActivity extends AppCompatActivity {
             actionBar.setTitle("Edit track");
         }
 
-        reference = TrackReference.fromJson(getIntent().getStringExtra(EXTRA_TRACK));
+        reference = Track.Reference.fromJson(getIntent().getStringExtra(EXTRA_TRACK));
 
         this.tracksStorageManager = new TracksStorageManager(this);
 
@@ -73,7 +72,7 @@ public class TrackEditorActivity extends AppCompatActivity {
             contentValues.put(MediaStore.Audio.Media.ARTIST, artist.getText().toString());
             contentValues.put(MediaStore.Audio.Media.TITLE, title.getText().toString());
             String[] args = {
-                    changed.getPath()
+                    changed.path()
             };
             getContentResolver().update(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues, selection, args);
 
@@ -102,7 +101,7 @@ public class TrackEditorActivity extends AppCompatActivity {
         showNotSavedPrompt();
     }
 
-    public void setReference(TrackReference reference) {
+    public void setReference(Track.Reference reference) {
         this.reference = reference;
     }
 

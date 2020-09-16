@@ -19,7 +19,6 @@ package ru.krivocraft.tortoise.core.rating;
 import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.data.TracksProvider;
 
 import java.util.ArrayList;
@@ -39,22 +38,22 @@ public class Shuffle {
         this.settings = settings;
     }
 
-    public List<TrackReference> shuffle(TrackList trackList, TrackReference firstTrack) {
+    public List<Track.Reference> shuffle(TrackList trackList, Track.Reference firstTrack) {
         trackList.getTrackReferences().remove(firstTrack);
-        List<TrackReference> references =
+        List<Track.Reference> references =
                 settings.read(KEY_SMART_SHUFFLE, true) ?
                         smartShuffle(trackList) : basicShuffle(trackList);
         references.add(0, firstTrack);
         return references;
     }
 
-    private List<TrackReference> basicShuffle(TrackList trackList) {
+    private List<Track.Reference> basicShuffle(TrackList trackList) {
         Collections.shuffle(trackList.getTrackReferences());
         return trackList.getTrackReferences();
     }
 
-    private List<TrackReference> smartShuffle(List<TrackReference> trackReferences) {
-        List<Track> tracks = tracksStorageManager.getTracks(trackReferences);
+    private List<Track.Reference> smartShuffle(List<Track.Reference> references) {
+        List<Track> tracks = tracksStorageManager.getTracks(references);
         Random random = new Random(System.currentTimeMillis());
         List<Track> shuffled = new ArrayList<>();
 
@@ -82,7 +81,7 @@ public class Shuffle {
         return ratings;
     }
 
-    private List<TrackReference> smartShuffle(TrackList trackList) {
+    private List<Track.Reference> smartShuffle(TrackList trackList) {
         return smartShuffle(trackList.getTrackReferences());
     }
 

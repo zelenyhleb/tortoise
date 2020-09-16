@@ -18,12 +18,11 @@ package ru.krivocraft.tortoise.android.explorer;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-import ru.krivocraft.tortoise.android.PreferencesManager;
 import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.data.TrackListsProvider;
+import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.sqlite.DBConnection;
 
 import java.util.List;
@@ -55,7 +54,7 @@ public class TrackListsStorageManager implements TrackListsProvider {
         database.updateRootTrackList(trackList);
     }
 
-    public void removeTracks(TrackList trackList, List<TrackReference> references) {
+    public void removeTracks(TrackList trackList, List<Track.Reference> references) {
         database.removeTracks(trackList, references);
     }
 

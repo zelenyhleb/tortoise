@@ -20,7 +20,6 @@ import ru.krivocraft.tortoise.core.data.TrackListsProvider;
 import ru.krivocraft.tortoise.core.data.TracksProvider;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +34,8 @@ public class Searcher {
         this.trackListsProvider = trackListsProvider;
     }
 
-    public List<TrackReference> search(CharSequence string, List<TrackReference> input) {
-        List<TrackReference> references = new ArrayList<>();
+    public List<Track.Reference> search(CharSequence string, List<Track.Reference> input) {
+        List<Track.Reference> references = new ArrayList<>();
         List<Track> searched = tracksProvider.getTracks(input);
         List<TrackList> trackLists = trackListsProvider.readAllTrackLists();
         for (Track track : searched) {
@@ -52,7 +51,7 @@ public class Searcher {
 
         for (TrackList trackList : trackLists) {
             if (trackList.getDisplayName().contains(string)) {
-                for (TrackReference reference : trackList.getTrackReferences()) {
+                for (Track.Reference reference : trackList.getTrackReferences()) {
                     if (!references.contains(reference)) {
                         references.add(reference);
                     }
@@ -77,8 +76,8 @@ public class Searcher {
 
         for (TrackList trackList : trackLists) {
             if (trackList.getDisplayName().contains(string)) {
-                for (TrackReference trackReference : trackList.getTrackReferences()) {
-                    Track track = tracksProvider.getTrack(trackReference);
+                for (Track.Reference reference : trackList.getTrackReferences()) {
+                    Track track = tracksProvider.getTrack(reference);
                     if (!found.contains(track)) {
                         found.add(track);
                     }

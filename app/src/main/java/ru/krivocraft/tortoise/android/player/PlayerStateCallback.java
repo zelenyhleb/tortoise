@@ -17,7 +17,7 @@
 package ru.krivocraft.tortoise.android.player;
 
 import android.support.v4.media.session.PlaybackStateCompat;
-import ru.krivocraft.tortoise.core.api.utils.Consumer;
+import androidx.core.util.Consumer;
 import ru.krivocraft.tortoise.core.model.Track;
 
 public final class PlayerStateCallback {

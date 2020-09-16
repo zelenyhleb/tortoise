@@ -24,10 +24,11 @@ import ru.krivocraft.tortoise.android.AndroidAudioFocus;
 import ru.krivocraft.tortoise.android.AndroidMediaPlayer;
 import ru.krivocraft.tortoise.core.api.AudioFocus;
 import ru.krivocraft.tortoise.core.api.MediaPlayer;
+import ru.krivocraft.tortoise.core.api.Playback;
 import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
+import ru.krivocraft.tortoise.core.model.LoopType;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
@@ -35,8 +36,7 @@ import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
 import java.util.ArrayList;
 import java.util.List;
 
-class PlaybackManager implements AudioFocus.ChangeListener {
-
+class PlaybackManager implements AudioFocus.ChangeListener, Playback {
 
     private final TracksStorageManager tracksStorageManager;
 
@@ -49,7 +49,7 @@ class PlaybackManager implements AudioFocus.ChangeListener {
     private final AudioFocus focus;
     private final ReadOnlySettings settings;
 
-    private TrackReference cache;
+    private Track.Reference cache;
 
     private TrackList playlist;
 
@@ -59,7 +59,7 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         this.playerStateCallback = playerStateCallback;
         this.playlistUpdateCallback = playlistUpdateCallback;
 
-        this.player = new AndroidMediaPlayer(this::onCompletion, this::onPrepared);
+        this.player = new AndroidMediaPlayer(this::proceed, this::onPrepared);
         this.playlist = TrackList.EMPTY;
 
         this.playerState = PlaybackStateCompat.STATE_NONE;
@@ -76,21 +76,16 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         return player.playing();
     }
 
-    void play() {
-        if (cursor >= 0 && getTracks().size() > 0) {
-            TrackReference selectedReference = getTracks().get(cursor);
+    public void play() {
+        if (cursor >= 0 && tracks().size() > 0) {
+            Track.Reference selectedReference = tracks().get(cursor);
             boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
             Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
 
             focus.request();
 
             if (mediaChanged) {
-
-                player.reset();
-                player.set(selectedTrack.getPath());
-                player.prepare();
-
-                cache = selectedReference;
+                start();
                 return;
             }
 
@@ -104,13 +99,16 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         }
     }
 
-    void seekTo(int position) {
-        pause();
-        player.seekTo(position);
-        play();
+    @Override
+    public void start() {
+        Track track = tracksStorageManager.getTrack(tracks().get(cursor));
+        player.reset();
+        player.set(track.path());
+        player.prepare();
+        cache = tracks().get(cursor);
     }
 
-    void pause() {
+    public void pause() {
         if (isPlaying()) {
             player.pause();
         }
@@ -125,7 +123,7 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         updatePlaybackState();
     }
 
-    void newTrack(int index) {
+    public void skipTo(int index) {
         int cursor = index;
         cursor = replaceCursorIfOutOfBounds(index, cursor);
 
@@ -134,7 +132,7 @@ class PlaybackManager implements AudioFocus.ChangeListener {
             deselectCurrentTrack();
             this.cursor = cursor;
             if (!settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(getSelectedTrackReference()).isIgnored()) {
-                nextTrack();
+                next();
                 return;
             }
             selectCurrentTrack();
@@ -145,19 +143,19 @@ class PlaybackManager implements AudioFocus.ChangeListener {
 
     private int replaceCursorIfOutOfBounds(int index, int cursor) {
         if (index < 0) return playlist.size() - 1;
-        if (index >= getTracks().size()) return 0;
+        if (index >= tracks().size()) return 0;
         return cursor;
     }
 
     private void selectCurrentTrack() {
-        TrackReference selectedReference = getTracks().get(this.cursor);
+        Track.Reference selectedReference = tracks().get(this.cursor);
         Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
         selectedTrack.setSelected(true);
         tracksStorageManager.updateTrack(selectedTrack);
     }
 
     private boolean cursorOutOfBounds(int cursor) {
-        return cursor < 0 || cursor >= getTracks().size();
+        return cursor < 0 || cursor >= tracks().size();
     }
 
     private void deselectCurrentTrack() {
@@ -187,45 +185,24 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         playlistUpdateCallback.onPlaylistUpdated(playlist);
     }
 
-    int getCursor() {
+    int cursor() {
         return cursor;
     }
 
     void proceed() {
-        int loopType = settings.read(TrackList.LOOP_TYPE, TrackList.LOOP_TRACK_LIST);
-        switch (loopType) {
-            case TrackList.LOOP_TRACK:
-                newTrack(getCursor());
-                break;
-            case TrackList.LOOP_TRACK_LIST:
-                if (getCursor() + 1 < getPlaylist().size()) {
-                    nextTrack();
-                } else {
-                    newTrack(0);
-                }
-                break;
-            case TrackList.NOT_LOOP:
-                if (getCursor() < getPlaylist().size() - 1) {
-                    nextTrack();
-                } else {
-                    stop();
-
-                }
-                break;
-            default:
-                break;
-        }
+        LoopType type = new LoopType.Of(settings.read("loop_type", TrackList.LOOP_TRACK_LIST), this).get();
+        type.action().execute();
     }
 
-    void nextTrack() {
-        newTrack(cursor + 1);
+    public void next() {
+        skipTo(cursor + 1);
     }
 
-    void previousTrack() {
-        newTrack(cursor - 1);
+    public void previous() {
+        skipTo(cursor - 1);
     }
 
-    void stop() {
+    public void stop() {
         if (player != null) {
             focus.release();
 
@@ -236,6 +213,16 @@ class PlaybackManager implements AudioFocus.ChangeListener {
             playerState = PlaybackStateCompat.STATE_STOPPED;
             updatePlaybackState();
         }
+    }
+
+    public void seekTo(int position) {
+        pause();
+        player.seekTo(position);
+        play();
+    }
+
+    public Track.Reference current() {
+        return tracks().get(cursor());
     }
 
     void setTrackList(TrackList trackList, boolean sendUpdate) {
@@ -251,7 +238,7 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         this.cursor = cursor;
     }
 
-    private List<TrackReference> getTracks() {
+    public List<Track.Reference> tracks() {
         if (getPlaylist() != null)
             return getPlaylist().getTrackReferences();
         else
@@ -266,9 +253,9 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         return player.position();
     }
 
-    TrackReference getSelectedTrackReference() {
-        if (getTracks() != null && getTracks().size() > 0) {
-            return getTracks().get(cursor);
+    Track.Reference getSelectedTrackReference() {
+        if (tracks() != null && tracks().size() > 0) {
+            return tracks().get(cursor);
         }
         return null;
     }
@@ -294,10 +281,6 @@ class PlaybackManager implements AudioFocus.ChangeListener {
         }
     }
 
-    public void onCompletion() {
-        proceed();
-    }
-
     private void setVolume(float volume) {
         player.volume(volume);
     }
@@ -308,9 +291,8 @@ class PlaybackManager implements AudioFocus.ChangeListener {
     }
 
     public void onPrepared() {
-        player.prepare();
-        TrackReference selectedReference = getTracks().get(cursor);
-        Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
+        play();
+        Track selectedTrack = tracksStorageManager.getTrack(tracks().get(cursor));
         selectedTrack.setPlaying(true);
         tracksStorageManager.updateTrack(selectedTrack);
 

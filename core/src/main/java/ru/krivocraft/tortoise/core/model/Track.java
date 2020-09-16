@@ -17,6 +17,8 @@
 package ru.krivocraft.tortoise.core.model;
 
 import android.support.v4.media.MediaMetadataCompat;
+import androidx.annotation.NonNull;
+import com.google.gson.Gson;
 import ru.krivocraft.tortoise.core.model.track.TrackMeta;
 import ru.krivocraft.tortoise.core.model.track.TrackPlayingState;
 
@@ -55,17 +57,17 @@ public class Track {
         return new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getArtist())
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, getTitle())
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, getPath())
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, path())
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, getDuration())
                 .build();
     }
 
     public void setTitle(String title) {
-        this.trackMeta = new TrackMeta(title, getArtist(), getPath(), (int) getDuration(), getColor());
+        this.trackMeta = new TrackMeta(title, getArtist(), path(), (int) getDuration(), getColor());
     }
 
     public void setArtist(String artist) {
-        this.trackMeta = new TrackMeta(getTitle(), artist, getPath(), (int) getDuration(), getColor());
+        this.trackMeta = new TrackMeta(getTitle(), artist, path(), (int) getDuration(), getColor());
     }
 
     public boolean isSelected() {
@@ -103,12 +105,12 @@ public class Track {
         Track track = (Track) o;
         return Objects.equals(getArtist(), track.getArtist()) &&
                 Objects.equals(getTitle(), track.getTitle()) &&
-                Objects.equals(getPath(), track.getPath());
+                Objects.equals(path(), track.path());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getArtist(), getTitle(), getPath());
+        return Objects.hash(getArtist(), getTitle(), path());
     }
 
     public String getArtist() {
@@ -119,7 +121,7 @@ public class Track {
         return trackMeta.title();
     }
 
-    public String getPath() {
+    public String path() {
         return trackMeta.path();
     }
 
@@ -153,5 +155,49 @@ public class Track {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public static class Reference {
+
+        private final int value;
+
+        public Reference(int value) {
+            this.value = value;
+        }
+
+        public Reference(Track track) {
+            this.value = track.getIdentifier();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Reference reference = (Reference) o;
+            return value == reference.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        public String toJson() {
+            return new Gson().toJson(this);
+        }
+
+        public static Reference fromJson(String in) {
+            return new Gson().fromJson(in, Reference.class);
+        }
     }
 }

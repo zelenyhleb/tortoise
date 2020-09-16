@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.model.track.TrackMeta;
 import ru.krivocraft.tortoise.core.model.track.TrackPlayingState;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
@@ -60,7 +59,7 @@ public class DBConnection {
         values.put("selected", track.isSelected() ? 1 : 0);
         values.put("ignored", track.isIgnored() ? 1 : 0);
         values.put("artist", track.getArtist());
-        values.put("path", track.getPath());
+        values.put("path", track.path());
         database.insert(TRACKS, null, values);
     }
 
@@ -69,7 +68,7 @@ public class DBConnection {
         values.put("duration", track.getDuration());
         values.put("title", track.getTitle());
         values.put("artist", track.getArtist());
-        values.put("path", track.getPath());
+        values.put("path", track.path());
         values.put("color", track.getColor());
         values.put("rating", track.getRating());
         values.put("playing", track.isPlaying() ? 1 : 0);
@@ -88,9 +87,9 @@ public class DBConnection {
         database.delete(TRACKS, "id = ?", new String[]{String.valueOf(track.getIdentifier())});
     }
 
-    public Track getTrack(TrackReference trackReference) {
+    public Track getTrack(Track.Reference reference) {
         Track track = new Track(new TrackMeta("", "", "", 0, Colors.GREEN), 0);
-        Cursor cursor = database.query(TRACKS, null, "id = ?", new String[]{trackReference.toString()}, null, null, null);
+        Cursor cursor = database.query(TRACKS, null, "id = ?", new String[]{reference.toString()}, null, null, null);
         if (cursor.moveToFirst()) {
 
             int duration = cursor.getInt(cursor.getColumnIndex("duration"));
@@ -209,7 +208,7 @@ public class DBConnection {
                 int type = cursor.getInt(typeIndex);
                 String displayName = cursor.getString(nameIndex);
                 String identifier = cursor.getString(idIndex);
-                List<TrackReference> tracks = getTracksForTrackList(identifier);
+                List<Track.Reference> tracks = getTracksForTrackList(identifier);
 
                 TrackList trackList = new TrackList(displayName, tracks, type, identifier);
                 trackLists.add(trackList);
@@ -241,7 +240,7 @@ public class DBConnection {
                 int type = cursor.getInt(typeIndex);
                 String displayName = cursor.getString(nameIndex);
                 String identifier = cursor.getString(idIndex);
-                List<TrackReference> tracks = getTracksForTrackList(identifier);
+                List<Track.Reference> tracks = getTracksForTrackList(identifier);
 
                 TrackList trackList = new TrackList(displayName, tracks, type, identifier);
                 trackLists.add(trackList);
@@ -261,7 +260,7 @@ public class DBConnection {
             do {
                 int type = cursor.getInt(typeIndex);
                 String displayName = cursor.getString(nameIndex);
-                List<TrackReference> tracks = getTracksForTrackList(cursor.getString(idIndex));
+                List<Track.Reference> tracks = getTracksForTrackList(cursor.getString(idIndex));
 
                 trackList = new TrackList(displayName, tracks, type, cursor.getString(idIndex));
             } while (cursor.moveToNext());
@@ -281,15 +280,15 @@ public class DBConnection {
     }
 
     private void fillTrackListTable(TrackList trackList) {
-        for (TrackReference reference : trackList.getTrackReferences()) {
+        for (Track.Reference reference : trackList.getTrackReferences()) {
             ContentValues listItems = new ContentValues();
             listItems.put("reference", reference.getValue());
             database.insert(trackList.getIdentifier(), null, listItems);
         }
     }
 
-    public void removeTracks(TrackList trackList, List<TrackReference> references) {
-        for (TrackReference reference : references) {
+    public void removeTracks(TrackList trackList, List<Track.Reference> references) {
+        for (Track.Reference reference : references) {
             database.delete(trackList.getIdentifier(), "reference = ?", new String[]{reference.toString()});
         }
     }
@@ -300,21 +299,21 @@ public class DBConnection {
                 + "reference integer);");
     }
 
-    private List<TrackReference> getTracksForTrackList(String identifier) {
+    private List<Track.Reference> getTracksForTrackList(String identifier) {
         try {
-            List<TrackReference> trackReferences = new ArrayList<>();
+            List<Track.Reference> references = new ArrayList<>();
             Cursor cursor = database.query(identifier, null, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 int valueIndex = cursor.getColumnIndex("reference");
                 do {
                     int value = cursor.getInt(valueIndex);
 
-                    TrackReference reference = new TrackReference(value);
+                    Track.Reference reference = new Track.Reference(value);
                     if (!getTrack(reference).isIgnored()) {
-                        trackReferences.add(reference);
+                        references.add(reference);
                     } else {
                         if (settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false)) {
-                            trackReferences.add(reference);
+                            references.add(reference);
                             System.out.println("adding ignored track " + getTrack(reference).getTitle());
                         } else {
                             System.out.println("not adding ignored");
@@ -323,7 +322,7 @@ public class DBConnection {
                 } while (cursor.moveToNext());
             }
             cursor.close();
-            return trackReferences;
+            return references;
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();

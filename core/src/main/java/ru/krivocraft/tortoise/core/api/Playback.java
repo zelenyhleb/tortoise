@@ -16,6 +16,10 @@
 
 package ru.krivocraft.tortoise.core.api;
 
+import ru.krivocraft.tortoise.core.model.Track;
+
+import java.util.List;
+
 public interface Playback {
 
     void start();
@@ -26,11 +30,17 @@ public interface Playback {
 
     void stop();
 
-    void seekTo(long position);
+    void next();
 
-    State state();
+    void previous();
 
-    Metadata metadata();
+    void skipTo(int index);
+
+    void seekTo(int position);
+
+    List<Track.Reference> tracks();
+
+    Track.Reference current();
 
     interface State {
 

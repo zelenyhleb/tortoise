@@ -34,7 +34,6 @@ import ru.krivocraft.tortoise.android.editors.TrackListEditorActivity;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
@@ -42,8 +41,6 @@ import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class ExplorerFragment extends BaseFragment {
 
@@ -161,7 +158,7 @@ public class ExplorerFragment extends BaseFragment {
     private void playAll(Context context) {
         TrackList trackList = new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL).getAllTracks();
         if (trackList.size() > 0) {
-            TrackReference reference;
+            Track.Reference reference;
             if (trackList.size() > 1) {
                 int randomTrack = new Random().nextInt(trackList.size() - 1);
                 reference = trackList.getTrackReferences().get(randomTrack);

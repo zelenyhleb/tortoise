@@ -17,17 +17,16 @@
 package ru.krivocraft.tortoise.core.data;
 
 import ru.krivocraft.tortoise.core.model.Track;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 
 import java.util.List;
 
 public interface TracksProvider {
 
-    List<Track> getTracks(List<TrackReference> references);
+    List<Track> getTracks(List<Track.Reference> references);
 
-    List<TrackReference> getReferences(List<Track> tracks);
+    List<Track.Reference> getReferences(List<Track> tracks);
 
-    Track getTrack(TrackReference reference);
+    Track getTrack(Track.Reference reference);
 
     void updateTrack(Track track);
 

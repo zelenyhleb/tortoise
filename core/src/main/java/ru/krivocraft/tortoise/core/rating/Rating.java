@@ -16,9 +16,9 @@
 
 package ru.krivocraft.tortoise.core.rating;
 
-import ru.krivocraft.tortoise.core.model.TrackReference;
+import ru.krivocraft.tortoise.core.model.Track;
 
 public interface Rating {
 
-    void rate(TrackReference track, int delta);
+    void rate(Track.Reference track, int delta);
 }

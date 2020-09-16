@@ -48,19 +48,19 @@ public class TrackList implements Playlist {
     private final int type;
     private String identifier;
 
-    private List<TrackReference> tracksReferences;
+    private List<Track.Reference> tracksReferences;
 
-    private List<TrackReference> shuffleCache;
+    private List<Track.Reference> shuffleCache;
     public static TrackList EMPTY = new TrackList("EMPTY", new ArrayList<>(), TRACK_LIST_CUSTOM);
 
-    public TrackList(String displayName, List<TrackReference> tracksReferences, int type, String identifier) {
+    public TrackList(String displayName, List<Track.Reference> tracksReferences, int type, String identifier) {
         this.displayName = displayName;
         this.tracksReferences = tracksReferences;
         this.type = type;
         this.identifier = identifier;
     }
 
-    public TrackList(String displayName, List<TrackReference> tracksReferences, int type) {
+    public TrackList(String displayName, List<Track.Reference> tracksReferences, int type) {
         this(displayName, tracksReferences, type, createIdentifier(displayName));
     }
 
@@ -77,7 +77,7 @@ public class TrackList implements Playlist {
         this.identifier = identifier;
     }
 
-    public int shuffle(Shuffle shuffle, TrackReference currentTrack) {
+    public int shuffle(Shuffle shuffle, Track.Reference currentTrack) {
         if (!isShuffled()) {
             shuffleCache = new ArrayList<>(tracksReferences);
 
@@ -94,7 +94,7 @@ public class TrackList implements Playlist {
 
     }
 
-    public int indexOf(TrackReference item) {
+    public int indexOf(Track.Reference item) {
         return tracksReferences.indexOf(item);
     }
 
@@ -102,7 +102,7 @@ public class TrackList implements Playlist {
         return tracksReferences.size();
     }
 
-    public TrackReference get(int index) {
+    public Track.Reference get(int index) {
         return tracksReferences.get(index);
     }
 
@@ -110,20 +110,20 @@ public class TrackList implements Playlist {
         return identifier;
     }
 
-    public List<TrackReference> getTrackReferences() {
+    public List<Track.Reference> getTrackReferences() {
         return tracksReferences;
     }
 
-    public void removeAll(Collection<TrackReference> trackReferences) {
-        tracksReferences.removeAll(trackReferences);
+    public void removeAll(Collection<Track.Reference> references) {
+        tracksReferences.removeAll(references);
     }
 
-    public void remove(TrackReference track) {
+    public void remove(Track.Reference track) {
         tracksReferences.remove(track);
     }
 
-    public void add(TrackReference trackReference) {
-        tracksReferences.add(trackReference);
+    public void add(Track.Reference reference) {
+        tracksReferences.add(reference);
     }
 
     public void setDisplayName(String displayName) {

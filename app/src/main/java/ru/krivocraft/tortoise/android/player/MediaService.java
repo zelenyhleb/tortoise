@@ -30,7 +30,6 @@ import ru.krivocraft.tortoise.android.MainActivity;
 import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.core.rating.Rating;
 import ru.krivocraft.tortoise.core.rating.RatingImpl;
 import ru.krivocraft.tortoise.android.tracklist.TracksProvider;
@@ -188,7 +187,7 @@ public class MediaService {
                 Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
                 result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.getPlaylist().toJson());
                 result.putExtra(Track.EXTRA_TRACK, playback.getSelectedTrackReference().toJson());
-                result.putExtra(EXTRA_CURSOR, playback.getCursor());
+                result.putExtra(EXTRA_CURSOR, playback.cursor());
                 context.sendBroadcast(result);
             }
         }
@@ -236,7 +235,7 @@ public class MediaService {
 
     private void playFromList(Intent intent) {
         TrackList trackList = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-        TrackReference reference = TrackReference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK));
+        Track.Reference reference = Track.Reference.fromJson(intent.getStringExtra(Track.EXTRA_TRACK));
 
         rating.rate(reference, 1);
 
@@ -248,7 +247,7 @@ public class MediaService {
         if (metadata == null) {
             mediaController.getTransportControls().skipToQueueItem(playback.getPlaylist().indexOf(reference));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).getPath()) && trackList.equals(playback.getPlaylist())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).path()) && trackList.equals(playback.getPlaylist())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
@@ -264,7 +263,7 @@ public class MediaService {
     private final BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            TrackReference currentTrack = playback.getSelectedTrackReference();
+            Track.Reference currentTrack = playback.getSelectedTrackReference();
             int color = -1;
             if (currentTrack != null) {
                 Track track = tracksStorageManager.getTrack(currentTrack);
@@ -283,7 +282,7 @@ public class MediaService {
     }
 
     private void notifyPlaybackManager(TrackList in) {
-        TrackReference reference = playback.getSelectedTrackReference();
+        Track.Reference reference = playback.getSelectedTrackReference();
         playback.setTrackList(in, false);
         playback.setCursor(in.indexOf(reference));
     }

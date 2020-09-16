@@ -23,7 +23,6 @@ import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
-import ru.krivocraft.tortoise.core.model.TrackReference;
 import ru.krivocraft.tortoise.android.seek.ContentResolverSeek;
 import ru.krivocraft.tortoise.android.seek.FileSystemSeek;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
@@ -58,7 +57,7 @@ public class TracksProvider {
     }
 
     private void manageStorage(List<Track> tracks) {
-        List<TrackReference> allTracks = new ArrayList<>();
+        List<Track.Reference> allTracks = new ArrayList<>();
 
         removeNonExistingTracksFromStorage(tracksStorageManager.getTrackStorage(), tracks);
         addNewTracks(allTracks, tracksStorageManager.getTrackStorage(), tracks);
@@ -72,14 +71,14 @@ public class TracksProvider {
         context.sendBroadcast(new Intent(ACTION_UPDATE_STORAGE));
     }
 
-    private void writeRootTrackList(List<TrackReference> allTracks) {
+    private void writeRootTrackList(List<Track.Reference> allTracks) {
         TrackList trackList = new TrackList(TrackList.STORAGE_TRACKS_DISPLAY_NAME, allTracks, TrackList.TRACK_LIST_CUSTOM);
         trackListsStorageManager.updateRootTrackList(trackList);
     }
 
-    private void addNewTracks(List<TrackReference> allTracks, List<Track> existingTracks, List<Track> readTracks) {
+    private void addNewTracks(List<Track.Reference> allTracks, List<Track> existingTracks, List<Track> readTracks) {
         for (Track track : readTracks) {
-            TrackReference reference = new TrackReference(track);
+            Track.Reference reference = new Track.Reference(track);
 
             if (!existingTracks.contains(track)) {
                 tracksStorageManager.writeTrack(track);
@@ -89,9 +88,9 @@ public class TracksProvider {
     }
 
     private void removeNonExistingTracksFromStorage(List<Track> existingTracks, List<Track> readTracks) {
-        List<TrackReference> removedReferences = new ArrayList<>();
+        List<Track.Reference> removedReferences = new ArrayList<>();
         for (Track track : existingTracks) {
-            TrackReference reference = new TrackReference(track);
+            Track.Reference reference = new Track.Reference(track);
 
             if (!readTracks.contains(track)) {
                 tracksStorageManager.removeTrack(track);
@@ -101,7 +100,7 @@ public class TracksProvider {
         updateTrackLists(removedReferences);
     }
 
-    private void updateTrackLists(List<TrackReference> removedTracks) {
+    private void updateTrackLists(List<Track.Reference> removedTracks) {
         List<TrackList> trackLists = trackListsStorageManager.readAllTrackLists();
         for (TrackList trackList : trackLists) {
             removeNonExistingTracksFromTrackList(removedTracks, trackList);
@@ -115,9 +114,9 @@ public class TracksProvider {
         }
     }
 
-    private void removeNonExistingTracksFromTrackList(List<TrackReference> removedTracks, TrackList trackList) {
-        List<TrackReference> referencesToRemove = new ArrayList<>();
-        for (TrackReference reference : trackList.getTrackReferences()) {
+    private void removeNonExistingTracksFromTrackList(List<Track.Reference> removedTracks, TrackList trackList) {
+        List<Track.Reference> referencesToRemove = new ArrayList<>();
+        for (Track.Reference reference : trackList.getTrackReferences()) {
             if (removedTracks.contains(reference)) {
                 referencesToRemove.add(reference);
             }
