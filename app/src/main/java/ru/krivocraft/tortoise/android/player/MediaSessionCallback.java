@@ -43,13 +43,13 @@ public class MediaSessionCallback extends MediaSessionCompat.Callback {
 
     @Override
     public void onSkipToNext() {
-        rating.rate(playback.getSelectedTrackReference(), -1);
+        rating.rate(playback.selected(), -1);
         playback.next();
     }
 
     @Override
     public void onSkipToPrevious() {
-        rating.rate(playback.getSelectedTrackReference(), -1);
+        rating.rate(playback.selected(), -1);
         playback.previous();
     }
 

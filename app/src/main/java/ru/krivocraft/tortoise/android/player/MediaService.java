@@ -155,7 +155,7 @@ public class MediaService {
                 //The feature is replaying audio when user plugs headphones back
                 switch (intent.getIntExtra("state", -1)) {
                     case HEADSET_STATE_PLUG_IN:
-                        if (playback.getSelectedTrackReference() != null) {
+                        if (playback.selected() != null) {
                             mediaSession.getController().getTransportControls().play();
                         }
                         break;
@@ -179,14 +179,14 @@ public class MediaService {
         public void onReceive(Context context, Intent intent) {
             if (ACTION_REQUEST_DATA.equals(intent.getAction())) {
                 Intent result = new Intent(ACTION_RESULT_DATA);
-                result.putExtra(EXTRA_POSITION, playback.getCurrentStreamPosition());
+                result.putExtra(EXTRA_POSITION, playback.position());
                 result.putExtra(EXTRA_PLAYBACK_STATE, mediaSession.getController().getPlaybackState());
                 result.putExtra(EXTRA_METADATA, mediaSession.getController().getMetadata());
                 context.sendBroadcast(result);
             } else {
                 Intent result = new Intent(ACTION_RESULT_TRACK_LIST);
-                result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.getPlaylist().toJson());
-                result.putExtra(Track.EXTRA_TRACK, playback.getSelectedTrackReference().toJson());
+                result.putExtra(TrackList.EXTRA_TRACK_LIST, playback.playlist().toJson());
+                result.putExtra(Track.EXTRA_TRACK, playback.selected().toJson());
                 result.putExtra(EXTRA_CURSOR, playback.cursor());
                 context.sendBroadcast(result);
             }
@@ -213,7 +213,7 @@ public class MediaService {
                     break;
                 case ACTION_EDIT_TRACK_LIST:
                     TrackList trackListEdited = TrackList.fromJson(intent.getStringExtra(TrackList.EXTRA_TRACK_LIST));
-                    if (trackListEdited.equals(playback.getPlaylist())) {
+                    if (trackListEdited.equals(playback.playlist())) {
                         notifyPlaybackManager(trackListEdited);
                     }
                     trackListsStorageManager.updateTrackListContent(trackListEdited);
@@ -239,23 +239,23 @@ public class MediaService {
 
         rating.rate(reference, 1);
 
-        if (!trackList.equals(playback.getPlaylist())) {
+        if (!trackList.equals(playback.playlist())) {
             playback.setTrackList(trackList, true);
         }
 
         MediaMetadataCompat metadata = mediaController.getMetadata();
         if (metadata == null) {
-            mediaController.getTransportControls().skipToQueueItem(playback.getPlaylist().indexOf(reference));
+            mediaController.getTransportControls().skipToQueueItem(playback.playlist().indexOf(reference));
         } else {
-            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).path()) && trackList.equals(playback.getPlaylist())) {
+            if (metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).equals(tracksStorageManager.getTrack(reference).path()) && trackList.equals(playback.playlist())) {
                 if (mediaController.getPlaybackState().getState() == PlaybackStateCompat.STATE_PLAYING) {
                     mediaController.getTransportControls().pause();
                 } else {
                     mediaController.getTransportControls().play();
                 }
-                playback.setCursor(playback.getPlaylist().indexOf(reference));
+                playback.setCursor(playback.playlist().indexOf(reference));
             } else {
-                mediaController.getTransportControls().skipToQueueItem(playback.getPlaylist().indexOf(reference));
+                mediaController.getTransportControls().skipToQueueItem(playback.playlist().indexOf(reference));
             }
         }
     }
@@ -263,7 +263,7 @@ public class MediaService {
     private final BroadcastReceiver colorRequestReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Track.Reference currentTrack = playback.getSelectedTrackReference();
+            Track.Reference currentTrack = playback.selected();
             int color = -1;
             if (currentTrack != null) {
                 Track track = tracksStorageManager.getTrack(currentTrack);
@@ -282,7 +282,7 @@ public class MediaService {
     }
 
     private void notifyPlaybackManager(TrackList in) {
-        Track.Reference reference = playback.getSelectedTrackReference();
+        Track.Reference reference = playback.selected();
         playback.setTrackList(in, false);
         playback.setCursor(in.indexOf(reference));
     }

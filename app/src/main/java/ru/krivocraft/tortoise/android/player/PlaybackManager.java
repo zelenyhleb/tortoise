@@ -18,10 +18,10 @@ package ru.krivocraft.tortoise.android.player;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.os.SystemClock;
 import android.support.v4.media.session.PlaybackStateCompat;
 import ru.krivocraft.tortoise.android.AndroidAudioFocus;
 import ru.krivocraft.tortoise.android.AndroidMediaPlayer;
+import ru.krivocraft.tortoise.android.PlaybackState;
 import ru.krivocraft.tortoise.core.api.AudioFocus;
 import ru.krivocraft.tortoise.core.api.MediaPlayer;
 import ru.krivocraft.tortoise.core.api.Playback;
@@ -40,8 +40,6 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
 
     private final TracksStorageManager tracksStorageManager;
 
-    private int playerState;
-
     private final PlayerStateCallback playerStateCallback;
     private final PlaylistUpdateCallback playlistUpdateCallback;
 
@@ -49,9 +47,8 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     private final AudioFocus focus;
     private final ReadOnlySettings settings;
 
-    private Track.Reference cache;
-
     private TrackList playlist;
+    private Track.Reference cache;
 
     private int cursor = 0;
 
@@ -59,28 +56,26 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
         this.playerStateCallback = playerStateCallback;
         this.playlistUpdateCallback = playlistUpdateCallback;
 
-        this.player = new AndroidMediaPlayer(this::proceed, this::onPrepared);
+        this.player = new AndroidMediaPlayer(this::proceed, this::play);
         this.playlist = TrackList.EMPTY;
 
-        this.playerState = PlaybackStateCompat.STATE_NONE;
         this.tracksStorageManager = new TracksStorageManager(context);
 
         this.focus = new AndroidAudioFocus(this, (AudioManager) context.getSystemService(Context.AUDIO_SERVICE));
         this.settings = new SharedPreferencesSettings(context);
 
-        updatePlaybackState();
+        updatePlaybackState(PlaybackStateCompat.STATE_NONE);
         restoreAll();
     }
 
-    private boolean isPlaying() {
+    private boolean playing() {
         return player.playing();
     }
 
     public void play() {
         if (cursor >= 0 && tracks().size() > 0) {
-            Track.Reference selectedReference = tracks().get(cursor);
-            boolean mediaChanged = (cache == null || !cache.equals(selectedReference));
-            Track selectedTrack = tracksStorageManager.getTrack(selectedReference);
+            boolean mediaChanged = (cache == null || !cache.equals(current()));
+            Track selectedTrack = tracksStorageManager.getTrack(current());
 
             focus.request();
 
@@ -94,8 +89,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
             selectedTrack.setPlaying(true);
             tracksStorageManager.updateTrack(selectedTrack);
 
-            playerState = PlaybackStateCompat.STATE_PLAYING;
-            updatePlaybackState();
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING);
         }
     }
 
@@ -109,7 +103,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     }
 
     public void pause() {
-        if (isPlaying()) {
+        if (playing()) {
             player.pause();
         }
 
@@ -119,8 +113,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
             tracksStorageManager.updateTrack(selectedTrack);
         }
         focus.release();
-        playerState = PlaybackStateCompat.STATE_PAUSED;
-        updatePlaybackState();
+        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED);
     }
 
     public void skipTo(int index) {
@@ -131,12 +124,12 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
             pause();
             deselectCurrentTrack();
             this.cursor = cursor;
-            if (!settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(getSelectedTrackReference()).isIgnored()) {
+            if (!settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(selected()).isIgnored()) {
                 next();
                 return;
             }
             selectCurrentTrack();
-            playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(getSelectedTrackReference()));
+            playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(selected()));
             play();
         }
     }
@@ -181,7 +174,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     }
 
     void shuffle() {
-        cursor = playlist.shuffle(new Shuffle(tracksStorageManager, settings), getSelectedTrackReference());
+        cursor = playlist.shuffle(new Shuffle(tracksStorageManager, settings), selected());
         playlistUpdateCallback.onPlaylistUpdated(playlist);
     }
 
@@ -210,8 +203,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
             cache = null;
 
             player.stop();
-            playerState = PlaybackStateCompat.STATE_STOPPED;
-            updatePlaybackState();
+            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED);
         }
     }
 
@@ -221,6 +213,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
         play();
     }
 
+    @Override
     public Track.Reference current() {
         return tracks().get(cursor());
     }
@@ -239,46 +232,29 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     }
 
     public List<Track.Reference> tracks() {
-        if (getPlaylist() != null)
-            return getPlaylist().getTrackReferences();
+        if (playlist() != null)
+            return playlist().getTrackReferences();
         else
             return new ArrayList<>();
     }
 
-    TrackList getPlaylist() {
+    TrackList playlist() {
         return playlist;
     }
 
-    int getCurrentStreamPosition() {
+    int position() {
         return player.position();
     }
 
-    Track.Reference getSelectedTrackReference() {
+    Track.Reference selected() {
         if (tracks() != null && tracks().size() > 0) {
             return tracks().get(cursor);
         }
         return null;
     }
 
-    private void updatePlaybackState() {
-        if (playerStateCallback != null) {
-            long availableActions = PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
-                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                    PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID |
-                    PlaybackStateCompat.ACTION_SEEK_TO |
-                    PlaybackStateCompat.ACTION_STOP;
-
-            if (playerState == PlaybackStateCompat.STATE_PLAYING) {
-                availableActions |= PlaybackStateCompat.ACTION_PAUSE;
-            } else if (playerState == PlaybackStateCompat.STATE_PAUSED) {
-                availableActions |= PlaybackStateCompat.ACTION_PLAY;
-            }
-
-            PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
-                    .setActions(availableActions)
-                    .setState(playerState, getCurrentStreamPosition(), 1, SystemClock.elapsedRealtime());
-            playerStateCallback.onPlaybackStateChanged(builder.build());
-        }
+    private void updatePlaybackState(int playerState) {
+        playerStateCallback.onPlaybackStateChanged(new PlaybackState().apply(playerState, position()));
     }
 
     private void setVolume(float volume) {
@@ -288,16 +264,6 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     void destroy() {
         focus.release();
         player.release();
-    }
-
-    public void onPrepared() {
-        play();
-        Track selectedTrack = tracksStorageManager.getTrack(tracks().get(cursor));
-        selectedTrack.setPlaying(true);
-        tracksStorageManager.updateTrack(selectedTrack);
-
-        playerState = PlaybackStateCompat.STATE_PLAYING;
-        updatePlaybackState();
     }
 
     @Override
