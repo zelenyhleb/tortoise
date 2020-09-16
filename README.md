@@ -1,7 +1,7 @@
 Tortoise
 ========
 
-<img src="http://www.krivocraft.ru/icon.png" height="256px"/>
+<img src="http://www.krivocraft.ru/icon.jpg" height="256px"/>
 
 [![Build Status](https://travis-ci.org/zelenyhleb/tortoise.svg?branch=develop)](https://travis-ci.org/zelenyhleb/tortoise)
 [![Hits-of-Code](https://hitsofcode.com/github/zelenyhleb/tortoise)](https://hitsofcode.com/view/github/zelenyhleb/tortoise)
