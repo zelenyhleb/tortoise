@@ -40,7 +40,7 @@ import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
 import ru.krivocraft.tortoise.android.tracklist.SelectableTracksAdapter;
 import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
-import ru.krivocraft.tortoise.core.search.Searcher;
+import ru.krivocraft.tortoise.core.search.Search;
 import ru.krivocraft.tortoise.android.thumbnail.ThumbnailStorageManager;
 import ru.krivocraft.tortoise.android.ui.TextChangeSolver;
 
@@ -138,8 +138,8 @@ public class TrackListEditorActivity extends BaseActivity {
         search.addTextChangedListener(new TextChangeSolver() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Searcher searcher = new Searcher(new TracksStorageManager(TrackListEditorActivity.this), new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL));
-                List<Track> found = searcher.searchInTracks(s, tracksStorageManager.getTrackStorage());
+                Search search = new Search(new TracksStorageManager(TrackListEditorActivity.this), new TrackListsStorageManager(TrackListEditorActivity.this, TrackListsStorageManager.FILTER_ALL));
+                List<Track> found = tracksStorageManager.getTracks(search.search(s, tracksStorageManager.getReferences(tracksStorageManager.getTrackStorage())));
                 listView.setAdapter(new SelectableTracksAdapter(found, TrackListEditorActivity.this));
                 if (s.length() < 1) {
                     listView.setAdapter(adapter);

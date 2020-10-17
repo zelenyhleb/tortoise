@@ -18,6 +18,7 @@ package ru.krivocraft.tortoise.android.tracklist;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -41,7 +42,7 @@ import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.android.player.MediaService;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.core.search.Searcher;
+import ru.krivocraft.tortoise.core.search.Search;
 import ru.krivocraft.tortoise.android.ui.ItemTouchHelperCallback;
 
 import java.util.List;
@@ -123,18 +124,21 @@ public class TrackListFragment extends BaseFragment {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        Searcher searcher = new Searcher(tracksStorageManager, new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL));
-                        List<Track.Reference> trackListSearched = searcher.search(s, TrackListFragment.this.trackList.getTrackReferences());
-
-                        recyclerView.setAdapter(new TracksAdapter(
-                                new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
-                                context,
-                                showControls,
-                                null
-                        ));
-                        if (s.length() == 0) {
-                            recyclerView.setAdapter(tracksAdapter);
-                        }
+                        AsyncTask.execute(() -> {
+                            Search search = new Search(tracksStorageManager, new TrackListsStorageManager(context, TrackListsStorageManager.FILTER_ALL));
+                            List<Track.Reference> trackListSearched = search.search(s, TrackListFragment.this.trackList.getTrackReferences());
+                            context.runOnUiThread(() -> {
+                                recyclerView.setAdapter(new TracksAdapter(
+                                        new TrackList("found", trackListSearched, TrackList.TRACK_LIST_CUSTOM),
+                                        context,
+                                        showControls,
+                                        null
+                                ));
+                                if (s.length() == 0) {
+                                    recyclerView.setAdapter(tracksAdapter);
+                                }
+                            });
+                        });
                     }
 
                     @Override
