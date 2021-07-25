@@ -7,7 +7,9 @@ Tortoise
 ![Hex.pm](https://img.shields.io/hexpm/l/tortoise)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a8b89073eb0a40f6b8cb43f6580db473)](https://www.codacy.com/manual/zelenyhleb/tortoise?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zelenyhleb/tortoise&amp;utm_campaign=Badge_Grade)
 
-Awesome music player with great future written for android with Java.
+Awesome music player written for android with Java.
+
+**This project is now suspended, development moved to [new project](https://github.com/zelenyhleb/tortoise)**
 
 ## Features
 
