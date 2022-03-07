@@ -9,8 +9,6 @@ Tortoise
 
 Awesome music player written for android with Java.
 
-**This project is now suspended, development moved to [new project](https://github.com/zelenyhleb/tortoise)**
-
 ## Features
 
   - Finds and plays music from your phone drives (Both internal and SD)
