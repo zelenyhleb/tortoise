@@ -23,8 +23,6 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -40,7 +38,6 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
-    buildToolsVersion = '28.0.3'
 
 }
 
