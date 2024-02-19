@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="app_name">TortoiZe</string>
+    <string name="app_name">Tortoise</string>
     <string name="zerotime">00:00</string>
     <string name="song_name_test" translatable="false">Рай полон детей</string>
     <string name="song_author_test" translatable="false">Loqiemean</string>
@@ -29,7 +29,7 @@
     <string name="equalizer">Equalizer</string>
     <string name="track_list_name">Playlist name</string>
     <string name="obtaining_tracks_data">Obtaining tracks data…</string>
-    <string name="app_version" translatable="false">Tortoise v0.4.0</string>
+    <string name="app_version" translatable="false">Tortoise v0.4.1</string>
     <string name="settings_theme">Light theme (Beta)</string>
     <string name="settings_recognize">Try to parse metadata names for tracks with no metadata</string>
     <string name="settings_clear_cache_button">CLEAR</string>
