@@ -22,8 +22,8 @@ android {
         applicationId "ru.krivocraft.tortoise"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 1
-        versionName "0.4.0"
+        versionCode 21
+        versionName "0.4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,6 +31,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
     }
     compileOptions {
         sourceCompatibility = '1.8'
