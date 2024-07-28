@@ -78,7 +78,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     }
 
     public void play() {
-        if (cursor >= 0 && tracks().size() > 0) {
+        if (cursor >= 0 && !tracks().isEmpty()) {
             boolean mediaChanged = (cache == null || !cache.equals(current()));
             Track selectedTrack = tracksStorageManager.getTrack(current());
 
@@ -257,7 +257,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     }
 
     Track.Reference selected() {
-        if (tracks() != null && tracks().size() > 0) {
+        if (tracks() != null && !tracks().isEmpty()) {
             return tracks().get(cursor);
         }
         return null;
