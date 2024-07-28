@@ -1,7 +1,7 @@
 Tortoise
 ========
 
-<img src="http://www.krivocraft.ru/icon.jpg" height="256px"/>
+<img src="https://github.com/zelenyhleb/tortoise/blob/42ec53dff88e406f53a85496a1f94fbb83741d7d/app/src/main/res/drawable-xxxhdpi/ic_launcher.png" height="256px"/>
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/zelenyhleb/tortoise?label=alpha)
 ![Hex.pm](https://img.shields.io/hexpm/l/tortoise)
