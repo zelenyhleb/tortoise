@@ -17,12 +17,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdk 35
+    buildToolsVersion '35.0.0'
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -35,9 +34,10 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
     }
+    namespace 'ru.krivocraft.tortoise.core'
 
 }
 

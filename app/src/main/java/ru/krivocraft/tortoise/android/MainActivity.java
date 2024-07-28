@@ -30,10 +30,14 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import java.util.Optional;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.editors.TrackEditorActivity;
 import ru.krivocraft.tortoise.android.explorer.Explorer;
 import ru.krivocraft.tortoise.android.explorer.ExplorerFragment;
+import ru.krivocraft.tortoise.android.player.ActualStamp;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.android.player.AndroidMediaService;
@@ -79,6 +83,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat newMetadata) {
+        if (newMetadata == null) {
+            return;
+        }
         showSmallPlayerFragment();
         if (smallPlayerFragment != null)
             smallPlayerFragment.updateMediaMetadata(newMetadata);
@@ -117,9 +124,8 @@ public class MainActivity extends BaseActivity {
                 showExplorerFragment();
             }
         }
-
         showSmallPlayerFragment();
-        recolorInterface(mediaController.getMetadata());
+        Optional.ofNullable(mediaController.getMetadata()).ifPresent(this::recolorInterface);
     }
 
     private PlayerHostFragment getPlayerHostFragment() {

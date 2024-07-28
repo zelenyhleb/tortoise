@@ -27,12 +27,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.BaseFragment;
 import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
@@ -101,10 +103,6 @@ public class TrackListFragment extends BaseFragment {
         EditText searchFrame = view.findViewById(R.id.search_edit_text);
         recyclerView = view.findViewById(R.id.fragment_track_recycler_view);
         playRandomly = view.findViewById(R.id.play_random_button);
-
-        if (getSettingsManager().get(SettingsStorageManager.KEY_THEME, false)) {
-            searchFrame.setBackgroundTintList(view.getContext().getResources().getColorStateList(R.color.lightGrey));
-        }
 
         if (showControls && playRandomly != null) {
             playRandomly.setBackgroundTintList(getContext().getResources().getColorStateList(tintColor));

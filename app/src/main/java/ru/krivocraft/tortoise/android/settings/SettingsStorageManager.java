@@ -16,15 +16,15 @@
 
 package ru.krivocraft.tortoise.android.settings;
 
+import java.util.Optional;
+
 import ru.krivocraft.tortoise.core.api.settings.WriteableSettings;
 
 public class SettingsStorageManager {
 
-    public static final String KEY_THEME = "useAlternativeTheme";
-    public static final String KEY_WEBSITE = "https://krivocraft.ru/";
+    public static final String KEY_WEBSITE = "https://zelenyhleb.ru/";
     public static final String KEY_TELEGRAM = "https://t.me/krivocraft/";
     public static final String KEY_HELP = "https://github.com/zelenyhleb/tortoise/wiki/Usage";
-    public static final String KEY_ALTERNATIVE_SEEK = "alternativeSeek";
     public static final String KEY_SHOW_IGNORED = "showIgnored";
     public static final String KEY_RECOGNIZE_NAMES = "recognizeNames";
 
@@ -36,6 +36,14 @@ public class SettingsStorageManager {
 
     public boolean get(String key, boolean defValue) {
         return settings.read(key, defValue);
+    }
+
+    public Optional<String> getString(String key) {
+        return Optional.ofNullable(settings.read(key, null));
+    }
+
+    public void putString(String key, String value) {
+        settings.write(key, value);
     }
 
     public void put(String key, boolean value) {

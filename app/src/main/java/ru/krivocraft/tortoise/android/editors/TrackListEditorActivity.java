@@ -28,9 +28,11 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.View;
 import android.widget.*;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.BaseActivity;
 import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
@@ -146,9 +148,7 @@ public class TrackListEditorActivity extends BaseActivity {
                 }
             }
         });
-        if (settingsStorageManager.get(SettingsStorageManager.KEY_THEME, false)) {
-            search.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
-        }
+        search.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
     }
 
     private void initTitleEditor() {
@@ -161,9 +161,7 @@ public class TrackListEditorActivity extends BaseActivity {
                 changed.setIdentifier(TrackList.createIdentifier(s.toString()));
             }
         });
-        if (settingsStorageManager.get(SettingsStorageManager.KEY_THEME, false)) {
-            title.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
-        }
+        title.setBackgroundTintList(getResources().getColorStateList(R.color.lightGrey));
     }
 
     private void initApplyButton() {

@@ -23,9 +23,11 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
@@ -64,11 +66,7 @@ public abstract class BaseFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             settingsManager = new SettingsStorageManager(new SharedPreferencesSettings(context));
-            if (settingsManager.get(SettingsStorageManager.KEY_THEME, false)) {
-                context.getTheme().applyStyle(R.style.LightTheme, true);
-            } else {
-                context.getTheme().applyStyle(R.style.DarkTheme, true);
-            }
+            context.getTheme().applyStyle(R.style.DarkTheme, true);
         }
         return super.onCreateView(inflater, container, savedInstanceState);
     }

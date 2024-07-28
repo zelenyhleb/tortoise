@@ -17,11 +17,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdk = 35
     defaultConfig {
         applicationId "ru.krivocraft.tortoise"
         minSdkVersion 24
-        targetSdkVersion 30
         versionCode 21
         versionName "0.4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -39,10 +38,11 @@ android {
         includeInBundle = false
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
     }
-    buildToolsVersion = '30.0.3'
+    buildToolsVersion = '35.0.0'
+    namespace 'ru.krivocraft.tortoise'
 }
 
 dependencies {

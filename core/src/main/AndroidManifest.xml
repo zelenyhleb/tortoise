@@ -14,5 +14,4 @@
   ~         Nikifor Fedorov and others
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="ru.krivocraft.tortoise.core"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -18,6 +18,7 @@ package ru.krivocraft.tortoise.android.player;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import ru.krivocraft.tortoise.core.api.settings.WriteableSettings;
 
 public class SharedPreferencesSettings extends WriteableSettings {
@@ -56,5 +57,10 @@ public class SharedPreferencesSettings extends WriteableSettings {
     @Override
     public void write(String key, String value) {
         preferences.edit().putString(key, value).apply();
+    }
+
+    @Override
+    public void reset(String key) {
+        preferences.edit().remove(key).apply();
     }
 }

@@ -19,13 +19,18 @@ package ru.krivocraft.tortoise.android.player;
 import android.content.Context;
 import android.media.AudioManager;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import ru.krivocraft.tortoise.android.AndroidAudioFocus;
 import ru.krivocraft.tortoise.android.AndroidMediaPlayer;
 import ru.krivocraft.tortoise.android.PlaybackState;
 import ru.krivocraft.tortoise.core.api.AudioFocus;
 import ru.krivocraft.tortoise.core.api.MediaPlayer;
 import ru.krivocraft.tortoise.core.api.Playback;
-import ru.krivocraft.tortoise.core.api.settings.ReadOnlySettings;
+import ru.krivocraft.tortoise.core.api.Stamp;
+import ru.krivocraft.tortoise.core.api.settings.WriteableSettings;
 import ru.krivocraft.tortoise.core.model.LoopType;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
@@ -45,7 +50,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
 
     private final MediaPlayer player;
     private final AudioFocus focus;
-    private final ReadOnlySettings settings;
+    private final WriteableSettings settings;
 
     private TrackList playlist;
     private Track.Reference cache;
@@ -114,6 +119,11 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
         }
         focus.release();
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED);
+        new ActualStamp(settings, e -> Log.e("Err", e)).persist(currentStamp());
+    }
+
+    private @NonNull Stamp currentStamp() {
+        return new Stamp(tracks(), cursor, player.position());
     }
 
     public void skipTo(int index) {

@@ -31,10 +31,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.BaseFragment;
 import ru.krivocraft.tortoise.core.api.Control;
@@ -187,6 +190,7 @@ public class SmallPlayerFragment extends BaseFragment implements PlayerFragment 
     public void setListener(View.OnClickListener listener) {
         this.listener = listener;
     }
+
 }
 
 

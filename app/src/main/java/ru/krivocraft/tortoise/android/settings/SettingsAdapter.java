@@ -26,8 +26,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
@@ -50,54 +52,49 @@ public class SettingsAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View itemView;
-        if (position < 5) {
-            if (convertView == null) {
-                itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
-                String key = objects.get(position);
-                Switch s = itemView.findViewById(R.id.settings_switch);
-                TextView textView = itemView.findViewById(R.id.settings_text);
-                textView.setText(getDescription(key));
-                initSwitch(s, key, getDefaultValue(key));
-            } else {
-                itemView = convertView;
-            }
-        } else {
-            if (convertView == null) {
-                itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_label, null);
-                String key = objects.get(position);
-                View layout = itemView.findViewById(R.id.menu_item);
-                layout.setOnClickListener(view -> openURL(key));
-                TextView textView = itemView.findViewById(R.id.settings_text);
-                textView.setText(getDescription(key));
-            } else {
-                itemView = convertView;
-            }
+        String key = objects.get(position);
+        if (convertView != null) {
+            return convertView;
         }
+        return switch (key) {
+            case KEY_RECOGNIZE_NAMES,
+                 Shuffle.KEY_SMART_SHUFFLE,
+                 KEY_SHOW_IGNORED -> toggleView(key);
+            default -> labelView(key);
+        };
+    }
+
+    private @NonNull View labelView(String key) {
+        View itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_label, null);
+        View layout = itemView.findViewById(R.id.menu_item);
+        layout.setOnClickListener(view -> openURL(key));
+        TextView textView = itemView.findViewById(R.id.settings_text);
+        textView.setText(getDescription(key));
+        return itemView;
+    }
+
+    private @NonNull View toggleView(String key) {
+        View itemView = LayoutInflater.from(getContext()).inflate(R.layout.settings_item_toggle, null);
+        Switch s = itemView.findViewById(R.id.settings_switch);
+        TextView textView = itemView.findViewById(R.id.settings_text);
+        textView.setText(getDescription(key));
+        initSwitch(s, key, getDefaultValue(key));
         return itemView;
     }
 
     private String getDescription(String key) {
-        switch (key) {
-            case KEY_THEME:
-                return getContext().getResources().getString(R.string.settings_theme);
-            case KEY_RECOGNIZE_NAMES:
-                return getContext().getResources().getString(R.string.settings_recognize);
-            case KEY_ALTERNATIVE_SEEK:
-                return getContext().getResources().getString(R.string.settings_alternative_seek);
-            case Shuffle.KEY_SMART_SHUFFLE:
-                return getContext().getResources().getString(R.string.settings_smart_shuffle);
-            case KEY_WEBSITE:
-                return getContext().getResources().getString(R.string.settings_website);
-            case KEY_TELEGRAM:
-                return getContext().getResources().getString(R.string.settings_telegram);
-            case KEY_SHOW_IGNORED:
-                return getContext().getResources().getString(R.string.show_hidden_tracks);
-            case KEY_HELP:
-                return getContext().getResources().getString(R.string.link_help);
-            default:
-                return getContext().getResources().getString(R.string.settings_item_default);
-        }
+        return switch (key) {
+            case KEY_RECOGNIZE_NAMES ->
+                    getContext().getResources().getString(R.string.settings_recognize);
+            case Shuffle.KEY_SMART_SHUFFLE ->
+                    getContext().getResources().getString(R.string.settings_smart_shuffle);
+            case KEY_WEBSITE -> getContext().getResources().getString(R.string.settings_website);
+            case KEY_TELEGRAM -> getContext().getResources().getString(R.string.settings_telegram);
+            case KEY_SHOW_IGNORED ->
+                    getContext().getResources().getString(R.string.show_hidden_tracks);
+            case KEY_HELP -> getContext().getResources().getString(R.string.link_help);
+            default -> getContext().getResources().getString(R.string.settings_item_default);
+        };
     }
 
     private void openURL(String url) {
@@ -115,7 +112,7 @@ public class SettingsAdapter extends ArrayAdapter<String> {
         s.setChecked(option);
         s.setOnCheckedChangeListener((buttonView, isChecked) -> {
             manager.put(key, !option);
-            if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES) || key.equals(KEY_THEME)) {
+            if (key.equals(SettingsStorageManager.KEY_RECOGNIZE_NAMES)) {
                 Toast.makeText(getContext(), "You will see changes after app restarting", Toast.LENGTH_LONG).show();
             }
         });

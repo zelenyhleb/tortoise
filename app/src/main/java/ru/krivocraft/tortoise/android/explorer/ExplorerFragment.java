@@ -23,11 +23,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.BaseFragment;
 import ru.krivocraft.tortoise.android.editors.TrackListEditorActivity;
@@ -74,10 +77,6 @@ public class ExplorerFragment extends BaseFragment {
         playButton.setOnClickListener(v -> playAll(v.getContext()));
 
         tabLayout = view.findViewById(R.id.explorer_tabs);
-
-        if (getSettingsManager().get(SettingsStorageManager.KEY_THEME, false)) {
-            tabLayout.setTabTextColors(R.color.black, R.color.black);
-        }
 
         if (tintColor != 0) {
             if (addButton != null) {

@@ -40,15 +40,15 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class NotificationManager {
 
     private static final int NOTIFY_ID = 124;
-    private Service context;
-    private NotificationCompat.Action playAction;
-    private NotificationCompat.Action pauseAction;
-    private NotificationCompat.Action nextAction;
-    private NotificationCompat.Action previousAction;
-    private NotificationCompat.Action stopAction;
-    private TracksStorageManager tracksStorageManager;
-    private Colors colors;
-    private android.app.NotificationManager notificationManager;
+    private final Service context;
+    private final NotificationCompat.Action playAction;
+    private final NotificationCompat.Action pauseAction;
+    private final NotificationCompat.Action nextAction;
+    private final NotificationCompat.Action previousAction;
+    private final NotificationCompat.Action stopAction;
+    private final TracksStorageManager tracksStorageManager;
+    private final Colors colors;
+    private final android.app.NotificationManager notificationManager;
 
 
     public NotificationManager(Service context) {

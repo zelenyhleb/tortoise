@@ -24,8 +24,11 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
+
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.session.MediaButtonReceiver;
+
 import ru.krivocraft.tortoise.android.MainActivity;
 import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.core.model.Track;
@@ -39,6 +42,7 @@ import ru.krivocraft.tortoise.android.thumbnail.Colors;
 import java.util.Objects;
 
 import static android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY;
+import static ru.krivocraft.tortoise.core.model.TrackList.TRACK_LIST_CUSTOM;
 
 public class MediaService {
 
@@ -98,8 +102,16 @@ public class MediaService {
         TracksProvider tracksProvider = new TracksProvider(context);
         tracksProvider.search();
 
-
         initReceivers();
+        restorePlayback(context);
+    }
+
+    private void restorePlayback(Context context) {
+        new ActualStamp(new SharedPreferencesSettings(context), e -> Log.e("err", e)).restore(s -> {
+            playback.setTrackList(new TrackList("Restored", s.order(), TRACK_LIST_CUSTOM), true);
+            playback.skipTo(s.index());
+            playback.seekTo(s.position());
+        });
     }
 
     private void onTrackChanged(Track track) {

@@ -214,11 +214,7 @@ public class LargePlayerFragment extends BaseFragment implements SeekBar.OnSeekB
             if (track.isLiked()) {
                 ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, tintColor)));
             } else {
-                if (getSettingsManager().get(SettingsStorageManager.KEY_THEME, false)) {
-                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.black)));
-                } else {
-                    ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
-                }
+                ImageViewCompat.setImageTintList(buttonLike, ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grey700)));
             }
         }
     }

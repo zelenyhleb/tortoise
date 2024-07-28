@@ -28,12 +28,14 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.player.AndroidMediaService;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
@@ -45,7 +47,6 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    private SettingsStorageManager settingsManager;
     private TracksStorageManager tracksStorageManager;
     private Colors colors;
     private MediaBrowserCompat mediaBrowser;
@@ -58,30 +59,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsManager = new SettingsStorageManager(new SharedPreferencesSettings(this));
         colors = new Colors(this);
         tracksStorageManager = new TracksStorageManager(this);
-        setTheme();
-    }
-
-    public final void setTheme() {
-        boolean useLightTheme = settingsManager.get(SettingsStorageManager.KEY_THEME, false);
-
-        if (useLightTheme) {
-            setTheme(R.style.LightTheme);
-        } else {
-            setTheme(R.style.DarkTheme);
-        }
-
+        setTheme(R.style.DarkTheme);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         requestStoragePermission();
-
-        IntentFilter colorFilter = new IntentFilter(Colors.ACTION_RESULT_COLOR);
-        registerReceiver(interfaceRecolorReceiver, colorFilter);
 
         sendBroadcast(new Intent(Colors.ACTION_REQUEST_COLOR));
     }
@@ -141,29 +127,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            boolean useLightTheme = settingsManager.get(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                int color = colors.getColor(
-                        tracksStorageManager
-                                .getTrack(tracksStorageManager
-                                        .getReference(metadata
-                                                .getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)))
-                                .getColor());
-                recolorInterface(color);
+            if (metadata == null) {
+                return;
             }
+            int color = colors.getColor(
+                    tracksStorageManager
+                            .getTrack(tracksStorageManager
+                                    .getReference(metadata
+                                            .getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)))
+                            .getColor());
             BaseActivity.this.onMetadataChanged(metadata);
         }
     };
-
-    private void recolorInterface(int color) {
-        getWindow().setNavigationBarColor(color);
-        getWindow().setStatusBarColor(color);
-
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setBackgroundDrawable(new ColorDrawable(color));
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -195,20 +170,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mediaController.unregisterCallback(callback);
-        unregisterReceiver(interfaceRecolorReceiver);
     }
 
-    private final BroadcastReceiver interfaceRecolorReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            boolean useLightTheme = settingsManager.get(SettingsStorageManager.KEY_THEME, false);
-            if (useLightTheme && Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                int color = intent.getIntExtra(Colors.EXTRA_COLOR, -1);
-                if (color != -1) {
-                    int formattedColor = colors.getColor(color);
-                    recolorInterface(formattedColor);
-                }
-            }
-        }
-    };
 }

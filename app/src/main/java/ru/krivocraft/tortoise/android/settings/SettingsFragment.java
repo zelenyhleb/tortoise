@@ -22,7 +22,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
 import androidx.annotation.NonNull;
+
 import ru.krivocraft.tortoise.R;
 import ru.krivocraft.tortoise.android.BaseFragment;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
@@ -49,10 +51,9 @@ public class SettingsFragment extends BaseFragment {
     }
 
     private List<String> getSettings() {
-        return Arrays.asList(SettingsStorageManager.KEY_THEME,
+        return Arrays.asList(
                 SettingsStorageManager.KEY_RECOGNIZE_NAMES,
                 SettingsStorageManager.KEY_SHOW_IGNORED,
-                SettingsStorageManager.KEY_ALTERNATIVE_SEEK,
                 Shuffle.KEY_SMART_SHUFFLE,
                 SettingsStorageManager.KEY_WEBSITE,
                 SettingsStorageManager.KEY_TELEGRAM,

@@ -39,7 +39,7 @@ public class ContentResolverSeek extends SeekTask<ContentResolver> {
         String[] projection = {
                 MediaStore.Audio.Media.DATA,
         };
-        final String sortOrder = MediaStore.Audio.AudioColumns.DATE_MODIFIED + " COLLATE LOCALIZED ASC";
+        final String sortOrder = MediaStore.Audio.AudioColumns.DATE_MODIFIED;
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(uri, projection, selection, null, sortOrder);
         List<String> paths = new LinkedList<>();

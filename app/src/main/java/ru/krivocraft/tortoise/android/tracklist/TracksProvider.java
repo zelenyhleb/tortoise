@@ -18,13 +18,12 @@ package ru.krivocraft.tortoise.android.tracklist;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
+
 import ru.krivocraft.tortoise.android.explorer.TrackListsStorageManager;
 import ru.krivocraft.tortoise.android.player.SharedPreferencesSettings;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.android.seek.ContentResolverSeek;
-import ru.krivocraft.tortoise.android.seek.FileSystemSeek;
 import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
 
 import java.util.ArrayList;
@@ -49,11 +48,7 @@ public class TracksProvider {
 
     public void search() {
         boolean recognize = settings.get(SettingsStorageManager.KEY_RECOGNIZE_NAMES, true);
-        if (settings.get(SettingsStorageManager.KEY_ALTERNATIVE_SEEK, false)) {
-            new ContentResolverSeek(this::manageStorage, recognize, context.getContentResolver()).execute();
-        } else {
-            new FileSystemSeek(this::manageStorage, recognize, Environment.getExternalStorageDirectory()).execute();
-        }
+        new ContentResolverSeek(this::manageStorage, recognize, context.getContentResolver()).execute();
     }
 
     private void manageStorage(List<Track> tracks) {

@@ -24,4 +24,6 @@ public abstract class WriteableSettings extends ReadOnlySettings {
 
     public abstract void write(String key, String value);
 
+    public abstract void reset(String key);
+
 }
