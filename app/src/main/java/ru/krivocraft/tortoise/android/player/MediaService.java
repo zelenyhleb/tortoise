@@ -111,6 +111,7 @@ public class MediaService {
             playback.setTrackList(new TrackList("Restored", s.order(), TRACK_LIST_CUSTOM), true);
             playback.skipTo(s.index());
             playback.seekTo(s.position());
+            playback.pause();
         });
     }
 
@@ -131,6 +132,7 @@ public class MediaService {
     private void onStop() {
         hideNotification();
         context.sendBroadcast(new Intent(MainActivity.ACTION_HIDE_PLAYER));
+        new ActualStamp(new SharedPreferencesSettings(context), e -> Log.e("err", e)).clear();
     }
 
     private void initReceivers() {
