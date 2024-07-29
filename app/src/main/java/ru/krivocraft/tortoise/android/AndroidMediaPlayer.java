@@ -17,6 +17,8 @@
 package ru.krivocraft.tortoise.android;
 
 
+import android.util.Log;
+
 import ru.krivocraft.tortoise.core.api.MediaPlayer;
 
 import java.io.IOException;
@@ -25,12 +27,10 @@ public class AndroidMediaPlayer implements MediaPlayer {
 
     private final android.media.MediaPlayer player;
     private final MediaPlayer.OnCompletedListener completed;
-    private final MediaPlayer.OnPreparedListener prepared;
 
-    public AndroidMediaPlayer(OnCompletedListener completed, OnPreparedListener prepared) {
+    public AndroidMediaPlayer(OnCompletedListener completed) {
         this.player = new android.media.MediaPlayer();
         this.completed = completed;
-        this.prepared = prepared;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class AndroidMediaPlayer implements MediaPlayer {
         try {
             player.setDataSource(uri);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("err", "prepare failure: ", e);
         }
     }
 
@@ -64,9 +64,12 @@ public class AndroidMediaPlayer implements MediaPlayer {
 
     @Override
     public void prepare() {
-        player.setOnPreparedListener(this::onPrepared);
         player.setOnCompletionListener(this::onCompletion);
-        player.prepareAsync();
+        try {
+            player.prepare();
+        } catch (IOException e) {
+            Log.e("err", "prepare failure: ", e);
+        }
     }
 
     @Override
@@ -98,7 +101,4 @@ public class AndroidMediaPlayer implements MediaPlayer {
         completed.onCompleted();
     }
 
-    public void onPrepared(android.media.MediaPlayer mediaPlayer) {
-        prepared.onPrepared();
-    }
 }
