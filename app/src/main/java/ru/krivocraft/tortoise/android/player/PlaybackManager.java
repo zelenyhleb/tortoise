@@ -23,9 +23,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.krivocraft.tortoise.android.AndroidAudioFocus;
 import ru.krivocraft.tortoise.android.AndroidMediaPlayer;
 import ru.krivocraft.tortoise.android.PlaybackState;
+import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
+import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
 import ru.krivocraft.tortoise.core.api.AudioFocus;
 import ru.krivocraft.tortoise.core.api.MediaPlayer;
 import ru.krivocraft.tortoise.core.api.Playback;
@@ -35,11 +40,6 @@ import ru.krivocraft.tortoise.core.model.LoopType;
 import ru.krivocraft.tortoise.core.model.Track;
 import ru.krivocraft.tortoise.core.model.TrackList;
 import ru.krivocraft.tortoise.core.rating.Shuffle;
-import ru.krivocraft.tortoise.android.settings.SettingsStorageManager;
-import ru.krivocraft.tortoise.android.tracklist.TracksStorageManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class PlaybackManager implements AudioFocus.ChangeListener, Playback {
 
@@ -61,7 +61,7 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
         this.playerStateCallback = playerStateCallback;
         this.playlistUpdateCallback = playlistUpdateCallback;
 
-        this.player = new AndroidMediaPlayer(this::proceed, this::play);
+        this.player = new AndroidMediaPlayer(this::proceed);
         this.playlist = TrackList.EMPTY;
 
         this.tracksStorageManager = new TracksStorageManager(context);
@@ -86,7 +86,6 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
 
             if (mediaChanged) {
                 start();
-                return;
             }
 
             player.play();
@@ -129,19 +128,19 @@ class PlaybackManager implements AudioFocus.ChangeListener, Playback {
     public void skipTo(int index) {
         int cursor = index;
         cursor = replaceCursorIfOutOfBounds(index, cursor);
-
-        if (!cursorOutOfBounds(cursor)) {
-            pause();
-            deselectCurrentTrack();
-            this.cursor = cursor;
-            if (!settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(selected()).isIgnored()) {
-                next();
-                return;
-            }
-            selectCurrentTrack();
-            playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(selected()));
-            play();
+        if (cursorOutOfBounds(cursor)) {
+            return;
         }
+        pause();
+        deselectCurrentTrack();
+        this.cursor = cursor;
+        if (!settings.read(SettingsStorageManager.KEY_SHOW_IGNORED, false) && tracksStorageManager.getTrack(selected()).isIgnored()) {
+            next();
+            return;
+        }
+        selectCurrentTrack();
+        playerStateCallback.onTrackChanged(tracksStorageManager.getTrack(selected()));
+        play();
     }
 
     private int replaceCursorIfOutOfBounds(int index, int cursor) {
